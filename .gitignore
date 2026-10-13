@@ -1,0 +1,14 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Pipeline run logs (may be large; regenerate any time)
+runs/
+
+# macOS / editor
+.DS_Store
+.vscode/
