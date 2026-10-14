@@ -75,7 +75,8 @@ GOOD_W = {
     "estimated_saving": {"status": "ESTIMATED", "amount": "10000.00", "currency": "AED",
                          "source_id": "TOOL:duty:76101000"},
     "procedure": STEPS,
-    "caveats": [{"note": "Duty estimated on BCD only.", "source_id": "TOOL:duty:76101000"}],
+        "caveats": [{"note": "Duty estimated on BCD only.", "source_id": "TOOL:duty:76101000"},
+                    {"note": "Verify the current issuing ministry.", "source_id": "P-UAE-ISSUER"}],
     "follow_up_questions": [],
     "gaps": [],
 }
@@ -96,6 +97,9 @@ bad = copy.deepcopy(GOOD_W); bad["procedure"] = []
 expect_problem("missing procedure", bad, w)
 bad = copy.deepcopy(GOOD_W); bad["procedure"][0]["source_id"] = "TOOL:duty:76101000"
 expect_problem("procedure step not from a passage", bad, w)
+bad = copy.deepcopy(GOOD_W)
+bad["caveats"] = [cv for cv in bad["caveats"] if cv["source_id"] != "P-UAE-ISSUER"]
+expect_problem("procedure without the issuer caveat", bad, w)
 
 ok = copy.deepcopy(GOOD_W); ok["estimated_saving"]["amount"] = "10,000"
 problems, _, _ = run(ok, w)

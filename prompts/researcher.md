@@ -8,7 +8,7 @@ Input: the Intake JSON and an EVIDENCE block built by code. Every evidence recor
 
 Use ONLY the evidence. Do not use outside knowledge for facts. Cite IDs exactly as written.
 
-Work in this order, and write one string per step in `reasoning` (so the output stays valid JSON and judges can still see it in the log):
+Work in this order, and write one string per step in `reasoning`: one or two short sentences per step, so the output stays short and valid JSON and judges can still see it in the log. Do not repeat the findings or caveats in full in `reasoning`.
 
 1. **Classification.** Choose the candidate whose description best matches `product_description` (and `hs_code_given`, if any). Decide from the descriptions alone, BEFORE reading any origin or duty result; never choose a line because its result is better. If `TOOL:tariff_lookup` notes a conflict between the HS code and the description, choose the best description match, set confidence to "medium" or lower, and add a follow-up question asking the user to confirm the code. If no candidate fits, set the `classification` values to REGULATORY_GAP_DETECTED and explain why in `gaps`.
 2. **Preference.** If the chosen record is an `EXC-IN-...` record, or its CEPA status is EXCLUDED, the product gets no CEPA preference and the MFN rate applies, whatever the origin result.
@@ -18,7 +18,7 @@ Work in this order, and write one string per step in `reasoning` (so the output 
    - FAILS → DOES_NOT_QUALIFY
    - INSUFFICIENT_DATA → NEEDS_MORE_DATA
    - RULE_GAP → REGULATORY_GAP_DETECTED (also set `origin_rule.rule` to REGULATORY_GAP_DETECTED and add a gap; this is a gap in Mansha's data, not a question for the user)
-   - excluded line (no origin result) → NOT_APPLICABLE
+   - excluded line (no origin result) → NOT_APPLICABLE; `origin_rule.rule` is also NOT_APPLICABLE, and both cite the tariff line record
      `basis` restates the calculator's checks: each check's result with the totals and percentages it reports. For DOES_NOT_QUALIFY, list every failed check.
 5. **Saving.** From `TOOL:duty:<line>` for the chosen line:
    - duty ESTIMATED and origin QUALIFIES, NEEDS_MORE_DATA or REGULATORY_GAP_DETECTED → status ESTIMATED, `amount` and `currency` copied from the tool (the saving available if the product qualifies)
@@ -26,8 +26,13 @@ Work in this order, and write one string per step in `reasoning` (so the output 
    - duty NO_PREFERENCE → status NO_PREFERENCE, `amount` and `currency` null
    - duty NEEDS_VALUE → status NEEDS_VALUE, `amount` and `currency` null, and add a follow-up question asking for the shipment value
    - duty REGULATORY_GAP_DETECTED → status REGULATORY_GAP_DETECTED, `amount` and `currency` null, and add a gap
-6. **Procedure.** Only if the origin status is QUALIFIES or NEEDS_MORE_DATA: the steps to claim the CEPA rate, in order, taken from the `P-...` passages (who issues the certificate, prerequisites, how to apply, what the importer does, what records to keep). Include a fee or timeline only if the passage gives it. For any other status, `procedure` is an empty list.
-7. **Caveats.** Copy the tool and passage notes that change how the answer should be read (for example: duty estimated on BCD only, India charges duty on the CIF value, the result relies on the exporter's own declaration, free-zone factories, an interpretation of a rule), each with its source.
+6. **Procedure.** Only if the origin status is QUALIFIES or NEEDS_MORE_DATA: the steps to claim the CEPA rate, in order, taken from the `P-...` passages (who issues the certificate, prerequisites, how to apply, what the importer does, what records to keep). Rules for each step:
+   - It cites the passage that states its facts. If a step needs facts from two passages, split it into two steps.
+   - Name the authority only as the cited passage names it.
+   - Keep qualifiers such as "unconfirmed" or "reportedly" from the passage.
+   - Include a fee or timeline only if the cited passage gives it. Give a fee range as the passage states it; never pick a fee band yourself.
+     When `procedure` is not empty, also add the `P-UAE-ISSUER` note (verify the current issuing ministry) to `caveats`. For any other status, `procedure` is an empty list.
+7. **Caveats.** Copy the tool and passage notes that change how this result should be read (for example: duty estimated on BCD only, India charges duty on the CIF value, the result relies on the exporter's own declaration, free-zone factories, an interpretation of a rule), each with its source. Include each point once, and skip notes that do not apply to this result.
 
 Return JSON only:
 

@@ -44,6 +44,8 @@ VERDICT_MAP = {
     GAP: GAP,
 }
 PROCEDURE_STATUSES = {"QUALIFIES", "NEEDS_MORE_DATA"}
+# UAE is always the exporting side, so every corridor's KB has this passage.
+ISSUER_PASSAGE_ID = "P-UAE-ISSUER"
 
 
 @dataclass
@@ -237,6 +239,10 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     for i, step in enumerate(data["procedure"]):
         if not str(step.get("source_id", "")).startswith("P-"):
             problems.append(f"procedure[{i}] must cite a P-... passage")
+        if (data["procedure"] and ISSUER_PASSAGE_ID in allowed
+            and not any(cv.get("source_id") == ISSUER_PASSAGE_ID for cv in data["caveats"])):
+            problems.append(f"the procedure leads to a certificate, so add a caveat citing {ISSUER_PASSAGE_ID} "
+                        "(verify the current issuing ministry)")
 
     # 7. Follow-up questions where the user must supply something
     if origin_exp == "NEEDS_MORE_DATA" and not data["follow_up_questions"]:
