@@ -108,6 +108,10 @@ check("saving written as '10,000' is accepted", not problems, problems)
 warn = copy.deepcopy(GOOD_W); warn["origin_result"]["basis"] = "VA 62% meets the 45% threshold."
 problems, warnings, _ = run(warn, w)
 check("number not in record -> warning, not problem", not problems and bool(warnings), (problems, warnings))
+warn = copy.deepcopy(GOOD_W); warn["procedure"][0]["authority"] = "Ministry of Economy"
+problems, warnings, _ = run(warn, w)
+check("authority not in passage -> warning, not problem", not problems and bool(warnings),
+      (problems, warnings))
 
 gap = copy.deepcopy(GOOD_W)
 gap["classification"] = {"tariff_line": GAP, "description": GAP, "confidence": "low",

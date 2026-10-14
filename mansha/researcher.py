@@ -253,6 +253,12 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
 
     # 8. Numbers must appear in the cited record (warnings, judged by QA)
     records = split_records(pack.text)
+    for i, st in enumerate(data["procedure"]):
+        auth = str(st.get("authority", "")).strip()
+        sid = st.get("source_id")
+        if auth and auth != GAP and sid in records and auth.lower() not in records[sid].lower():
+            warnings.append(f"procedure[{i}].authority {auth!r} is not named in {sid}; "
+                            "name it as the passage does")
     fields = [
         ("classification",
          f"{data['classification'].get('tariff_line', '')} {data['classification'].get('description', '')}",
