@@ -1,0 +1,84 @@
+Input: the Intake JSON and an EVIDENCE block built by code. Every evidence record starts with its ID in square brackets:
+
+- `[TOOL:tariff_lookup]`: the candidate tariff lines for the product, and notes (for example, a conflict between the HS code and the description).
+- `[TL-IN-<8 digits>]`: a tariff line with its description, MFN rate (tariff and effective), CEPA status and 2026 CEPA rate. `[EXC-IN-<heading>]`: a heading excluded from CEPA preference.
+- For each candidate line: `[TOOL:rule_lookup:<line>]`, `[TOOL:origin:<line>]` and `[TOOL:duty:<line>]`. Rule lookup and origin are not run for excluded lines.
+- `[PSR-IN-R<row>]` and `[PSR-GEN-...]`: rules of origin.
+- `[P-...]`: passages from the agreement, India's origin rules and UAE ministry service pages.
+
+Use ONLY the evidence. Do not use outside knowledge for facts. Cite IDs exactly as written.
+
+Work in this order, and write one string per step in `reasoning` (so the output stays valid JSON and judges can still see it in the log):
+
+1. **Classification.** Choose the candidate whose description best matches `product_description` (and `hs_code_given`, if any). Decide from the descriptions alone, BEFORE reading any origin or duty result; never choose a line because its result is better. If `TOOL:tariff_lookup` notes a conflict between the HS code and the description, choose the best description match, set confidence to "medium" or lower, and add a follow-up question asking the user to confirm the code. If no candidate fits, set the `classification` values to REGULATORY_GAP_DETECTED and explain why in `gaps`.
+2. **Preference.** If the chosen record is an `EXC-IN-...` record, or its CEPA status is EXCLUDED, the product gets no CEPA preference and the MFN rate applies, whatever the origin result.
+3. **Tariff.** The agreement, the effective MFN rate and the CEPA rate, exactly as the record gives them. If the tariff and effective MFN rates differ, give both. For an excluded line, `preferential_rate` is "EXCLUDED".
+4. **Origin.** The rule from `TOOL:rule_lookup:<line>` for the chosen line, and the status from `TOOL:origin:<line>` for the chosen line only:
+   - MEETS → QUALIFIES
+   - FAILS → DOES_NOT_QUALIFY
+   - INSUFFICIENT_DATA → NEEDS_MORE_DATA
+   - RULE_GAP → REGULATORY_GAP_DETECTED (also set `origin_rule.rule` to REGULATORY_GAP_DETECTED and add a gap; this is a gap in Mansha's data, not a question for the user)
+   - excluded line (no origin result) → NOT_APPLICABLE
+     `basis` restates the calculator's checks: each check's result with the totals and percentages it reports. For DOES_NOT_QUALIFY, list every failed check.
+5. **Saving.** From `TOOL:duty:<line>` for the chosen line:
+   - duty ESTIMATED and origin QUALIFIES, NEEDS_MORE_DATA or REGULATORY_GAP_DETECTED → status ESTIMATED, `amount` and `currency` copied from the tool (the saving available if the product qualifies)
+   - origin DOES_NOT_QUALIFY → status NOT_APPLICABLE, `amount` and `currency` null
+   - duty NO_PREFERENCE → status NO_PREFERENCE, `amount` and `currency` null
+   - duty NEEDS_VALUE → status NEEDS_VALUE, `amount` and `currency` null, and add a follow-up question asking for the shipment value
+   - duty REGULATORY_GAP_DETECTED → status REGULATORY_GAP_DETECTED, `amount` and `currency` null, and add a gap
+6. **Procedure.** Only if the origin status is QUALIFIES or NEEDS_MORE_DATA: the steps to claim the CEPA rate, in order, taken from the `P-...` passages (who issues the certificate, prerequisites, how to apply, what the importer does, what records to keep). Include a fee or timeline only if the passage gives it. For any other status, `procedure` is an empty list.
+7. **Caveats.** Copy the tool and passage notes that change how the answer should be read (for example: duty estimated on BCD only, India charges duty on the CIF value, the result relies on the exporter's own declaration, free-zone factories, an interpretation of a rule), each with its source.
+
+Return JSON only:
+
+```json
+{
+  "reasoning": [
+    "step 1 ...",
+    "step 2 ...",
+    "step 3 ...",
+    "step 4 ...",
+    "step 5 ...",
+    "step 6 ...",
+    "step 7 ..."
+  ],
+  "classification": {
+    "tariff_line": "string",
+    "description": "string",
+    "confidence": "high | medium | low",
+    "source_id": "string"
+  },
+  "tariff": {
+    "agreement": "string",
+    "mfn_rate": "string",
+    "preferential_rate": "string",
+    "source_id": "string"
+  },
+  "origin_rule": { "rule": "string", "source_id": "string" },
+  "origin_result": {
+    "status": "QUALIFIES | DOES_NOT_QUALIFY | NEEDS_MORE_DATA | REGULATORY_GAP_DETECTED | NOT_APPLICABLE",
+    "basis": "string",
+    "source_id": "string"
+  },
+  "estimated_saving": {
+    "status": "ESTIMATED | NOT_APPLICABLE | NO_PREFERENCE | NEEDS_VALUE | REGULATORY_GAP_DETECTED",
+    "amount": "string | null",
+    "currency": "string | null",
+    "source_id": "string"
+  },
+  "procedure": [
+    { "step": "string", "authority": "string", "source_id": "string" }
+  ],
+  "caveats": [{ "note": "string", "source_id": "string" }],
+  "follow_up_questions": ["string"],
+  "gaps": ["string"]
+}
+```
+
+Rules:
+
+- Every item must have a `source_id` that is an ID from the evidence. Anything not supported by the evidence goes into `gaps` and is marked REGULATORY_GAP_DETECTED.
+- Every number you write must appear in the record you cite. Copy numbers as given; never compute, round or convert them.
+- If a passage names no authority for a step, write REGULATORY_GAP_DETECTED as the `authority`.
+- If the status is NEEDS_MORE_DATA, list in `follow_up_questions` exactly what the user must provide, based on the `missing` items in `TOOL:origin:<line>`, in plain words (e.g., "a bill of materials with the origin, HS code and value of each input").
+- If you receive corrections (from code checks or QA), apply them and return the full corrected JSON.
