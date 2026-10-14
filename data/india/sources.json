@@ -1,0 +1,50 @@
+{
+  "AGR": {
+    "title": "India-UAE CEPA, Final Agreement (Chapter 3 and Annexes 3A-3E)",
+    "url": "https://www.moet.gov.ae/documents/20121/1347101/Final+Agreement_UAE+India+CEPA.pdf",
+    "tier": "PRIMARY",
+    "date": "In force 1 May 2022"
+  },
+  "R39": {
+    "title": "Notification 39/2022-Customs (N.T.): CEPA origin rules",
+    "url": "https://taxindiaonline.com/RC2/pdfdocs/cnt39_2022.pdf",
+    "tier": "PRIMARY-COPY",
+    "date": "30 Apr 2022"
+  },
+  "R39-G": {
+    "title": "Notification 39/2022-Customs (N.T.), Annexure-B: Product Specific Rules",
+    "url": "https://taxguru.in/wp-content/uploads/2022/05/Customs-Tariff-Determination-of-Origin-of-Goods-under-the-Comprehensive-Economic-Partnership-Agreement-between-India-and-the-United-Arab-Emirates-Rules-2022-Annexure.pdf",
+    "tier": "PRIMARY-COPY",
+    "date": "30 Apr 2022"
+  },
+  "N09": {
+    "title": "Notification 09/2026-Customs (5th tranche of CEPA rates, Tables I-III)",
+    "url": "https://info.eepcindia.org/files/1775032740.pdf",
+    "tier": "PRIMARY-COPY",
+    "date": "31 Mar 2026; in force 1 Apr 2026"
+  },
+  "A2A": {
+    "title": "CEPA Annex 2A: Schedule of Specific Tariff Commitments of India",
+    "url": "https://leatherindia.org/wp-content/uploads/2026/02/Schedule-of-India.pdf",
+    "tier": "PRIMARY-COPY",
+    "date": "2022"
+  },
+  "CBIC-TARIFF": {
+    "title": "CBIC Customs Tariff of India, First Schedule (tariff as on 30.06.2024)",
+    "url": "https://www.cbic.gov.in/entities/cbic-content-mst/MTcyNDYy",
+    "tier": "PRIMARY",
+    "date": "30 Jun 2024"
+  },
+  "FB2025": {
+    "title": "Finance Bill 2025 (as introduced)",
+    "url": "https://www.indiabudget.gov.in/budget2025-26/doc/Finance_Bill.pdf",
+    "tier": "PRIMARY",
+    "date": "2025"
+  },
+  "N45-2025": {
+    "title": "Notification 45/2025-Customs (effective rates of customs duty)",
+    "url": "https://a2ztaxcorp.net/wp-content/uploads/2025/10/CBIC-NNo.-45-2025-%E2%80%93Customs.pdf",
+    "tier": "PRIMARY-COPY",
+    "date": "24 Oct 2025"
+  }
+}

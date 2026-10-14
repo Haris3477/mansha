@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "corridor": "UAE -> India",
+    "source": "Notification 39/2022-Customs (N.T.), Annexure-B (Product Specific Rules), read in full",
+    "coverage": "PARTIAL. Only the rows below are loaded. For a chapter not in chapters_fully_checked, lookup must return REGULATORY_GAP_DETECTED ('rule not loaded'), not 'no rule'.",
+    "chapters_fully_checked": [
+      "19",
+      "32",
+      "33",
+      "39",
+      "73",
+      "76",
+      "84",
+      "85",
+      "94"
+    ],
+    "chapters_fully_checked_note": "These chapters have no heading- or subheading-level rows in Annexure-B, so the chapter row governs every line in them.",
+    "lookup_order": [
+      "subheading",
+      "heading",
+      "heading_range",
+      "ex_chapter",
+      "chapter"
+    ],
+    "no_default_rule": "No residual rule was found in AGR Art. 3.2 or the Annex 3B notes. No match means REGULATORY_GAP_DETECTED, never an assumed 'VA 40%'.",
+    "hs_edition_note": "The PSR table uses HS 2017 codes; the tariff uses HS 2022. Irrelevant for chapter-level rows; needs a correlation table for finer rows.",
+    "interpretations": [
+      "'+' in a rule is read as 'and' (both tests must pass). The text does not define '+'; this is an interpretation and must be labelled as such."
+    ]
+  },
+  "general_rules": [
+    {
+      "id": "PSR-GEN-FOB",
+      "text": "The percentages are on an FOB basis.",
+      "quote_status": "V",
+      "source_key": "R39-G",
+      "provision": "Annexure-B Rule 1(f)"
+    },
+    {
+      "id": "PSR-GEN-EXW",
+      "text": "However, in the case that Ex Works price is the basis, the value addition shall be 5 percentage points lower.",
+      "quote_status": "V",
+      "source_key": "R39-G",
+      "provision": "Annexure-B Rule 1(f)",
+      "params": { "exworks_reduction_pts": 5 }
+    },
+    {
+      "id": "PSR-GEN-HS71",
+      "text": "Notwithstanding the above, in the case of products under HS 71, the value addition must be on the basis of FOB value;",
+      "quote_status": "V",
+      "source_key": "R39-G",
+      "provision": "Annexure-B Rule 1(f)",
+      "params": { "fob_only_chapters": ["71"] }
+    }
+  ],
+  "rules": [
+    {
+      "id": "PSR-IN-R028",
+      "row": 28,
+      "scope": { "type": "chapter", "chapter": "19" },
+      "rule_text": "CTH + VA 40%",
+      "alternatives": [[{ "test": "CTH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": []
+    },
+    {
+      "id": "PSR-IN-R045",
+      "row": 45,
+      "scope": { "type": "chapter", "chapter": "32" },
+      "rule_text": "CTSH + VA 40%",
+      "alternatives": [[{ "test": "CTSH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": []
+    },
+    {
+      "id": "PSR-IN-R046",
+      "row": 46,
+      "scope": { "type": "chapter", "chapter": "33" },
+      "rule_text": "CTSH + VA 40%",
+      "alternatives": [[{ "test": "CTSH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": []
+    },
+    {
+      "id": "PSR-IN-R052",
+      "row": 52,
+      "scope": { "type": "chapter", "chapter": "39" },
+      "rule_text": "CTSH + VA 40%",
+      "alternatives": [[{ "test": "CTSH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": [
+        "Industry was consulted in 2025 on simplifying this rule; no decision found (UNCONFIRMED)."
+      ]
+    },
+    {
+      "id": "PSR-IN-R113",
+      "row": 113,
+      "scope": { "type": "chapter", "chapter": "73" },
+      "rule_text": "CTSH + VA 40%",
+      "alternatives": [[{ "test": "CTSH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": []
+    },
+    {
+      "id": "PSR-IN-R118",
+      "row": 118,
+      "scope": { "type": "chapter", "chapter": "76" },
+      "rule_text": "CTSH + VA 45%",
+      "alternatives": [[{ "test": "CTSH" }, { "test": "VA", "min_pct": 45 }]],
+      "source_key": "R39-G",
+      "notes": []
+    },
+    {
+      "id": "PSR-IN-R125",
+      "row": 125,
+      "scope": { "type": "chapter", "chapter": "84" },
+      "rule_text": "CTH + VA 40%",
+      "alternatives": [[{ "test": "CTH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": [
+        "The row reads 'Chapter 84 ... except for CTH + VA 40%' but lists no exceptions."
+      ]
+    },
+    {
+      "id": "PSR-IN-R126",
+      "row": 126,
+      "scope": { "type": "chapter", "chapter": "85" },
+      "rule_text": "CTH + VA 40%",
+      "alternatives": [[{ "test": "CTH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": []
+    },
+    {
+      "id": "PSR-IN-R136",
+      "row": 136,
+      "scope": { "type": "chapter", "chapter": "94" },
+      "rule_text": "CTH + VA 40%",
+      "alternatives": [[{ "test": "CTH" }, { "test": "VA", "min_pct": 40 }]],
+      "source_key": "R39-G",
+      "notes": []
+    }
+  ]
+}

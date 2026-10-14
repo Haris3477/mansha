@@ -1,0 +1,378 @@
+{
+  "metadata": {
+    "corridor": "UAE -> India",
+    "agreement": "India-UAE CEPA",
+    "data_checked": "2026-10-14",
+    "cepa_rate_basis": "Notification 22/2022-Customs as substituted by 09/2026-Customs (Table I), in force 1 Apr 2026",
+    "mfn_basis": "CBIC First Schedule (tariff as on 30.06.2024) updated with Finance Bill 2025, read with 45/2025-Customs",
+    "duty_scope": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+    "open_risks": [
+      "Notification 15/2026-Customs (amends 45/2025) not read: effective MFN rates could differ. Re-check before the demo.",
+      "MFN tariff changes taken from Finance Bills as introduced, not the enacted Acts.",
+      "14/2026-Customs code realignment read only in a secondary source; none of these lines reported as changed."
+    ]
+  },
+  "heading_exclusions": [
+    {
+      "heading": "3923",
+      "source_keys": ["N09", "A2A"],
+      "evidence": "No entries in 09/2026 Tables I-III; Annex 2A marks EXC."
+    },
+    {
+      "heading": "3924",
+      "source_keys": ["N09", "A2A"],
+      "evidence": "No entries in 09/2026 Tables I-III; Annex 2A marks EXC."
+    },
+    {
+      "heading": "3925",
+      "source_keys": ["N09", "A2A"],
+      "evidence": "No entries in 09/2026 Tables I-III; Annex 2A marks EXC."
+    },
+    {
+      "heading": "3303",
+      "source_keys": ["N09", "A2A"],
+      "evidence": "No entries in 09/2026 Tables I-III; Annex 2A marks EXC."
+    }
+  ],
+  "lines": [
+    {
+      "id": "TL-IN-19053100",
+      "tariff_line": "19053100",
+      "description": "Sweet biscuits",
+      "keywords": ["biscuit", "biscuits", "sweet biscuits", "cookies"],
+      "mfn": {
+        "tariff_rate_pct": 30,
+        "effective_rate_pct": 30,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 1185,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEP over 5 years", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": ["CBIC prints '*30%'; the asterisk footnote was not resolved."]
+    },
+    {
+      "id": "TL-IN-19059090",
+      "tariff_line": "19059090",
+      "description": "Other (bakers' wares)",
+      "keywords": ["bakery", "bakers wares", "baked goods"],
+      "mfn": {
+        "tariff_rate_pct": 30,
+        "effective_rate_pct": 30,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 1195,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEP over 5 years", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": []
+    },
+    {
+      "id": "TL-IN-76101000",
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "keywords": [
+        "aluminium",
+        "aluminum",
+        "window",
+        "windows",
+        "door",
+        "doors",
+        "frame",
+        "frames"
+      ],
+      "mfn": {
+        "tariff_rate_pct": 10,
+        "effective_rate_pct": 10,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 8301,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEP over 5 years", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": []
+    },
+    {
+      "id": "TL-IN-76151030",
+      "tariff_line": "76151030",
+      "description": "Other table, kitchen or household articles (aluminium)",
+      "keywords": [
+        "aluminium",
+        "aluminum",
+        "kitchenware",
+        "household",
+        "cookware",
+        "utensils"
+      ],
+      "mfn": {
+        "tariff_rate_pct": 20,
+        "effective_rate_pct": 20,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 8334,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEP over 5 years", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": []
+    },
+    {
+      "id": "TL-IN-76041010",
+      "tariff_line": "76041010",
+      "description": "Aluminium wire rods",
+      "keywords": ["aluminium", "aluminum", "wire rod", "wire rods"],
+      "mfn": {
+        "tariff_rate_pct": 7.5,
+        "effective_rate_pct": 7.5,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 3.75,
+        "table": "I",
+        "s_no": 8263,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEP over 10 years", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": []
+    },
+    {
+      "id": "TL-IN-73089090",
+      "tariff_line": "73089090",
+      "description": "Other structures of iron or steel",
+      "keywords": [
+        "steel",
+        "iron",
+        "structure",
+        "structures",
+        "steel structures",
+        "fabricated steel"
+      ],
+      "mfn": {
+        "tariff_rate_pct": 15,
+        "effective_rate_pct": 10,
+        "source_keys": ["CBIC-TARIFF", "FB2025", "N45-2025"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 7992,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEI", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": [
+        "Tariff rate 15% (Finance Bill 2025); effective rate 10% under 45/2025-Customs S.No. 216. Saving is measured from the effective rate."
+      ]
+    },
+    {
+      "id": "TL-IN-94036000",
+      "tariff_line": "94036000",
+      "description": "Other wooden furniture",
+      "keywords": ["furniture", "wooden", "wood"],
+      "mfn": {
+        "tariff_rate_pct": 20,
+        "effective_rate_pct": 20,
+        "source_keys": ["CBIC-TARIFF", "FB2025"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 12.5,
+        "table": "I",
+        "s_no": 10751,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TR", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": ["Partial reduction, not elimination."]
+    },
+    {
+      "id": "TL-IN-39239090",
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "keywords": ["plastic", "packing", "packaging", "container"],
+      "mfn": {
+        "tariff_rate_pct": 15,
+        "effective_rate_pct": 15,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "EXCLUDED",
+        "rate_pct": null,
+        "table": null,
+        "s_no": null,
+        "source_keys": ["N09", "A2A"]
+      },
+      "staging": { "category": "EXC", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": [
+        "Excluded: MFN applies even if the origin rule is met.",
+        "Description to verify word for word against CBIC chapter 39."
+      ]
+    },
+    {
+      "id": "TL-IN-33030090",
+      "tariff_line": "33030090",
+      "description": "Other perfumes and toilet waters",
+      "keywords": ["perfume", "perfumes", "fragrance", "toilet water"],
+      "mfn": {
+        "tariff_rate_pct": 20,
+        "effective_rate_pct": 20,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "EXCLUDED",
+        "rate_pct": null,
+        "table": null,
+        "s_no": null,
+        "source_keys": ["N09", "A2A"]
+      },
+      "staging": { "category": "EXC", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": ["Excluded: MFN applies even if the origin rule is met."]
+    },
+    {
+      "id": "TL-IN-33049990",
+      "tariff_line": "33049990",
+      "description": "Other beauty or make-up preparations",
+      "keywords": ["cosmetics", "make-up", "makeup", "beauty"],
+      "mfn": {
+        "tariff_rate_pct": 20,
+        "effective_rate_pct": 20,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 3615,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEI", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": []
+    },
+    {
+      "id": "TL-IN-32091010",
+      "tariff_line": "32091010",
+      "description": "Acrylic emulsion (paint)",
+      "keywords": ["paint", "acrylic", "emulsion"],
+      "mfn": {
+        "tariff_rate_pct": 10,
+        "effective_rate_pct": 10,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 3502,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEI", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": []
+    },
+    {
+      "id": "TL-IN-85044030",
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "keywords": ["charger", "chargers", "battery charger"],
+      "mfn": {
+        "tariff_rate_pct": 20,
+        "effective_rate_pct": 20,
+        "source_keys": ["CBIC-TARIFF", "N45-2025"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 9745,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEI", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": [
+        "45/2025 S.No. 323 gives 15% only for EV manufacture; general rate 20%.",
+        "Anti-dumping duty not checked."
+      ]
+    },
+    {
+      "id": "TL-IN-85171300",
+      "tariff_line": "85171300",
+      "description": "Smartphones",
+      "keywords": ["smartphone", "smartphones", "mobile phone", "phone"],
+      "mfn": {
+        "tariff_rate_pct": 20,
+        "effective_rate_pct": 20,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 9823,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEI", "source_keys": ["A2A"] },
+      "hs2017_code": "85171211",
+      "confidence": "medium",
+      "notes": ["Annex 2A lists this under HS-2017 code 8517 12 11."]
+    },
+    {
+      "id": "TL-IN-84713010",
+      "tariff_line": "84713010",
+      "description": "Personal computer",
+      "keywords": ["computer", "laptop", "pc"],
+      "mfn": {
+        "tariff_rate_pct": 0,
+        "effective_rate_pct": 0,
+        "source_keys": ["CBIC-TARIFF"]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 9482,
+        "source_keys": ["N09"]
+      },
+      "staging": { "category": "TEI", "source_keys": ["A2A"] },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": ["MFN is already free: no duty to save."]
+    }
+  ]
+}
