@@ -46,7 +46,8 @@ VERDICT_MAP = {
 PROCEDURE_STATUSES = {"QUALIFIES", "NEEDS_MORE_DATA"}
 # UAE is always the exporting side, so every corridor's KB has this passage.
 ISSUER_PASSAGE_ID = "P-UAE-ISSUER"
-
+# Tool records a procedure step may cite besides P-... passages.
+PROCEDURE_TOOL_IDS = {"TOOL:coo_fee"}
 
 @dataclass
 class ResearcherResult:
@@ -237,11 +238,12 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     if origin_exp not in PROCEDURE_STATUSES and data["procedure"]:
         problems.append(f"procedure must be an empty list when the status is {origin_exp}")
     for i, step in enumerate(data["procedure"]):
-        if not str(step.get("source_id", "")).startswith("P-"):
-            problems.append(f"procedure[{i}] must cite a P-... passage")
-        if (data["procedure"] and ISSUER_PASSAGE_ID in allowed
+        sid = str(step.get("source_id", ""))
+        if not (sid.startswith("P-") or sid in PROCEDURE_TOOL_IDS):
+            problems.append(f"procedure[{i}] must cite a P-... passage or TOOL:coo_fee")
+    if (data["procedure"] and ISSUER_PASSAGE_ID in allowed
             and not any(cv.get("source_id") == ISSUER_PASSAGE_ID for cv in data["caveats"])):
-            problems.append(f"the procedure leads to a certificate, so add a caveat citing {ISSUER_PASSAGE_ID} "
+        problems.append(f"the procedure leads to a certificate, so add a caveat citing {ISSUER_PASSAGE_ID} "
                         "(verify the current issuing ministry)")
 
     # 7. Follow-up questions where the user must supply something

@@ -63,12 +63,15 @@ check("windows: candidates come before tool results",
       w.text.index("[TL-IN-76101000]") < w.text.index("[TOOL:origin:76101000]"))
 names = supplier_names("samples/windows_qualifies")
 check("windows: no supplier name in evidence", not any(n in w.text for n in names))
+check("windows: certificate fee ESTIMATED", status(w, "TOOL:coo_fee") == "ESTIMATED")
+check("windows: raw fee bands hidden from the model", "fee_bands_aed" not in w.text)
 
 print("\n== Windows, no files, no shipment value")
 wn = build_evidence(WINDOWS_NO_VALUE, None)
 common_checks("windows-nodata", wn)
 check("windows-nodata: origin INSUFFICIENT_DATA", status(wn, "TOOL:origin:76101000") == "INSUFFICIENT_DATA")
 check("windows-nodata: duty NEEDS_VALUE", status(wn, "TOOL:duty:76101000") == "NEEDS_VALUE")
+check("windows-nodata: fee NEEDS_VALUE", status(wn, "TOOL:coo_fee") == "NEEDS_VALUE")
 
 print("\n== Chargers, repacked")
 c = build_evidence(CHARGERS, "samples/chargers_repacked")

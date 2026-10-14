@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from mansha.kb import load_corridor
+from mansha.tools.coo_fee import certificate_fee
 from mansha.tools.duty_estimate import duty_estimate
 from mansha.tools.origin_calculator import origin_from_folder
 from mansha.tools.rule_lookup import rule_lookup
@@ -24,6 +25,8 @@ from mansha.tools.tariff_lookup import tariff_lookup
 HEADER_RE = re.compile(r"^\[([^\]\n]+)\]", re.MULTILINE)
 
 EXCLUDED_TEXT = "EXCLUDED (no preferential rate; the normal MFN rate applies)"
+# Passage parameters that a tool computes from; the model sees the tool's result instead.
+TOOL_COMPUTED_PARAMS = {"fee_bands_aed"}  # -> TOOL:coo_fee
 
 
 @dataclass
@@ -218,7 +221,18 @@ def render_duty(d: dict) -> list[str]:
         lines.append("shipment value: not given")
     lines.append(bullets("notes", d.get("notes")))
     return lines
-
+def render_fee(f: dict) -> list[str]:
+    lines = [f"status: {f.get('status')}"]
+    if f.get("fee_aed") is not None:
+        band = (f"up to AED {fmt_num(f['band_max_aed'])}" if f.get("band_max_aed") is not None
+                else "top band, no upper limit")
+        lines += [f"certificate fee: AED {f['fee_aed']} (band: invoice value {band})",
+                  f"invoice value used: {f.get('invoice_value')} AED"]
+    rng = f.get("fee_range_aed") or {}
+    if rng:
+        lines.append(f"fee range of the service: AED {rng['min']} to AED {rng['max']}")
+    lines.append(bullets("notes", f.get("notes")))
+    return lines
 
 def render_psr(rule: dict) -> list[str]:
     scope = dict(rule.get("scope") or {})
@@ -254,8 +268,10 @@ def render_passage(p: dict) -> list[str]:
     if p.get("items"):
         lines.append(bullets("items", [render_item(i) for i in p["items"]]))
     lines.append(f"summary: {p.get('summary')}")
-    if p.get("params"):
-        lines.append(render_params(p["params"]))
+    # Filter out parameters that the tool computes.
+    params = {k: v for k, v in (p.get("params") or {}).items() if k not in TOOL_COMPUTED_PARAMS}
+    if params:
+        lines.append(render_params(params))
     lines.append(bullets("notes", p.get("notes")))
     return lines
 
@@ -340,6 +356,12 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
         d = duty_estimate(line, intake.get("shipment_value"), corridor).to_dict()
         tool_results[d["tool_id"]] = d
         b.add(d["tool_id"], render_duty(d), d.get("sources"))
+
+    # 2b. Certificate fee: once per request (depends on the shipment, not the line).
+    b.section("CERTIFICATE FEE")
+    f = certificate_fee(intake.get("shipment_value"), corridor).to_dict()
+    tool_results[f["tool_id"]] = f
+    b.add(f["tool_id"], render_fee(f), f.get("sources"))
 
     # 3. Rules of origin (deduplicated) and the general rules.
     b.section("RULES OF ORIGIN")

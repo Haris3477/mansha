@@ -3,6 +3,7 @@ Input: the Intake JSON and an EVIDENCE block built by code. Every evidence recor
 - `[TOOL:tariff_lookup]`: the candidate tariff lines for the product, and notes (for example, a conflict between the HS code and the description).
 - `[TL-IN-<8 digits>]`: a tariff line with its description, MFN rate (tariff and effective), CEPA status and 2026 CEPA rate. `[EXC-IN-<heading>]`: a heading excluded from CEPA preference.
 - For each candidate line: `[TOOL:rule_lookup:<line>]`, `[TOOL:origin:<line>]` and `[TOOL:duty:<line>]`. Rule lookup and origin are not run for excluded lines.
+- `[TOOL:coo_fee]`: the certificate-of-origin fee for the shipment value (or the fee range, if the value is missing or not in AED).
 - `[PSR-IN-R<row>]` and `[PSR-GEN-...]`: rules of origin.
 - `[P-...]`: passages from the agreement, India's origin rules and UAE ministry service pages.
 
@@ -30,7 +31,8 @@ Work in this order, and write one string per step in `reasoning`: one or two sho
    - It cites the passage that states its facts. If a step needs facts from two passages, split it into two steps.
    - Name the authority only as the cited passage names it.
    - Keep qualifiers such as "unconfirmed" or "reportedly" from the passage.
-   - Include a fee or timeline only if the cited passage gives it. Give a fee range as the passage states it; never pick a fee band yourself.
+   - Include a timeline only if the cited passage gives it.
+   - Put the certificate fee in its own step citing `TOOL:coo_fee`: give its fee if its status is ESTIMATED, otherwise the fee range it reports. Never pick a fee band yourself.
      When `procedure` is not empty, also add the `P-UAE-ISSUER` note (verify the current issuing ministry) to `caveats`. For any other status, `procedure` is an empty list.
 7. **Caveats.** Copy the tool and passage notes that change how this result should be read (for example: duty estimated on BCD only, India charges duty on the CIF value, the result relies on the exporter's own declaration, free-zone factories, an interpretation of a rule), each with its source. Include each point once, and skip notes that do not apply to this result.
 

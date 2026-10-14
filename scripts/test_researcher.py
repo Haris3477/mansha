@@ -100,6 +100,11 @@ expect_problem("procedure step not from a passage", bad, w)
 bad = copy.deepcopy(GOOD_W)
 bad["caveats"] = [cv for cv in bad["caveats"] if cv["source_id"] != "P-UAE-ISSUER"]
 expect_problem("procedure without the issuer caveat", bad, w)
+ok = copy.deepcopy(GOOD_W)
+ok["procedure"].append({"step": "Pay the certificate fee of AED 50.", "authority": "the ministry",
+                        "source_id": "TOOL:coo_fee"})
+problems, warnings, _ = run(ok, w)
+check("fee step citing TOOL:coo_fee accepted", not problems and not warnings, (problems, warnings))
 
 ok = copy.deepcopy(GOOD_W); ok["estimated_saving"]["amount"] = "10,000"
 problems, _, _ = run(ok, w)
