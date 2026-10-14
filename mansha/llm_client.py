@@ -24,11 +24,11 @@ logger = logging.getLogger("mansha.llm")
 # auto:long has no Groq models, so it can grow on a truncation retry.
 CHAIN_LIMITS: dict[str, dict[str, int]] = {
     "auto:qa": {"default": 1000, "ceiling": 1000},
-    "auto:long": {"default": 4000, "ceiling": 8000},
+    "auto:long": {"default": 8000, "ceiling": 16000},
 }
 
 # The router's own fallback budget is 45 s; leave headroom on top of it.
-REQUEST_TIMEOUT_S = 120
+REQUEST_TIMEOUT_S = 300  # Nemotron (reasoning model) needs ~100-200 s for long JSON; Gemini ~20 s
 
 
 class LLMCallError(Exception):
