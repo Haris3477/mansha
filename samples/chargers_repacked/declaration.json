@@ -1,0 +1,12 @@
+{
+  "product": "Battery chargers, imported and repacked (synthetic test batch)",
+  "price_basis": "FOB",
+  "price": 50000,
+  "currency": "AED",
+  "final_manufacture_in_uae": false,
+  "factory_in_free_zone": false,
+  "operations": ["b", "k", "l"],
+  "operations_description": "Imported chargers repacked into retail boxes and labelled",
+  "direct_labour": null,
+  "direct_overhead": null
+}
