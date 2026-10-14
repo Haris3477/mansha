@@ -17,6 +17,12 @@
     "tier": "PRIMARY-COPY",
     "date": "30 Apr 2022"
   },
+  "N22": {
+    "title": "Notification 22/2022-Customs (CEPA preferential rates, principal notification)",
+    "url": "https://taxindiaonline.com/RC2/pdfdocs/ctariff22_022.pdf",
+    "tier": "PRIMARY-COPY",
+    "date": "30 Apr 2022; in force 1 May 2022"
+  },
   "N09": {
     "title": "Notification 09/2026-Customs (5th tranche of CEPA rates, Tables I-III)",
     "url": "https://info.eepcindia.org/files/1775032740.pdf",
@@ -46,5 +52,65 @@
     "url": "https://a2ztaxcorp.net/wp-content/uploads/2025/10/CBIC-NNo.-45-2025-%E2%80%93Customs.pdf",
     "tier": "PRIMARY-COPY",
     "date": "24 Oct 2025"
+  },
+  "CTA-2017": {
+    "title": "Taxation Laws (Amendment) Act 2017 (Customs Tariff Act s.3(7)-(9): IGST and compensation cess on imports)",
+    "url": "https://PRSINDIA.org/files/bills_acts/bills_parliament/2017/Taxation%20Laws%20%28Amendment%29%20Act,%202017.pdf",
+    "tier": "PRIMARY-COPY",
+    "date": "2017"
+  },
+  "CAROTAR-BLR": {
+    "title": "CAROTAR 2020 (Notification 81/2020-Customs (N.T.)): Bangalore Customs presentation",
+    "url": "https://bangalorecustoms.gov.in/wp-content/uploads/2024/02/CAROTAR-221023-1.pdf",
+    "tier": "PRIMARY",
+    "date": "Rules in force 21 Sep 2020"
+  },
+  "CBIC-INSTR-28": {
+    "title": "CBIC Instruction 28/2022-Customs on e-certificates under the India-UAE CEPA (LiveLaw report)",
+    "url": "https://www.livelaw.in/amp/news-updates/cbic-acceptance-e-coo-issued-india-uae-cepa-electronic-certificate-of-origin-212723",
+    "tier": "UNCONFIRMED",
+    "date": "27 Oct 2022"
+  },
+  "MOET-COO-INDIA": {
+    "title": "UAE Ministry e-service: Certificate of Origin for India",
+    "url": "https://www.moet.gov.ae/en/w/certificate-of-origin-for-india",
+    "tier": "PRIMARY",
+    "date": "Read 14 Oct 2026"
+  },
+  "MOET-ISSUE-COO": {
+    "title": "UAE Ministry e-service: Issue a Certificate of Origin",
+    "url": "https://www.moet.gov.ae/en/w/request-a-certificate-of-origin",
+    "tier": "PRIMARY",
+    "date": "Read 14 Oct 2026"
+  },
+  "MOET-FACTORY-REG": {
+    "title": "UAE Ministry e-service: Factory Registration",
+    "url": "https://www.moet.gov.ae/en/w/factory-registration-1",
+    "tier": "PRIMARY",
+    "date": "Page stamp 13 Oct 2026"
+  },
+  "MOET-AMEND-COO": {
+    "title": "UAE Ministry e-service: Amend Certificate of Origin",
+    "url": "https://www.moet.gov.ae/en/w/amend-certificate-of-origin",
+    "tier": "PRIMARY",
+    "date": "Read 14 Oct 2026"
+  },
+  "CR208-2025": {
+    "title": "Cabinet Resolution 208/2025: fees for services of the Ministry of Foreign Trade (fee schedule)",
+    "url": "https://uaelegislation.gov.ae/en/legislations/3973/regulations/1383/download",
+    "tier": "PRIMARY",
+    "date": "22 Dec 2025; effective 1 Jan 2026"
+  },
+  "CR43-2022": {
+    "title": "Cabinet Resolution 43/2022: Executive Regulation of the Rules and Certificates of Origin Law",
+    "url": "https://uaelegislation.gov.ae/en/legislations/1553/download",
+    "tier": "PRIMARY",
+    "date": "28 Apr 2022"
+  },
+  "UAE-CABINET-2025": {
+    "title": "UAE Cabinet announcement of government changes (ministry renaming, Ministry of Foreign Trade)",
+    "url": "https://uaecabinet.ae/en/news/mohammed-bin-rashid-announces-changes-to-uae-government",
+    "tier": "PRIMARY",
+    "date": "20 Jun 2025"
   }
 }

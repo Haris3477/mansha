@@ -18,6 +18,8 @@ CEPA_STATUSES = {"PREFERENTIAL", "EXCLUDED"}
 CEPA_TABLES = {"I", "II", "III"}
 PSR_TESTS = {"CTH", "CTSH", "VA", "WO"}
 SCOPE_TYPES = {"subheading", "heading", "heading_range", "ex_chapter", "chapter"}
+PASSAGE_KINDS = {"origin_rule", "procedure", "authority", "duty"}
+QUOTE_STATUSES = {"V", "B"}  # only display-safe quotes may be stored
 
 
 class KBError(Exception):
@@ -42,6 +44,7 @@ def load_corridor(corridor: str = "india") -> dict:
         "sources": _read_json(folder / "sources.json"),
         "tariff": _read_json(folder / "tariff_lines.json"),
         "psr": _read_json(folder / "psr_rules.json"),
+        "passages": _read_json(folder / "passages.json"),
     }
     problems = validate(kb)
     if problems:
@@ -198,5 +201,50 @@ def validate(kb: dict) -> list[str]:
                     if t == "VA":
                         _check_pct(test.get("min_pct"), f"{rid} VA.min_pct", problems)
         _check_source_keys([rule.get("source_key")], rid, sources, problems)
+
+    # passages.json
+    seen_passage_ids = set()
+    for p in kb["passages"].get("passages", []):
+        pid = p.get("id", "<no id>")
+        if not str(pid).startswith("P-"):
+            problems.append(f"{pid}: passage id must start with 'P-'")
+        if pid in seen_passage_ids:
+            problems.append(f"{pid}: duplicate id")
+        seen_passage_ids.add(pid)
+
+        if not p.get("title"):
+            problems.append(f"{pid}: missing title")
+        if p.get("kind") not in PASSAGE_KINDS:
+            problems.append(f"{pid}: kind must be one of {sorted(PASSAGE_KINDS)}")
+        tags = p.get("tags")
+        if not isinstance(tags, list) or not tags or not all(isinstance(t, str) for t in tags):
+            problems.append(f"{pid}: tags must be a non-empty list of strings")
+        _check_source_keys(p.get("source_keys"), pid, sources, problems)
+        if not p.get("summary"):
+            problems.append(f"{pid}: missing summary")
+
+        for field in ("quotes", "items"):
+            for q_i, q in enumerate(p.get(field, [])):
+                if not q.get("text"):
+                    problems.append(f"{pid} {field}[{q_i}]: missing text")
+                if q.get("status") not in QUOTE_STATUSES:
+                    problems.append(f"{pid} {field}[{q_i}]: status must be V or B (display-safe quotes only)")
+
+        bands = (p.get("params") or {}).get("fee_bands_aed")
+        if bands is not None:
+            prev = 0
+            for b_i, band in enumerate(bands):
+                last = b_i == len(bands) - 1
+                mx = band.get("max_aed")
+                if last:
+                    if mx is not None:
+                        problems.append(f"{pid}: last fee band must have max_aed = null")
+                elif not _is_number(mx) or mx <= prev:
+                    problems.append(f"{pid}: fee band {b_i} max_aed must be a number above {prev}")
+                else:
+                    prev = mx
+                fee = band.get("fee_aed")
+                if not _is_number(fee) or fee < 0:
+                    problems.append(f"{pid}: fee band {b_i} fee_aed must be a non-negative number")
 
     return problems

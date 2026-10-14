@@ -25,6 +25,7 @@ def main() -> int:
     print(f"heading exclusions: {', '.join(exclusions)}")
     print(f"PSR rules:          {len(rules)} (chapters {', '.join(r['scope']['chapter'] for r in rules)})")
     print(f"PSR general notes:  {len(kb['psr']['general_rules'])}")
+    print(f"passages:           {len(kb['passages']['passages'])}")
     print("ALL CHECKS PASSED")
     return 0
 

@@ -1,0 +1,459 @@
+{
+  "metadata": {
+    "corridor": "UAE -> India",
+    "agreement": "India-UAE CEPA",
+    "data_checked": "2026-10-14",
+    "quote_policy": "quotes hold only text marked (V) or (B) in the fact base. Everything else is paraphrased in summary. Re-check every quote character by character against the official PDFs before exporters rely on it."
+  },
+  "passages": [
+    {
+      "id": "P-AGR-3.2-ORIGIN",
+      "title": "Origin criteria: wholly obtained or product-specific rule",
+      "kind": "origin_rule",
+      "tags": ["origin", "wholly_obtained", "psr", "final_manufacture"],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.2.1 and 3.2.3; R39 Rule 3",
+      "quotes": [
+        {
+          "text": "is wholly obtained or produced in the territory of the Party as per Article 3.3",
+          "status": "V"
+        },
+        {
+          "text": "has undergone sufficient working or production as per the Product Specific Rules (PSR) in Annex 3B.",
+          "status": "V"
+        },
+        {
+          "text": "Notwithstanding paragraph 1 above, the final manufacture before export must have occurred in the Party of export.",
+          "status": "V"
+        }
+      ],
+      "summary": "A product originates in the UAE, and can receive the CEPA rate, if it is either (a) wholly obtained or produced in the UAE, or (b) meets its product-specific rule in Annex 3B (in India: Annexure-B of Notification 39/2022). The two routes are alternatives. The final manufacture before export must take place in the UAE. No default rule was found for a product without a product-specific rule.",
+      "notes": []
+    },
+    {
+      "id": "P-AGR-3.2.2-VA",
+      "title": "Value-addition formulas (build-down and build-up)",
+      "kind": "origin_rule",
+      "tags": ["origin", "value_addition", "va", "formula", "fob", "ex_works"],
+      "source_keys": ["AGR", "R39", "R39-G"],
+      "provision": "AGR Art. 3.2.2; R39 Rule 3(2); Annexure-B Rule 1(f)",
+      "quotes": [
+        {
+          "text": "The producer or manufacturer has the option to use either of the following two methods",
+          "status": "V"
+        },
+        {
+          "text": "(FOB value or Ex Works price) − (Value of NOM) / FOB value or Ex Works price",
+          "status": "V"
+        },
+        {
+          "text": "Cost of originating material + direct labour cost + direct overhead cost / FOB value or Ex Works price",
+          "status": "V"
+        }
+      ],
+      "summary": "Value addition may be calculated either by build-down, (FOB value or Ex-Works price minus the value of non-originating materials) divided by the same price, or by build-up, (originating materials plus direct labour plus direct overhead) divided by the same price. Product-specific rule percentages are on an FOB basis; on an Ex-Works basis the threshold is 5 percentage points lower, except for HS 71, which must use FOB.",
+      "notes": [
+        "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "Whether the two methods share one threshold is not stated beyond the 5-point Ex-Works note."
+      ]
+    },
+    {
+      "id": "P-AGR-3.1-NOM",
+      "title": "Valuing non-originating materials",
+      "kind": "origin_rule",
+      "tags": [
+        "origin",
+        "value_addition",
+        "non_originating",
+        "cif",
+        "materials"
+      ],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.1 and 3.10; R39 Rules 2(t), 2(zb) and 11",
+      "quotes": [
+        {
+          "text": "the customs value at the time of importation of the non-originating materials used, i.e., the CIF value",
+          "status": "V"
+        },
+        {
+          "text": "the first ascertainable price paid for the materials in the territory of a Party.",
+          "status": "V"
+        }
+      ],
+      "summary": "Non-originating materials are materials whose country of origin is neither the UAE nor India. They are valued at their customs (CIF) value at import; if that is unknown, at the first ascertainable price paid for them in the UAE or India. Indirect materials (such as fuel, tools and consumables used in production) count as neither originating nor non-originating.",
+      "notes": []
+    },
+    {
+      "id": "P-AGR-3.5-MINIMAL",
+      "title": "Minimal operations that never confer origin",
+      "kind": "origin_rule",
+      "tags": [
+        "origin",
+        "minimal_operations",
+        "repacking",
+        "labelling",
+        "simple_assembly",
+        "re_export",
+        "trader"
+      ],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.5; R39 Rule 6",
+      "quotes": [
+        {
+          "text": "a product shall not be considered originating in a Party by merely undergoing any of the following operations",
+          "status": "V"
+        },
+        {
+          "text": "“simple” describes an activity which needs neither special skills / nor machines, apparatus or equipment especially produced or installed to carry out the activity.",
+          "status": "V"
+        }
+      ],
+      "items": [
+        {
+          "code": "a",
+          "text": "operations to ensure the preservation of products in good condition during transport, and storage / (such as drying, freezing or thawing, keeping in brine …)",
+          "status": "V"
+        },
+        {
+          "code": "b",
+          "text": "changes of packaging and breaking up and assembly of packages;",
+          "status": "V"
+        },
+        {
+          "code": "c",
+          "text": "washing, cleaning, removal of dust, oxide, oil, paint or other coverings;",
+          "status": "V"
+        },
+        {
+          "code": "d",
+          "text": "for textiles: attaching accessory articles such as straps, bands, beads, cords, rings and eyelets; / ironing or pressing of textiles;",
+          "status": "V"
+        },
+        {
+          "code": "e",
+          "text": "simple painting and polishing;",
+          "status": "V"
+        },
+        {
+          "code": "f",
+          "text": "husking, partial or total bleaching, polishing, and glazing of cereals and rice;",
+          "status": "V"
+        },
+        {
+          "code": "g",
+          "text": "operations to colour sugar or form sugar lumps;",
+          "status": "V"
+        },
+        {
+          "code": "h",
+          "text": "peeling and removal of stones and shells from fruits, nuts and vegetables;",
+          "status": "V"
+        },
+        {
+          "code": "i",
+          "text": "sharpening, simple grinding or simple cutting;",
+          "status": "V"
+        },
+        {
+          "code": "j",
+          "text": "simple operations such as removal of dust, sifting, screening, sorting, classifying, grading, matching;",
+          "status": "V"
+        },
+        {
+          "code": "k",
+          "text": "simple placing in bottles, cans, flasks, bags, cases, boxes, fixing on cards or boards / and all other simple packaging operations;",
+          "status": "V"
+        },
+        {
+          "code": "l",
+          "text": "affixing or printing marks, labels, logos and other like distinguishing signs on products or their packaging;",
+          "status": "V"
+        },
+        {
+          "code": "m",
+          "text": "simple mixing of products, whether or not of different kinds;",
+          "status": "V"
+        },
+        {
+          "code": "n",
+          "text": "simple assembly of parts of articles to constitute a complete article or disassembly of products into parts;",
+          "status": "V"
+        },
+        { "code": "o", "text": "slaughter of animals;", "status": "V" },
+        {
+          "code": "p",
+          "text": "simple testing, calibration, inspection or certification; or",
+          "status": "V"
+        },
+        {
+          "code": "q",
+          "text": "any combination of two or more operations in subparagraphs (a) to (p) above.",
+          "status": "V"
+        }
+      ],
+      "summary": "The operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says. 'Simple' means the activity needs no special skills and no machines or equipment specially made or installed for it. Items most relevant to traders and re-exporters: repacking (b), simple packaging (k), labelling (l), simple assembly (n) and simple testing (p).",
+      "notes": [
+        "Design: check minimal operations before the product-specific rule test."
+      ]
+    },
+    {
+      "id": "P-AGR-3.4-DEMINIMIS",
+      "title": "De minimis tolerance",
+      "kind": "origin_rule",
+      "tags": ["origin", "de_minimis", "tolerance", "textiles"],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.4; R39 Rule 5",
+      "quotes": [
+        {
+          "text": "their total value does not exceed ten percent (10%) of the FOB value or Ex Works price of the exported product; or",
+          "status": "V"
+        },
+        {
+          "text": "is less than seven percent (7%) of the total weight of the materials used in the production of the exported",
+          "status": "V"
+        },
+        {
+          "text": "In the case of a wholly obtained product, a de minimis value not exceeding one percent (1%)",
+          "status": "V"
+        }
+      ],
+      "summary": "A small amount of non-originating material is tolerated: up to 10% of the FOB value or Ex-Works price; for textiles in HS chapters 50 to 63, less than 7% of the total weight of materials; for wholly obtained products, up to 1%.",
+      "params": {
+        "value_pct": 10,
+        "textile_weight_pct": 7,
+        "textile_chapters": ["50", "63"],
+        "wholly_obtained_pct": 1
+      },
+      "notes": [
+        "The Art. 3.4.1 lead-in (the exact conditions) was not captured verbatim.",
+        "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage."
+      ]
+    },
+    {
+      "id": "P-AGR-3.7-CUMULATION",
+      "title": "Bilateral cumulation",
+      "kind": "origin_rule",
+      "tags": ["origin", "cumulation", "indian_inputs"],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.7; R39 Rule 8",
+      "quotes": [],
+      "summary": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating. The last production process in the UAE must still go beyond the minimal operations.",
+      "notes": []
+    },
+    {
+      "id": "P-AGR-3.12-DIRECT",
+      "title": "Direct consignment and third-party invoicing",
+      "kind": "procedure",
+      "tags": [
+        "shipping",
+        "direct_consignment",
+        "transit",
+        "third_party_invoicing"
+      ],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.12 and 3.15; R39 Rule 13",
+      "quotes": [
+        {
+          "text": "An importing Party shall not deny a claim for preferential tariff treatment for the sole reason that an invoice",
+          "status": "V"
+        }
+      ],
+      "summary": "Preference is given only to originating goods shipped directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations other than unloading, reloading, storage or similar. An invoice issued by a third party does not by itself cause the claim to be denied; the exporter must indicate 'third-party invoicing'.",
+      "notes": []
+    },
+    {
+      "id": "P-AGR-COO-RULES",
+      "title": "Certificate of origin: validity, timing and form",
+      "kind": "procedure",
+      "tags": [
+        "certificate",
+        "validity",
+        "timing",
+        "retrospective",
+        "one_import"
+      ],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.13-3.14; R39 Rules 14-15 and Annexure-E",
+      "quotes": [
+        {
+          "text": "A Certificate of Origin shall be valid for twelve (12) months from the date of issue in the exporting Party.",
+          "status": "V"
+        },
+        {
+          "text": "The Certificate of Origin shall be valid for only one import and shall include one or more products.",
+          "status": "V"
+        },
+        {
+          "text": "shall be issued prior to, at or within five (5) working days of the date of exportation.",
+          "status": "V"
+        },
+        {
+          "text": "It shall bear the authorised signature and official seal of the competent authority.",
+          "status": "V"
+        }
+      ],
+      "summary": "A certificate of origin is valid for 12 months from issue and covers one import (it may list several products). It should be issued before, at, or within 5 working days of export. A certificate may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form. Minor typing or formatting errors are tolerated; discrepancies in signature or seal are not. A lost certificate can be replaced by a certified true copy.",
+      "notes": [
+        "Conflict: the agreement says box 8, India's rules and form say box 9. India's form governs entry into India."
+      ]
+    },
+    {
+      "id": "P-AGR-3.17-APPLICATION",
+      "title": "What the certificate application must contain",
+      "kind": "procedure",
+      "tags": ["certificate", "application", "cost_sheet", "factory_visit"],
+      "source_keys": ["AGR"],
+      "provision": "AGR Art. 3.17",
+      "quotes": [
+        {
+          "text": "each item must qualify separately in its own right.",
+          "status": "V"
+        },
+        {
+          "text": "detailed cost sheets, and conducting a factory visit.",
+          "status": "V"
+        }
+      ],
+      "summary": "The application, which can be submitted electronically, must include the HS code, description, quantity and value of the exported product. Each item on the certificate must qualify separately. The issuing authority may apply risk management, including asking for detailed cost sheets and visiting the factory.",
+      "notes": []
+    },
+    {
+      "id": "P-AGR-RECORDS-VERIFICATION",
+      "title": "Record keeping and verification",
+      "kind": "procedure",
+      "tags": ["records", "verification", "audit", "denial"],
+      "source_keys": ["AGR", "R39"],
+      "provision": "AGR Art. 3.19-3.22; R39 Rules 20-23",
+      "quotes": [
+        {
+          "text": "no less than five (5) years, starting from the end of the year of the date of its issue.",
+          "status": "V"
+        },
+        {
+          "text": "Any failure to consent to a verification visit shall be grounds for a denial of preferential benefits",
+          "status": "V"
+        }
+      ],
+      "summary": "The exporter must keep origin records, including the cost breakdown, for at least 5 years; counting from the end of the calendar year of issue satisfies both of the agreement's clocks. India may ask the UAE authority to verify a certificate; the authority answers an origin verification request within 90 days, extendable by 60. Refusing a verification visit is grounds for denying the preference.",
+      "notes": [
+        "UAE law sets a shorter 3-year minimum; the CEPA's 5 years govern CEPA claims."
+      ]
+    },
+    {
+      "id": "P-UAE-ISSUER",
+      "title": "Who issues the preferential certificate in the UAE",
+      "kind": "authority",
+      "tags": ["authority", "issuer", "ministry", "chamber"],
+      "source_keys": [
+        "AGR",
+        "R39",
+        "CR43-2022",
+        "UAE-CABINET-2025",
+        "CR208-2025"
+      ],
+      "provision": "AGR Art. 3.1; R39 Annexure-D; CR 43/2022 Art. 7 and 9",
+      "quotes": [
+        {
+          "text": "(b) for UAE, to the Ministry of Economy or any other agency notified from time to time;",
+          "status": "V"
+        }
+      ],
+      "summary": "India's rules list only the UAE 'Ministry of Economy' as issuing authority. The ministry was renamed the Ministry of Economy and Tourism in June 2025, and certificate-of-origin fees now sit in a Ministry of Foreign Trade fee resolution (Cabinet Resolution 208/2025). Chambers of commerce issue non-preferential certificates only. The current issuing ministry should be confirmed with the ministry (800 1222, info@moet.gov.ae).",
+      "notes": [
+        "Unresolved: which ministry legally issues today. Always show a 'verify the current issuing ministry' note."
+      ]
+    },
+    {
+      "id": "P-MOET-COO-INDIA",
+      "title": "UAE e-service: Certificate of Origin for India",
+      "kind": "procedure",
+      "tags": ["certificate", "e_service", "fees", "steps", "uae"],
+      "source_keys": ["MOET-COO-INDIA", "MOET-ISSUE-COO", "CR208-2025"],
+      "provision": "Ministry service pages; Cabinet Resolution 208/2025 fee schedule",
+      "quotes": [],
+      "summary": "Preferential certificates for India are requested through the ministry's 'Certificate of Origin for India' e-service (eservices.moec.gov.ae, or the ministry's smart app). Applicants are local manufacturers and exporters whose factory is registered through Factory Registration. Documents: proof of factory registration, the commercial invoice, and, for a trading exporter, the factory's purchase invoice. Processing takes about one working day and the service runs 24/7. Fees depend on invoice value, from AED 10 to AED 200. Contact: 800 1222, info@moet.gov.ae.",
+      "params": {
+        "fee_bands_aed": [
+          { "max_aed": 1000, "fee_aed": 10 },
+          { "max_aed": 5000, "fee_aed": 20 },
+          { "max_aed": 20000, "fee_aed": 30 },
+          { "max_aed": 40000, "fee_aed": 40 },
+          { "max_aed": 100000, "fee_aed": 50 },
+          { "max_aed": 500000, "fee_aed": 100 },
+          { "max_aed": null, "fee_aed": 200 }
+        ],
+        "steps": [
+          "Log in to the ministry e-services portal",
+          "Choose the Certificate of Origin for India service",
+          "Fill in the application form",
+          "Upload the required documents",
+          "Pay the fee online",
+          "Submit the application",
+          "Receive approval, or a return with comments to correct",
+          "Print the approved certificate"
+        ]
+      },
+      "notes": [
+        "Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha."
+      ]
+    },
+    {
+      "id": "P-MOET-FACTORY-REG",
+      "title": "Prerequisite: Factory Registration",
+      "kind": "procedure",
+      "tags": [
+        "factory_registration",
+        "prerequisite",
+        "free_zone",
+        "industrial_licence",
+        "trader"
+      ],
+      "source_keys": ["MOET-FACTORY-REG", "MOET-COO-INDIA"],
+      "provision": "Ministry Factory Registration service page",
+      "quotes": [],
+      "summary": "Before applying for a certificate, the factory must be registered with the ministry. Registration requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added. It takes about 3 working days. Traders can apply only for goods bought from a registered factory. The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
+      "notes": [
+        "Inference: free-zone producers are likely not eligible because they cannot complete Factory Registration. Say 'likely not eligible; confirm with the ministry', not a flat no."
+      ]
+    },
+    {
+      "id": "P-MOET-AMEND-COO",
+      "title": "Amending a certificate of origin",
+      "kind": "procedure",
+      "tags": ["certificate", "amendment", "fees"],
+      "source_keys": ["MOET-AMEND-COO"],
+      "provision": "Ministry Amend Certificate of Origin service page",
+      "quotes": [],
+      "summary": "An issued certificate can be amended once, for a fee of AED 20.",
+      "params": { "fee_aed": 20, "max_amendments": 1 },
+      "notes": []
+    },
+    {
+      "id": "P-IN-DUTY-SCOPE",
+      "title": "Which Indian duties the CEPA reduces",
+      "kind": "duty",
+      "tags": ["duty", "bcd", "igst", "sws", "anti_dumping", "india"],
+      "source_keys": ["N22", "CTA-2017"],
+      "provision": "N22 preamble and Table II; Customs Tariff Act s.3(7)-(9)",
+      "quotes": [],
+      "summary": "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+      "notes": [
+        "Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).",
+        "Inference: anti-dumping and safeguard duties still apply (no exemption found)."
+      ]
+    },
+    {
+      "id": "P-IN-IMPORTER",
+      "title": "What the Indian importer must do",
+      "kind": "procedure",
+      "tags": ["importer", "india", "carotar", "e_sanchit", "records"],
+      "source_keys": ["CAROTAR-BLR", "CBIC-INSTR-28", "N22"],
+      "provision": "CAROTAR 2020 Rules 4-6 (official summary); CBIC Instruction 28/2022 (secondary source)",
+      "quotes": [],
+      "summary": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days. The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details. Electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed: seen only in secondary sources).",
+      "notes": [
+        "e-Sanchit upload rests on CBIC Instruction 28/2022, read only via LiveLaw/taxmann."
+      ]
+    }
+  ]
+}
