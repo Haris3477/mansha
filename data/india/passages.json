@@ -193,7 +193,7 @@
       ],
       "summary": "The operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says. 'Simple' means the activity needs no special skills and no machines or equipment specially made or installed for it. Items most relevant to traders and re-exporters: repacking (b), simple packaging (k), labelling (l), simple assembly (n) and simple testing (p).",
       "notes": [
-        "Design: check minimal operations before the product-specific rule test."
+        "A product that only undergoes these operations does not originate, even if it meets its product-specific rule."
       ]
     },
     {
@@ -360,7 +360,7 @@
       ],
       "summary": "India's rules list only the UAE 'Ministry of Economy' as issuing authority. The ministry was renamed the Ministry of Economy and Tourism in June 2025, and certificate-of-origin fees now sit in a Ministry of Foreign Trade fee resolution (Cabinet Resolution 208/2025). Chambers of commerce issue non-preferential certificates only. The current issuing ministry should be confirmed with the ministry (800 1222, info@moet.gov.ae).",
       "notes": [
-        "Unresolved: which ministry legally issues today. Always show a 'verify the current issuing ministry' note."
+        "Unresolved: which ministry legally issues preferential certificates today. Confirm the current issuing ministry before applying."
       ]
     },
     {
@@ -413,7 +413,7 @@
       "quotes": [],
       "summary": "Before applying for a certificate, the factory must be registered with the ministry. Registration requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added. It takes about 3 working days. Traders can apply only for goods bought from a registered factory. The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
       "notes": [
-        "Inference: free-zone producers are likely not eligible because they cannot complete Factory Registration. Say 'likely not eligible; confirm with the ministry', not a flat no."
+        "Inference: free-zone producers are likely not eligible, because Factory Registration requires a factory outside a free zone. Confirm with the ministry."
       ]
     },
     {

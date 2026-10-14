@@ -25,7 +25,7 @@
     "no_default_rule": "No residual rule was found in AGR Art. 3.2 or the Annex 3B notes. No match means REGULATORY_GAP_DETECTED, never an assumed 'VA 40%'.",
     "hs_edition_note": "The PSR table uses HS 2017 codes; the tariff uses HS 2022. Irrelevant for chapter-level rows; needs a correlation table for finer rows.",
     "interpretations": [
-      "'+' in a rule is read as 'and' (both tests must pass). The text does not define '+'; this is an interpretation and must be labelled as such."
+      "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation."
     ]
   },
   "general_rules": [
