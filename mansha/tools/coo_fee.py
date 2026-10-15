@@ -69,8 +69,8 @@ def certificate_fee(shipment_value: dict | None = None, corridor: str = "india")
     sources = {k: kb["sources"][k]["url"] for k in passage.get("source_keys", []) if k in kb["sources"]}
     fees = [b["fee_aed"] for b in bands]
     rng = {"min": min(fees), "max": max(fees)}
-    base = (f"Fee bands are those of the ministry's certificate service ({passage.get('title')}), "
-            "charged on the invoice value in AED.")
+    base = (f"Fee bands are those of the certificate service ({passage.get('title')}; "
+            f"{passage.get('provision')}), charged on the invoice value in AED.")
     range_txt = f"AED {rng['min']} to AED {rng['max']}"
 
     value, cur = _value_and_currency(shipment_value)

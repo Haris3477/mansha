@@ -234,6 +234,12 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     if excluded and str(data["tariff"].get("preferential_rate", "")).strip() != "EXCLUDED":
         problems.append("the chosen line is excluded, so tariff.preferential_rate must be \"EXCLUDED\"")
 
+    rl = pack.tool_results.get(f"TOOL:rule_lookup:{line}") if line and not excluded else None
+    rule_ids = [r["id"] for r in (rl or {}).get("rules", [])]
+    if rule_ids and data["origin_rule"].get("source_id") not in rule_ids:
+        problems.append(f"origin_rule.source_id must be the rule record {' or '.join(rule_ids)} "
+                        f"(TOOL:rule_lookup:{line} names it, and the rule text is there)")
+
     # 5. Saving follows the duty tool and Agent 2 step 5
     s = data["estimated_saving"]
     saving_exp, duty = expected_saving(chosen, origin_exp, pack)
@@ -294,6 +300,19 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
             missing = number_keys(text) - number_keys(records[sid])
             if missing:
                 warnings.append(f"{where}: number(s) {sorted(missing)} not found in {sid}")
+
+        # 9. A step's text names a known actor (e.g. a ministry) that its cited record does not:
+    #    usually facts from two records merged into one step (warning, judged by QA).
+    names = sorted({a.removeprefix("the ") for a in pack.actors.values()
+                    if a.removeprefix("the ")[:1].isupper()}, key=len, reverse=True)
+    for i, st in enumerate(data["procedure"]):
+        text, rec = str(st.get("step", "")), records.get(st.get("source_id"), "")
+        for name in names:  # longest first, so a short name inside a longer one is not matched twice
+            if name in text:
+                if name not in rec:
+                    warnings.append(f"procedure[{i}]: names {name!r}, which {st.get('source_id')} does not; "
+                                    "cite the record that states it, or split the step")
+                text = text.replace(name, "")
 
     verdict = VERDICT_MAP.get(origin_exp, GAP)
     return problems, warnings, verdict

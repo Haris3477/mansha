@@ -2,7 +2,8 @@
 
 import sys
 
-from mansha.tools.coo_fee import certificate_fee
+from mansha.kb import load_corridor
+from mansha.tools.coo_fee import FEE_PASSAGE, certificate_fee
 
 failures: list[str] = []
 
@@ -45,6 +46,10 @@ r = fee(100000)
 check("has source URLs", bool(r.sources))
 check("states the invoice-value assumption", any("invoice value equals" in n for n in r.notes))
 check("tool id", r.to_dict()["tool_id"] == "TOOL:coo_fee")
+fee_passage = next(p for p in load_corridor("india")["passages"]["passages"] if p["id"] == FEE_PASSAGE["india"])
+check("note names the fee's legal basis (passage provision)",
+      any(fee_passage["provision"] in n for n in r.notes), r.notes)
+check("actor comes from the fee passage", r.actor == fee_passage["actor"], r.actor)
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

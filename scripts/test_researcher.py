@@ -162,6 +162,21 @@ check("record without an actor -> GAP, even if the model named one", got[5] == G
 problems, warnings, _ = run(filled, w)
 check("filled procedure passes the checks", not problems and not warnings, (problems, warnings))
 
+print("\n== Step text names an actor its record does not")
+named = copy.deepcopy(GOOD_W)
+named["procedure"].append({"step": "The Ministry of Foreign Trade issues the certificate within one working day.",
+                           "source_id": "P-AGR-COO-RULES"})
+problems, warnings, _ = run(named, w)
+check("ministry not in the cited record -> warning, not problem",
+      not problems and any("Ministry of Foreign Trade" in x for x in warnings), (problems, warnings))
+ok = copy.deepcopy(GOOD_W)
+ok["procedure"].append({"step": "Register the factory with the Ministry of Economy and Tourism.",
+                        "source_id": "P-MOET-FACTORY-REG"})
+ok["procedure"].append({"step": "Pay the fee to the Ministry of Foreign Trade under its fee resolution.",
+                        "source_id": "TOOL:coo_fee"})
+problems, warnings, _ = run(ok, w)
+check("ministry named by its own record -> no warning", not problems and not warnings, (problems, warnings))
+
 # ---------------- windows: needs more data ----------------
 print("\n== Windows, no files, no value (needs more data)")
 wn = build_evidence({"product_description": "aluminium window frames", "hs_code_given": None,
@@ -205,6 +220,8 @@ GOOD_C = {
     "gaps": [],
 }
 expect_ok("chargers correct answer", GOOD_C, c, "NOT_ELIGIBLE")
+bad = copy.deepcopy(GOOD_C); bad["origin_rule"]["source_id"] = "TOOL:rule_lookup:85044030"
+expect_problem("origin rule cites the lookup, not the rule record", bad, c)
 bad = copy.deepcopy(GOOD_C); bad["procedure"] = STEPS
 expect_problem("procedure given for a failing product", bad, c)
 bad = copy.deepcopy(GOOD_C)

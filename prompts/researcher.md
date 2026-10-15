@@ -14,7 +14,7 @@ Work in this order, and write one string per step in `reasoning`: one or two sho
 1. **Classification.** Choose the candidate whose description best matches `product_description` (and `hs_code_given`, if any). Decide from the descriptions alone, BEFORE reading any origin or duty result; never choose a line because its result is better. If `TOOL:tariff_lookup` notes a conflict between the HS code and the description, choose the best description match, set confidence to "medium" or lower, and add a follow-up question asking the user to confirm the code. If no candidate fits, set the `classification` values to REGULATORY_GAP_DETECTED and explain why in `gaps`.
 2. **Preference.** If the chosen record is an `EXC-IN-...` record, or its CEPA status is EXCLUDED, the product gets no CEPA preference and the MFN rate applies, whatever the origin result.
 3. **Tariff.** The agreement, the effective MFN rate and the CEPA rate, exactly as the record gives them. If the tariff and effective MFN rates differ, give both. For an excluded line, `preferential_rate` is "EXCLUDED".
-4. **Origin.** The rule from `TOOL:rule_lookup:<line>` for the chosen line, and the status from `TOOL:origin:<line>` for the chosen line only:
+4. **Origin.** The rule for the chosen line: the `PSR-IN-...` record that `TOOL:rule_lookup:<line>` names (cite that PSR record; its rule text is there). The status from `TOOL:origin:<line>` for the chosen line only:
    - MEETS → QUALIFIES
    - FAILS → DOES_NOT_QUALIFY
    - INSUFFICIENT_DATA → NEEDS_MORE_DATA
