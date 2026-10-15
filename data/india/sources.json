@@ -72,28 +72,40 @@
     "date": "27 Oct 2022"
   },
   "MOET-COO-INDIA": {
-    "title": "UAE Ministry e-service: Certificate of Origin for India",
+    "title": "UAE Ministry of Economy and Tourism e-service: Certificate of Origin for India",
     "url": "https://www.moet.gov.ae/en/w/certificate-of-origin-for-india",
     "tier": "PRIMARY",
     "date": "Read 14 Oct 2026"
   },
   "MOET-ISSUE-COO": {
-    "title": "UAE Ministry e-service: Issue a Certificate of Origin",
+    "title": "UAE Ministry of Economy and Tourism e-service: Issue a Certificate of Origin",
     "url": "https://www.moet.gov.ae/en/w/request-a-certificate-of-origin",
     "tier": "PRIMARY",
     "date": "Read 14 Oct 2026"
   },
   "MOET-FACTORY-REG": {
-    "title": "UAE Ministry e-service: Factory Registration",
+    "title": "UAE Ministry of Economy and Tourism e-service: Factory Registration",
     "url": "https://www.moet.gov.ae/en/w/factory-registration-1",
     "tier": "PRIMARY",
-    "date": "Page stamp 13 Oct 2026"
+    "date": "Page stamp 15 Oct 2026"
   },
   "MOET-AMEND-COO": {
-    "title": "UAE Ministry e-service: Amend Certificate of Origin",
+    "title": "UAE Ministry of Economy and Tourism e-service: Amend Certificate of Origin",
     "url": "https://www.moet.gov.ae/en/w/amend-certificate-of-origin",
     "tier": "PRIMARY",
     "date": "Read 14 Oct 2026"
+  },
+  "MOFT-ISSUE-COO": {
+    "title": "UAE Ministry of Foreign Trade e-service: Issue a Certificate Of Origin",
+    "url": "https://www.trade.gov.ae/web/guest/w/issue-a-certificate-of-origin-1",
+    "tier": "PRIMARY",
+    "date": "Read 15 Oct 2026; site footer 15 May 2026"
+  },
+  "MOFT-AMEND-COO": {
+    "title": "UAE Ministry of Foreign Trade e-service: Amend Certificate Of Origin",
+    "url": "https://www.trade.gov.ae/web/guest/w/amend-certificate-of-origin-1",
+    "tier": "PRIMARY",
+    "date": "Read 15 Oct 2026"
   },
   "CR208-2025": {
     "title": "Cabinet Resolution 208/2025: fees for services of the Ministry of Foreign Trade (fee schedule)",

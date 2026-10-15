@@ -37,6 +37,7 @@ class EvidencePack:
     tool_results: dict[str, dict]          # tool_id -> raw tool result (for code checks)
     candidates: list[dict]                 # candidates from the tariff lookup
     excluded_ids: set[str] = field(default_factory=set)  # candidate IDs with no CEPA preference
+    actors: dict[str, str] = field(default_factory=dict)  # evidence ID -> who acts (code copies it into steps)
 
 
 # ---------- formatting helpers ----------
@@ -221,8 +222,12 @@ def render_duty(d: dict) -> list[str]:
         lines.append("shipment value: not given")
     lines.append(bullets("notes", d.get("notes")))
     return lines
+
+
 def render_fee(f: dict) -> list[str]:
     lines = [f"status: {f.get('status')}"]
+    if f.get("actor"):
+        lines.append(f"actor: {f['actor']}")
     if f.get("fee_aed") is not None:
         band = (f"up to AED {fmt_num(f['band_max_aed'])}" if f.get("band_max_aed") is not None
                 else "top band, no upper limit")
@@ -233,6 +238,7 @@ def render_fee(f: dict) -> list[str]:
         lines.append(f"fee range of the service: AED {rng['min']} to AED {rng['max']}")
     lines.append(bullets("notes", f.get("notes")))
     return lines
+
 
 def render_psr(rule: dict) -> list[str]:
     scope = dict(rule.get("scope") or {})
@@ -262,6 +268,8 @@ def render_item(it) -> str:
 
 def render_passage(p: dict) -> list[str]:
     lines = [f"title: {p.get('title')}", f"provision: {p.get('provision')}"]
+    if p.get("actor"):
+        lines.append(f"actor: {p['actor']}")
     quotes = [f"\"{q['text']}\"" if isinstance(q, dict) else f"\"{q}\"" for q in p.get("quotes", [])]
     if quotes:
         lines.append(bullets("quotes", quotes))
@@ -317,6 +325,7 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
     tool_results: dict[str, dict] = {}
     excluded: set[str] = set()
     psr_rules: dict[str, dict] = {}
+    actors: dict[str, str] = {}
 
     tl = tariff_lookup(product_description=intake.get("product_description"),
                        hs_code_given=intake.get("hs_code_given"), corridor=corridor).to_dict()
@@ -362,6 +371,8 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
     f = certificate_fee(intake.get("shipment_value"), corridor).to_dict()
     tool_results[f["tool_id"]] = f
     b.add(f["tool_id"], render_fee(f), f.get("sources"))
+    if f.get("actor"):
+          actors[f["tool_id"]] = f["actor"]
 
     # 3. Rules of origin (deduplicated) and the general rules.
     b.section("RULES OF ORIGIN")
@@ -374,6 +385,8 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
     b.section("PASSAGES")
     for p in select_passages(kb, intake):
         b.add(p["id"], render_passage(p), b.urls(p.get("source_keys")))
+        if p.get("actor"):
+            actors[p["id"]] = p["actor"]
 
     return EvidencePack(
         text="\n\n".join(b.parts),
@@ -382,4 +395,5 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
         tool_results=tool_results,
         candidates=candidates,
         excluded_ids=excluded,
+        actors=actors,
     )

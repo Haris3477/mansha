@@ -4,7 +4,8 @@ The LLM picks the tariff line and explains the tool results. Code then checks
 everything that can be checked mechanically:
 - hard problems (certain errors) -> corrections, using the single revision
 - warnings (numbers not found in the cited record) -> passed to QA to judge
-Code, not the LLM, sets the final `verdict`.
+Code, not the LLM, sets the final `verdict` and each procedure step's
+`authority` (copied from the cited record's `actor`, Step 6.4g).
 """
 
 from __future__ import annotations
@@ -49,9 +50,10 @@ ISSUER_PASSAGE_ID = "P-UAE-ISSUER"
 # Tool records a procedure step may cite besides P-... passages.
 PROCEDURE_TOOL_IDS = {"TOOL:coo_fee"}
 
+
 @dataclass
 class ResearcherResult:
-    data: dict                      # LLM JSON + code-added "verdict"
+    data: dict                      # LLM JSON + code-added "verdict" and step authorities
     problems: list[str]             # hard failures -> corrections
     warnings: list[str] = field(default_factory=list)  # for QA to judge
     llm: LLMResult | None = None
@@ -165,6 +167,22 @@ def expected_saving(c: dict | None, origin: str, pack: EvidencePack) -> tuple[st
     return GAP, duty
 
 
+# ---------- code-filled fields ----------
+
+def fill_authorities(data: dict, pack: EvidencePack) -> None:
+    """Set each procedure step's `authority` from its cited record's actor.
+
+    Any authority the model wrote is overwritten. A record with no actor gives
+    REGULATORY_GAP_DETECTED: code never guesses who acts.
+    """
+    steps = data.get("procedure")
+    if not isinstance(steps, list):
+        return
+    for step in steps:
+        if isinstance(step, dict):
+            step["authority"] = pack.actors.get(step.get("source_id"), GAP)
+
+
 # ---------- the checks ----------
 
 def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[str], str]:
@@ -244,7 +262,7 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     if (data["procedure"] and ISSUER_PASSAGE_ID in allowed
             and not any(cv.get("source_id") == ISSUER_PASSAGE_ID for cv in data["caveats"])):
         problems.append(f"the procedure leads to a certificate, so add a caveat citing {ISSUER_PASSAGE_ID} "
-                        "(verify the current issuing ministry)")
+                        "(who issues the certificate, and what no source confirms)")
 
     # 7. Follow-up questions where the user must supply something
     if origin_exp == "NEEDS_MORE_DATA" and not data["follow_up_questions"]:
@@ -253,14 +271,9 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     if saving_exp == "NEEDS_VALUE" and not data["follow_up_questions"]:
         problems.append("follow_up_questions must ask for the shipment value")
 
-    # 8. Numbers must appear in the cited record (warnings, judged by QA)
+    # 8. Numbers must appear in the cited record (warnings, judged by QA).
+    #    Step authorities are filled by code (fill_authorities), so only the step text is checked.
     records = split_records(pack.text)
-    for i, st in enumerate(data["procedure"]):
-        auth = str(st.get("authority", "")).strip()
-        sid = st.get("source_id")
-        if auth and auth != GAP and sid in records and auth.lower() not in records[sid].lower():
-            warnings.append(f"procedure[{i}].authority {auth!r} is not named in {sid}; "
-                            "name it as the passage does")
     fields = [
         ("classification",
          f"{data['classification'].get('tariff_line', '')} {data['classification'].get('description', '')}",
@@ -272,7 +285,7 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
         ("origin_result", str(data["origin_result"].get("basis", "")),
          data["origin_result"].get("source_id")),
     ]
-    fields += [(f"procedure[{i}]", f"{st.get('step', '')} {st.get('authority', '')}", st.get("source_id"))
+    fields += [(f"procedure[{i}]", str(st.get("step", "")), st.get("source_id"))
                for i, st in enumerate(data["procedure"])]
     fields += [(f"caveats[{i}]", str(cv.get("note", "")), cv.get("source_id"))
                for i, cv in enumerate(data["caveats"])]
@@ -297,7 +310,11 @@ def build_messages(intake: dict, pack: EvidencePack, *, previous: dict | None = 
         {"role": "user", "content": user},
     ]
     if corrections:
-        prev = {k: v for k, v in (previous or {}).items() if k != "verdict"}
+        # Send back what the model wrote: no code-filled verdict or step authorities.
+        prev = copy.deepcopy({k: v for k, v in (previous or {}).items() if k != "verdict"})
+        for step in prev.get("procedure") or []:
+            if isinstance(step, dict):
+                step.pop("authority", None)
         messages.append({"role": "assistant", "content": json.dumps(prev, ensure_ascii=False)})
         messages.append({"role": "user", "content":
                          "CORRECTIONS (apply all of them, then return the full corrected JSON only):\n"
@@ -315,6 +332,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
                    expect_json=True, required_keys=REQUIRED_KEYS)
     data = copy.deepcopy(llm.data)
     data.pop("verdict", None)  # the verdict is code's job
+    fill_authorities(data, pack)  # so is who acts in each step
     problems, warnings, verdict = check_researcher(data, pack)
     data["verdict"] = verdict
     log.info("researcher checks | served_by=%s | verdict=%s | problems=%d | warnings=%d",

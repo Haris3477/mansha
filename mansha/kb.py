@@ -20,6 +20,7 @@ PSR_TESTS = {"CTH", "CTSH", "VA", "WO"}
 SCOPE_TYPES = {"subheading", "heading", "heading_range", "ex_chapter", "chapter"}
 PASSAGE_KINDS = {"origin_rule", "procedure", "authority", "duty"}
 QUOTE_STATUSES = {"V", "B"}  # only display-safe quotes may be stored
+ACTOR_KINDS = {"procedure", "authority"}  # passages that say who acts; code copies actor into steps
 
 
 class KBError(Exception):
@@ -222,6 +223,12 @@ def validate(kb: dict) -> list[str]:
         _check_source_keys(p.get("source_keys"), pid, sources, problems)
         if not p.get("summary"):
             problems.append(f"{pid}: missing summary")
+        actor = p.get("actor")
+        if p.get("kind") in ACTOR_KINDS:
+            if not isinstance(actor, str) or not actor.strip():
+                problems.append(f"{pid}: a {p.get('kind')} passage needs a non-empty actor")
+        elif actor is not None:
+            problems.append(f"{pid}: only procedure and authority passages may have an actor")
 
         for field in ("quotes", "items"):
             for q_i, q in enumerate(p.get(field, [])):

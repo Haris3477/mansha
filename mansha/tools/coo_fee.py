@@ -3,6 +3,7 @@
 Pure Python, no LLM. The fee bands come from the knowledge-base passage for the
 corridor's certificate service. Bands are in AED; Mansha never converts
 currencies, so a value in another currency gets the fee range only.
+The fee's `actor` (who charges it) is copied from that passage (Step 6.4g).
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ class FeeResult:
     fee_aed: int | None = None
     band_max_aed: int | None = None    # upper limit of the chosen band (None = top band)
     fee_range_aed: dict | None = None  # {"min": ..., "max": ...} over all bands
+    actor: str | None = None           # who charges the fee, from the passage's actor
     notes: list[str] = field(default_factory=list)
     sources: dict[str, str] = field(default_factory=dict)
 
@@ -63,6 +65,7 @@ def certificate_fee(shipment_value: dict | None = None, corridor: str = "india")
     if not passage or not bands:
         return FeeResult(TOOL_ID, GAP, pid, notes=["No certificate fee bands are loaded for this corridor."])
 
+    actor = passage.get("actor")
     sources = {k: kb["sources"][k]["url"] for k in passage.get("source_keys", []) if k in kb["sources"]}
     fees = [b["fee_aed"] for b in bands]
     rng = {"min": min(fees), "max": max(fees)}
@@ -72,19 +75,21 @@ def certificate_fee(shipment_value: dict | None = None, corridor: str = "india")
 
     value, cur = _value_and_currency(shipment_value)
     if value is None:
-        return FeeResult(TOOL_ID, "NEEDS_VALUE", pid, currency=cur, fee_range_aed=rng, sources=sources,
+        return FeeResult(TOOL_ID, "NEEDS_VALUE", pid, currency=cur, fee_range_aed=rng, actor=actor,
+                         sources=sources,
                          notes=[base, f"No usable shipment value, so only the fee range {range_txt} is given."])
     if cur != "AED":
         return FeeResult(TOOL_ID, "CURRENCY_NOT_AED", pid, invoice_value=f"{value:.2f}", currency=cur,
-                         fee_range_aed=rng, sources=sources,
-                            notes=[base, (f"The shipment value is in {cur}; fee bands are in AED and Mansha never "
+                         fee_range_aed=rng, actor=actor, sources=sources,
+                         notes=[base, (f"The shipment value is in {cur}; fee bands are in AED and Mansha never "
                                        f"converts currencies, so only the fee range {range_txt} is given.")])
 
     for band in bands:
         limit = band.get("max_aed")
         if limit is None or value <= Decimal(str(limit)):
             return FeeResult(TOOL_ID, "ESTIMATED", pid, invoice_value=f"{value:.2f}", currency="AED",
-                             fee_aed=band["fee_aed"], band_max_aed=limit, fee_range_aed=rng, sources=sources,
+                             fee_aed=band["fee_aed"], band_max_aed=limit, fee_range_aed=rng, actor=actor,
+                             sources=sources,
                              notes=[base, "Assumes the certificate's invoice value equals the shipment value given."])
-    return FeeResult(TOOL_ID, GAP, pid, fee_range_aed=rng, sources=sources,
+    return FeeResult(TOOL_ID, GAP, pid, fee_range_aed=rng, actor=actor, sources=sources,
                      notes=["The fee bands have no top band; the fee for this value is unknown."])

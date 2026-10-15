@@ -242,6 +242,7 @@
     },
     {
       "id": "P-AGR-3.12-DIRECT",
+      "actor": "the exporter",
       "title": "Direct consignment and third-party invoicing",
       "kind": "procedure",
       "tags": [
@@ -263,6 +264,7 @@
     },
     {
       "id": "P-AGR-COO-RULES",
+      "actor": "the competent authority",
       "title": "Certificate of origin: validity, timing and form",
       "kind": "procedure",
       "tags": [
@@ -299,6 +301,7 @@
     },
     {
       "id": "P-AGR-3.17-APPLICATION",
+      "actor": "the issuing authority",
       "title": "What the certificate application must contain",
       "kind": "procedure",
       "tags": ["certificate", "application", "cost_sheet", "factory_visit"],
@@ -319,6 +322,7 @@
     },
     {
       "id": "P-AGR-RECORDS-VERIFICATION",
+      "actor": "the exporter",
       "title": "Record keeping and verification",
       "kind": "procedure",
       "tags": ["records", "verification", "audit", "denial"],
@@ -343,35 +347,48 @@
       "id": "P-UAE-ISSUER",
       "title": "Who issues the preferential certificate in the UAE",
       "kind": "authority",
+      "actor": "the Ministry of Foreign Trade",
       "tags": ["authority", "issuer", "ministry", "chamber"],
       "source_keys": [
+        "MOFT-ISSUE-COO",
+        "CR208-2025",
+        "MOET-COO-INDIA",
         "AGR",
         "R39",
         "CR43-2022",
-        "UAE-CABINET-2025",
-        "CR208-2025"
+        "UAE-CABINET-2025"
       ],
-      "provision": "AGR Art. 3.1; R39 Annexure-D; CR 43/2022 Art. 7 and 9",
+      "provision": "Ministry of Foreign Trade service page; Cabinet Resolution 208/2025; R39 Annexure-D; CR 43/2022 Art. 7 and 9",
       "quotes": [
+        {
+          "text": "The service allows the issuance of a preferential and non-preferential Certificate of Origin for exporting locally made products.",
+          "status": "V"
+        },
         {
           "text": "(b) for UAE, to the Ministry of Economy or any other agency notified from time to time;",
           "status": "V"
         }
       ],
-      "summary": "India's rules list only the UAE 'Ministry of Economy' as issuing authority. The ministry was renamed the Ministry of Economy and Tourism in June 2025, and certificate-of-origin fees now sit in a Ministry of Foreign Trade fee resolution (Cabinet Resolution 208/2025). Chambers of commerce issue non-preferential certificates only. The current issuing ministry should be confirmed with the ministry (800 1222, info@moet.gov.ae).",
+      "summary": "The Ministry of Foreign Trade offers the e-service that issues preferential and non-preferential certificates of origin for locally made products (trade.gov.ae, 'Issue a Certificate Of Origin'), and certificate-of-origin fees are set in its fee resolution (Cabinet Resolution 208/2025). Its service page does not name India or the CEPA. The India-specific service page ('Certificate of Origin for India') is still published on the Ministry of Economy and Tourism website (moet.gov.ae). India's origin rules list the UAE issuing authority as the 'Ministry of Economy or any other agency notified from time to time'; the Ministry of Economy was renamed the Ministry of Economy and Tourism in June 2025, and no Indian update to that list was found. Chambers of commerce issue non-preferential certificates only. Ministry of Foreign Trade contact line: 171.",
       "notes": [
-        "Unresolved: which ministry legally issues preferential certificates today. Confirm the current issuing ministry before applying."
+        "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae."
       ]
     },
     {
       "id": "P-MOET-COO-INDIA",
       "title": "UAE e-service: Certificate of Origin for India",
       "kind": "procedure",
+      "actor": "the Ministry of Foreign Trade",
       "tags": ["certificate", "e_service", "fees", "steps", "uae"],
-      "source_keys": ["MOET-COO-INDIA", "MOET-ISSUE-COO", "CR208-2025"],
+      "source_keys": [
+        "MOET-COO-INDIA",
+        "MOFT-ISSUE-COO",
+        "MOET-ISSUE-COO",
+        "CR208-2025"
+      ],
       "provision": "Ministry service pages; Cabinet Resolution 208/2025 fee schedule",
       "quotes": [],
-      "summary": "Preferential certificates for India are requested through the ministry's 'Certificate of Origin for India' e-service (eservices.moec.gov.ae, or the ministry's smart app). Applicants are local manufacturers and exporters whose factory is registered through Factory Registration. Documents: proof of factory registration, the commercial invoice, and, for a trading exporter, the factory's purchase invoice. Processing takes about one working day and the service runs 24/7. Fees depend on invoice value, from AED 10 to AED 200. Contact: 800 1222, info@moet.gov.ae.",
+      "summary": "Preferential certificates for India are requested through the 'Certificate of Origin for India' e-service; its service page is on moet.gov.ae and links to eservices.moec.gov.ae (or the smart app). The Ministry of Foreign Trade's 'Issue a Certificate Of Origin' service (trade.gov.ae) lists the same fee bands and the same one working day. Applicants are local manufacturers and exporters whose factory is registered through Factory Registration. Documents: proof of factory registration, the commercial invoice, and, for a trading exporter, the factory's purchase invoice. Processing takes about one working day and the service runs 24/7. Fees depend on invoice value, from AED 10 to AED 200, under the Ministry of Foreign Trade fee resolution (Cabinet Resolution 208/2025). Contact listed on the India service page: 800 1222, info@moet.gov.ae.",
       "params": {
         "fee_bands_aed": [
           { "max_aed": 1000, "fee_aed": 10 },
@@ -401,6 +418,7 @@
       "id": "P-MOET-FACTORY-REG",
       "title": "Prerequisite: Factory Registration",
       "kind": "procedure",
+      "actor": "the Ministry of Economy and Tourism",
       "tags": [
         "factory_registration",
         "prerequisite",
@@ -409,22 +427,23 @@
         "trader"
       ],
       "source_keys": ["MOET-FACTORY-REG", "MOET-COO-INDIA"],
-      "provision": "Ministry Factory Registration service page",
+      "provision": "Ministry of Economy and Tourism Factory Registration service page",
       "quotes": [],
-      "summary": "Before applying for a certificate, the factory must be registered with the ministry. Registration requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added. It takes about 3 working days. Traders can apply only for goods bought from a registered factory. The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
+      "summary": "Before applying for a certificate, the factory must be registered through the Ministry of Economy and Tourism's Factory Registration service (moet.gov.ae). Registration requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added. It takes about 3 working days. Traders can apply only for goods bought from a registered factory. The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
       "notes": [
-        "Inference: free-zone producers are likely not eligible, because Factory Registration requires a factory outside a free zone. Confirm with the ministry."
+        "Inference: free-zone producers are likely not eligible, because Factory Registration requires a factory outside a free zone. Confirm with the Ministry of Economy and Tourism."
       ]
     },
     {
       "id": "P-MOET-AMEND-COO",
       "title": "Amending a certificate of origin",
       "kind": "procedure",
+      "actor": "the Ministry of Foreign Trade",
       "tags": ["certificate", "amendment", "fees"],
-      "source_keys": ["MOET-AMEND-COO"],
-      "provision": "Ministry Amend Certificate of Origin service page",
+      "source_keys": ["MOFT-AMEND-COO", "MOET-AMEND-COO"],
+      "provision": "Ministry of Foreign Trade and Ministry of Economy and Tourism Amend Certificate of Origin service pages",
       "quotes": [],
-      "summary": "An issued certificate can be amended once, for a fee of AED 20.",
+      "summary": "An issued certificate can be amended once, for a fee of AED 20; the invoice amount and the destination cannot be changed. Both the Ministry of Foreign Trade and the Ministry of Economy and Tourism publish this service page with the same terms.",
       "params": { "fee_aed": 20, "max_amendments": 1 },
       "notes": []
     },
@@ -444,6 +463,7 @@
     },
     {
       "id": "P-IN-IMPORTER",
+      "actor": "the Indian importer",
       "title": "What the Indian importer must do",
       "kind": "procedure",
       "tags": ["importer", "india", "carotar", "e_sanchit", "records"],

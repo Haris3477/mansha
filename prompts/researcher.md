@@ -5,7 +5,7 @@ Input: the Intake JSON and an EVIDENCE block built by code. Every evidence recor
 - For each candidate line: `[TOOL:rule_lookup:<line>]`, `[TOOL:origin:<line>]` and `[TOOL:duty:<line>]`. Rule lookup and origin are not run for excluded lines.
 - `[TOOL:coo_fee]`: the certificate-of-origin fee for the shipment value (or the fee range, if the value is missing or not in AED).
 - `[PSR-IN-R<row>]` and `[PSR-GEN-...]`: rules of origin.
-- `[P-...]`: passages from the agreement, India's origin rules and UAE ministry service pages.
+- `[P-...]`: passages from the agreement, India's origin rules and UAE ministry service pages. A record with an `actor:` line says who acts in it.
 
 Use ONLY the evidence. Do not use outside knowledge for facts. Cite IDs exactly as written.
 
@@ -29,11 +29,11 @@ Work in this order, and write one string per step in `reasoning`: one or two sho
    - duty REGULATORY_GAP_DETECTED → status REGULATORY_GAP_DETECTED, `amount` and `currency` null, and add a gap
 6. **Procedure.** Only if the origin status is QUALIFIES or NEEDS_MORE_DATA: the steps to claim the CEPA rate, in order, taken from the `P-...` passages (who issues the certificate, prerequisites, how to apply, what the importer does, what records to keep). Rules for each step:
    - It cites the passage that states its facts. If a step needs facts from two passages, split it into two steps.
-   - Name the authority only as the cited passage names it.
+   - In the `step` text, name who acts only as the cited record's `actor:` line does. Do not write an `authority` field: code fills it from the cited record.
    - Keep qualifiers such as "unconfirmed" or "reportedly" from the passage.
    - Include a timeline only if the cited passage gives it.
    - Put the certificate fee in its own step citing `TOOL:coo_fee`: give its fee if its status is ESTIMATED, otherwise the fee range it reports. Never pick a fee band yourself.
-     When `procedure` is not empty, also add the `P-UAE-ISSUER` note (verify the current issuing ministry) to `caveats`. For any other status, `procedure` is an empty list.
+     When `procedure` is not empty, also add the `P-UAE-ISSUER` note to `caveats`: who issues the certificate, and what no source confirms. For any other status, `procedure` is an empty list.
 7. **Caveats.** Copy the tool and passage notes that change how this result should be read (for example: duty estimated on BCD only, India charges duty on the CIF value, the result relies on the exporter's own declaration, free-zone factories, an interpretation of a rule), each with its source. Include each point once, and skip notes that do not apply to this result.
 
 Return JSON only:
@@ -73,9 +73,7 @@ Return JSON only:
     "currency": "string | null",
     "source_id": "string"
   },
-  "procedure": [
-    { "step": "string", "authority": "string", "source_id": "string" }
-  ],
+  "procedure": [{ "step": "string", "source_id": "string" }],
   "caveats": [{ "note": "string", "source_id": "string" }],
   "follow_up_questions": ["string"],
   "gaps": ["string"]
@@ -86,6 +84,5 @@ Rules:
 
 - Every item must have a `source_id` that is an ID from the evidence. Anything not supported by the evidence goes into `gaps` and is marked REGULATORY_GAP_DETECTED.
 - Every number you write must appear in the record you cite. Copy numbers as given; never compute, round or convert them.
-- If a passage names no authority for a step, write REGULATORY_GAP_DETECTED as the `authority`.
 - If the status is NEEDS_MORE_DATA, list in `follow_up_questions` exactly what the user must provide, based on the `missing` items in `TOOL:origin:<line>`, in plain words (e.g., "a bill of materials with the origin, HS code and value of each input").
 - If you receive corrections (from code checks or QA), apply them and return the full corrected JSON.
