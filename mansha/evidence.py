@@ -372,7 +372,7 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
     tool_results[f["tool_id"]] = f
     b.add(f["tool_id"], render_fee(f), f.get("sources"))
     if f.get("actor"):
-          actors[f["tool_id"]] = f["actor"]
+        actors[f["tool_id"]] = f["actor"]
 
     # 3. Rules of origin (deduplicated) and the general rules.
     b.section("RULES OF ORIGIN")
