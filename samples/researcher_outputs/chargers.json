@@ -1,0 +1,75 @@
+{
+  "served_by": "google/gemini-3.7-flash",
+  "latency_s": 18.68,
+  "attempts": 1,
+  "problems": [],
+  "warnings": [],
+  "output": {
+    "reasoning": [
+      "Battery chargers classified under tariff line 85044030 based on exact description match.",
+      "Tariff line 85044030 is eligible for CEPA preference with staging category TEI.",
+      "The MFN effective rate is 20% and the 2026 CEPA preferential rate is 0%.",
+      "The product fails origin requirements as repacking and relabelling are minimal operations, final manufacture was not in the UAE, and it fails both CTH and VA checks.",
+      "Because the product does not qualify for preferential origin, estimated saving is not applicable.",
+      "Procedure is omitted because the product does not qualify for preferential treatment.",
+      "Relevant caveats regarding minimal operations, exporter declarations, and duty scope are noted."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "final_manufacture_in_uae: FAIL - Declared: final manufacture did not take place in the UAE (Art. 3.2.3); minimal_operations: FAIL - Declared operations ['b', 'k', 'l'] are all minimal operations under Art. 3.5.1, which never confer origin; CTH: FAIL - 1 non-originating input(s) are in the same heading 8504 as the product (Battery chargers (finished)); together 88.0% of the price, above the 10% de minimis; VA: FAIL - build-down 12.0% against a threshold of 40%, FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "A product that only undergoes these operations does not originate, even if it meets its product-specific rule.",
+        "source_id": "P-AGR-3.5-MINIMAL"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "45/2025 S.No. 323 gives 15% only for EV manufacture; general rate 20%.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:85044030"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

@@ -18,10 +18,10 @@ def load_prompt(name: str) -> str:
 
 
 def build_system_prompt(agent: str, language: str | None = None) -> str:
-    """Shared rules (with {language} filled in) + the agent's own prompt.
+    """Shared rules + the agent's own prompt, with {language} filled in both.
 
     language: "ar", "en", or None (before Intake has run).
     """
     language_name = LANGUAGE_NAMES.get(language or "", "the user's language")
-    shared = load_prompt("shared_rules").replace("{language}", language_name)
-    return f"{shared}\n\n{load_prompt(agent)}"
+    text = f"{load_prompt('shared_rules')}\n\n{load_prompt(agent)}"
+    return text.replace("{language}", language_name)

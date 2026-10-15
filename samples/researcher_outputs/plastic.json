@@ -1,0 +1,63 @@
+{
+  "served_by": "google/gemini-3.5-flash",
+  "latency_s": 12.28,
+  "attempts": 1,
+  "problems": [],
+  "warnings": [],
+  "output": {
+    "reasoning": [
+      "Step 1: Tariff line 39239090 is selected as its description best matches the product description 'plastic packing articles' and matches the provided HS code.",
+      "Step 2: The selected tariff line is designated as EXCLUDED under India-UAE CEPA, meaning no preferential tariff treatment applies.",
+      "Step 3: The MFN rate is 15% and the preferential rate is EXCLUDED.",
+      "Step 4: Because the line is excluded from preference, rules of origin are not applicable.",
+      "Step 5: The duty tool reports NO_PREFERENCE, resulting in no preferential duty savings.",
+      "Step 6: No claim procedure applies for an excluded tariff line.",
+      "Step 7: Regulatory notes regarding exclusion, Indian duty valuation basis, and duty scope are recorded in caveats."
+    ],
+    "classification": {
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "confidence": "high",
+      "source_id": "TL-IN-39239090"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "15%",
+      "preferential_rate": "EXCLUDED",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_rule": {
+      "rule": "NOT_APPLICABLE",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_result": {
+      "status": "NOT_APPLICABLE",
+      "basis": "This line is excluded from India's CEPA concessions: no preferential rate, the normal (MFN) duty applies whatever the origin.",
+      "source_id": "TL-IN-39239090"
+    },
+    "estimated_saving": {
+      "status": "NO_PREFERENCE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:39239090"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "Excluded: MFN applies even if the origin rule is met.",
+        "source_id": "TL-IN-39239090"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:39239090"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:39239090"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NO_PREFERENCE"
+  }
+}
