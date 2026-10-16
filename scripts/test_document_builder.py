@@ -235,9 +235,19 @@ check("bad twice: code-only report", r.used_fallback and r.problems and "40,000"
 check("code-only report keeps the mandatory notes verbatim",
       all(f"- {t}" in notes_section(r.markdown) for t in mand_texts))
 
-llm = fake_llm(LLMCallError("router down", []))
+failed = [{"attempt": 1, "ok": False, "http_status": 502, "problem": "HTTP 502",
+           "waited_before_retry_s": 30}, {"attempt": 2, "ok": False, "problem": "empty reply"}]
+llm = fake_llm(LLMCallError("router down", failed))
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("LLM error: code-only report", r.used_fallback and "## Summary" in r.markdown)
+check("LLM error: the failed call's attempts are kept", r.failed_attempts == failed, r.failed_attempts)
+llm = fake_llm(bad, LLMCallError("router down", failed[:1]))
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("error in round 2: round 1 call and failed attempts both kept",
+      len(r.llm_calls) == 1 and r.failed_attempts == failed[:1] and r.used_fallback)
+llm = fake_llm(good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("no error: no failed attempts", r.failed_attempts == [])
 
 msgs = build_messages(facts, "en")
 check("system prompt has the Agent 4 section and language",

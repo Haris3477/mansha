@@ -23,8 +23,25 @@ QUOTE_STATUSES = {"V", "B"}  # only display-safe quotes may be stored
 ACTOR_KINDS = {"procedure", "authority"}  # passages that say who acts; code copies actor into steps
 
 
+# Destinations Mansha has data for: the Intake's canonical English country name -> data/<folder>.
+# A destination missing here is NOT_COVERED by Mansha. That says nothing about whether
+# the UAE has a CEPA with that country (it has CEPAs Mansha doesn't cover yet).
+CORRIDORS = {"India": "india"}
+
+
 class KBError(Exception):
     """Raised when knowledge-base files are missing or invalid."""
+
+
+def corridor_for(destination: str | None) -> str | None:
+    """The corridor folder for a destination country, or None if Mansha doesn't cover it."""
+    if not destination:
+        return None
+    wanted = destination.strip().casefold()
+    for country, folder in CORRIDORS.items():
+        if country.casefold() == wanted:
+            return folder
+    return None
 
 
 def _read_json(path: Path):

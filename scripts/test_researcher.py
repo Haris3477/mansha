@@ -8,12 +8,14 @@ import sys
 
 from mansha.evidence import build_evidence, fmt_num, passages_of
 from mansha.kb import load_corridor
+from mansha.llm_client import LLMCallError, LLMResult
 from mansha.researcher import (
     GAP,
     build_messages,
     check_researcher,
     fill_authorities,
     number_keys,
+    run_researcher,
 )
 
 failures: list[str] = []
@@ -271,6 +273,45 @@ check("revision: code-filled authorities not sent back", '"authority"' not in m2
 check("revision: previous answer itself not changed", "authority" in GOOD_W["procedure"][0])
 check("revision: corrections included", "fix the saving" in m2[3]["content"])
 check("prompt no longer asks the model for authority", '"authority"' not in m[0]["content"])
+
+# ---------------- run_researcher with a fake LLM ----------------
+print("\n== run_researcher (fake LLM)")
+calls = []
+
+
+def fake_llm(*replies):
+    queue = list(replies)
+
+    def llm(agent, chain, messages, **kwargs):
+        calls.append((agent, chain, messages))
+        r = queue.pop(0)
+        if isinstance(r, Exception):
+            raise r
+        return LLMResult(text="{}", data=copy.deepcopy(r), routed_via="fake/model",
+                         finish_reason="stop", latency_s=0.0)
+    return llm
+
+
+wi = {"product_description": "aluminium window frames"}
+res = run_researcher(wi, w, llm=fake_llm({**GOOD_W, "verdict": "NOT_ELIGIBLE"}))
+check("called as researcher on auto:long", calls[-1][:2] == ("researcher", "auto:long"))
+check("good answer: passed, verdict set by code", res.passed and res.data["verdict"] == "ELIGIBLE",
+      res.data.get("verdict"))
+check("authorities filled by code", all(s.get("authority") == w.actors.get(s["source_id"], GAP)
+                                        for s in res.data["procedure"]))
+check("served_by kept for the phase log", res.llm.routed_via == "fake/model")
+bad = copy.deepcopy(GOOD_W); bad["origin_result"]["status"] = "DOES_NOT_QUALIFY"
+res = run_researcher(wi, w, llm=fake_llm(bad))
+check("wrong status: problems returned (not raised)", not res.passed and res.problems)
+res2 = run_researcher(wi, w, previous=res.data, corrections=res.problems, llm=fake_llm(GOOD_W))
+check("revision sends the corrections", "CORRECTIONS" in calls[-1][2][-1]["content"])
+check("revision fixes it", res2.passed)
+err = LLMCallError("router down", [{"attempt": 1, "ok": False, "problem": "HTTP 502"}])
+try:
+    run_researcher(wi, w, llm=fake_llm(err))
+    check("LLM error reaches the caller with its attempts", False, "no exception")
+except LLMCallError as e:
+    check("LLM error reaches the caller with its attempts", e.attempts == err.attempts)
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

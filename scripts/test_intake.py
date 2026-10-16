@@ -15,6 +15,7 @@ import sys
 from dotenv import load_dotenv
 
 from mansha.intake import normalize, run_intake
+from mansha.llm_client import LLMResult
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
@@ -69,6 +70,21 @@ def offline_tests() -> None:
     check("shipment_value", data["shipment_value"], None)
     check("missing_fields", data["missing_fields"],
           ["hs_code_given", "exporter_role", "uae_processing", "shipment_value"])
+
+    print("\n=== OFFLINE: run_intake() with a fake LLM ===")
+    seen = []
+
+    def fake_llm(agent, chain, messages, **kwargs):
+        seen.append((agent, chain, kwargs.get("required_keys")))
+        reply = dict(raw, hs_code_given=None, missing_fields=[])
+        return LLMResult(text=json.dumps(reply), data=reply, routed_via="fake/model",
+                         finish_reason="stop", latency_s=0.0)
+
+    result = run_intake("We make aluminium window frames in Sharjah for India.", llm=fake_llm)
+    check("fake LLM called once, as intake on auto:qa", [s[:2] for s in seen], [("intake", "auto:qa")])
+    check("JSON keys validated by the client", "missing_fields" in (seen[0][2] or ()), True)
+    check("output normalized by code", result.data["destination_country"], "India")
+    check("served_by kept for the phase log", result.llm.routed_via, "fake/model")
 
 
 LIVE_CASES = [

@@ -301,7 +301,7 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
             if missing:
                 warnings.append(f"{where}: number(s) {sorted(missing)} not found in {sid}")
 
-        # 9. A step's text names a known actor (e.g. a ministry) that its cited record does not:
+    # 9. A step's text names a known actor (e.g. a ministry) that its cited record does not:
     #    usually facts from two records merged into one step (warning, judged by QA).
     names = sorted({a.removeprefix("the ") for a in pack.actors.values()
                     if a.removeprefix("the ")[:1].isupper()}, key=len, reverse=True)
@@ -342,22 +342,26 @@ def build_messages(intake: dict, pack: EvidencePack, *, previous: dict | None = 
 
 
 def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = None,
-                   corrections: list[str] | None = None) -> ResearcherResult:
-    """One Researcher call (first pass, or a revision when corrections are given)."""
+                   corrections: list[str] | None = None, llm=call_llm) -> ResearcherResult:
+    """One Researcher call (first pass, or a revision when corrections are given).
+
+    llm: the call function (tests pass a fake one). An LLMCallError is not caught
+    here: the caller (the orchestrator) records its attempts and stops.
+    """
     if corrections and previous is None:
         raise ValueError("a revision needs the previous Researcher JSON")
-    llm = call_llm("researcher", "auto:long",
-                   build_messages(intake, pack, previous=previous, corrections=corrections),
-                   expect_json=True, required_keys=REQUIRED_KEYS)
-    data = copy.deepcopy(llm.data)
+    res = llm("researcher", "auto:long",
+              build_messages(intake, pack, previous=previous, corrections=corrections),
+              expect_json=True, required_keys=REQUIRED_KEYS)
+    data = copy.deepcopy(res.data)
     data.pop("verdict", None)  # the verdict is code's job
     fill_authorities(data, pack)  # so is who acts in each step
     problems, warnings, verdict = check_researcher(data, pack)
     data["verdict"] = verdict
     log.info("researcher checks | served_by=%s | verdict=%s | problems=%d | warnings=%d",
-             llm.routed_via, verdict, len(problems), len(warnings))
+             res.routed_via, verdict, len(problems), len(warnings))
     for p in problems:
         log.info("researcher problem | %s", p)
     for w in warnings:
         log.info("researcher warning | %s", w)
-    return ResearcherResult(data=data, problems=problems, warnings=warnings, llm=llm)
+    return ResearcherResult(data=data, problems=problems, warnings=warnings, llm=res)

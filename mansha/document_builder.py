@@ -163,6 +163,7 @@ class BuilderResult:
     used_fallback: bool
     problems: list[str] = field(default_factory=list)   # left over when the fallback was used
     llm_calls: list[LLMResult] = field(default_factory=list)
+    failed_attempts: list[dict] = field(default_factory=list)  # attempts of a call that failed (LLMCallError)
 
 
 # ---------- FACTS and NOTES (code, before the call) ----------
@@ -504,6 +505,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     facts_text, notes = build_facts(research, intake)
     language = intake.get("language")
     calls: list[LLMResult] = []
+    failed_attempts: list[dict] = []
     prose, problems = None, []
 
     for round_no in (1, 2):   # first pass, then at most one correction round
@@ -515,6 +517,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
         except LLMCallError as exc:
             log.warning("document builder | LLM call failed: %s", exc)
             problems = [f"LLM call failed: {exc}"]
+            failed_attempts = list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)
             break
         calls.append(res)
         prose = res.data
@@ -534,4 +537,5 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     kb_sources = load_corridor(corridor)["sources"]
     md = render_report(research, intake, prose, notes, id_sources, kb_sources)
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
-                         problems=problems if used_fallback else [], llm_calls=calls)
+                         problems=problems if used_fallback else [], llm_calls=calls,
+                         failed_attempts=failed_attempts)

@@ -214,8 +214,11 @@ def normalize(raw: dict[str, Any], message: str) -> tuple[dict[str, Any], list[s
 
 # ---------- the agent ----------
 
-def run_intake(message: str) -> IntakeResult:
-    """Call the Intake LLM, then normalize its JSON with code."""
+def run_intake(message: str, *, llm=call_llm) -> IntakeResult:
+    """Call the Intake LLM, then normalize its JSON with code.
+
+    llm: the call function (tests pass a fake one).
+    """
     message = message.strip()
     if not message:
         raise ValueError("Empty user message")
@@ -224,7 +227,7 @@ def run_intake(message: str) -> IntakeResult:
         {"role": "system", "content": build_system_prompt(AGENT)},
         {"role": "user", "content": message},
     ]
-    result = call_llm(AGENT, CHAIN, messages, expect_json=True, required_keys=REQUIRED_KEYS)
+    result = llm(AGENT, CHAIN, messages, expect_json=True, required_keys=REQUIRED_KEYS)
 
     data, changes = normalize(result.data, message)
     for change in changes:
