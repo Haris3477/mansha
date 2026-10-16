@@ -193,6 +193,12 @@ def rule_text(research: dict) -> str:
     return "does not apply, because the line is excluded from CEPA preference" if r == "NOT_APPLICABLE" else r
 
 
+# The duty tool's estimate note (mansha/tools/duty_estimate.py) starts with this. It explains an
+# estimate, so it is dropped when the report shows none (saving status not ESTIMATED: product
+# does not qualify, line excluded, ...). test_document_builder checks the tool still says it.
+ESTIMATE_NOTE_START = "Estimate on the shipment value given"
+
+
 def is_mandatory(source_id: str) -> bool:
     return source_id in MANDATORY_IDS or str(source_id).startswith(MANDATORY_PREFIXES)
 
@@ -204,10 +210,13 @@ def build_notes(research: dict) -> list[dict]:
     to the LLM). Optional notes are numbered N1, N2, ... and are what the LLM condenses.
     """
     notes, seen, count = [], set(), {True: 0, False: 0}
+    shows_estimate = research["estimated_saving"].get("status") == "ESTIMATED"
     for cv in research.get("caveats") or []:
         text = str(cv.get("note", "")).strip()
         if not text or text in seen:
             continue
+        if text.startswith(ESTIMATE_NOTE_START) and not shows_estimate:
+            continue   # explains an estimate the report does not show
         seen.add(text)
         sid = cv.get("source_id")
         mand = is_mandatory(sid)

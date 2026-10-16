@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 from mansha.document_builder import (
+    ESTIMATE_NOTE_START,
     EVIDENCE_ID_RE,
     MAX_NOTES,
     build_facts,
@@ -24,6 +25,7 @@ from mansha.document_builder import (
 from mansha.evidence import build_evidence
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
+from mansha.tools.duty_estimate import duty_estimate
 from scripts.run_researcher import CASES
 
 FIXTURES = Path("samples/researcher_outputs")
@@ -127,6 +129,17 @@ check(f"windows_nodata: LLM may write {MAX_NOTES - 2} notes", f"at most {MAX_NOT
 pl_facts, _ = build_facts(*cases["plastic"][:2])
 check("plastic: CEPA rate shown as excluded", "CEPA RATE: excluded" in pl_facts)
 
+for name in ("chargers", "plastic"):
+    _, n = build_facts(*cases[name][:2])
+    check(f"{name}: estimate note dropped (no saving shown)",
+          not any(x["text"].startswith(ESTIMATE_NOTE_START) for x in n))
+    check(f"{name}: BCD-only duty note kept", any("Basic Customs Duty" in x["text"] for x in n))
+check("windows: estimate note kept (saving shown)",
+      any(x["text"].startswith(ESTIMATE_NOTE_START) for x in notes))
+tool_notes = duty_estimate("76101000", {"amount": 100000, "currency": "AED"}).notes
+check("duty tool's estimate note still starts with ESTIMATE_NOTE_START",
+      any(x.startswith(ESTIMATE_NOTE_START) for x in tool_notes), tool_notes)
+
 print("\n2. Prose checks")
 good = good_windows_prose(notes)
 check("good prose passes", check_prose(good, facts, notes) == [], check_prose(good, facts, notes))
@@ -151,7 +164,7 @@ expect_problem("citing a mandatory note fails (the LLM never sees them)",
                lambda p: p["notes"][0].update(**{"from": ["M1"]}))
 expect_problem("unknown note number fails", lambda p: p["notes"][0]["from"].append("N99"))
 expect_problem("empty from fails", lambda p: p["notes"][0].update(**{"from": []}))
-expect_problem(f"more than {limit} notes fails (6 in total with the {len(mand)} mandatory)",
+expect_problem(f"more than {limit} notes fails (6 in total with the {sum(x['mandatory'] for x in notes)} mandatory)",
                lambda p: p.update(notes=[{"text": "x", "from": [first_opt]}] * (limit + 1)))
 expect_problem("note number not in its own notes fails",
                lambda p: p["notes"].append({"text": "Keep records for 7 years.", "from": [first_opt]}))
