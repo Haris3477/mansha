@@ -107,6 +107,10 @@ def phase_names(res) -> list[str]:
     return [p.name for p in res.phases]
 
 
+def phase(res, name: str):
+    return next(p for p in res.phases if p.name == name)
+
+
 ERR = LLMCallError("router down", [{"attempt": 1, "ok": False, "http_status": 502,
                                     "problem": "HTTP 502", "waited_before_retry_s": 30},
                                    {"attempt": 2, "ok": False, "problem": "empty reply"}])
@@ -124,10 +128,10 @@ for case, (_, _, status, verdict) in PIPELINE_CASES.items():
 res, llm = results["windows"]
 check("windows: phases in order", phase_names(res) == [
     "Intake", "Coverage check", "Tools + evidence", "Researcher (round 1)", "QA (round 1)",
-    "Document Builder"], phase_names(res))
+    "Document Builder", "Report check"], phase_names(res))
 check("windows: agents called intake -> researcher -> builder",
       llm.agents() == ["intake", "researcher", "document_builder"], llm.agents())
-check("windows: LLM prose used (no fallback)", res.phases[-1].status == "OK")
+check("windows: LLM prose used (no fallback)", phase(res, "Document Builder").status == "OK")
 check("windows: every LLM phase records who served it",
       all(c.get("served_by") for p in res.phases for c in p.calls))
 files = sorted(f.name for f in res.out_dir.iterdir())
@@ -137,8 +141,14 @@ check("windows: all phase files saved", files == sorted([
 check("windows: report.md is the report", (res.out_dir / "report.md").read_text() == res.output
       and res.output.startswith("#"))
 plog = json.loads((res.out_dir / "phase_log.json").read_text())
-check("phase_log.json: status, verdict and 6 phases", plog["status"] == "REPORT"
-      and plog["verdict"] == "ELIGIBLE" and len(plog["phases"]) == 6)
+check("phase_log.json: status, verdict and 7 phases", plog["status"] == "REPORT"
+      and plog["verdict"] == "ELIGIBLE" and len(plog["phases"]) == 7)
+for case in ("windows", "chargers", "windows_nodata", "plastic"):
+    rc = phase(results[case][0], "Report check")
+    check(f"{case}: report check clean", rc.status == "OK" and not rc.problems and not rc.warnings,
+          rc.problems + rc.warnings)
+for case in ("vague", "brazil"):
+    check(f"{case}: no report check for a stop", "Report check" not in phase_names(results[case][0]))
 
 res, llm = results["windows_nodata"]
 check("windows_nodata: no bill of materials noted", "bill of materials: not given" in res.phases[2].summary)
@@ -243,7 +253,7 @@ check("QA rejects then approves: REPORT after the revision", res.status == "REPO
       and "Researcher (round 2)" in phase_names(res))
 check("QA corrections go to the Researcher", "QA: classification not justified"
       in llm.seen[2][1][-1]["content"])
-check("QA phase OK after approval", res.phases[-2].name == "QA (round 2)" and res.phases[-2].status == "OK")
+check("QA phase OK after approval", phase(res, "QA (round 2)").status == "OK")
 
 llm = fake_for("windows", researcher=[research_fixture("windows")] * 2)
 res = run("windows", llm, qa=qa_script(rejected, rejected))
@@ -272,7 +282,7 @@ check("Researcher revision fails: LLM_ERROR, corrections recorded", res.status =
       and res.phases[-1].details.get("corrections_sent"))
 
 res = run("windows", fake_for("windows", document_builder=[ERR]))
-b = res.phases[-1]
+b = phase(res, "Document Builder")
 check("Builder fails: still a REPORT (code-only)", res.status == "REPORT" and b.status == "FALLBACK")
 check("Builder fails: failed attempts kept in the phase log",
       any(c["attempts"] == ERR.attempts for c in b.calls))
@@ -317,6 +327,23 @@ check("revision: corrections shown", "Corrections sent (one shared revision):" i
 check("failed call: attempt trail with the wait", "call FAILED" in md and "HTTP 502 -> waited 30 s" in md
       and "#2 router" in md, md[-600:])
 check("fallback visible", "| FALLBACK |" in md)
+check("report check row", "| Report check | OK |" in md)
+
+# A report with a problem is FLAGGED but still shown (decision 9.6b: flag only)
+# Mandatory notes are printed verbatim from the Researcher's caveats (path of problem 34), so a
+# raw field name there gets past the Builder's checks; only the report check sees it.
+leaky = research_fixture("windows")
+leaky["caveats"].append({"note": "Totals: price_basis FOB.", "source_id": "TOOL:origin:76101000"})
+res = run("windows", fake_for("windows", researcher=[leaky], document_builder=[ERR]))   # code prose
+rc = phase(res, "Report check")
+check("flagged report: still a REPORT, shown to the user", res.status == "REPORT"
+      and (res.out_dir / "report.md").exists())
+check("flagged report: phase FLAGGED with the problems", rc.status == "FLAGGED" and rc.problems, rc.problems)
+check("flagged report: pipeline warning", any(w.startswith("Report check:") for w in res.warnings),
+      res.warnings)
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+check("flagged report: visible in phase_log.md", "| Report check | FLAGGED |" in md
+      and "report shown anyway (flag only)" in md)
 
 res = run("brazil", fake_for("brazil"))
 md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
@@ -339,6 +366,10 @@ code = runner_main(["--message", "We make aluminium window frames for India.",
                    llm=fake_for("windows"), runs_root=root)
 check("--message with --bom: runs, folder named _msg", code == 0
       and any(f.name.endswith("_msg") and (f / "report.md").exists() for f in root.iterdir()))
+code = runner_main(["--message", "We make aluminium window frames for India.",
+                    "--bom", "samples/windows_qualifies"],
+                   llm=fake_for("windows", researcher=[leaky], document_builder=[ERR]), runs_root=root)
+check("report check problem: exit 1 (report still saved)", code == 1, code)
 for bad_args in (["--bom", "samples/windows_qualifies"], ["nope"], ["vague", "--message", "x"]):
     try:
         runner_main(bad_args, llm=FakeLLM(), runs_root=root)

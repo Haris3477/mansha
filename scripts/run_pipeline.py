@@ -7,7 +7,9 @@ Run (from the project root):
 
 Each run is saved in runs/pipeline/<YYYYMMDD-HHMMSS>_<case>/ (message, intake, evidence,
 researcher_N, qa_N, builder, report.md or notice.md, phase_log.json and phase_log.md).
-Dev cases also check the status and verdict against the expected ones.
+Dev cases also check the status and verdict against the expected ones. Every report also
+goes through the automatic report check (mansha/report_check.py); its problems are printed
+and make the exit code 1, but they never replace reading the report.
 """
 
 import argparse
@@ -42,8 +44,22 @@ def run_one(name: str, message: str, folder: str | None, *, llm, runs_root: Path
     print(f"  saved: {out}/  (read {'report.md' if res.status == 'REPORT' else 'notice.md'} "
           "and phase_log.md)")
     builder = next((p for p in res.phases if p.name == "Document Builder"), None)
+    check = next((p for p in res.phases if p.name == "Report check"), None)
+    if check:
+        for x in check.problems:
+            print(f"  REPORT CHECK problem: {x}")
+        for x in check.warnings:
+            print(f"  REPORT CHECK warning: {x}")
     return {"case": name, "status": res.status, "verdict": res.verdict, "seconds": res.seconds,
-            "fallback": bool(builder and builder.status == "FALLBACK"), "out": out}
+            "fallback": bool(builder and builder.status == "FALLBACK"), "out": out,
+            "check": (len(check.problems), len(check.warnings)) if check else None}
+
+
+def check_text(r: dict) -> str:
+    if r["check"] is None:
+        return "check -"
+    p, w = r["check"]
+    return f"check {p}P/{w}W"
 
 
 def main(argv: list[str] | None = None, *, llm=call_llm, runs_root: Path = RUNS_ROOT) -> int:
@@ -56,8 +72,8 @@ def main(argv: list[str] | None = None, *, llm=call_llm, runs_root: Path = RUNS_
     if args.message:
         if args.cases:
             parser.error("give either dev case names or --message, not both")
-        run_one("msg", args.message, args.bom, llm=llm, runs_root=runs_root)
-        return 0
+        r = run_one("msg", args.message, args.bom, llm=llm, runs_root=runs_root)
+        return 1 if r["check"] and r["check"][0] else 0
     if args.bom:
         parser.error("--bom only works with --message (dev cases have their own folder)")
 
@@ -78,10 +94,11 @@ def main(argv: list[str] | None = None, *, llm=call_llm, runs_root: Path = RUNS_
     for r in rows:
         got = r["status"] + (f" ({r['verdict']})" if r["verdict"] else "")
         print(f"{'OK  ' if r['ok'] else 'FAIL'} {r['case']:<15} expected {r['expected']:<26} got {got:<26} "
-              f"{r['seconds']:>6.1f}s{'  [Builder fallback]' if r['fallback'] else ''}")
-    print("\nOK/FAIL checks the status and verdict only. Read each report.md and phase_log.md before "
-          "calling a run good.")
-    return 0 if all(r["ok"] for r in rows) else 1
+              f"{r['seconds']:>6.1f}s  {check_text(r)}{'  [Builder fallback]' if r['fallback'] else ''}")
+    print("\nOK/FAIL checks the status and verdict only; 'check NP/NW' is the automatic report check "
+          "(problems/warnings, flag only).\nRead each report.md and phase_log.md before calling a run good.")
+    flagged = any(r["check"] and r["check"][0] for r in rows)
+    return 0 if all(r["ok"] for r in rows) and not flagged else 1
 
 
 if __name__ == "__main__":

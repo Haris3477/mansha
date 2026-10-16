@@ -4,6 +4,7 @@ Plain Python decides the order and when to stop; the agents only do their own jo
 
     message -> Intake -> coverage check -> tools + evidence -> Researcher
             -> [QA slot] -> (one shared revision) -> Document Builder -> report
+            -> Report check (code; flags problems in the finished report, never blocks it)
 
 Stops, each with a short message written by code in the user's language:
     NEEDS_INPUT    product or destination missing (ask the user)
@@ -14,6 +15,9 @@ Stops, each with a short message written by code in the user's language:
 
 The QA slot is a pass-through until Step 7: it returns SKIPPED (never APPROVED),
 and the phase log says the output was NOT reviewed by QA.
+
+The report check (Step 9.6b, mansha/report_check.py) is FLAG ONLY (Haris, 17 Oct): its
+problems and warnings go to the phase log and the pipeline warnings; the report is shown.
 
 Data protection: only code reads the bill of materials (in build_evidence's
 origin calculator). Nothing from it except totals and percentages reaches a prompt
@@ -35,6 +39,7 @@ from mansha.evidence import EvidencePack, build_evidence
 from mansha.intake import IntakeResult, detect_language, run_intake
 from mansha.kb import CORRIDORS, corridor_for
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
+from mansha.report_check import check_report
 from mansha.researcher import ResearcherResult, run_researcher
 
 log = logging.getLogger("mansha.orchestrator")
@@ -68,7 +73,7 @@ class QAOutcome:
 @dataclass
 class Phase:
     name: str                                # e.g. "Researcher (round 1)"
-    status: str                              # OK | STOP | FAILED | SKIPPED | FALLBACK
+    status: str                              # OK | STOP | FAILED | SKIPPED | FALLBACK | FLAGGED
     seconds: float
     summary: str                             # one line a judge can read
     calls: list[dict] = field(default_factory=list)    # LLM calls, every attempt included
@@ -294,7 +299,8 @@ def render_phase_log(result: PipelineResult) -> str:
         if p.problems:
             lines += ["", "Problems:"] + [f"- {x}" for x in p.problems]
         if p.warnings:
-            lines += ["", "Code warnings (for QA):"] + [f"- {x}" for x in p.warnings]
+            label = "Code warnings (for QA):" if p.name.startswith("Researcher") else "Warnings:"
+            lines += ["", label] + [f"- {x}" for x in p.warnings]
         changes = p.details.get("normalized_by_code")
         if changes:
             lines += ["", "Normalized by code:"] + [f"- {x}" for x in changes]
@@ -472,4 +478,18 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         f"notes: {len(br.notes)} in ({n_mand} mandatory, verbatim) -> "
         f"{n_mand + len(br.prose.get('notes', []))} in the report",
         calls=calls, problems=br.problems))
+
+    # 6. Report check: plain code on the finished report. Flag only: the report is shown anyway.
+    t = _Timer()
+    rc_problems, rc_warnings = check_report(br.markdown, research=research.data,
+                                            evidence_text=pack.text, message=message, language=lang)
+    flagged = bool(rc_problems or rc_warnings)
+    phases.append(Phase(
+        "Report check", "FLAGGED" if rc_problems else "OK", t(),
+        f"{len(rc_problems)} problem(s), {len(rc_warnings)} warning(s)"
+        + (" | report shown anyway (flag only)" if flagged else ""),
+        problems=rc_problems, warnings=rc_warnings))
+    if rc_problems:
+        warnings.append(f"Report check: {len(rc_problems)} problem(s) in the report shown to the user "
+                        "(flag only): read report.md")
     return finish(REPORT, br.markdown, intake=intake, research=research.data)

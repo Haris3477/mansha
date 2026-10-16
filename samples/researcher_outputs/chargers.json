@@ -32,7 +32,7 @@
     },
     "origin_result": {
       "status": "DOES_NOT_QUALIFY",
-      "basis": "final_manufacture_in_uae: FAIL - Declared: final manufacture did not take place in the UAE (Art. 3.2.3); minimal_operations: FAIL - Declared operations ['b', 'k', 'l'] are all minimal operations under Art. 3.5.1, which never confer origin; CTH: FAIL - 1 non-originating input(s) are in the same heading 8504 as the product (Battery chargers (finished)); together 88.0% of the price, above the 10% de minimis; VA: FAIL - build-down 12.0% against a threshold of 40%, FOB basis.",
+      "basis": "Final manufacture did not take place in the UAE. The declared operations (repacking and relabeling) are minimal operations that never confer origin. One non-originating input falls in the same heading 8504 as the finished battery chargers and accounts for 88.0% of the FOB price, above the 10% de minimis tolerance. Value addition calculated by build-down is 12.0% against a required threshold of 40% on an FOB basis.",
       "source_id": "TOOL:origin:85044030"
     },
     "estimated_saving": {
