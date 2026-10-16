@@ -56,6 +56,19 @@ TERMS = {
     "FOB": "FOB = the price of the goods loaded on board at the UAE port",
 }
 
+# Fixed meanings for the origin check names in BASIS (problem 30: "minimal operations check
+# passed" was read as "minimal operations were done"). Matched as phrases, "_" read as " ".
+CHECK_TERMS = {
+    "final manufacture": "final manufacture check = whether the last manufacturing step took place in "
+                         "the UAE; passed means it did, failed means it did not",
+    "minimal operations": "minimal operations check = whether the work done in the UAE goes beyond the "
+                          "simple operations that the agreement says never give origin on their own; "
+                          "passed means the work goes beyond them, failed means only such simple "
+                          "operations were done",
+    "de minimis": "de minimis = a small share of non-originating inputs that the tariff-shift test is "
+                  "allowed to ignore",
+}
+
 # Plain words for the statuses (the model never sees a bare status word without these).
 VERDICT_TEXT = {
     "ELIGIBLE": "the product meets the rule of origin, so the CEPA rate can be claimed",
@@ -217,7 +230,8 @@ def sent_notes(notes: list[dict]) -> list[dict]:
 def terms_for(text: str) -> list[str]:
     keys = ["MFN", "CEPA"] + [k for k in ("CC", "CTH", "CTSH", "VA", "FOB")
                               if re.search(rf"\b{k}\b", text)]
-    return [TERMS[k] for k in keys]
+    low = text.lower().replace("_", " ")
+    return [TERMS[k] for k in keys] + [t for phrase, t in CHECK_TERMS.items() if phrase in low]
 
 
 def shipment_text(intake: dict) -> str:

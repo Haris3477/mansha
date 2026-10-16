@@ -106,6 +106,13 @@ limit = max_llm_notes(notes)
 check(f"windows: NOTES header gives the limit ({limit})", f"at most {limit} items" in facts)
 check("windows: saving in FACTS", "ESTIMATED SAVING: 10000.00 AED" in facts)
 check("windows: CTSH and VA terms sent", "CTSH = " in facts and "VA = " in facts)
+check("windows: origin check names explained (problem 30)",
+      "minimal operations check = " in facts and "final manufacture check = " in facts)
+ch_facts, _ = build_facts(*cases["chargers"][:2])
+check("chargers: check names with '_' and de minimis explained",
+      "minimal operations check = " in ch_facts and "de minimis = " in ch_facts)
+check("plastic: no check terms when no checks were run",
+      "minimal operations check = " not in build_facts(*cases["plastic"][:2])[0])
 _, nd_notes = build_facts(*cases["windows_nodata"][:2])
 n_cav = len(cases["windows_nodata"][0]["caveats"])
 n_opt = sum(not n["mandatory"] for n in nd_notes)
