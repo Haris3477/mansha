@@ -1,13 +1,16 @@
 """Document Builder Agent (Step 8): approved findings in, Markdown report out.
 
-Split of work (design D1-D4, Step 8.1):
-- code builds a FACTS block and numbered NOTES from the approved Researcher JSON
-  (no evidence IDs are sent to the model)
-- the LLM writes only the prose: summary, classification, duty, origin, notes
-- code checks the prose (numbers, mandatory notes, no IDs or code words) and
+Split of work (design D1-D4, Step 8.1; mandatory notes verbatim since 8.5):
+- code builds a FACTS block and numbered optional NOTES from the approved
+  Researcher JSON (no evidence IDs are sent to the model)
+- the LLM writes only the prose: summary, classification, duty, origin, and a
+  condensed list of the OPTIONAL notes
+- MANDATORY notes (certificate issuer, duty basis, self-declaration) are never
+  sent to the LLM: code prints them word for word, so no warning can be softened
+- code checks the prose (numbers, note sources, no IDs or code words) and
   sends corrections once; if it still fails, code writes the prose itself
-- code renders everything fixed: headings, the claim checklist, the sources
-  list and the disclaimer
+- code renders everything fixed: headings, the claim checklist, the mandatory
+  notes, the sources list and the disclaimer
 """
 
 from __future__ import annotations
@@ -27,10 +30,11 @@ log = logging.getLogger("mansha.document_builder")
 
 REQUIRED_KEYS = ("summary", "classification", "duty", "origin", "notes")
 TEXT_KEYS = ("summary", "classification", "duty", "origin")
-MAX_NOTES = 6
+MAX_NOTES = 6          # notes in the report in total: mandatory (verbatim) + the LLM's items
 NOT_IN_SOURCES = "not in Mansha's sources"
 
 # D2: caveats that must always reach the reader, by the record they cite.
+# Since 8.5 they are shown verbatim by code and never rewritten by the LLM (problem 25).
 MANDATORY_IDS = {"P-UAE-ISSUER"}                      # who issues the certificate
 MANDATORY_PREFIXES = ("TOOL:duty:", "TOOL:origin:")   # duty basis (BCD, CIF); self-declaration
 
@@ -71,7 +75,7 @@ ORIGIN_TEXT = {
 
 # Things the prose must never contain.
 EVIDENCE_ID_RE = re.compile(r"\b(?:TL|EXC|PSR)-[A-Z0-9]|\bP-[A-Z]|TOOL:")
-ID_RE = re.compile(EVIDENCE_ID_RE.pattern + r"|\bN\d+\b")   # evidence IDs and note numbers
+ID_RE = re.compile(EVIDENCE_ID_RE.pattern + r"|\b[NM]\d+\b")   # evidence IDs and note numbers
 CODE_WORD_RE = re.compile(
     r"\b(?:REGULATORY_GAP_DETECTED|NOT_ELIGIBLE|ELIGIBLE|NEEDS_MORE_DATA|NO_PREFERENCE|"
     r"NOT_APPLICABLE|NEEDS_VALUE|DOES_NOT_QUALIFY|QUALIFIES|MANDATORY)\b")
@@ -92,7 +96,7 @@ HEADINGS = {
         "mfn": "Normal (MFN) rate",
         "cepa": "CEPA rate",
         "saving": "Estimated saving",
-        "who": "Who",
+        "authority": "Authority",
         "source": "Source",
     },
     "ar": {
@@ -110,7 +114,7 @@ HEADINGS = {
         "mfn": "السعر العادي (الدولة الأولى بالرعاية)",
         "cepa": "سعر اتفاقية الشراكة الاقتصادية الشاملة",
         "saving": "التوفير التقديري",
-        "who": "الجهة",
+        "authority": "الجهة المختصة",
         "source": "المصدر",
     },
 }
@@ -142,7 +146,7 @@ DISCLAIMER = {
 class BuilderResult:
     markdown: str
     prose: dict                      # the text placed in the report (LLM or code fallback)
-    notes: list[dict]                # the numbered NOTES (with source_id and mandatory flag)
+    notes: list[dict]                # all notes (with nid, source_id and mandatory flag)
     used_fallback: bool
     problems: list[str] = field(default_factory=list)   # left over when the fallback was used
     llm_calls: list[LLMResult] = field(default_factory=list)
@@ -181,17 +185,33 @@ def is_mandatory(source_id: str) -> bool:
 
 
 def build_notes(research: dict) -> list[dict]:
-    """The Researcher's caveats, numbered N1, N2, ... (duplicate texts kept once)."""
-    notes, seen = [], set()
+    """The Researcher's caveats (duplicate texts kept once).
+
+    Mandatory notes are numbered M1, M2, ... and are shown verbatim by code (never sent
+    to the LLM). Optional notes are numbered N1, N2, ... and are what the LLM condenses.
+    """
+    notes, seen, count = [], set(), {True: 0, False: 0}
     for cv in research.get("caveats") or []:
         text = str(cv.get("note", "")).strip()
         if not text or text in seen:
             continue
         seen.add(text)
         sid = cv.get("source_id")
-        notes.append({"nid": f"N{len(notes) + 1}", "text": text, "source_id": sid,
-                      "mandatory": is_mandatory(sid)})
+        mand = is_mandatory(sid)
+        count[mand] += 1
+        notes.append({"nid": f"{'M' if mand else 'N'}{count[mand]}", "text": text,
+                      "source_id": sid, "mandatory": mand})
     return notes
+
+
+def max_llm_notes(notes: list[dict]) -> int:
+    """How many items the LLM may write: the total cap minus the mandatory notes."""
+    return max(0, MAX_NOTES - sum(n["mandatory"] for n in notes))
+
+
+def sent_notes(notes: list[dict]) -> list[dict]:
+    """The notes the LLM sees: the optional ones (none if there is no room for them)."""
+    return [n for n in notes if not n["mandatory"]] if max_llm_notes(notes) else []
 
 
 def terms_for(text: str) -> list[str]:
@@ -208,7 +228,7 @@ def shipment_text(intake: dict) -> str:
 
 
 def build_facts(research: dict, intake: dict) -> tuple[str, list[dict]]:
-    """Return (FACTS + NOTES text for the prompt, notes). No evidence IDs inside."""
+    """Return (FACTS + optional NOTES text for the prompt, all notes). No evidence IDs inside."""
     cls, tar = research["classification"], research["tariff"]
     res, verdict = research["origin_result"], research["verdict"]
     pref = plain(tar.get("preferential_rate"))
@@ -237,10 +257,13 @@ def build_facts(research: dict, intake: dict) -> tuple[str, list[dict]]:
     lines.append("TERMS:" + "".join(f"\n- {t}" for t in terms_for(rule + " " + str(res.get("basis", "")))))
 
     notes = build_notes(research)
-    note_lines = [f"{n['nid']}{' (MANDATORY)' if n['mandatory'] else ''}: {n['text']}" for n in notes]
-    text = ("FACTS:\n" + "\n".join(lines)
-            + "\n\nNOTES:\n" + ("\n".join(note_lines) if note_lines else "none"))
-    return text, notes
+    sent = sent_notes(notes)
+    if sent:
+        notes_text = (f"NOTES (at most {max_llm_notes(notes)} items in your `notes` list):\n"
+                      + "\n".join(f"{n['nid']}: {n['text']}" for n in sent))
+    else:
+        notes_text = "NOTES: none (return an empty `notes` list)"
+    return "FACTS:\n" + "\n".join(lines) + "\n\n" + notes_text, notes
 
 
 # ---------- checks (code, after the call) ----------
@@ -248,8 +271,9 @@ def build_facts(research: dict, intake: dict) -> tuple[str, list[dict]]:
 def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
     """Return problems (each one becomes a correction). Pure code."""
     problems: list[str] = []
-    facts_numbers = number_keys(facts_text.split("\n\nNOTES:")[0])
-    by_nid = {n["nid"]: n for n in notes}
+    facts_numbers = number_keys(facts_text.split("\n\nNOTES")[0])
+    by_nid = {n["nid"]: n for n in sent_notes(notes)}
+    limit = max_llm_notes(notes) if by_nid else 0
 
     for k in TEXT_KEYS:
         if not isinstance(prose.get(k), str) or not prose[k].strip():
@@ -274,10 +298,9 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
     for k in TEXT_KEYS:
         text_problems(f"`{k}`", prose[k], facts_numbers)
 
-    if len(prose["notes"]) > MAX_NOTES:
-        problems.append(f"`notes` has {len(prose['notes'])} items; merge or drop optional ones "
-                        f"to keep at most {MAX_NOTES}")
-    covered: set[str] = set()
+    if len(prose["notes"]) > limit:
+        problems.append(f"`notes` has {len(prose['notes'])} items; merge or drop notes "
+                        f"to keep at most {limit}")
     for i, item in enumerate(prose["notes"]):
         where = f"notes[{i}]"
         if not isinstance(item, dict) or not isinstance(item.get("text"), str) or not item["text"].strip():
@@ -290,23 +313,21 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
         unknown = [s for s in src if s not in by_nid]
         if unknown:
             problems.append(f"{where}.from has unknown note numbers {unknown}")
-        known = [s for s in src if s in by_nid]
-        covered.update(known)
         allowed = set(facts_numbers)
-        for s in known:
-            allowed |= number_keys(by_nid[s]["text"])
+        for s in src:
+            if s in by_nid:
+                allowed |= number_keys(by_nid[s]["text"])
         text_problems(where, item["text"], allowed)
-
-    missing = [n["nid"] for n in notes if n["mandatory"] and n["nid"] not in covered]
-    if missing:
-        problems.append(f"the MANDATORY notes {missing} must appear in the `from` of some note")
     return problems
 
 
 # ---------- fallback (code writes the prose) ----------
 
 def fallback_prose(research: dict, notes: list[dict]) -> dict:
-    """Prose built from the facts alone, used when the LLM's text fails its checks."""
+    """Prose built from the facts alone, used when the LLM's text fails its checks.
+
+    `notes` holds the optional notes verbatim; render_report adds the mandatory ones.
+    """
     cls, tar = research["classification"], research["tariff"]
     res, verdict = research["origin_result"], research["verdict"]
     summary = VERDICT_TEXT.get(verdict, VERDICT_TEXT[GAP])
@@ -321,7 +342,7 @@ def fallback_prose(research: dict, notes: list[dict]) -> dict:
         "duty": (f"Agreement: {plain(tar.get('agreement'))}. Estimated saving: {saving_text(research)}."),
         "origin": (f"Rule of origin: {rule_text(research)}. Result: the product "
                    f"{ORIGIN_TEXT.get(res.get('status'), NOT_IN_SOURCES)}. {plain(res.get('basis'))}"),
-        "notes": [{"text": n["text"], "from": [n["nid"]]} for n in notes],
+        "notes": [{"text": n["text"], "from": [n["nid"]]} for n in notes if not n["mandatory"]],
     }
 
 
@@ -408,16 +429,20 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
     if verdict in CHECKLIST_VERDICTS and steps:   # D4: no checklist when no preference can be claimed
         out += [f"## {h['checklist']}", ""]
         for st in steps:
-            who = plain(st.get("authority"))
+            authority = plain(st.get("authority"))
             nums = src.refs(st.get("source_id"))
             out.append(f"- [ ] {str(st.get('step', '')).strip()}  \n"
-                       f"  *{h['who']}: {cap(who)}.*{cite(nums)}")
+                       f"  *{h['authority']}: {cap(authority)}.*{cite(nums)}")
         out.append("")
 
-    by_nid = {n["nid"]: n for n in notes}
-    if prose.get("notes"):
+    # 8.5: mandatory notes first, word for word; then the LLM's condensed optional notes.
+    mandatory = [n for n in notes if n["mandatory"]]
+    by_nid = {n["nid"]: n for n in notes if not n["mandatory"]}
+    if mandatory or prose.get("notes"):
         out += [f"## {h['notes']}", ""]
-        for item in prose["notes"]:
+        for n in mandatory:
+            out.append(f"- {n['text']}{cite(src.refs(n['source_id']))}")
+        for item in prose.get("notes") or []:
             nums = src.refs(*[by_nid[s]["source_id"] for s in item.get("from", []) if s in by_nid])
             out.append(f"- {item['text'].strip()}{cite(nums)}")
         out.append("")

@@ -52,8 +52,9 @@ def run_case(name: str) -> dict:
     print(f"input     : {src}")
     for i, c in enumerate(calls, 1):
         print(f"call {i}    : {c['served_by']} ({c['latency_s']:.1f}s, {c['attempts']} attempt(s))")
-    print(f"notes     : {len(res.notes)} in -> {len(res.prose.get('notes', []))} out "
-          f"({sum(n['mandatory'] for n in res.notes)} mandatory)")
+        n_mand = sum(n["mandatory"] for n in res.notes)
+        print(f"notes     : {len(res.notes)} in ({n_mand} mandatory, shown verbatim) -> "
+             f"{n_mand + len(res.prose.get('notes', []))} in the report")
     print(f"fallback  : {'YES (code-only report)' if res.used_fallback else 'no'}")
     for p in res.problems:
         print(f"  left    : {p}")

@@ -12,10 +12,12 @@ from pathlib import Path
 
 from mansha.document_builder import (
     EVIDENCE_ID_RE,
+    MAX_NOTES,
     build_facts,
     build_messages,
     check_prose,
     fallback_prose,
+    max_llm_notes,
     render_report,
     run_document_builder,
 )
@@ -42,7 +44,7 @@ def load(name: str):
 
 
 def good_windows_prose(notes: list[dict]) -> dict:
-    mandatory = [n["nid"] for n in notes if n["mandatory"]]
+    optional = [n["nid"] for n in notes if not n["mandatory"]]
     return {
         "summary": "Your aluminium window frames meet the rule of origin, so you can claim the CEPA "
                    "rate in India. The estimated saving is AED 10,000. Follow the checklist below.",
@@ -54,8 +56,8 @@ def good_windows_prose(notes: list[dict]) -> dict:
         "origin": "The rule is CTSH + VA 45%: every imported input must change tariff subheading, "
                   "and value addition must be at least 45%. Your product passed both: value addition "
                   "is 49.0% against the 45% threshold.",
-        "notes": [{"text": "The certificate issuer, the duty basis and your own declaration all "
-                           "affect this result.", "from": mandatory}],
+        "notes": [{"text": "These points also affect how this result should be read.",
+                   "from": optional[:1]}],
     }
 
 
@@ -75,6 +77,11 @@ def fake_llm(*replies):
     return llm
 
 
+def notes_section(md: str) -> str:
+    start = md.index("## Important notes")
+    return md[start:md.index("\n## ", start + 1)]
+
+
 print("\n1. FACTS and NOTES")
 cases = {name: load(name) for name in ("windows", "chargers", "windows_nodata", "plastic")}
 for name, (research, intake, _) in cases.items():
@@ -83,6 +90,9 @@ for name, (research, intake, _) in cases.items():
     check(f"{name}: no evidence IDs in FACTS", not found, found and found.group(0))
     check(f"{name}: FACTS gives the verdict", f"VERDICT: {research['verdict']}" in facts)
     check(f"{name}: no gap marker in FACTS", "REGULATORY_GAP_DETECTED" not in facts)
+    hidden = [n["nid"] for n in notes if n["mandatory"] and n["text"] in facts]
+    check(f"{name}: mandatory notes are not sent to the LLM", not hidden, hidden)
+    check(f"{name}: no 'MANDATORY' label in FACTS", "MANDATORY" not in facts)
 
 research, intake, _ = cases["windows"]
 facts, notes = build_facts(research, intake)
@@ -91,15 +101,22 @@ check("windows: mandatory notes are issuer, duty basis and self-declaration",
       mand == {"P-UAE-ISSUER", "TOOL:duty:76101000", "TOOL:origin:76101000"}, mand)
 check("windows: rule-interpretation note is optional",
       not any(n["mandatory"] for n in notes if n["source_id"].startswith("TOOL:rule_lookup")))
+check("windows: optional notes are sent", all(n["text"] in facts for n in notes if not n["mandatory"]))
+limit = max_llm_notes(notes)
+check(f"windows: NOTES header gives the limit ({limit})", f"at most {limit} items" in facts)
 check("windows: saving in FACTS", "ESTIMATED SAVING: 10000.00 AED" in facts)
 check("windows: CTSH and VA terms sent", "CTSH = " in facts and "VA = " in facts)
 _, nd_notes = build_facts(*cases["windows_nodata"][:2])
 n_cav = len(cases["windows_nodata"][0]["caveats"])
-check(f"windows_nodata: all {n_cav} caveats numbered as notes",
-      [n["nid"] for n in nd_notes] == [f"N{i}" for i in range(1, n_cav + 1)])
-check("windows_nodata: 2 mandatory notes", sum(n["mandatory"] for n in nd_notes) == 2)
+n_opt = sum(not n["mandatory"] for n in nd_notes)
+check(f"windows_nodata: all {n_cav} caveats kept as notes", len(nd_notes) == n_cav)
+check("windows_nodata: 2 mandatory notes, numbered M1, M2",
+      [n["nid"] for n in nd_notes if n["mandatory"]] == ["M1", "M2"])
+check(f"windows_nodata: {n_opt} optional notes, numbered N1..N{n_opt}",
+      [n["nid"] for n in nd_notes if not n["mandatory"]] == [f"N{i}" for i in range(1, n_opt + 1)])
 nd_facts, _ = build_facts(*cases["windows_nodata"][:2])
 check("windows_nodata: saving needs the value", "cannot be estimated without the shipment value" in nd_facts)
+check(f"windows_nodata: LLM may write {MAX_NOTES - 2} notes", f"at most {MAX_NOTES - 2} items" in nd_facts)
 pl_facts, _ = build_facts(*cases["plastic"][:2])
 check("plastic: CEPA rate shown as excluded", "CEPA RATE: excluded" in pl_facts)
 
@@ -115,18 +132,25 @@ def expect_problem(label, mutate):
     check(label, bool(probs))
 
 
+first_opt = next(n["nid"] for n in notes if not n["mandatory"])
 expect_problem("invented number fails", lambda p: p.update(duty=p["duty"] + " That is AED 40,000."))
 expect_problem("computed difference fails", lambda p: p.update(duty="The rate falls by 10 points, 9% lower."))
 expect_problem("leaked evidence ID fails", lambda p: p.update(classification="See TL-IN-76101000."))
 expect_problem("leaked note number fails", lambda p: p.update(summary=p["summary"] + " See N2."))
+expect_problem("leaked mandatory note number fails", lambda p: p.update(summary=p["summary"] + " See M1."))
 expect_problem("code word fails", lambda p: p.update(origin="The product QUALIFIES."))
 expect_problem("empty field fails", lambda p: p.update(summary=" "))
-expect_problem("missing mandatory note fails", lambda p: p["notes"][0].update(**{"from": ["N1"]}))
+expect_problem("citing a mandatory note fails (the LLM never sees them)",
+               lambda p: p["notes"][0].update(**{"from": ["M1"]}))
 expect_problem("unknown note number fails", lambda p: p["notes"][0]["from"].append("N99"))
-expect_problem("more than 6 notes fails",
-               lambda p: p.update(notes=p["notes"] + [{"text": "x", "from": ["N1"]}] * 6))
+expect_problem("empty from fails", lambda p: p["notes"][0].update(**{"from": []}))
+expect_problem(f"more than {limit} notes fails (6 in total with the {len(mand)} mandatory)",
+               lambda p: p.update(notes=[{"text": "x", "from": [first_opt]}] * (limit + 1)))
 expect_problem("note number not in its own notes fails",
-               lambda p: p["notes"].append({"text": "Keep records for 7 years.", "from": ["N1"]}))
+               lambda p: p["notes"].append({"text": "Keep records for 7 years.", "from": [first_opt]}))
+p = copy.deepcopy(good)
+p["notes"] = []
+check("no LLM notes is fine (mandatory notes are added by code)", check_prose(p, facts, notes) == [])
 p = copy.deepcopy(good)
 p["summary"] = p["summary"].replace("AED 10,000", "AED 10000")
 check("thousands separators are the same number", check_prose(p, facts, notes) == [])
@@ -144,26 +168,40 @@ for name, (research, intake, pack) in cases.items():
           has_list == (research["verdict"] in ("ELIGIBLE", "NEEDS_MORE_DATA")))
     check(f"{name}: one checkbox per procedure step", md.count("- [ ] ") == (
         len(research["procedure"]) if has_list else 0))
+    if has_list:
+        check(f"{name}: checklist label is 'Authority'", "*Authority: " in md and "*Who: " not in md)
     check(f"{name}: sources are numbered https links",
           "## Sources\n\n1. [" in md and "](https://" in md)
     check(f"{name}: disclaimer present", "not an official origin ruling" in md)
     leaks = [w for w in ("REGULATORY_GAP_DETECTED", "NOT_APPLICABLE", "TOOL:", "PSR-IN", "TL-IN") if w in md]
     check(f"{name}: no IDs or code words", not leaks, leaks)
+    if n:
+        sec = notes_section(md)
+        check(f"{name}: every note appears verbatim", all(f"- {x['text']}" in sec for x in n))
 md_nd = (Path("runs") / "windows_nodata" / "report_fallback.md").read_text(encoding="utf-8")
 check("windows_nodata: 'What's still needed' comes right after the summary",
       md_nd.index("## What's still needed") < md_nd.index("## Product classification"))
-ar_intake = dict(cases["windows"][1], language="ar")
-md_ar = render_report(research, ar_intake, good, notes, cases["windows"][2].id_sources, kb_sources)
+research, intake, pack = cases["windows"]
+ar_intake = dict(intake, language="ar")
+md_ar = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
 check("Arabic headings and disclaimer", "## الملخص" in md_ar and "ليس قرارًا رسميًا" in md_ar)
+check("Arabic checklist label is 'الجهة المختصة'", "*الجهة المختصة: " in md_ar)
 
 print("\n4. The call loop (fake LLM)")
-research, intake, pack = cases["windows"]
 bad = dict(good, duty="The saving is AED 40,000.")
 
 llm = fake_llm(good)
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("good first reply: 1 call, no fallback", len(llm.seen) == 1 and not r.used_fallback)
 check("report contains the LLM summary", good["summary"] in r.markdown)
+sec = notes_section(r.markdown)
+mand_texts = [x["text"] for x in notes if x["mandatory"]]
+check("mandatory notes shown verbatim in the LLM report", all(f"- {t}" in sec for t in mand_texts))
+check("mandatory notes come before the LLM notes",
+      max(sec.index(t) for t in mand_texts) < sec.index(good["notes"][0]["text"]))
+check(f"report has at most {MAX_NOTES} notes", sec.count("\n- ") <= MAX_NOTES, sec.count("\n- "))
+sent = "\n".join(m["content"] for m in llm.seen[0])
+check("mandatory note texts never reach the LLM", not any(t in sent for t in mand_texts))
 
 llm = fake_llm(bad, good)
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
@@ -174,6 +212,8 @@ check("round 2 sends the corrections", "CORRECTIONS" in llm.seen[1][-1]["content
 llm = fake_llm(bad, bad)
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("bad twice: code-only report", r.used_fallback and r.problems and "40,000" not in r.markdown)
+check("code-only report keeps the mandatory notes verbatim",
+      all(f"- {t}" in notes_section(r.markdown) for t in mand_texts))
 
 llm = fake_llm(LLMCallError("router down", []))
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
@@ -183,6 +223,8 @@ msgs = build_messages(facts, "en")
 check("system prompt has the Agent 4 section and language",
       "AGENT 4" in msgs[0]["content"] and "Write in English" in msgs[0]["content"])
 check("no unfilled {language} left", "{language}" not in msgs[0]["content"])
+check("prompt tells the model mandatory notes are printed by code",
+      "word for word by code" in msgs[0]["content"])
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)
