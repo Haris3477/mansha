@@ -67,6 +67,20 @@ def _passage(kb: dict, pid: str) -> dict:
     raise KeyError(f"passage {pid} missing from the knowledge base")
 
 
+def _minimal_ops_text(kb: dict, codes: list[str]) -> str:
+    """'(b) changes of packaging ...; (l) affixing ...' from the agreement's own list (Art. 3.5.1).
+
+    Exporters never see the bare letters. ' / ' in a stored quote marks a line break.
+    """
+    items = {it["code"]: it["text"] for it in _passage(kb, P_MINIMAL).get("items", [])}
+    parts = []
+    for code in codes:
+        text = " ".join(items.get(code, "").replace(" / ", " ").split()).rstrip(";,. ")
+        text = text.removesuffix("; or").removesuffix(" or").rstrip(";,. ")
+        parts.append(f"({code}) {text}" if text else f"({code})")
+    return "; ".join(parts)
+
+
 def _passage_by_provision(kb: dict, text: str) -> str | None:
     for p in kb["passages"]["passages"]:
         if text in p.get("provision", ""):
@@ -130,7 +144,8 @@ def parse_declaration(d: dict, valid_ops: set[str], missing: list[str]) -> dict:
         ops = []
     unknown = [o for o in ops if o not in valid_ops and o != BEYOND_MINIMAL]
     if unknown:
-        missing.append(f"declaration: unknown operation codes {unknown}")
+        missing.append(f"declaration: unknown operation codes: {', '.join(map(str, unknown))} "
+                       "(use the letters of Art. 3.5.1, or 'beyond_minimal')")
     if BEYOND_MINIMAL in ops and not str(d.get("operations_description") or "").strip():
         missing.append("declaration: describe the manufacturing done beyond minimal operations")
     labour, overhead = _num(d.get("direct_labour")), _num(d.get("direct_overhead"))
@@ -245,8 +260,9 @@ def calculate_origin(tariff_line: str, bom_rows: list[dict] | None = None,
     only_minimal = BEYOND_MINIMAL not in dec["operations"]
     res.checks.append({"check": "minimal_operations", "result": FAIL if only_minimal else PASS,
                        "source_id": P_MINIMAL,
-                       "basis": f"Declared operations {dec['operations']} are all minimal operations under "
-                                "Art. 3.5.1, which never confer origin." if only_minimal else
+                       "basis": "Declared operations are all minimal operations under Art. 3.5.1, which "
+                                f"never confer origin: {_minimal_ops_text(kb, dec['operations'])}."
+                                if only_minimal else
                                 "Declared manufacturing goes beyond the minimal operations of Art. 3.5.1."})
 
     # 4) product-specific rule: alternatives are OR, tests inside one are AND

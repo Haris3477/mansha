@@ -89,7 +89,8 @@ for label, pack, line in (("windows", w, "76101000"), ("chargers", c, "85044030"
     check(f"{label}: calculator still computes the amounts (for code)", len(hidden) == 3, hidden)
     shown = [k for k in hidden if f"{k}:" in pack.text]
     check(f"{label}: amounts not shown to the model", not shown, shown)
-    check(f"{label}: share percentage still shown", "non_originating_share_pct:" in pack.text)
+    check(f"{label}: share percentage still shown, in words",
+          "non-originating inputs are " in pack.text and "non_originating_share_pct" not in pack.text)
 check("chargers: the single non-originating input's cost (44000) is not in the evidence",
       "44000" not in c.text)
 
@@ -100,6 +101,18 @@ check("plastic: marked excluded", "TL-IN-39239090" in p.excluded_ids)
 check("plastic: no origin run", "TOOL:origin:39239090" not in p.allowed_ids)
 check("plastic: no rule lookup run", "TOOL:rule_lookup:39239090" not in p.allowed_ids)
 check("plastic: duty NO_PREFERENCE", status(p, "TOOL:duty:39239090") == "NO_PREFERENCE")
+
+print("\n== Team-only dev_notes never reach the evidence (Step 9.5)")
+kb = load_corridor("india")
+recs = (kb["tariff"]["lines"] + kb["tariff"]["heading_exclusions"] + kb["psr"]["rules"]
+        + kb["psr"]["general_rules"] + kb["passages"]["passages"])
+dev = [n for r in recs for n in r.get("dev_notes", [])]
+check("the KB has dev_notes to test with", len(dev) >= 4, len(dev))
+texts = [w.text, c.text, p.text, wn.text]
+leaked = [n for n in dev if any(n in tx for tx in texts)]
+check("no dev_note text in any evidence block", not leaked, leaked)
+check("chargers: minimal operations named in words, not codes",
+      "(b) changes of packaging" in c.text and "['b'" not in c.text)
 
 print(f"\nWindows evidence size: {len(w.text)} chars (~{len(w.text) // 4} tokens), "
       f"{len(w.allowed_ids)} IDs")

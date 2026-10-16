@@ -20,7 +20,7 @@ Work in this order, and write one string per step in `reasoning`: one or two sho
    - INSUFFICIENT_DATA → NEEDS_MORE_DATA
    - RULE_GAP → REGULATORY_GAP_DETECTED (also set `origin_rule.rule` to REGULATORY_GAP_DETECTED and add a gap; this is a gap in Mansha's data, not a question for the user)
    - excluded line (no origin result) → NOT_APPLICABLE; `origin_rule.rule` is also NOT_APPLICABLE, and both cite the tariff line record
-     `basis` restates the calculator's checks: each check's result with the totals and percentages it reports. For DOES_NOT_QUALIFY, list every failed check.
+     `basis` restates the calculator's checks: each check's result with the counts and percentages it reports. For DOES_NOT_QUALIFY, list every failed check.
 5. **Saving.** From `TOOL:duty:<line>` for the chosen line:
    - duty ESTIMATED and origin QUALIFIES, NEEDS_MORE_DATA or REGULATORY_GAP_DETECTED → status ESTIMATED, `amount` and `currency` copied from the tool (the saving available if the product qualifies)
    - origin DOES_NOT_QUALIFY → status NOT_APPLICABLE, `amount` and `currency` null
@@ -85,4 +85,5 @@ Rules:
 - Every item must have a `source_id` that is an ID from the evidence. Anything not supported by the evidence goes into `gaps` and is marked REGULATORY_GAP_DETECTED.
 - Every number you write must appear in the record you cite. Copy numbers as given; never compute, round or convert them.
 - If the status is NEEDS_MORE_DATA, list in `follow_up_questions` exactly what the user must provide, based on the `missing` items in `TOOL:origin:<line>`, in plain words (e.g., "a bill of materials with the origin, HS code and value of each input").
+- `origin_result.basis`, the `procedure` steps, `caveats`, `follow_up_questions` and `gaps` are shown to the exporter. Write them in plain words: cite records only in `source_id`, never in the text (no `PSR-IN-...`, `P-...`, `TOOL:...`), and never use internal words such as "intake".
 - If you receive corrections (from code checks or QA), apply them and return the full corrected JSON.

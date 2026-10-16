@@ -94,10 +94,24 @@ def _is_digits(s, length: int) -> bool:
     return isinstance(s, str) and s.isdigit() and len(s) == length
 
 
+def _check_note_lists(kb: dict, problems: list[str]) -> None:
+    """`notes` are facts the exporter may read; `dev_notes` are for the team and never rendered."""
+    records = (kb["tariff"].get("lines", []) + kb["tariff"].get("heading_exclusions", [])
+               + kb["psr"].get("rules", []) + kb["psr"].get("general_rules", [])
+               + kb["passages"].get("passages", []))
+    for rec in records:
+        rid = rec.get("id") or rec.get("heading") or rec.get("rule_text") or "?"
+        for key in ("notes", "dev_notes"):
+            value = rec.get(key)
+            if value is not None and not (isinstance(value, list) and all(isinstance(n, str) for n in value)):
+                problems.append(f"{rid}: `{key}` must be a list of strings")
+
+
 def validate(kb: dict) -> list[str]:
     """Return a list of problems (empty list = valid)."""
     problems: list[str] = []
     sources = kb["sources"]
+    _check_note_lists(kb, problems)
 
     # sources.json
     for key, src in sources.items():

@@ -32,7 +32,7 @@ TOOL_COMPUTED_PARAMS = {"fee_bands_aed"}  # -> TOOL:coo_fee
 # stay in code: with one input in a group, a "total" is that input's cost, and totals plus
 # the price reveal the cost structure. A whitelist, so a new amount field is hidden by default.
 ORIGIN_TOTALS_SHOWN = ("price_basis", "inputs_count", "non_originating_inputs_count",
-                       "non_originating_share_pct", "nom_valuation_source_id")
+                       "non_originating_share_pct")
 
 
 @dataclass
@@ -191,13 +191,30 @@ def render_check(ch: dict) -> str:
     return s
 
 
+def render_totals(totals: dict | None) -> str:
+    """The calculator's totals in words, counts and percentages only (ORIGIN_TOTALS_SHOWN)."""
+    t = {k: v for k, v in (totals or {}).items() if k in ORIGIN_TOTALS_SHOWN and v is not None}
+    if not t:
+        return "none"
+    parts = []
+    if "price_basis" in t:
+        parts.append(f"price basis {t['price_basis']}")
+    if "inputs_count" in t:
+        n = t.get("non_originating_inputs_count")
+        parts.append(f"{fmt_num(t['inputs_count'])} input(s)"
+                     + (f", of which {fmt_num(n)} non-originating" if n is not None else ""))
+    if "non_originating_share_pct" in t:
+        parts.append(f"non-originating inputs are {pct(t['non_originating_share_pct'])} of the price")
+    return "; ".join(parts)
+
+
 def render_origin(o: dict) -> list[str]:
     return [
         f"tariff line: {o.get('tariff_line')}",
         f"status: {o.get('status')}",
         f"rule: {o.get('rule_id') or 'none'} \"{o.get('rule_text') or ''}\"",
         bullets("checks", [render_check(ch) for ch in o.get("checks", [])]),
-        f"totals: {kv({k: v for k, v in (o.get('totals') or {}).items() if k in ORIGIN_TOTALS_SHOWN})}",
+        f"totals: {render_totals(o.get('totals'))}",
         bullets("missing", o.get("missing")),
         bullets("notes", o.get("notes")),
     ]

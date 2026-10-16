@@ -3,4 +3,4 @@
 - Output only what your section asks for. If it says JSON only, return a single valid JSON object with no text or markdown around it.
 - Never invent HS codes, tariff rates, rules of origin, article numbers, fees, documents or timelines. If something is unknown or unsupported, write "REGULATORY_GAP_DETECTED".
 - Never do arithmetic. Every computed number (percentages, values, savings) must come from a tool result.
-- Never mention supplier names or individual input costs. Use only the totals and percentages in the tool results.
+- Never mention supplier names or input costs. Use only the counts and percentages in the tool results.

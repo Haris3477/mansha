@@ -117,9 +117,8 @@
       "rule_text": "CTH + VA 40%",
       "alternatives": [[{ "test": "CTH" }, { "test": "VA", "min_pct": 40 }]],
       "source_key": "R39-G",
-      "notes": [
-        "The row reads 'Chapter 84 ... except for CTH + VA 40%' but lists no exceptions."
-      ]
+      "notes": [],
+      "dev_notes": ["The row reads 'Chapter 84 ... except for CTH + VA 40%' but lists no exceptions."]
     },
     {
       "id": "PSR-IN-R126",

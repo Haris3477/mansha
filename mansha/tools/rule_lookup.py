@@ -92,7 +92,7 @@ def rule_lookup(tariff_line: str, corridor: str = "india") -> RuleLookupResult:
         result.level = level
         result.rules = copy.deepcopy(hits)  # the KB is cached: never mutate it
         if len(hits) > 1:
-            result.notes.append(f"{len(hits)} rules match at level '{level}'; the Researcher must say which applies.")
+            result.notes.append(f"{len(hits)} rules match at level '{level}'; which one applies depends on the exact product.")
         if level == "ex_chapter":
             result.notes.append("Ex-chapter rule: applies only to part of the chapter. Confirm the product falls in it.")
         if level in FINE_LEVELS and not hs17:

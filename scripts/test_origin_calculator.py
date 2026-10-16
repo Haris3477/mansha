@@ -52,6 +52,13 @@ check("chargers fail final manufacture, minimal ops, CTH and VA",
       res.get("final_manufacture_in_uae") == "FAIL" and res.get("minimal_operations") == "FAIL"
       and res.get("CTH") == "FAIL" and res.get("VA") == "FAIL", res)
 check("chargers VA 12%", va(r)["build_down_pct"] == 12.0, va(r))
+mo = next(ch for ch in r.to_dict()["checks"] if ch["check"] == "minimal_operations")["basis"]
+check("minimal operations named from Art. 3.5.1, not as raw codes",
+      "(b) changes of packaging" in mo and "(l) affixing or printing marks, labels" in mo
+      and "['b'" not in mo and " / " not in mo, mo)
+r2 = calculate_origin("76101000", WIN_BOM, dict(WIN_DEC, operations=["zz"]))
+check("unknown operation code reported readably",
+      any("unknown operation codes: zz" in m for m in r2.missing), r2.missing)
 
 # --- demo case 3: no files -> needs more data ---
 r = origin_from_folder("76101000", None)

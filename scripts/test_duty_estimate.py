@@ -55,4 +55,9 @@ check("caveats present (CIF value, BCD only, needs qualifying origin)",
       any("assessable" in n for n in r.notes) and any("Basic Customs Duty" in n for n in r.notes)
       and any("qualifies" in n for n in r.notes), r.notes)
 
+r = duty_estimate("39239090", AED_100K)
+check("excluded line: no note about what the CEPA rate reduces (it has none)",
+      not any("Basic Customs Duty" in n for n in r.notes) and not any("qualifies" in n for n in r.notes),
+      r.notes)
+
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")

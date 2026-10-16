@@ -274,6 +274,21 @@ check("revision: previous answer itself not changed", "authority" in GOOD_W["pro
 check("revision: corrections included", "fix the saving" in m2[3]["content"])
 check("prompt no longer asks the model for authority", '"authority"' not in m[0]["content"])
 
+# ---------------- text shown to the exporter (Step 9.5) ----------------
+print("\n== No evidence IDs or internal words in text the exporter reads")
+bad = copy.deepcopy(GOOD_W)
+bad["caveats"].append({"note": "The '+' in the rule PSR-IN-R118 is read as 'and'.",
+                       "source_id": "TOOL:origin:76101000"})
+expect_problem("evidence ID in a caveat", bad, w)
+bad = copy.deepcopy(GOOD_W); bad["follow_up_questions"] = ["Confirm the code (not provided in the intake)."]
+expect_problem("internal word 'intake' in a follow-up question", bad, w)
+bad = copy.deepcopy(GOOD_W); bad["procedure"][0]["step"] += " See P-MOET-FACTORY-REG."
+expect_problem("evidence ID in a procedure step", bad, w)
+bad = copy.deepcopy(GOOD_W); bad["origin_result"]["basis"] += " (TOOL:origin:76101000)"
+expect_problem("evidence ID in the origin basis", bad, w)
+problems, _, _ = run(GOOD_W, w)
+check("plain text passes", not problems, problems)
+
 # ---------------- run_researcher with a fake LLM ----------------
 print("\n== run_researcher (fake LLM)")
 calls = []

@@ -55,7 +55,8 @@
       "staging": { "category": "TEP over 5 years", "source_keys": ["A2A"] },
       "hs2017_code": null,
       "confidence": "high",
-      "notes": ["CBIC prints '*30%'; the asterisk footnote was not resolved."]
+      "notes": ["India's tariff schedule marks this 30% rate with a footnote that Mansha has not checked; confirm the normal (MFN) rate with Indian customs or a customs broker."],
+      "dev_notes": ["CBIC prints '*30%'; the asterisk footnote was not resolved."]
     },
     {
       "id": "TL-IN-19059090",
@@ -188,8 +189,9 @@
       "staging": { "category": "TEI", "source_keys": ["A2A"] },
       "hs2017_code": null,
       "confidence": "high",
-      "notes": [
-        "Tariff rate 15% (Finance Bill 2025); effective rate 10% under 45/2025-Customs S.No. 216. Saving is measured from the effective rate."
+      "notes": [],
+      "dev_notes": [
+        "Tariff rate 15% (Finance Bill 2025); effective rate 10% under 45/2025-Customs S.No. 216. Saving is measured from the effective rate (the duty tool states this for every line where the rates differ)."
       ]
     },
     {
@@ -212,7 +214,7 @@
       "staging": { "category": "TR", "source_keys": ["A2A"] },
       "hs2017_code": null,
       "confidence": "high",
-      "notes": ["Partial reduction, not elimination."]
+      "notes": ["The CEPA lowers the duty on this line but does not remove it."]
     },
     {
       "id": "TL-IN-39239090",
@@ -234,10 +236,8 @@
       "staging": { "category": "EXC", "source_keys": ["A2A"] },
       "hs2017_code": null,
       "confidence": "high",
-      "notes": [
-        "Excluded: MFN applies even if the origin rule is met.",
-        "Description to verify word for word against CBIC chapter 39."
-      ]
+      "notes": ["This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin."],
+      "dev_notes": ["Description to verify word for word against CBIC chapter 39."]
     },
     {
       "id": "TL-IN-33030090",
@@ -259,7 +259,7 @@
       "staging": { "category": "EXC", "source_keys": ["A2A"] },
       "hs2017_code": null,
       "confidence": "high",
-      "notes": ["Excluded: MFN applies even if the origin rule is met."]
+      "notes": ["This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin."]
     },
     {
       "id": "TL-IN-33049990",
@@ -326,8 +326,8 @@
       "hs2017_code": null,
       "confidence": "high",
       "notes": [
-        "45/2025 S.No. 323 gives 15% only for EV manufacture; general rate 20%.",
-        "Anti-dumping duty not checked."
+        "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker."
       ]
     },
     {
@@ -350,7 +350,7 @@
       "staging": { "category": "TEI", "source_keys": ["A2A"] },
       "hs2017_code": "85171211",
       "confidence": "medium",
-      "notes": ["Annex 2A lists this under HS-2017 code 8517 12 11."]
+      "notes": ["India's CEPA tariff schedule (Annex 2A) lists this product under its older HS 2017 code 8517 12 11."]
     },
     {
       "id": "TL-IN-84713010",
@@ -372,7 +372,7 @@
       "staging": { "category": "TEI", "source_keys": ["A2A"] },
       "hs2017_code": null,
       "confidence": "high",
-      "notes": ["MFN is already free: no duty to save."]
+      "notes": ["The normal (MFN) rate is already 0%, so the CEPA gives no duty saving on this line."]
     }
   ]
 }

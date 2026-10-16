@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
-from mansha.researcher import GAP, number_keys
+from mansha.researcher import EVIDENCE_ID_RE, GAP, number_keys
 
 log = logging.getLogger("mansha.document_builder")
 
@@ -87,7 +87,6 @@ ORIGIN_TEXT = {
 }
 
 # Things the prose must never contain.
-EVIDENCE_ID_RE = re.compile(r"\b(?:TL|EXC|PSR)-[A-Z0-9]|\bP-[A-Z]|TOOL:")
 ID_RE = re.compile(EVIDENCE_ID_RE.pattern + r"|\b[NM]\d+\b")   # evidence IDs and note numbers
 CODE_WORD_RE = re.compile(
     r"\b(?:REGULATORY_GAP_DETECTED|NOT_ELIGIBLE|ELIGIBLE|NEEDS_MORE_DATA|NO_PREFERENCE|"
@@ -189,6 +188,12 @@ def saving_text(research: dict) -> str:
     }.get(status, NOT_IN_SOURCES)
 
 
+def still_needed(research: dict) -> list[str]:
+    """Follow-up questions, then gaps. Gaps may carry the gap marker: the reader gets plain words."""
+    items = list(research.get("follow_up_questions") or []) + list(research.get("gaps") or [])
+    return [str(n).replace(GAP, NOT_IN_SOURCES) for n in items]
+
+
 def rule_text(research: dict) -> str:
     r = plain(research["origin_rule"].get("rule"))
     return "does not apply, because the line is excluded from CEPA preference" if r == "NOT_APPLICABLE" else r
@@ -276,7 +281,7 @@ def build_facts(research: dict, intake: dict) -> tuple[str, list[dict]]:
         f"ORIGIN RESULT: the product {ORIGIN_TEXT.get(res.get('status'), NOT_IN_SOURCES)}",
         f"BASIS: {plain(res.get('basis'))}",
     ]
-    needed = list(research.get("follow_up_questions") or []) + list(research.get("gaps") or [])
+    needed = still_needed(research)
     lines.append("STILL NEEDED:" + ("".join(f"\n- {n}" for n in needed) if needed else " nothing"))
     lines.append("TERMS:" + "".join(f"\n- {t}" for t in terms_for(rule + " " + str(res.get("basis", "")))))
 
@@ -356,6 +361,8 @@ def fallback_prose(research: dict, notes: list[dict]) -> dict:
     res, verdict = research["origin_result"], research["verdict"]
     summary = VERDICT_TEXT.get(verdict, VERDICT_TEXT[GAP])
     summary = summary[0].upper() + summary[1:] + "."
+    if verdict == "NOT_ELIGIBLE":
+        summary += " The checks that failed are listed under the rule of origin below."
     if research["estimated_saving"].get("status") == "ESTIMATED":
         summary += f" Estimated saving: {saving_text(research)}."
     return {
@@ -401,7 +408,7 @@ class SourceList:
 
 
 def cite(nums: list[int]) -> str:
-    return (" " + "".join(f"[{n}]" for n in nums)) if nums else ""
+    return (" " + "".join(f"[{n}]" for n in sorted(nums))) if nums else ""
 
 
 def cap(s: str) -> str:
@@ -414,7 +421,7 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
     h, verdict = HEADINGS[lang], research["verdict"]
     src = SourceList(id_sources, kb_sources)
     cls, tar = research["classification"], research["tariff"]
-    needed = list(research.get("follow_up_questions") or []) + list(research.get("gaps") or [])
+    needed = still_needed(research)
 
     def needed_section() -> list[str]:
         return [f"## {h['needed']}", "", *[f"- {n}" for n in needed], ""] if needed else []

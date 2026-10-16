@@ -49,6 +49,9 @@ PROCEDURE_STATUSES = {"QUALIFIES", "NEEDS_MORE_DATA"}
 ISSUER_PASSAGE_ID = "P-UAE-ISSUER"
 # Tool records a procedure step may cite besides P-... passages.
 PROCEDURE_TOOL_IDS = {"TOOL:coo_fee"}
+# Evidence IDs: allowed in `source_id` fields only, never in text the exporter reads.
+EVIDENCE_ID_RE = re.compile(r"\b(?:TL|EXC|PSR)-[A-Z0-9]|\bP-[A-Z]|TOOL:")
+INTERNAL_WORD_RE = re.compile(r"\bintake\b", re.IGNORECASE)   # Mansha's own pipeline words
 
 
 @dataclass
@@ -205,6 +208,20 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
                 problems.append(f"`{k}[{i}]` must be an object with a source_id")
     if problems:
         return problems, warnings, GAP
+
+    # 1b. Text the exporter reads (report, or code-only fallback) has no IDs or internal words
+    shown = [("origin_result.basis", data["origin_result"].get("basis"))]
+    shown += [(f"procedure[{i}].step", s.get("step")) for i, s in enumerate(data["procedure"])]
+    shown += [(f"caveats[{i}].note", c.get("note")) for i, c in enumerate(data["caveats"])]
+    shown += [(f"follow_up_questions[{i}]", q) for i, q in enumerate(data["follow_up_questions"])]
+    shown += [(f"gaps[{i}]", g) for i, g in enumerate(data["gaps"])]
+    for where, text in shown:
+        text = str(text or "")
+        found = EVIDENCE_ID_RE.search(text) or INTERNAL_WORD_RE.search(text)
+        if found:
+            span = text[found.start():found.start() + 25].split()[0]
+            problems.append(f"{where} contains {span!r}: this text is shown to the exporter, so write it in "
+                            "plain words without evidence IDs or internal words (cite only in source_id)")
 
     # 2. Every source_id is an ID in the evidence
     allowed = set(pack.allowed_ids)

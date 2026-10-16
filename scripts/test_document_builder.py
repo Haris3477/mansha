@@ -17,10 +17,12 @@ from mansha.document_builder import (
     build_facts,
     build_messages,
     check_prose,
+    cite,
     fallback_prose,
     max_llm_notes,
     render_report,
     run_document_builder,
+    still_needed,
 )
 from mansha.evidence import build_evidence
 from mansha.kb import load_corridor
@@ -206,6 +208,17 @@ ar_intake = dict(intake, language="ar")
 md_ar = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
 check("Arabic headings and disclaimer", "## الملخص" in md_ar and "ليس قرارًا رسميًا" in md_ar)
 check("Arabic checklist label is 'الجهة المختصة'", "*الجهة المختصة: " in md_ar)
+
+print("\n3b. Small rendering rules (Step 9.5)")
+ch_research, ch_intake, _ = cases["chargers"]
+_, ch_notes = build_facts(ch_research, ch_intake)
+check("fallback summary for NOT_ELIGIBLE points to the failed checks",
+      "checks that failed" in fallback_prose(ch_research, ch_notes)["summary"])
+check("source numbers in a citation are sorted", cite([7, 9, 6, 10]) == " [6][7][9][10]")
+gap_research = dict(ch_research, gaps=["REGULATORY_GAP_DETECTED: the rule for this line is not loaded."])
+check("gap marker becomes plain words in 'still needed'",
+      still_needed(gap_research) == ["not in Mansha's sources: the rule for this line is not loaded."],
+      still_needed(gap_research))
 
 print("\n4. The call loop (fake LLM)")
 bad = dict(good, duty="The saving is AED 40,000.")

@@ -108,7 +108,10 @@ def duty_estimate(tariff_line: str, shipment_value: dict | None = None, corridor
                          "value at import, so actual amounts will differ. Shown in the shipment's own currency; "
                          "never converted.")
 
-    res.notes.append(kb["tariff"]["metadata"].get("duty_scope", "CEPA rates reduce Basic Customs Duty only."))
+    # "CEPA rates reduce BCD only" holds for Table I lines. Table II lines also change AIDC (note above);
+    # an excluded line has no CEPA rate, so a note about what the CEPA rate reduces would not apply.
+    if not excluded and cepa.get("table") != "II":
+        res.notes.append(kb["tariff"]["metadata"].get("duty_scope", "CEPA rates reduce Basic Customs Duty only."))
     if not excluded:
         res.notes.append("The CEPA rate applies only if the product qualifies under the rules of origin and a "
                          "valid certificate of origin is presented.")
