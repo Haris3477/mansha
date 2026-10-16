@@ -31,10 +31,11 @@ logger = logging.getLogger("mansha.llm")
 
 # Output-token budgets per chain.
 # auto:qa may route to Groq (free tier: 1000 output tokens/min), so it never exceeds 1000.
-# auto:long has no Groq models, so it can grow on a truncation retry.
+# auto:long has no Groq models. It starts at its ceiling (Step 9.5): its reasoning models
+# (Dots3) hit 8000 tokens on the Researcher, and each truncated attempt cost ~90 s.
 CHAIN_LIMITS: dict[str, dict[str, int]] = {
     "auto:qa": {"default": 1000, "ceiling": 1000},
-    "auto:long": {"default": 8000, "ceiling": 16000},
+    "auto:long": {"default": 16000, "ceiling": 16000},
 }
 
 # The router's own fallback budget is 45 s; leave headroom on top of it.
