@@ -6,6 +6,10 @@ call_llm() wraps every model call so each agent gets the same behaviour:
 - truncation check (finish_reason == "length")
 - JSON parsing + required-key validation (independent of finish_reason)
 - at most ONE retry per call, for any failure
+- before that retry, a wait when the router says it is busy (Step 8.6):
+  HTTP 429 -> wait until the router's retryAtMs; HTTP 502/503/504 -> a fixed short
+  wait. If the router's cooldown is longer than RETRY_WAIT_CAP_S, fail at once
+  instead of retrying into a cooldown that has not ended.
 """
 import json
 import logging
@@ -29,6 +33,17 @@ CHAIN_LIMITS: dict[str, dict[str, int]] = {
 
 # The router's own fallback budget is 45 s; leave headroom on top of it.
 REQUEST_TIMEOUT_S = 300  # Nemotron (reasoning model) needs ~100-200 s for long JSON; Gemini ~20 s
+
+# Waiting before the one retry (problem 24).
+RETRY_WAIT_CAP_S = 90      # longest wait we accept; a longer cooldown fails at once
+UPSTREAM_WAIT_S = 30       # wait after 502/503/504, or a 429 without a time hint
+                           # (our choice: the router's cooldown resets seen on 15 Oct were ~25 s)
+WAIT_MARGIN_S = 1.0        # added to the router's retryAtMs, so we arrive just after the reset
+BUSY_STATUSES = {429, 502, 503, 504}
+
+# Replaceable in tests (no real waiting, fixed clock).
+_sleep = time.sleep
+_now = time.time
 
 
 class LLMCallError(Exception):
@@ -90,6 +105,35 @@ def _parse_json(text: str, required_keys: tuple[str, ...]) -> tuple[dict[str, An
     return data, None
 
 
+def _router_wait_hint(e: APIStatusError) -> float | None:
+    """Seconds until the router says it can serve again, or None if it gives no hint.
+
+    FreeLLMAPI's 429 body: {"error": {..., "retryAtMs": <epoch ms>}}. The SDK puts the
+    inner "error" object in e.body; both shapes are accepted. A Retry-After header
+    (seconds) is used if there is no retryAtMs.
+    """
+    body = e.body if isinstance(e.body, dict) else {}
+    if isinstance(body.get("error"), dict):
+        body = body["error"]
+    at_ms = body.get("retryAtMs")
+    if isinstance(at_ms, (int, float)) and not isinstance(at_ms, bool):
+        return max(0.0, at_ms / 1000 - _now()) + WAIT_MARGIN_S
+    headers = getattr(getattr(e, "response", None), "headers", None) or {}
+    try:
+        return float(headers.get("retry-after")) if headers.get("retry-after") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _wait_before_retry(status: int | None, hint_s: float | None) -> float:
+    """Seconds to wait before the retry (0 = retry now). May exceed the cap; the caller checks."""
+    if status not in BUSY_STATUSES:
+        return 0.0
+    if hint_s is not None:
+        return hint_s
+    return UPSTREAM_WAIT_S
+
+
 def call_llm(
     agent: str,
     chain: str,
@@ -113,6 +157,8 @@ def call_llm(
         record: dict[str, Any] = {"attempt": attempt_no, "chain": chain, "max_tokens": tokens}
         start = time.monotonic()
         problem: str | None = None
+        status: int | None = None
+        hint_s: float | None = None
         text = ""
         data: dict[str, Any] | None = None
 
@@ -127,6 +173,8 @@ def call_llm(
             problem = (f"connection error: {e}. Is the router running? "
                        "(cd ~/Projects/freellmapi && npm run dev)")
         except APIStatusError as e:  # router returned an HTTP error (includes its attempt trail)
+            status = e.status_code
+            hint_s = _router_wait_hint(e)
             problem = f"HTTP {e.status_code}: {e.message}"
         else:
             resp = raw.parse()
@@ -149,6 +197,8 @@ def call_llm(
 
         record["latency_s"] = round(time.monotonic() - start, 2)
         record["ok"] = problem is None
+        if status is not None:
+            record["http_status"] = status
         if problem:
             record["problem"] = problem
         attempts.append(record)
@@ -168,6 +218,26 @@ def call_llm(
                 latency_s=record["latency_s"],
                 attempts=attempts,
             )
+
+        if attempt_no == 2:
+            break
+
+        # Router busy? Wait before the retry, or give up now if its cooldown is too long.
+        wait_s = _wait_before_retry(status, hint_s)
+        if wait_s > RETRY_WAIT_CAP_S:
+            record["retry_skipped"] = f"router busy for ~{wait_s:.0f}s (> {RETRY_WAIT_CAP_S}s cap)"
+            logger.warning("[%s] not retrying: router busy for ~%.0fs, longer than the %ds cap",
+                           agent, wait_s, RETRY_WAIT_CAP_S)
+            raise LLMCallError(
+                f"[{agent}] failed after 1 attempt; router busy for ~{wait_s:.0f}s "
+                f"(longer than the {RETRY_WAIT_CAP_S}s cap). Last problem: {problem}",
+                attempts,
+            )
+        if wait_s > 0:
+            record["waited_before_retry_s"] = round(wait_s, 1)
+            logger.info("[%s] router busy (HTTP %s): waiting %.0fs before the retry",
+                        agent, status, wait_s)
+            _sleep(wait_s)
 
         # Truncated? Give the retry a bigger budget, if the chain allows it.
         if problem.startswith("truncated") and tokens < limits["ceiling"]:
