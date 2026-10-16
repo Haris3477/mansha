@@ -209,17 +209,21 @@ def is_mandatory(source_id: str) -> bool:
     return source_id in MANDATORY_IDS or str(source_id).startswith(MANDATORY_PREFIXES)
 
 
-# Verdicts where no CEPA rate can apply: notes on how the CEPA duty saving works don't apply.
+# Verdicts where no CEPA rate can apply: notes about claiming it (the saving, the certificate,
+# who issues it, the claim steps) don't apply.
 NO_CEPA_RATE_VERDICTS = {"NOT_ELIGIBLE", "NO_PREFERENCE"}
+CLAIM_PASSAGE_KINDS = {"duty", "procedure", "authority"}   # passage kinds about claiming the CEPA rate
+CLAIM_TOOL_PREFIXES = ("TOOL:duty:", "TOOL:coo_fee")        # duty saving, certificate fee
 
 
-def duty_source_ids(corridor: str = "india") -> set[str]:
-    """IDs of the corridor's passages about duty (kind "duty"), e.g. what the CEPA rate reduces."""
-    return {p["id"] for p in load_corridor(corridor)["passages"]["passages"] if p.get("kind") == "duty"}
+def claim_source_ids(corridor: str = "india") -> set[str]:
+    """IDs of the corridor's passages about claiming the CEPA rate (duty, procedure, authority)."""
+    return {p["id"] for p in load_corridor(corridor)["passages"]["passages"]
+            if p.get("kind") in CLAIM_PASSAGE_KINDS}
 
 
-def is_duty_note(source_id, duty_ids: set[str]) -> bool:
-    return str(source_id).startswith("TOOL:duty:") or source_id in duty_ids
+def is_claim_note(source_id, claim_ids: set[str]) -> bool:
+    return str(source_id).startswith(CLAIM_TOOL_PREFIXES) or source_id in claim_ids
 
 
 def build_notes(research: dict, corridor: str = "india") -> list[dict]:
@@ -228,14 +232,15 @@ def build_notes(research: dict, corridor: str = "india") -> list[dict]:
     Mandatory notes are numbered M1, M2, ... and are shown verbatim by code (never sent
     to the LLM). Optional notes are numbered N1, N2, ... and are what the LLM condenses.
     Dropped: the estimate note when no saving is shown (problem 31), and, when no CEPA rate
-    can apply (not eligible, excluded line), every note from the duty tool or a duty passage:
-    they explain a CEPA saving, and the Researcher may paraphrase them, so they are matched by
-    source, not by wording (Step 9.5b).
+    can apply (not eligible, excluded line), every note about claiming it: from the duty tool,
+    the fee tool, or a duty, procedure or authority passage (the saving, the certificate, its
+    issuer, factory registration). The Researcher may paraphrase notes, so they are matched by
+    source, not by wording (Steps 9.5b, 9.5c).
     """
     notes, seen, count = [], set(), {True: 0, False: 0}
     shows_estimate = research["estimated_saving"].get("status") == "ESTIMATED"
     no_cepa_rate = research.get("verdict") in NO_CEPA_RATE_VERDICTS
-    duty_ids = duty_source_ids(corridor) if no_cepa_rate else set()
+    claim_ids = claim_source_ids(corridor) if no_cepa_rate else set()
     for cv in research.get("caveats") or []:
         text = str(cv.get("note", "")).strip()
         if not text or text in seen:
@@ -243,8 +248,8 @@ def build_notes(research: dict, corridor: str = "india") -> list[dict]:
         sid = cv.get("source_id")
         if text.startswith(ESTIMATE_NOTE_START) and not shows_estimate:
             continue   # explains an estimate the report does not show
-        if no_cepa_rate and is_duty_note(sid, duty_ids):
-            continue   # explains a CEPA saving that cannot apply
+        if no_cepa_rate and is_claim_note(sid, claim_ids):
+            continue   # about claiming a CEPA rate that cannot apply
         seen.add(text)
         mand = is_mandatory(sid)
         count[mand] += 1

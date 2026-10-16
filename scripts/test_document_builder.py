@@ -135,19 +135,26 @@ for name in ("chargers", "plastic"):
     _, n = build_facts(*cases[name][:2])
     check(f"{name}: estimate note dropped (no saving shown)",
           not any(x["text"].startswith(ESTIMATE_NOTE_START) for x in n))
-    check(f"{name}: no duty-tool or duty-passage notes (no CEPA rate can apply)",
-          not any(x["source_id"].startswith("TOOL:duty:") or x["source_id"] == "P-IN-DUTY-SCOPE" for x in n),
+    check(f"{name}: no notes about claiming the CEPA rate (no CEPA rate can apply)",
+          not any(x["source_id"].startswith(("TOOL:duty:", "TOOL:coo_fee"))
+                  or x["source_id"] in ("P-IN-DUTY-SCOPE", "P-UAE-ISSUER", "P-MOET-FACTORY-REG", "P-IN-IMPORTER")
+                  for x in n),
           [x["source_id"] for x in n])
 paraphrased = dict(cases["chargers"][0], caveats=[
     {"note": "India charges duty on the CIF value, so actual amounts will differ from the estimate.",
      "source_id": "TOOL:duty:85044030"},
     {"note": "Operations and final manufacture are the exporter's own declaration.",
-     "source_id": "TOOL:origin:85044030"}])
+     "source_id": "TOOL:origin:85044030"},
+    {"note": "No official page names the Ministry of Foreign Trade as the issuer.", "source_id": "P-UAE-ISSUER"},
+    {"note": "Free-zone producers are likely not eligible for Factory Registration.",
+     "source_id": "P-MOET-FACTORY-REG"},
+    {"note": "Mansha has not checked anti-dumping duty on this product.", "source_id": "TL-IN-85044030"}])
 _, n = build_facts(paraphrased, cases["chargers"][1])
-check("not eligible: a paraphrased duty note is dropped too (matched by source, not wording)",
-      [x["source_id"] for x in n] == ["TOOL:origin:85044030"], n)
+check("not eligible: claim notes dropped by source (duty, issuer, factory registration); others kept",
+      [x["source_id"] for x in n] == ["TOOL:origin:85044030", "TL-IN-85044030"], [x["source_id"] for x in n])
 _, n = build_facts(*cases["windows"][:2])
-check("eligible: duty notes kept", any(x["source_id"].startswith("TOOL:duty:") for x in n))
+check("eligible: duty and issuer notes kept", any(x["source_id"].startswith("TOOL:duty:") for x in n)
+      and any(x["source_id"] == "P-UAE-ISSUER" for x in n))
 check("windows: estimate note kept (saving shown)",
       any(x["text"].startswith(ESTIMATE_NOTE_START) for x in notes))
 tool_notes = duty_estimate("76101000", {"amount": 100000, "currency": "AED"}).notes
