@@ -1,6 +1,8 @@
-"""Manual test for mansha.llm_client.
+"""Manual LIVE test for mansha.llm_client (needs the router running; not in the offline suite).
 
 Run from the project root:  python -m scripts.test_llm_client
+Checks: plain text on auto:qa, JSON on auto:long, a forced validation failure (one retry,
+then a clear error), and that plain 'auto' is refused. Every reply logs the model that served it.
 """
 import logging
 
@@ -10,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)-7s %(me
 logging.getLogger("httpx").setLevel(logging.WARNING)  # hide the SDK's per-request HTTP lines
 
 JSON_SYSTEM = "Return only a single JSON object. No markdown, no extra text."
-JSON_USER = 'Return exactly this JSON: {"emirate": "Abu Dhabi", "language": "en"}'
+JSON_USER = 'Return exactly this JSON: {"hs_code": "76101000", "destination_country": "India"}'
 
 
 def section(title: str) -> None:
@@ -18,14 +20,15 @@ def section(title: str) -> None:
 
 
 section("Test 1: plain text on auto:qa")
-r = call_llm("test", "auto:qa", [{"role": "user", "content": "What is the capital of the UAE? One word."}])
+r = call_llm("test", "auto:qa",
+             [{"role": "user", "content": "What does the trade-agreement acronym CEPA stand for? One line."}])
 print("Reply:", r.text.strip())
 
 section("Test 2: valid JSON on auto:long")
 r = call_llm(
     "test", "auto:long",
     [{"role": "system", "content": JSON_SYSTEM}, {"role": "user", "content": JSON_USER}],
-    expect_json=True, required_keys=("emirate", "language"),
+    expect_json=True, required_keys=("hs_code", "destination_country"),
 )
 print("Parsed:", r.data)
 
@@ -34,7 +37,7 @@ try:
     call_llm(
         "test", "auto:qa",
         [{"role": "system", "content": JSON_SYSTEM}, {"role": "user", "content": JSON_USER}],
-        expect_json=True, required_keys=("emirate", "this_key_never_exists"),
+        expect_json=True, required_keys=("hs_code", "this_key_never_exists"),
     )
     print("UNEXPECTED: no error raised")
 except LLMCallError as e:

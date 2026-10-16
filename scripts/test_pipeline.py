@@ -26,9 +26,10 @@ from mansha.orchestrator import (
     same_model_warning,
 )
 from mansha.researcher import number_keys
+from scripts.pipeline_cases import DEV_INTAKES as INTAKES
 from scripts.pipeline_cases import PIPELINE_CASES
 from scripts.run_pipeline import main as runner_main
-from scripts.run_researcher import CASES as INTAKES
+from scripts.try_chain import main as try_chain_main
 
 logging.basicConfig(level=logging.WARNING)
 FIXTURES = Path("samples/researcher_outputs")
@@ -376,6 +377,38 @@ for bad_args in (["--bom", "samples/windows_qualifies"], ["nope"], ["vague", "--
         check(f"bad arguments {bad_args} rejected", False, "no error")
     except SystemExit as e:
         check(f"bad arguments {bad_args} rejected", e.code == 2, e.code)
+
+# ---------------------------------------------------------------- 9
+print("\n9. Trying a new chain (scripts.try_chain) with a fake LLM")
+
+
+def chain_spy(fake: FakeLLM):
+    seen = []
+
+    def llm(agent, chain, messages, **kwargs):
+        seen.append((agent, chain))
+        return fake(agent, chain, messages, **kwargs)
+    return llm, seen
+
+
+llm, seen = chain_spy(fake_for("windows"))
+code = try_chain_main(["trial", "windows"], llm=llm, runs_root=TMP / "try")
+check("try_chain: dev case runs, exit 0", code == 0, code)
+check("try_chain: Researcher and Builder on auto:trial, Intake keeps auto:qa",
+      seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("document_builder", "auto:trial")],
+      seen)
+check("try_chain: runs saved apart, in runs/try_trial/",
+      any(f.name.endswith("_windows") and (f / "report.md").exists() for f in (TMP / "try" / "try_trial").iterdir()))
+llm, seen = chain_spy(fake_for("windows"))
+try_chain_main(["auto:trial", "windows", "--agents", "researcher"], llm=llm, runs_root=TMP / "try")
+check("try_chain --agents researcher: only the Researcher switched",
+      seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("document_builder", "auto:long")],
+      seen)
+try:
+    try_chain_main(["long"], llm=FakeLLM(), runs_root=TMP / "try")
+    check("try_chain refuses a pipeline chain", False, "no error")
+except SystemExit as e:
+    check("try_chain refuses a pipeline chain", e.code == 2, e.code)
 
 print(f"\n(outputs in {TMP})")
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))

@@ -18,7 +18,7 @@ from mansha.evidence import build_evidence
 from mansha.llm_client import LLMCallError
 from mansha.report_check import check_report, reader_text
 from scripts.check_reports import main as check_reports_main
-from scripts.run_researcher import CASES
+from scripts.pipeline_cases import DEV_INTAKES as CASES
 
 FIXTURES = Path("samples/researcher_outputs")
 failures: list[str] = []

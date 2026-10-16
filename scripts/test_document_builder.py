@@ -28,7 +28,7 @@ from mansha.evidence import build_evidence
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.tools.duty_estimate import duty_estimate
-from scripts.run_researcher import CASES
+from scripts.pipeline_cases import DEV_INTAKES as CASES
 
 FIXTURES = Path("samples/researcher_outputs")
 failures: list[str] = []
