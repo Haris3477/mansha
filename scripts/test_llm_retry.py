@@ -114,12 +114,41 @@ check("400 (our request's fault): retries at once, no wait", waits == [] and fak
 out, fake, waits = run(ok_reply(""), ok_reply())
 check("non-HTTP failure (empty reply): retries at once, no wait", waits == [] and fake.calls == 2, waits)
 
-out, fake, waits = run(busy_429(10), busy_429(10))
-check("two busy replies: one wait only, then LLMCallError",
-      isinstance(out, lc.LLMCallError) and waits == [11.0] and fake.calls == 2, (waits, fake.calls))
-
 out, fake, waits = run(ok_reply())
 check("first attempt OK: no wait", waits == [] and fake.calls == 1)
+
+print("\n3. Cooldown replies do not use up the retry (8.6b)")
+out, fake, waits = run(busy_429(25), ok_reply())
+check("cooldown reply is marked, and counts as no model attempt",
+      isinstance(out, lc.LLMResult) and out.attempts[0].get("cooldown") is True)
+
+out, fake, waits = run(http_error(502, {"message": "timeout"}), busy_429(30), ok_reply())
+check("16 Oct pattern: 502 -> wait 30 s -> cooldown -> wait it out -> OK",
+      isinstance(out, lc.LLMResult) and fake.calls == 3 and waits == [30.0, 31.0], (fake.calls, waits))
+
+out, fake, waits = run(http_error(502, {"message": "timeout"}), busy_429(30),
+                       http_error(502, {"message": "timeout"}))
+check("502, cooldown, 502: two model attempts used, then LLMCallError",
+      isinstance(out, lc.LLMCallError) and fake.calls == 3 and waits == [30.0, 31.0], (fake.calls, waits))
+
+out, fake, waits = run(busy_429(10), busy_429(10), busy_429(10), ok_reply())
+check(f"cooldown waits stop after {lc.MAX_COOLDOWN_WAITS}",
+      isinstance(out, lc.LLMCallError) and fake.calls == lc.MAX_COOLDOWN_WAITS + 1
+      and waits == [11.0] * lc.MAX_COOLDOWN_WAITS, (fake.calls, waits))
+check("error message counts model attempts and cooldown waits",
+      isinstance(out, lc.LLMCallError) and "0 model attempt(s)" in str(out)
+      and f"{lc.MAX_COOLDOWN_WAITS} cooldown wait(s)" in str(out), str(out)[:120])
+
+out, fake, waits = run(http_error(502, {"message": "x"}), http_error(502, {"message": "x"}), ok_reply())
+check("two failed model attempts: no third call", isinstance(out, lc.LLMCallError) and fake.calls == 2)
+
+out, fake, waits = run(busy_429(10), http_error(502, {"message": "x"}), busy_429(10), ok_reply())
+check("cooldown, 502, cooldown, OK: retry still available after cooldowns",
+      isinstance(out, lc.LLMResult) and fake.calls == 4 and waits == [11.0, 30.0, 11.0], (fake.calls, waits))
+
+out, fake, waits = run(http_error(429, {"message": "rate limited"}), http_error(429, {"message": "x"}))
+check("429 without a time hint counts as a model attempt (2 calls max)",
+      isinstance(out, lc.LLMCallError) and fake.calls == 2, fake.calls)
 
 lc._client = None
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))

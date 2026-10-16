@@ -5,11 +5,13 @@ call_llm() wraps every model call so each agent gets the same behaviour:
 - logging of which model served the call (x-routed-via header)
 - truncation check (finish_reason == "length")
 - JSON parsing + required-key validation (independent of finish_reason)
-- at most ONE retry per call, for any failure
+- at most ONE retry per call, for any failure in which a model was tried
 - before that retry, a wait when the router says it is busy (Step 8.6):
-  HTTP 429 -> wait until the router's retryAtMs; HTTP 502/503/504 -> a fixed short
-  wait. If the router's cooldown is longer than RETRY_WAIT_CAP_S, fail at once
-  instead of retrying into a cooldown that has not ended.
+  HTTP 502/503/504 -> a fixed short wait. If a wait would be longer than
+  RETRY_WAIT_CAP_S, fail at once instead of retrying into a cooldown.
+- a router COOLDOWN reply (HTTP 429 with a retry time: no model was tried) does not
+  use up the retry: wait until that time and send again, at most
+  MAX_COOLDOWN_WAITS times per call (Step 8.6b)
 """
 import json
 import logging
@@ -40,6 +42,7 @@ UPSTREAM_WAIT_S = 30       # wait after 502/503/504, or a 429 without a time hin
                            # (our choice: the router's cooldown resets seen on 15 Oct were ~25 s)
 WAIT_MARGIN_S = 1.0        # added to the router's retryAtMs, so we arrive just after the reset
 BUSY_STATUSES = {429, 502, 503, 504}
+MAX_COOLDOWN_WAITS = 2     # cooldown replies (429 + retry time) waited out per call; they ask no model
 
 # Replaceable in tests (no real waiting, fixed clock).
 _sleep = time.sleep
@@ -152,8 +155,11 @@ def call_llm(
     tokens = min(max_tokens or limits["default"], limits["ceiling"])
     client = _get_client()
     attempts: list[dict[str, Any]] = []
+    model_attempts = 0     # requests in which the router tried a model (max 2: first + one retry)
+    cooldown_waits = 0     # router cooldown replies waited out (max MAX_COOLDOWN_WAITS)
 
-    for attempt_no in (1, 2):
+    while True:
+        attempt_no = len(attempts) + 1
         record: dict[str, Any] = {"attempt": attempt_no, "chain": chain, "max_tokens": tokens}
         start = time.monotonic()
         problem: str | None = None
@@ -195,10 +201,17 @@ def call_llm(
                 elif expect_json:
                     data, problem = _parse_json(text, required_keys)
 
+        # A 429 with a retry time is the router's cooldown answer: no model was asked.
+        cooldown = status == 429 and hint_s is not None
+        if not cooldown:
+            model_attempts += 1
+
         record["latency_s"] = round(time.monotonic() - start, 2)
         record["ok"] = problem is None
         if status is not None:
             record["http_status"] = status
+        if cooldown:
+            record["cooldown"] = True
         if problem:
             record["problem"] = problem
         attempts.append(record)
@@ -219,31 +232,38 @@ def call_llm(
                 attempts=attempts,
             )
 
-        if attempt_no == 2:
-            break
-
-        # Router busy? Wait before the retry, or give up now if its cooldown is too long.
+        # How long to wait before sending again (cooldown: the router's time; busy: fixed).
         wait_s = _wait_before_retry(status, hint_s)
         if wait_s > RETRY_WAIT_CAP_S:
             record["retry_skipped"] = f"router busy for ~{wait_s:.0f}s (> {RETRY_WAIT_CAP_S}s cap)"
             logger.warning("[%s] not retrying: router busy for ~%.0fs, longer than the %ds cap",
                            agent, wait_s, RETRY_WAIT_CAP_S)
             raise LLMCallError(
-                f"[{agent}] failed after 1 attempt; router busy for ~{wait_s:.0f}s "
-                f"(longer than the {RETRY_WAIT_CAP_S}s cap). Last problem: {problem}",
+                f"[{agent}] gave up: router busy for ~{wait_s:.0f}s (longer than the "
+                f"{RETRY_WAIT_CAP_S}s cap). Last problem: {problem}",
                 attempts,
             )
+
+        if cooldown:
+            if cooldown_waits >= MAX_COOLDOWN_WAITS:
+                break
+            cooldown_waits += 1
+            label = "router cooldown (no model tried)"
+        else:
+            if model_attempts >= 2:
+                break
+            label = f"router busy (HTTP {status})" if wait_s > 0 else None
+            # Truncated? Give the retry a bigger budget, if the chain allows it.
+            if problem.startswith("truncated") and tokens < limits["ceiling"]:
+                tokens = min(tokens * 2, limits["ceiling"])
+
         if wait_s > 0:
             record["waited_before_retry_s"] = round(wait_s, 1)
-            logger.info("[%s] router busy (HTTP %s): waiting %.0fs before the retry",
-                        agent, status, wait_s)
+            logger.info("[%s] %s: waiting %.0fs before sending again", agent, label, wait_s)
             _sleep(wait_s)
 
-        # Truncated? Give the retry a bigger budget, if the chain allows it.
-        if problem.startswith("truncated") and tokens < limits["ceiling"]:
-            tokens = min(tokens * 2, limits["ceiling"])
-
     raise LLMCallError(
-        f"[{agent}] failed after {len(attempts)} attempts. Last problem: {attempts[-1].get('problem')}",
+        f"[{agent}] failed after {model_attempts} model attempt(s) and {cooldown_waits} cooldown "
+        f"wait(s). Last problem: {attempts[-1].get('problem')}",
         attempts,
     )
