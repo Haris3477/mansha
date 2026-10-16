@@ -21,11 +21,13 @@ from mansha.llm_client import LLMCallError, LLMResult
 from mansha.orchestrator import (
     MOFT_CEPA_URL,
     QAOutcome,
+    render_phase_log,
     run_pipeline,
     same_model_warning,
 )
 from mansha.researcher import number_keys
 from scripts.pipeline_cases import PIPELINE_CASES
+from scripts.run_pipeline import main as runner_main
 from scripts.run_researcher import CASES as INTAKES
 
 logging.basicConfig(level=logging.WARNING)
@@ -131,7 +133,7 @@ check("windows: every LLM phase records who served it",
 files = sorted(f.name for f in res.out_dir.iterdir())
 check("windows: all phase files saved", files == sorted([
     "message.txt", "intake.json", "evidence.txt", "researcher_1.json", "qa_1.json",
-    "builder.json", "report.md", "phase_log.json"]), files)
+    "builder.json", "report.md", "phase_log.json", "phase_log.md"]), files)
 check("windows: report.md is the report", (res.out_dir / "report.md").read_text() == res.output
       and res.output.startswith("#"))
 plog = json.loads((res.out_dir / "phase_log.json").read_text())
@@ -295,6 +297,54 @@ for case in ("windows", "chargers"):
         # Individual input values must not appear. (Totals and percentages may.)
         leaked = sorted(values & number_keys(text))
         check(f"{case}: no individual input value in {where}", not leaked, leaked)
+
+# ---------------------------------------------------------------- 7
+print("\n7. Readable phase log (phase_log.md)")
+res, _ = results["windows"]
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+check("phase_log.md saved and equals render_phase_log()", md == render_phase_log(res))
+check("title gives status and verdict", md.startswith("# Mansha run: REPORT (ELIGIBLE)"))
+check("message shown", "We run a factory in Sharjah" in md)
+check("one table row per phase", all(f"| {i} | {p.name} |" in md for i, p in enumerate(res.phases, 1)))
+check("model column filled for LLM phases", "| fake/researcher |" in md and "| fake/intake |" in md)
+check("QA pass-through visible", "NOT reviewed by QA" in md)
+
+llm = fake_for("windows", researcher=[bad, research_fixture("windows")], document_builder=[ERR])
+res = run("windows", llm)
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+check("revision: corrections shown", "Corrections sent (one shared revision):" in md
+      and "origin_result.status" in md)
+check("failed call: attempt trail with the wait", "call FAILED" in md and "HTTP 502 -> waited 30 s" in md
+      and "#2 router" in md, md[-600:])
+check("fallback visible", "| FALLBACK |" in md)
+
+res = run("brazil", fake_for("brazil"))
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+check("stop: title has no verdict, reason in table", md.startswith("# Mansha run: NOT_COVERED\n")
+      and "not covered" in md)
+
+# ---------------------------------------------------------------- 8
+print("\n8. The runner (scripts.run_pipeline) with a fake LLM")
+root = TMP / "runner"
+code = runner_main(["vague", "brazil"], llm=FakeLLM(intake=[NULL_INTAKE, EXTRA_INTAKES["brazil"]]),
+                   runs_root=root)
+folders = sorted(f.name for f in root.iterdir())
+check("two dev cases as expected: exit 0", code == 0, code)
+check("one timestamped folder per case", len(folders) == 2
+      and {f.split("_", 1)[1] for f in folders} == {"vague", "brazil"}, folders)
+code = runner_main(["vague"], llm=FakeLLM(intake=[EXTRA_INTAKES["brazil"]]), runs_root=root)
+check("unexpected status: exit 1", code == 1, code)
+code = runner_main(["--message", "We make aluminium window frames for India.",
+                    "--bom", "samples/windows_qualifies"],
+                   llm=fake_for("windows"), runs_root=root)
+check("--message with --bom: runs, folder named _msg", code == 0
+      and any(f.name.endswith("_msg") and (f / "report.md").exists() for f in root.iterdir()))
+for bad_args in (["--bom", "samples/windows_qualifies"], ["nope"], ["vague", "--message", "x"]):
+    try:
+        runner_main(bad_args, llm=FakeLLM(), runs_root=root)
+        check(f"bad arguments {bad_args} rejected", False, "no error")
+    except SystemExit as e:
+        check(f"bad arguments {bad_args} rejected", e.code == 2, e.code)
 
 print(f"\n(outputs in {TMP})")
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))

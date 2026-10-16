@@ -89,6 +89,7 @@ class PipelineResult:
     research: dict | None = None
     out_dir: Path | None = None
     seconds: float = 0.0
+    message: str = ""
 
     def log_dict(self) -> dict:
         """Everything for phase_log.json (no report text: that is in report.md)."""
@@ -233,6 +234,76 @@ def _write(out_dir: Path | None, name: str, content: Any) -> None:
         path.write_text(json.dumps(content, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
 
 
+# ---------- the readable phase log (phase_log.md) ----------
+
+def attempt_text(a: dict) -> str:
+    """One attempt: '#2 gemini-3.6-flash 21.3 s OK' or '#1 router 0.0 s FAILED: HTTP 429 ...'."""
+    who = a.get("routed_via") or "router"
+    s = f"#{a.get('attempt')} {who} {a.get('latency_s', 0)} s "
+    s += "OK" if a.get("ok") else f"FAILED: {a.get('problem', 'unknown')}"
+    if a.get("cooldown"):
+        s += " (router cooldown, no model tried)"
+    if a.get("waited_before_retry_s"):
+        s += f" -> waited {a['waited_before_retry_s']} s"
+    if a.get("retry_skipped"):
+        s += f" -> gave up: {a['retry_skipped']}"
+    return s
+
+
+def call_text(c: dict) -> str:
+    attempts = c.get("attempts") or []
+    head = (f"served by {c.get('served_by')} ({c.get('latency_s')} s)" if c.get("ok")
+            else "call FAILED")
+    if len(attempts) <= 1 and c.get("ok"):
+        return head
+    trail = " | ".join(attempt_text(a) for a in attempts) or "no attempts recorded"
+    return f"{head}; attempts: {trail}"
+
+
+def _cell(s: str) -> str:
+    """Text safe inside a Markdown table cell (a '|' would start a new column)."""
+    return str(s).replace(" | ", "; ").replace("|", "/").replace("\n", " ")
+
+
+def render_phase_log(result: PipelineResult) -> str:
+    """Markdown a judge can read: what each phase got, did, and which model served it."""
+    title = result.status + (f" ({result.verdict})" if result.verdict else "")
+    msg = result.message.strip().replace("\n", " ")
+    lines = [
+        f"# Mansha run: {title}",
+        "",
+        f"- **Message:** {msg[:300]}{'…' if len(msg) > 300 else ''}",
+        f"- **Total time:** {result.seconds} s | **language:** {result.language}",
+        "",
+        "| # | Phase | Status | Time (s) | Model | Result |",
+        "|---|---|---|---|---|---|",
+    ]
+    for i, p in enumerate(result.phases, 1):
+        lines.append(f"| {i} | {p.name} | {p.status} | {p.seconds} | {_cell(served_by(p.calls) or '-')} "
+                     f"| {_cell(p.summary)} |")
+    if result.warnings:
+        lines += ["", "## Warnings", ""] + [f"- {w}" for w in result.warnings]
+    lines += ["", "## Phase details"]
+    for i, p in enumerate(result.phases, 1):
+        lines += ["", f"### {i}. {p.name}: {p.status}", "", p.summary]
+        sent = p.details.get("corrections_sent")
+        if sent:
+            lines += ["", "Corrections sent (one shared revision):"] + [f"- {c}" for c in sent]
+        if p.calls:
+            lines += ["", "LLM calls:"] + [f"- {call_text(c)}" for c in p.calls]
+        if p.problems:
+            lines += ["", "Problems:"] + [f"- {x}" for x in p.problems]
+        if p.warnings:
+            lines += ["", "Code warnings (for QA):"] + [f"- {x}" for x in p.warnings]
+        changes = p.details.get("normalized_by_code")
+        if changes:
+            lines += ["", "Normalized by code:"] + [f"- {x}" for x in changes]
+        tools = p.details.get("tool_status")
+        if tools:
+            lines += ["", "Tool results: " + "; ".join(f"{k} {v}" for k, v in tools.items())]
+    return "\n".join(lines) + "\n"
+
+
 # ---------- the pipeline ----------
 
 def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=call_llm,
@@ -260,9 +331,11 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         verdict = (research or {}).get("verdict") if status == REPORT else None
         result = PipelineResult(status=status, output=output, language=lang, phases=phases,
                                 warnings=warnings, verdict=verdict,
-                                intake=intake, research=research, out_dir=out, seconds=total())
+                                intake=intake, research=research, out_dir=out, seconds=total(),
+                                message=message)
         _write(out, "report.md" if status == REPORT else "notice.md", output)
         _write(out, "phase_log.json", result.log_dict())
+        _write(out, "phase_log.md", render_phase_log(result))
         log.info("pipeline | %s | verdict=%s | %.1fs", status, result.verdict, result.seconds)
         return result
 
