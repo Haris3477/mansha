@@ -27,6 +27,12 @@ HEADER_RE = re.compile(r"^\[([^\]\n]+)\]", re.MULTILINE)
 EXCLUDED_TEXT = "EXCLUDED (no preferential rate; the normal MFN rate applies)"
 # Passage parameters that a tool computes from; the model sees the tool's result instead.
 TOOL_COMPUTED_PARAMS = {"fee_bands_aed"}  # -> TOOL:coo_fee
+# Origin-calculator totals the model may see: counts and percentages only (Step 9.3).
+# Money amounts from the bill of materials (price, non-originating and originating totals)
+# stay in code: with one input in a group, a "total" is that input's cost, and totals plus
+# the price reveal the cost structure. A whitelist, so a new amount field is hidden by default.
+ORIGIN_TOTALS_SHOWN = ("price_basis", "inputs_count", "non_originating_inputs_count",
+                       "non_originating_share_pct", "nom_valuation_source_id")
 
 
 @dataclass
@@ -191,7 +197,7 @@ def render_origin(o: dict) -> list[str]:
         f"status: {o.get('status')}",
         f"rule: {o.get('rule_id') or 'none'} \"{o.get('rule_text') or ''}\"",
         bullets("checks", [render_check(ch) for ch in o.get("checks", [])]),
-        f"totals: {kv(o.get('totals'))}",
+        f"totals: {kv({k: v for k, v in (o.get('totals') or {}).items() if k in ORIGIN_TOTALS_SHOWN})}",
         bullets("missing", o.get("missing")),
         bullets("notes", o.get("notes")),
     ]

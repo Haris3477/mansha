@@ -82,6 +82,17 @@ check("chargers: origin FAILS", status(c, "TOOL:origin:85044030") == "FAILS")
 names = supplier_names("samples/chargers_repacked")
 check("chargers: no supplier name in evidence", not any(n in c.text for n in names))
 
+print("\n== No bill-of-materials amounts in the evidence (Step 9.3)")
+for label, pack, line in (("windows", w, "76101000"), ("chargers", c, "85044030")):
+    totals = pack.tool_results[f"TOOL:origin:{line}"]["totals"]
+    hidden = [k for k in ("price", "non_originating_total", "originating_total") if k in totals]
+    check(f"{label}: calculator still computes the amounts (for code)", len(hidden) == 3, hidden)
+    shown = [k for k in hidden if f"{k}:" in pack.text]
+    check(f"{label}: amounts not shown to the model", not shown, shown)
+    check(f"{label}: share percentage still shown", "non_originating_share_pct:" in pack.text)
+check("chargers: the single non-originating input's cost (44000) is not in the evidence",
+      "44000" not in c.text)
+
 print("\n== Plastic packing (excluded)")
 p = build_evidence(PLASTIC, None)
 common_checks("plastic", p)

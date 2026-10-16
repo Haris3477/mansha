@@ -32,7 +32,7 @@
     },
     "origin_result": {
       "status": "QUALIFIES",
-      "basis": "Final manufacture in UAE check passed; minimal operations check passed; CTSH check passed (all 3 non-originating inputs classified outside subheading 761010); VA build-down passed at 49.0% against threshold of 45% on FOB basis (price: 100000 AED, 6 total inputs, 3 non-originating inputs totaling 51000 AED, non-originating share 51%).",
+      "basis": "Final manufacture in UAE check passed; minimal operations check passed; CTSH check passed (all 3 non-originating inputs classified outside subheading 761010); VA build-down passed at 49.0% against threshold of 45% on FOB basis (6 total inputs, 3 non-originating inputs, non-originating share 51%).",
       "source_id": "TOOL:origin:76101000"
     },
     "estimated_saving": {
