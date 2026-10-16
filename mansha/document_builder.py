@@ -209,22 +209,43 @@ def is_mandatory(source_id: str) -> bool:
     return source_id in MANDATORY_IDS or str(source_id).startswith(MANDATORY_PREFIXES)
 
 
-def build_notes(research: dict) -> list[dict]:
+# Verdicts where no CEPA rate can apply: notes on how the CEPA duty saving works don't apply.
+NO_CEPA_RATE_VERDICTS = {"NOT_ELIGIBLE", "NO_PREFERENCE"}
+
+
+def duty_source_ids(corridor: str = "india") -> set[str]:
+    """IDs of the corridor's passages about duty (kind "duty"), e.g. what the CEPA rate reduces."""
+    return {p["id"] for p in load_corridor(corridor)["passages"]["passages"] if p.get("kind") == "duty"}
+
+
+def is_duty_note(source_id, duty_ids: set[str]) -> bool:
+    return str(source_id).startswith("TOOL:duty:") or source_id in duty_ids
+
+
+def build_notes(research: dict, corridor: str = "india") -> list[dict]:
     """The Researcher's caveats (duplicate texts kept once).
 
     Mandatory notes are numbered M1, M2, ... and are shown verbatim by code (never sent
     to the LLM). Optional notes are numbered N1, N2, ... and are what the LLM condenses.
+    Dropped: the estimate note when no saving is shown (problem 31), and, when no CEPA rate
+    can apply (not eligible, excluded line), every note from the duty tool or a duty passage:
+    they explain a CEPA saving, and the Researcher may paraphrase them, so they are matched by
+    source, not by wording (Step 9.5b).
     """
     notes, seen, count = [], set(), {True: 0, False: 0}
     shows_estimate = research["estimated_saving"].get("status") == "ESTIMATED"
+    no_cepa_rate = research.get("verdict") in NO_CEPA_RATE_VERDICTS
+    duty_ids = duty_source_ids(corridor) if no_cepa_rate else set()
     for cv in research.get("caveats") or []:
         text = str(cv.get("note", "")).strip()
         if not text or text in seen:
             continue
+        sid = cv.get("source_id")
         if text.startswith(ESTIMATE_NOTE_START) and not shows_estimate:
             continue   # explains an estimate the report does not show
+        if no_cepa_rate and is_duty_note(sid, duty_ids):
+            continue   # explains a CEPA saving that cannot apply
         seen.add(text)
-        sid = cv.get("source_id")
         mand = is_mandatory(sid)
         count[mand] += 1
         notes.append({"nid": f"{'M' if mand else 'N'}{count[mand]}", "text": text,
@@ -256,7 +277,7 @@ def shipment_text(intake: dict) -> str:
     return "not given"
 
 
-def build_facts(research: dict, intake: dict) -> tuple[str, list[dict]]:
+def build_facts(research: dict, intake: dict, corridor: str = "india") -> tuple[str, list[dict]]:
     """Return (FACTS + optional NOTES text for the prompt, all notes). No evidence IDs inside."""
     cls, tar = research["classification"], research["tariff"]
     res, verdict = research["origin_result"], research["verdict"]
@@ -285,7 +306,7 @@ def build_facts(research: dict, intake: dict) -> tuple[str, list[dict]]:
     lines.append("STILL NEEDED:" + ("".join(f"\n- {n}" for n in needed) if needed else " nothing"))
     lines.append("TERMS:" + "".join(f"\n- {t}" for t in terms_for(rule + " " + str(res.get("basis", "")))))
 
-    notes = build_notes(research)
+    notes = build_notes(research, corridor)
     sent = sent_notes(notes)
     if sent:
         notes_text = (f"NOTES (at most {max_llm_notes(notes)} items in your `notes` list):\n"
@@ -509,7 +530,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     llm: the call function (tests pass a fake one).
     """
     research = copy.deepcopy(research)
-    facts_text, notes = build_facts(research, intake)
+    facts_text, notes = build_facts(research, intake, corridor)
     language = intake.get("language")
     calls: list[LLMResult] = []
     failed_attempts: list[dict] = []

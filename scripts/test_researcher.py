@@ -14,6 +14,7 @@ from mansha.researcher import (
     build_messages,
     check_researcher,
     fill_authorities,
+    fill_tariff_line,
     number_keys,
     run_researcher,
 )
@@ -288,6 +289,21 @@ bad = copy.deepcopy(GOOD_W); bad["origin_result"]["basis"] += " (TOOL:origin:761
 expect_problem("evidence ID in the origin basis", bad, w)
 problems, _, _ = run(GOOD_W, w)
 check("plain text passes", not problems, problems)
+
+# ---------------- tariff line format filled by code (Step 9.5b) ----------------
+print("\n== Tariff line written as the record's 8 digits")
+for given in ("TL-IN-76101000", "76101000 (7610 10 00)", "7610 10 00", "76101000"):
+    d = copy.deepcopy(GOOD_W); d["classification"]["tariff_line"] = given
+    fill_tariff_line(d, w)
+    check(f"{given!r} -> '76101000'", d["classification"]["tariff_line"] == "76101000",
+          d["classification"]["tariff_line"])
+d = copy.deepcopy(GOOD_W); d["classification"]["tariff_line"] = "76151030"
+fill_tariff_line(d, w)
+check("a different line is not 'fixed' (left for the checks)", d["classification"]["tariff_line"] == "76151030")
+expect_problem("different line from its source", d, w)
+d = copy.deepcopy(GOOD_W); d["classification"]["tariff_line"] = GAP
+fill_tariff_line(d, w)
+check("gap marker left alone", d["classification"]["tariff_line"] == GAP)
 
 # ---------------- run_researcher with a fake LLM ----------------
 print("\n== run_researcher (fake LLM)")

@@ -12,6 +12,10 @@ call_llm() wraps every model call so each agent gets the same behaviour:
 - a router COOLDOWN reply (HTTP 429 with a retry time: no model was tried) does not
   use up the retry: wait until that time and send again, at most
   MAX_COOLDOWN_WAITS times per call (Step 8.6b)
+- BUSY BUDGET (Step 9.5b): when the provider side is busy (HTTP 502/503/504, or 429
+  without a time), the call may try up to MAX_BUSY_ATTEMPTS models in total, each after
+  the usual wait. Our own failures (bad JSON, truncation, empty reply, 400, timeout)
+  keep the one-retry rule. Nothing is sent again once CALL_BUDGET_S has passed.
 """
 import json
 import logging
@@ -43,6 +47,8 @@ UPSTREAM_WAIT_S = 30       # wait after 502/503/504, or a 429 without a time hin
 WAIT_MARGIN_S = 1.0        # added to the router's retryAtMs, so we arrive just after the reset
 BUSY_STATUSES = {429, 502, 503, 504}
 MAX_COOLDOWN_WAITS = 2     # cooldown replies (429 + retry time) waited out per call; they ask no model
+MAX_BUSY_ATTEMPTS = 4      # model attempts per call while every failure is provider-busy (Step 9.5b)
+CALL_BUDGET_S = 240        # no new attempt starts after this (seconds since the call began)
 
 # Replaceable in tests (no real waiting, fixed clock).
 _sleep = time.sleep
@@ -155,8 +161,10 @@ def call_llm(
     tokens = min(max_tokens or limits["default"], limits["ceiling"])
     client = _get_client()
     attempts: list[dict[str, Any]] = []
-    model_attempts = 0     # requests in which the router tried a model (max 2: first + one retry)
+    model_attempts = 0     # requests in which the router tried a model
+    own_failures = 0       # failures on our side (bad JSON, truncation, 400, ...): one retry only
     cooldown_waits = 0     # router cooldown replies waited out (max MAX_COOLDOWN_WAITS)
+    started = _now()
 
     while True:
         attempt_no = len(attempts) + 1
@@ -234,6 +242,7 @@ def call_llm(
 
         # How long to wait before sending again (cooldown: the router's time; busy: fixed).
         wait_s = _wait_before_retry(status, hint_s)
+        busy = status in BUSY_STATUSES and not cooldown   # provider side busy; a model was tried
         if wait_s > RETRY_WAIT_CAP_S:
             record["retry_skipped"] = f"router busy for ~{wait_s:.0f}s (> {RETRY_WAIT_CAP_S}s cap)"
             logger.warning("[%s] not retrying: router busy for ~%.0fs, longer than the %ds cap",
@@ -250,12 +259,24 @@ def call_llm(
             cooldown_waits += 1
             label = "router cooldown (no model tried)"
         else:
-            if model_attempts >= 2:
+            if not busy:
+                own_failures += 1
+            if own_failures >= 2 or model_attempts >= MAX_BUSY_ATTEMPTS:
                 break
             label = f"router busy (HTTP {status})" if wait_s > 0 else None
             # Truncated? Give the retry a bigger budget, if the chain allows it.
             if problem.startswith("truncated") and tokens < limits["ceiling"]:
                 tokens = min(tokens * 2, limits["ceiling"])
+
+        elapsed = _now() - started
+        if elapsed + wait_s > CALL_BUDGET_S:
+            record["retry_skipped"] = f"call budget: {elapsed:.0f}s used of {CALL_BUDGET_S}s"
+            logger.warning("[%s] not retrying: %.0fs used, the call budget is %ds", agent, elapsed, CALL_BUDGET_S)
+            raise LLMCallError(
+                f"[{agent}] gave up after {elapsed:.0f}s ({model_attempts} model attempt(s)): the call budget "
+                f"is {CALL_BUDGET_S}s. Last problem: {problem}",
+                attempts,
+            )
 
         if wait_s > 0:
             record["waited_before_retry_s"] = round(wait_s, 1)

@@ -186,6 +186,23 @@ def fill_authorities(data: dict, pack: EvidencePack) -> None:
             step["authority"] = pack.actors.get(step.get("source_id"), GAP)
 
 
+def fill_tariff_line(data: dict, pack: EvidencePack) -> None:
+    """Write `classification.tariff_line` as the cited record's 8 digits (Step 9.5b).
+
+    The model sometimes copies the record ID ("TL-IN-85044030") or the display form
+    ("39239090 (3923 90 90)"). Code fixes the format only when the cited record is a
+    candidate line whose 8 digits appear in what the model wrote; a different line is
+    left for check_researcher to report.
+    """
+    cls = data.get("classification")
+    if not isinstance(cls, dict):
+        return
+    cand = next((c for c in pack.candidates if c["id"] == cls.get("source_id")), None)
+    line = (cand or {}).get("tariff_line")
+    if line and str(cls.get("tariff_line", "")).strip() != GAP and line in digits(cls.get("tariff_line")):
+        cls["tariff_line"] = line
+
+
 # ---------- the checks ----------
 
 def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[str], str]:
@@ -373,6 +390,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     data = copy.deepcopy(res.data)
     data.pop("verdict", None)  # the verdict is code's job
     fill_authorities(data, pack)  # so is who acts in each step
+    fill_tariff_line(data, pack)  # and the tariff code's format
     problems, warnings, verdict = check_researcher(data, pack)
     data["verdict"] = verdict
     log.info("researcher checks | served_by=%s | verdict=%s | problems=%d | warnings=%d",

@@ -1,4 +1,4 @@
-"""Offline tests for the wait-before-retry logic in mansha.llm_client (Step 8.6).
+"""Offline tests for the wait-before-retry logic in mansha.llm_client (Steps 8.6, 8.6b, 9.5b).
 
 No router, no real waiting: a fake client replays scripted replies, and the clock and
 sleep are replaced. Run: python -m scripts.test_llm_retry
@@ -11,9 +11,10 @@ from openai import APIStatusError
 
 import mansha.llm_client as lc
 
-NOW = 1_800_000_000.0          # fixed fake clock (seconds)
+NOW = 1_800_000_000.0          # fake clock start (seconds)
 failures: list[str] = []
 slept: list[float] = []
+clock = {"t": NOW, "advance": False}   # the clock moves only in the budget tests
 
 
 def check(name: str, cond: bool, detail="") -> None:
@@ -43,25 +44,31 @@ def ok_reply(text: str = "OK"):
 
 
 class FakeClient:
-    """Mimics client.chat.completions.with_raw_response.create(...)."""
+    """Mimics client.chat.completions.with_raw_response.create(...).
 
-    def __init__(self, *replies):
-        self.replies, self.calls = list(replies), 0
+    call_s: seconds each call takes on the fake clock (budget tests only).
+    """
+
+    def __init__(self, *replies, call_s: float = 0.0):
+        self.replies, self.calls, self.call_s = list(replies), 0, call_s
         self.chat = SimpleNamespace(completions=SimpleNamespace(
             with_raw_response=SimpleNamespace(create=self._create)))
 
     def _create(self, **kwargs):
         self.calls += 1
+        if clock["advance"]:
+            clock["t"] += self.call_s
         r = self.replies.pop(0)
         if isinstance(r, Exception):
             raise r
         return r
 
 
-def run(*replies):
+def run(*replies, call_s: float = 0.0):
     """Call call_llm against scripted replies. Returns (result or error, fake client, waits)."""
     slept.clear()
-    fake = FakeClient(*replies)
+    clock["t"] = NOW
+    fake = FakeClient(*replies, call_s=call_s)
     lc._client = fake
     try:
         out = lc.call_llm("test", "auto:long", [{"role": "user", "content": "hi"}])
@@ -70,8 +77,14 @@ def run(*replies):
     return out, fake, list(slept)
 
 
-lc._sleep = slept.append
-lc._now = lambda: NOW
+def fake_sleep(s: float) -> None:
+    slept.append(s)
+    if clock["advance"]:
+        clock["t"] += s
+
+
+lc._sleep = fake_sleep
+lc._now = lambda: clock["t"]
 
 print("\n1. Reading the router's hint")
 check("retryAtMs 25 s ahead -> 26 s (with the 1 s margin)",
@@ -127,9 +140,9 @@ check("16 Oct pattern: 502 -> wait 30 s -> cooldown -> wait it out -> OK",
       isinstance(out, lc.LLMResult) and fake.calls == 3 and waits == [30.0, 31.0], (fake.calls, waits))
 
 out, fake, waits = run(http_error(502, {"message": "timeout"}), busy_429(30),
-                       http_error(502, {"message": "timeout"}))
-check("502, cooldown, 502: two model attempts used, then LLMCallError",
-      isinstance(out, lc.LLMCallError) and fake.calls == 3 and waits == [30.0, 31.0], (fake.calls, waits))
+                       http_error(502, {"message": "timeout"}), ok_reply())
+check("502, cooldown, 502, OK: the busy budget allows a third model attempt (9.5b)",
+      isinstance(out, lc.LLMResult) and fake.calls == 4 and waits == [30.0, 31.0, 30.0], (fake.calls, waits))
 
 out, fake, waits = run(busy_429(10), busy_429(10), busy_429(10), ok_reply())
 check(f"cooldown waits stop after {lc.MAX_COOLDOWN_WAITS}",
@@ -139,16 +152,44 @@ check("error message counts model attempts and cooldown waits",
       isinstance(out, lc.LLMCallError) and "0 model attempt(s)" in str(out)
       and f"{lc.MAX_COOLDOWN_WAITS} cooldown wait(s)" in str(out), str(out)[:120])
 
-out, fake, waits = run(http_error(502, {"message": "x"}), http_error(502, {"message": "x"}), ok_reply())
-check("two failed model attempts: no third call", isinstance(out, lc.LLMCallError) and fake.calls == 2)
+out, fake, waits = run(ok_reply(""), ok_reply(""), ok_reply())
+check("two failures on our side (empty replies): no third call",
+      isinstance(out, lc.LLMCallError) and fake.calls == 2)
 
 out, fake, waits = run(busy_429(10), http_error(502, {"message": "x"}), busy_429(10), ok_reply())
 check("cooldown, 502, cooldown, OK: retry still available after cooldowns",
       isinstance(out, lc.LLMResult) and fake.calls == 4 and waits == [11.0, 30.0, 11.0], (fake.calls, waits))
 
-out, fake, waits = run(http_error(429, {"message": "rate limited"}), http_error(429, {"message": "x"}))
-check("429 without a time hint counts as a model attempt (2 calls max)",
-      isinstance(out, lc.LLMCallError) and fake.calls == 2, fake.calls)
+out, fake, waits = run(*[http_error(429, {"message": "rate limited"})] * lc.MAX_BUSY_ATTEMPTS, ok_reply())
+check(f"429 without a time hint counts as a busy model attempt ({lc.MAX_BUSY_ATTEMPTS} calls max)",
+      isinstance(out, lc.LLMCallError) and fake.calls == lc.MAX_BUSY_ATTEMPTS, fake.calls)
+
+print("\n4. Busy budget (9.5b): provider outages get more attempts, our own failures do not")
+E502 = http_error(502, {"message": "upstream_failed: Google API error 503"})
+out, fake, waits = run(E502, E502, E502, ok_reply())
+check("16 Oct 17:46 pattern: 502, 502, 502, OK -> succeeds on the 4th model attempt",
+      isinstance(out, lc.LLMResult) and fake.calls == 4 and waits == [lc.UPSTREAM_WAIT_S] * 3,
+      (fake.calls, waits))
+out, fake, waits = run(*[E502] * (lc.MAX_BUSY_ATTEMPTS + 1))
+check(f"busy every time: stops after {lc.MAX_BUSY_ATTEMPTS} model attempts",
+      isinstance(out, lc.LLMCallError) and fake.calls == lc.MAX_BUSY_ATTEMPTS, fake.calls)
+out, fake, waits = run(ok_reply(""), E502, ok_reply())
+check("own failure, then busy, then OK: allowed (one own retry, busy ones extra)",
+      isinstance(out, lc.LLMResult) and fake.calls == 3, fake.calls)
+out, fake, waits = run(E502, ok_reply(""), ok_reply(""), ok_reply())
+check("busy, then two own failures: stops after the second own failure",
+      isinstance(out, lc.LLMCallError) and fake.calls == 3, fake.calls)
+
+clock["advance"] = True
+out, fake, waits = run(E502, E502, E502, ok_reply(), call_s=70)
+check(f"slow outage (70 s per attempt): stops when the next try would pass {lc.CALL_BUDGET_S}s",
+      isinstance(out, lc.LLMCallError) and fake.calls == 3, (fake.calls, waits))
+check("budget failure says why and is recorded on the attempt",
+      isinstance(out, lc.LLMCallError) and "call budget" in str(out)
+      and "call budget" in out.attempts[-1].get("retry_skipped", ""), str(out)[:120])
+out, fake, waits = run(E502, ok_reply(), call_s=70)
+check("within the budget: retries normally", isinstance(out, lc.LLMResult) and fake.calls == 2)
+clock["advance"] = False
 
 lc._client = None
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
