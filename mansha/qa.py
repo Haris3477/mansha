@@ -35,7 +35,7 @@ from dataclasses import dataclass, field
 from mansha.evidence import EvidencePack
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
-from mansha.qa_evidence import qa_evidence, research_for_qa
+from mansha.qa_evidence import CODE_OWNED, checked_facts, qa_evidence, research_for_qa
 
 log = logging.getLogger("mansha.qa")
 
@@ -75,6 +75,7 @@ def build_messages(intake: dict, pack: EvidencePack, research: dict, warnings: l
                    previous: dict | None = None, problems: list[str] | None = None) -> list[dict]:
     listed = "\n".join(f"{wid}: {w}" for wid, w in zip(warning_ids(warnings), warnings)) or "none"
     user = ("INTAKE JSON:\n" + json.dumps(intake, ensure_ascii=False, indent=2)
+            + "\n\nCHECKED BY CODE (correct; never correct these):\n" + checked_facts(research, intake, pack)
             + "\n\nCODE WARNINGS:\n" + listed
             + "\n\nEVIDENCE:\n" + qa_evidence(pack, research)
             + "\n\nRESEARCHER JSON:\n" + json.dumps(research_for_qa(research), ensure_ascii=False, indent=1))
@@ -148,7 +149,10 @@ def check_qa(data: dict, research: dict, warnings: list[str], allowed_ids) -> li
             continue
         f = str(c.get("field") or "")
         m = FIELD_RE.match(f)
-        if not m or m.group(1) not in research:
+        if any(f == o or f.startswith(o + ".") for o in CODE_OWNED):
+            problems.append(f"corrections[{i}]: {f} is checked by code against the tools and is correct "
+                            "(see CHECKED BY CODE); remove this correction and rescore without it")
+        elif not m or m.group(1) not in research:
             problems.append(f"corrections[{i}]: field {f!r} is not a field of the Researcher JSON")
         elif m.group(2) is not None:
             items = research.get(m.group(1))

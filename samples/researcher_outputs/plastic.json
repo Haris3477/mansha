@@ -50,10 +50,6 @@
       {
         "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
         "source_id": "TOOL:duty:39239090"
-      },
-      {
-        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
-        "source_id": "TOOL:duty:39239090"
       }
     ],
     "follow_up_questions": [],

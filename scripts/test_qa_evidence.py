@@ -88,9 +88,13 @@ for case, (intake, folder, _) in DEV_INTAKES.items():
     view = research_for_qa(research)
     check("QA view: no code-filled verdict or step authority",
           "verdict" not in view and all("authority" not in s for s in view["procedure"]))
+    check("QA view: code-verified fields hidden (origin status, rule, saving)",
+          "status" not in view["origin_result"] and "origin_rule" not in view
+          and "estimated_saving" not in view)
     check("QA view: classification reasoning only", view["reasoning"] == research["reasoning"][:1])
     check("QA view: findings unchanged",
-          all(view[k] == research[k] for k in ("classification", "origin_result", "caveats", "gaps")))
+          all(view[k] == research[k] for k in ("classification", "caveats", "gaps"))
+          and view["origin_result"]["basis"] == research["origin_result"]["basis"])
     check("QA view: the Researcher JSON itself is not changed",
           research == load(case))
     sizes.append((case, len(pack.text), len(text), len(json.dumps(view, ensure_ascii=False))))

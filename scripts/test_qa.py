@@ -11,10 +11,12 @@ import copy
 import csv
 import json
 import sys
+import tempfile
 from pathlib import Path
 
+import scripts.eval_qa as ev
 from mansha.evidence import build_evidence
-from mansha.llm_client import LLMCallError, LLMResult
+from mansha.llm_client import CHAIN_LIMITS, LLMCallError, LLMResult
 from mansha.qa import (
     QA_APPROVED,
     QA_CHAIN,
@@ -87,6 +89,18 @@ check("compact evidence, not the full block", "=== CHOSEN LINE: TOOL RESULTS ===
       and "=== TOOL RESULTS PER CANDIDATE ===" not in user)
 check("Researcher JSON without code-filled verdict", '"verdict"' not in user.split("RESEARCHER JSON:")[1])
 check("the intake is included", '"product_description": "battery chargers"' in user)
+facts = user.split("CHECKED BY CODE (correct; never correct these):\n")[1].split("\n\nCODE WARNINGS")[0]
+check("checked facts: verdict, origin status, rule, saving", "verdict: NOT_ELIGIBLE" in facts
+      and "origin result status: DOES_NOT_QUALIFY" in facts and "CTH + VA 40%" in facts
+      and "duty saving status: NOT_APPLICABLE" in facts, facts)
+check("checked facts: what the user gave (value and bill of materials)",
+      "shipment value 50000 AED" in facts and "bill of materials and declaration: GIVEN" in facts, facts)
+ni, nf, _ = DEV_INTAKES["windows_nodata"]
+nmsg = build_messages(ni, build_evidence(ni, nf), fixture("windows_nodata"), [])[1]["content"]
+check("checked facts, nothing given: value and bill of materials NOT given",
+      "shipment value: NOT given" in nmsg and "NOT given or incomplete" in nmsg)
+check("code-verified fields not shown as JSON fields",
+      '"estimated_saving"' not in user and '"origin_rule"' not in user)
 rows = list(csv.DictReader((Path(folder) / "bom.csv").open(encoding="utf-8")))
 everything = system + user
 check("no supplier name in QA's prompt", not [r for r in rows if r["supplier"].split(" (")[0] in everything])
@@ -129,6 +143,12 @@ caught("index out of range", answer([("W1", "NOISE"), ("W2", "NOISE")],
        [{**FIX, "field": "procedure[3].step"}], c=0), "does not exist")
 caught("source_id not in the evidence", answer([("W1", "NOISE"), ("W2", "NOISE")],
        [{**FIX, "source_id": "P-MADE-UP"}], c=0), "not an evidence ID")
+for owned in ("estimated_saving", "estimated_saving.amount", "origin_result.status", "origin_rule.rule",
+              "verdict"):
+    caught(f"correction on code-checked {owned}", answer([("W1", "NOISE"), ("W2", "NOISE")],
+           [{**FIX, "field": owned}], f=0), "checked by code")
+check("origin_result.basis is still QA's to correct", problems_for(answer(
+      [("W1", "NOISE"), ("W2", "NOISE")], [{**FIX, "field": "origin_result.basis"}], f=0)) == [])
 caught("correction without a fix", answer([("W1", "NOISE"), ("W2", "NOISE")], [{**FIX, "fix": ""}], c=0),
        "needs a `fix`")
 check("field forms accepted: 'classification', 'caveats', 'origin_result.basis'",
@@ -182,6 +202,81 @@ q = run_qa(intake, pack, ResearcherResult(data=fixture("plastic"), problems=[], 
            llm=FakeLLM(answer()))
 check("no code warnings: approval with an empty warnings list", q.status == QA_APPROVED and q.judgements == [])
 check("the Researcher JSON is not changed by QA", research.data["verdict"] == "NOT_ELIGIBLE")
+
+
+# ---------------------------------------------------------------- 4
+print("\n4. The live evaluation script (scripts.eval_qa) with a fake LLM")
+for case in ev.CASES:
+    _, _, r = ev.prepare(case)
+    base = fixture(case.base)
+    check(f"{case.name}: gets past the code checks", r.problems == [], r.problems)
+    if case.seed:
+        changed = {k for k in base if base[k] != r.data.get(k)} - {"verdict"}
+        check(f"{case.name}: the seed changed exactly one part", len(changed) == 1, changed)
+check("invented_timeline: code warns, QA must judge it",
+      ev.prepare(ev.BY_NAME["invented_timeline"])[2].warnings ==
+      ["procedure[1]: number(s) ['14'] not found in P-MOET-COO-INDIA"])
+
+
+def spy(reply_for):
+    seen = []
+
+    def llm(agent, chain, messages, **kwargs):
+        seen.append((agent, chain, kwargs.get("max_tokens")))
+        r = reply_for(messages)
+        return LLMResult(text=json.dumps(r), data=r, routed_via="fake/judge", finish_reason="stop",
+                         latency_s=0.1, attempts=[{"attempt": 1, "ok": True}])
+    return llm, seen
+
+
+def approve_all(messages):
+    ids = [ln.split(":")[0] for ln in messages[1]["content"].split("CODE WARNINGS:\n")[1].splitlines()
+           if ln.startswith("W")]
+    return answer([(w, "NOISE") for w in ids])
+
+
+tmp = Path(tempfile.mkdtemp(prefix="mansha_evalqa_"))
+llm, seen = spy(approve_all)
+code = ev.main([], llm=llm, runs_root=tmp)
+saved = {f.name: json.loads(f.read_text()) for d in tmp.iterdir() for f in d.iterdir()}
+check("approve-everything judge: exit 1", code == 1, code)
+check("clean cases APPROVED, seeded MISSED", all(
+      v["result"] == ("APPROVED" if k.startswith("clean_") else "MISSED") for k, v in saved.items()),
+      {k: v["result"] for k, v in saved.items()})
+check("one answer file per case", len(saved) == len(ev.CASES), sorted(saved))
+check("QA ran on auto:judge", {c for _, c, _ in seen} == {"auto:judge"})
+
+
+def rejects_field(field):
+    def reply(messages):
+        a = approve_all(messages)
+        a["corrections"] = [{**FIX, "field": field, "source_id": None}]
+        a["scores"]["factuality"] = 0
+        a["warnings"] = [{**w, "judgement": "REAL"} for w in a["warnings"]]
+        return a
+    return reply
+
+
+llm, seen = spy(rejects_field("procedure[0].step"))
+code = ev.main(["merged_step", "--chain", "trial"], llm=llm, runs_root=tmp)
+check("right field: CAUGHT, exit 0", code == 0, code)
+check("--chain trial: QA on auto:trial with QA's 3000-token budget",
+      seen and all(c == "auto:trial" for _, c, _ in seen))
+check("trial chain budget = judge budget", CHAIN_LIMITS["auto:trial"]["default"] == 3000)
+llm, _ = spy(rejects_field("procedure[3].step"))
+check("wrong step rejected: WRONG FIELD, exit 1", ev.main(["merged_step"], llm=llm, runs_root=tmp) == 1)
+llm, _ = spy(rejects_field("caveats[0].note"))
+check("clean case rejected: FALSE REJECTION, exit 1", ev.main(["clean_plastic"], llm=llm, runs_root=tmp) == 1)
+slept = []
+ev._sleep = slept.append
+llm, _ = spy(approve_all)
+ev.main(["clean_plastic", "clean_chargers", "--pause", "65"], llm=llm, runs_root=tmp)
+check("--pause: waits between calls, not before the first", slept == [65.0], slept)
+try:
+    ev.main(["--chain", "long"], llm=llm, runs_root=tmp)
+    check("refuses QA on the long chain", False)
+except SystemExit as e:
+    check("refuses QA on the long chain", e.code == 2)
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

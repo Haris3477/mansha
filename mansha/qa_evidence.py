@@ -17,8 +17,12 @@ Sections:
    at a relevant record the Researcher left out.
 
 `research_for_qa()` is the Researcher JSON QA reads: the classification reasoning only
-(the other reasoning steps repeat the findings) and no code-filled fields (`verdict`,
-step `authority`), which code sets and QA does not judge.
+(the other reasoning steps repeat the findings), and without the fields code fills or
+verifies exactly against the tools (`verdict`, step `authority`, `origin_result.status`,
+`origin_rule`, `estimated_saving`). `checked_facts()` states those as plain facts instead,
+plus what the user already gave. Why (Step 7.4, first live run): GPT-OSS "corrected" a
+correct NOT_APPLICABLE saving and a correct NOT_APPLICABLE origin status, because it did not
+know the mapping rules that code enforces. QA should not judge what code already proves.
 
 Pure code, no LLM. Built only from the EVIDENCE text the Researcher already saw, so it
 carries counts and percentages only (Step 9.3) and adds nothing new.
@@ -37,8 +41,10 @@ TITLE_KEYS = ("title:", "rule:", "text:")
 TITLE_MAX = 110
 # Lines kept for a candidate that was not chosen (classification is judged from these).
 BRIEF_KEYS = ("tariff line:", "heading:", "description:", "MFN rate:", "CEPA status:")
-CODE_FILLED = ("verdict",)
+CODE_FILLED = ("verdict", "origin_rule", "estimated_saving")  # set or verified exactly by code
 STEP_CODE_FILLED = ("authority",)
+# Correction targets QA may not use: code fills or verifies them exactly (check_qa refuses them).
+CODE_OWNED = ("verdict", "origin_rule", "estimated_saving", "origin_result.status")
 
 
 def _clean(block: str) -> str:
@@ -131,6 +137,8 @@ def research_for_qa(research: dict) -> dict:
     data = copy.deepcopy(research)
     for k in CODE_FILLED:
         data.pop(k, None)
+    if isinstance(data.get("origin_result"), dict):
+        data["origin_result"].pop("status", None)
     reasoning = data.get("reasoning")
     if isinstance(reasoning, list):
         data["reasoning"] = reasoning[:1]
@@ -139,3 +147,38 @@ def research_for_qa(research: dict) -> dict:
             for k in STEP_CODE_FILLED:
                 step.pop(k, None)
     return data
+
+
+def checked_facts(research: dict, intake: dict, pack: EvidencePack) -> str:
+    """Facts code has verified against the tools, and what the user already gave (plain text)."""
+    line = digits((research.get("classification") or {}).get("tariff_line"))
+    origin = (research.get("origin_result") or {}).get("status")
+    rule = research.get("origin_rule") or {}
+    saving = research.get("estimated_saving") or {}
+    s_text = str(saving.get("status"))
+    if saving.get("status") == "ESTIMATED":
+        s_text += f" ({saving.get('amount')} {saving.get('currency')}, if the product qualifies)"
+    lines = [
+        f"- verdict: {research.get('verdict')}",
+        f"- origin result status: {origin} "
+        + ("(the line is excluded, so no origin check applies)" if origin == "NOT_APPLICABLE"
+           else "(the origin tool's result for the chosen line, mapped by code)"),
+        f"- rule of origin: {rule.get('rule')} ({rule.get('source_id')})",
+        f"- duty saving status: {s_text} (from the duty tool, by code's rule: no saving when the "
+        "product does not qualify or the line is excluded)",
+    ]
+    value = intake.get("shipment_value")
+    gave = [f"shipment value {value.get('amount')} {value.get('currency')}" if value
+            else "shipment value: NOT given"]
+    tool = pack.tool_results.get(f"TOOL:origin:{line}") if line else None
+    if tool is None:
+        gave.append("bill of materials: not needed (no origin check for this line)")
+    elif tool.get("status") == "INSUFFICIENT_DATA":
+        missing = ", ".join(map(str, tool.get("missing") or [])) or "see the origin tool"
+        gave.append(f"bill of materials and declaration: NOT given or incomplete (missing: {missing})")
+    else:
+        gave.append("bill of materials and declaration: GIVEN (the origin check already ran on them)")
+    if intake.get("hs_code_given"):
+        gave.append(f"HS code {intake['hs_code_given']}")
+    lines.append("- the user already gave: " + "; ".join(gave))
+    return "\n".join(lines)
