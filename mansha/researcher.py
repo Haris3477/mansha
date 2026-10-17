@@ -111,6 +111,15 @@ def number_keys(text: str) -> set[str]:
     return keys
 
 
+# List numbering the model adds to its own text: "(3)" anywhere, "3." or "3)" at a line start.
+# Not facts, so the number check ignores them (17 Oct chargers: "(3)", "(4)" gave a false warning).
+LIST_MARKER_RE = re.compile(r"\(\d{1,2}\)|^[ \t]*\d{1,2}[.)](?=\s)", re.MULTILINE)
+
+
+def strip_list_markers(text: str) -> str:
+    return LIST_MARKER_RE.sub(" ", text or "")
+
+
 def as_decimal(x) -> Decimal | None:
     try:
         return Decimal(str(x).replace(",", ""))
@@ -355,7 +364,7 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
                for i, cv in enumerate(data["caveats"])]
     for where, text, sid in fields:
         if sid in records:
-            missing = number_keys(text) - number_keys(records[sid])
+            missing = number_keys(strip_list_markers(text)) - number_keys(records[sid])
             if missing:
                 warnings.append(f"{where}: number(s) {sorted(missing)} not found in {sid}")
 

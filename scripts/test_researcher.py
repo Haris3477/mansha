@@ -4,8 +4,11 @@ Run: python -m scripts.test_researcher
 """
 
 import copy
+import json
 import sys
+from pathlib import Path
 
+import mansha.researcher as researcher_mod
 from mansha.evidence import build_evidence, fmt_num, passages_of
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
@@ -18,7 +21,9 @@ from mansha.researcher import (
     fill_tariff_line,
     number_keys,
     run_researcher,
+    strip_list_markers,
 )
+from scripts.pipeline_cases import DEV_INTAKES
 
 failures: list[str] = []
 
@@ -65,6 +70,43 @@ check("thousands and decimals", number_keys("10,000.00 AED") == {"10000"})
 check("trailing .0", number_keys("49.0%") == {"49"})
 check("article numbers kept", number_keys("Art. 3.5.1") == {"3.5.1"})
 check("comma list split", number_keys("84,85") == {"84", "85"})
+
+print("\n== strip_list_markers (Step 7.2: list numbering is not a fact)")
+check("'(3)' and '(4)' removed", number_keys(strip_list_markers("(3) one input; (4) build-down 12%")) == {"12"})
+check("line-start '3.' and '4)' removed",
+      number_keys(strip_list_markers("1. Register\n  2) Apply\n3. Pay AED 10")) == {"10"})
+check("article numbers kept", number_keys(strip_list_markers("Art. 3.5.1 (b)")) == {"3.5.1"})
+check("decimals kept", number_keys(strip_list_markers("12.0% against 40%")) == {"12", "40"})
+check("number ending a sentence kept", number_keys(strip_list_markers("a threshold of 40. Then")) == {"40"})
+check("number in brackets with words kept", number_keys(strip_list_markers("(10 working days)")) == {"10"})
+# The 17 Oct 14:29 chargers basis (Dots3): numbered the failed checks (1)-(4); the old check
+# warned "number(s) ['3', '4'] not found in TOOL:origin:85044030".
+LIVE_BASIS = (
+    "The origin check failed on four counts: (1) final manufacture did not take place in the UAE; "
+    "(2) the declared operations are all minimal operations under Art. 3.5.1 \u2014 (b) changes of "
+    "packaging and breaking up and assembly of packages, (k) simple placing in bottles/cans/cases/boxes "
+    "and simple packaging operations, (l) affixing or printing marks, labels, logos and like "
+    "distinguishing signs \u2014 which never confer origin; (3) one non-originating input is in the same "
+    "heading 8504 as the finished battery chargers, representing 88.0% of the FOB price, above the 10% "
+    "de minimis tolerance; (4) value addition by build-down is 12.0% against a required threshold of "
+    "40%, on an FOB basis. The shipment had 2 inputs, of which 1 is non-originating, on an FOB price basis.")
+ci, cf, _ = DEV_INTAKES["chargers"]
+cpack = build_evidence(ci, cf)
+live = json.loads(Path("samples/researcher_outputs/chargers.json").read_text(encoding="utf-8"))["output"]
+live["origin_result"]["basis"] = LIVE_BASIS
+_, warns, _ = check_researcher(copy.deepcopy(live), cpack)
+check("17 Oct chargers basis: no number warning", not [w for w in warns if "number(s)" in w], warns)
+# Break test: without the stripping, the old false warning comes back.
+saved_strip = researcher_mod.strip_list_markers
+researcher_mod.strip_list_markers = lambda t: t
+_, warns, _ = check_researcher(copy.deepcopy(live), cpack)
+researcher_mod.strip_list_markers = saved_strip
+check("break test: without stripping the '3', '4' warning returns",
+      any("['3', '4']" in w for w in warns), warns)
+wrong = copy.deepcopy(live)
+wrong["origin_result"]["basis"] = LIVE_BASIS.replace("12.0%", "21.0%")
+_, warns, _ = check_researcher(wrong, cpack)
+check("a real wrong number is still caught", any("['21']" in w for w in warns), warns)
 
 # ---------------- windows: qualifies ----------------
 print("\n== Windows (qualifies)")
