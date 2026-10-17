@@ -13,6 +13,7 @@ from mansha.researcher import (
     GAP,
     build_messages,
     check_researcher,
+    drop_caveat_gaps,
     fill_authorities,
     fill_tariff_line,
     number_keys,
@@ -343,6 +344,25 @@ try:
     check("LLM error reaches the caller with its attempts", False, "no exception")
 except LLMCallError as e:
     check("LLM error reaches the caller with its attempts", e.attempts == err.attempts)
+
+# ---------------- caveats copied into gaps (Step 9.6e, problem 52) ----------------
+print("\n== drop_caveat_gaps (problem 52)")
+d = copy.deepcopy(GOOD_W)
+note = d["caveats"][0]["note"]
+real_gap = "The rule for this line is not in Mansha's sources."
+d["gaps"] = [note, "  " + note.upper().rstrip(".") + " ", real_gap]
+changes = drop_caveat_gaps(d)
+check("exact copy and a case/space/period variant dropped", d["gaps"] == [real_gap], d["gaps"])
+check("each drop recorded in changes", len(changes) == 2 and all(c.startswith("gaps: dropped") for c in changes))
+check("the caveat itself stays", d["caveats"][0]["note"] == note)
+check("nothing to drop: no change", drop_caveat_gaps(copy.deepcopy(GOOD_W)) == [])
+leaky = copy.deepcopy(GOOD_W)
+leaky["gaps"] = [c["note"] for c in leaky["caveats"]]
+res = run_researcher(wi, w, llm=fake_llm(leaky))
+check("run_researcher: copies dropped, recorded, still passes",
+      res.passed and res.data["gaps"] == [] and len(res.changes) == len(leaky["caveats"]), res.changes)
+check("prompt forbids copying caveats into gaps",
+      "Never copy a caveat or a note into `gaps`" in build_messages(wi, w)[0]["content"])
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

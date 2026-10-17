@@ -218,7 +218,8 @@ def research_record(res: ResearcherResult) -> dict:
     return {"served_by": res.llm.routed_via if res.llm else None,
             "latency_s": res.llm.latency_s if res.llm else None,
             "attempts": res.llm.attempts if res.llm else [],
-            "problems": res.problems, "warnings": res.warnings, "output": res.data}
+            "problems": res.problems, "warnings": res.warnings, "normalized_by_code": res.changes,
+            "output": res.data}
 
 
 class _Timer:
@@ -425,7 +426,8 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
             f"{(d.get('origin_result') or {}).get('status')} | verdict {d.get('verdict')} | "
             f"problems {len(research.problems)} | warnings {len(research.warnings)}",
             calls=[call_record(research.llm)], problems=research.problems, warnings=research.warnings,
-            details={"corrections_sent": corrections} if round_no == 2 else {}))
+            details={**({"corrections_sent": corrections} if round_no == 2 else {}),
+                     **({"normalized_by_code": research.changes} if research.changes else {})}))
 
         if round_no == 2 and not research.passed:
             phases.append(Phase("QA (round 2)", "SKIPPED", 0.0, "not run: code checks still fail"))

@@ -53,6 +53,16 @@ def _num(d: Decimal) -> float:
     return float(d.normalize())
 
 
+def reduces_bcd_only(line: dict | None) -> bool:
+    """True when the line's CEPA rate cuts Basic Customs Duty only (Table I lines).
+
+    Table II lines also change AIDC; an excluded line has no CEPA rate. Shared with the
+    Document Builder's TERMS (Step 9.6e, problem 53), so both say the same thing.
+    """
+    cepa = (line or {}).get("cepa") or {}
+    return bool(line) and cepa.get("status") != "EXCLUDED" and cepa.get("table") != "II"
+
+
 def duty_estimate(tariff_line: str, shipment_value: dict | None = None, corridor: str = "india") -> DutyResult:
     kb = load_corridor(corridor)
     res = DutyResult(tool_id=f"{TOOL_PREFIX}:{tariff_line}", tariff_line=tariff_line,
@@ -110,7 +120,7 @@ def duty_estimate(tariff_line: str, shipment_value: dict | None = None, corridor
 
     # "CEPA rates reduce BCD only" holds for Table I lines. Table II lines also change AIDC (note above);
     # an excluded line has no CEPA rate, so a note about what the CEPA rate reduces would not apply.
-    if not excluded and cepa.get("table") != "II":
+    if reduces_bcd_only(line):
         res.notes.append(kb["tariff"]["metadata"].get("duty_scope", "CEPA rates reduce Basic Customs Duty only."))
     if not excluded:
         res.notes.append("The CEPA rate applies only if the product qualifies under the rules of origin and a "

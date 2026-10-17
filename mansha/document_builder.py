@@ -25,6 +25,7 @@ from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
 from mansha.researcher import EVIDENCE_ID_RE, GAP, number_keys
+from mansha.tools.duty_estimate import reduces_bcd_only
 
 log = logging.getLogger("mansha.document_builder")
 
@@ -45,6 +46,10 @@ CHECKLIST_VERDICTS = {"ELIGIBLE", "NEEDS_MORE_DATA"}
 TERMS = {
     "MFN": "MFN rate = the normal import duty rate, charged when no trade-agreement preference is claimed",
     "CEPA": "CEPA rate = the reduced rate under the trade agreement",
+    # Problem 53: "This eliminates your customs duty in India". The BCD-only fact is a mandatory
+    # note, which the LLM never sees (8.5), so the term itself carries it for Table I lines.
+    "CEPA_BCD": "CEPA rate = the reduced rate under the trade agreement; it applies to Basic Customs Duty "
+                "only, so other import charges (such as IGST) are still paid even when the CEPA rate is 0%",
     "CC": "CC = change in chapter: each non-originating input must be classified in a different "
           "2-digit chapter than the product",
     "CTH": "CTH = change in tariff heading: each non-originating input must be classified in a "
@@ -268,9 +273,15 @@ def sent_notes(notes: list[dict]) -> list[dict]:
     return [n for n in notes if not n["mandatory"]] if max_llm_notes(notes) else []
 
 
-def terms_for(text: str) -> list[str]:
-    keys = ["MFN", "CEPA"] + [k for k in ("CC", "CTH", "CTSH", "VA", "FOB")
-                              if re.search(rf"\b{k}\b", text)]
+def chosen_line(research: dict, corridor: str = "india") -> dict | None:
+    """The knowledge-base record of the Researcher's tariff line, or None."""
+    line = str((research.get("classification") or {}).get("tariff_line") or "")
+    return next((r for r in load_corridor(corridor)["tariff"]["lines"] if r["tariff_line"] == line), None)
+
+
+def terms_for(text: str, *, bcd_only: bool = False) -> list[str]:
+    keys = ["MFN", "CEPA_BCD" if bcd_only else "CEPA"] + [k for k in ("CC", "CTH", "CTSH", "VA", "FOB")
+                                                         if re.search(rf"\b{k}\b", text)]
     low = text.lower().replace("_", " ")
     return [TERMS[k] for k in keys] + [t for phrase, t in CHECK_TERMS.items() if phrase in low]
 
@@ -309,7 +320,9 @@ def build_facts(research: dict, intake: dict, corridor: str = "india") -> tuple[
     ]
     needed = still_needed(research)
     lines.append("STILL NEEDED:" + ("".join(f"\n- {n}" for n in needed) if needed else " nothing"))
-    lines.append("TERMS:" + "".join(f"\n- {t}" for t in terms_for(rule + " " + str(res.get("basis", "")))))
+    terms = terms_for(rule + " " + str(res.get("basis", "")),
+                      bcd_only=reduces_bcd_only(chosen_line(research, corridor)))
+    lines.append("TERMS:" + "".join(f"\n- {t}" for t in terms))
 
     notes = build_notes(research, corridor)
     sent = sent_notes(notes)

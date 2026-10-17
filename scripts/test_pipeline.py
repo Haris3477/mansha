@@ -328,6 +328,13 @@ check("revision: corrections shown", "Corrections sent (one shared revision):" i
 check("failed call: attempt trail with the wait", "call FAILED" in md and "HTTP 502 -> waited 30 s" in md
       and "#2 router" in md, md[-600:])
 check("fallback visible", "| FALLBACK |" in md)
+copied = research_fixture("chargers")
+copied["gaps"] = [c["note"] for c in copied["caveats"]]
+res = run("chargers", fake_for("chargers", researcher=[copied]))
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+check("caveats copied into gaps: dropped by code, shown in phase_log.md, not in the report",
+      "Normalized by code:" in md and "gaps: dropped a copy of a caveat" in md
+      and "What's still needed" not in res.output, md[-800:])
 check("report check row", "| Report check | OK |" in md)
 
 # A report with a problem is FLAGGED but still shown (decision 9.6b: flag only)

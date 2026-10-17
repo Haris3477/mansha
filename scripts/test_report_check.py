@@ -101,6 +101,10 @@ p, w = run(chg, add_note(chg["markdown"], "Apply for a certificate of origin wit
 check("NOT_ELIGIBLE + claim words: warning, not problem", not p and len(w) == 2, (p, w))
 p, w = run(chg, add_note(chg["markdown"], "Actual amounts will differ from the estimate shown."))
 check("no saving + estimate words: warning", any("estimate" in x for x in w), w)
+for sentence in ("This eliminates your customs duty in India.", "The goods enter India duty-free.",
+                 "There is no customs duty to pay.", "The duty is eliminated."):
+    p, w = run(win, add_note(win["markdown"], sentence))
+    check(f"'{sentence}': warning (problem 53), not problem", not p and any("all duty" in x for x in w), (p, w))
 p, w = run(win, add_note(win["markdown"], "Apply for a certificate of origin; amounts differ from the estimate shown."))
 check("ELIGIBLE with a saving: claim and estimate words are fine", not p and not w, (p, w))
 
@@ -114,6 +118,8 @@ LOOKALIKES = [
     ("number written with decimals", "The saving is 10000.00 AED."),
     ("article number", "Under Art. 3.5.1, these are minimal operations."),
     ("Mansha's", "Mansha's confidence is high."),
+    ("no duty saving", "Because the line is excluded, no duty saving applies."),
+    ("reduced duty", "The CEPA rate reduces the duty from 10% to 0%."),
 ]
 for what, sentence in LOOKALIKES:
     p, w = run(win, add_note(win["markdown"], sentence))

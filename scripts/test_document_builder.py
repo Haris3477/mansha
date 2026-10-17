@@ -161,6 +161,14 @@ tool_notes = duty_estimate("76101000", {"amount": 100000, "currency": "AED"}).no
 check("duty tool's estimate note still starts with ESTIMATE_NOTE_START",
       any(x.startswith(ESTIMATE_NOTE_START) for x in tool_notes), tool_notes)
 
+# Problem 53 (Step 9.6e): the Builder must know the CEPA rate cuts Basic Customs Duty only.
+for name, want in (("windows", True), ("chargers", True), ("plastic", False)):
+    r53, i53, _ = load(name)
+    facts53, _ = build_facts(r53, i53)
+    terms = facts53.split("TERMS:")[1].split("\n\n")[0]
+    check(f"{name}: TERMS {'says' if want else 'does not say'} 'Basic Customs Duty only'",
+          ("Basic Customs Duty only" in terms) == want, terms)
+
 print("\n2. Prose checks")
 good = good_windows_prose(notes)
 check("good prose passes", check_prose(good, facts, notes) == [], check_prose(good, facts, notes))

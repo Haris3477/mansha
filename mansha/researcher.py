@@ -5,7 +5,8 @@ everything that can be checked mechanically:
 - hard problems (certain errors) -> corrections, using the single revision
 - warnings (numbers not found in the cited record) -> passed to QA to judge
 Code, not the LLM, sets the final `verdict` and each procedure step's
-`authority` (copied from the cited record's `actor`, Step 6.4g).
+`authority` (copied from the cited record's `actor`, Step 6.4g). Code also drops
+`gaps` items that repeat a caveat (Step 9.6e, problem 52) and records that in `changes`.
 """
 
 from __future__ import annotations
@@ -60,6 +61,7 @@ class ResearcherResult:
     problems: list[str]             # hard failures -> corrections
     warnings: list[str] = field(default_factory=list)  # for QA to judge
     llm: LLMResult | None = None
+    changes: list[str] = field(default_factory=list)   # what code changed in the model's JSON
 
     @property
     def passed(self) -> bool:
@@ -201,6 +203,28 @@ def fill_tariff_line(data: dict, pack: EvidencePack) -> None:
     line = (cand or {}).get("tariff_line")
     if line and str(cls.get("tariff_line", "")).strip() != GAP and line in digits(cls.get("tariff_line")):
         cls["tariff_line"] = line
+
+
+def _same_text(s) -> str:
+    return re.sub(r"\s+", " ", str(s or "")).strip().rstrip(".").lower()
+
+
+def drop_caveat_gaps(data: dict) -> list[str]:
+    """Remove `gaps` items that repeat a caveat's text; return what was removed (Step 9.6e).
+
+    Problem 52 (17 Oct): a Researcher copied four caveats word for word into `gaps`. `gaps` has
+    no source, so the Builder's by-source filter (claim notes dropped when no CEPA rate applies)
+    could not see them, and they reached "What's still needed" in a not-eligible report. The
+    caveat itself stays (and is filtered by its source); only the copy goes.
+    """
+    gaps, caveats = data.get("gaps"), data.get("caveats")
+    if not isinstance(gaps, list) or not isinstance(caveats, list):
+        return []
+    notes = {_same_text(c.get("note")) for c in caveats if isinstance(c, dict)}
+    keep = [g for g in gaps if _same_text(g) not in notes]
+    removed = [g for g in gaps if _same_text(g) in notes]
+    data["gaps"] = keep
+    return [f"gaps: dropped a copy of a caveat: {g!r}" for g in removed]
 
 
 # ---------- the checks ----------
@@ -391,6 +415,9 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     data.pop("verdict", None)  # the verdict is code's job
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
+    changes = drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
+    for c in changes:
+        log.info("researcher normalized | %s", c)
     problems, warnings, verdict = check_researcher(data, pack)
     data["verdict"] = verdict
     log.info("researcher checks | served_by=%s | verdict=%s | problems=%d | warnings=%d",
@@ -399,4 +426,4 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
         log.info("researcher problem | %s", p)
     for w in warnings:
         log.info("researcher warning | %s", w)
-    return ResearcherResult(data=data, problems=problems, warnings=warnings, llm=res)
+    return ResearcherResult(data=data, problems=problems, warnings=warnings, llm=res, changes=changes)
