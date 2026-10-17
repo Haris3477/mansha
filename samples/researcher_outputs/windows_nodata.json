@@ -82,7 +82,7 @@
     ],
     "caveats": [
       {
-        "note": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping, countervailing, or safeguard duties still apply.",
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
         "source_id": "TOOL:duty:76101000"
       },
       {

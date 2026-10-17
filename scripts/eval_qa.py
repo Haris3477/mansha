@@ -199,7 +199,7 @@ def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RU
                 "code_warnings": research.warnings, "answer_problems": q.output_problems,
                 "served_by": who, "seconds": secs, "prompt_chars": chars,
                 "attempts": [a for c in q.llm_calls for a in (c.attempts or [])] or q.failed_attempts,
-                "qa_note": q.note}, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+                "qa_note": q.note, "parts": q.parts}, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
             print(f"  {result:<16} {case.name:<22} #{n} {secs:>5}s  {who or '-'}  (~{chars // 4} tokens in)")
             for c in q.corrections:
                 print(f"      - {c[:160]}")
