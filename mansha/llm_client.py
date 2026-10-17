@@ -30,12 +30,17 @@ from openai import APIConnectionError, APIStatusError, OpenAI
 logger = logging.getLogger("mansha.llm")
 
 # Output-token budgets per chain.
-# auto:qa may route to Groq (free tier: 1000 output tokens/min), so it never exceeds 1000.
+# auto:qa (Intake) may route to Groq (free tier: 8,000 tokens per minute, prompt and answer
+# together; checked 17 Oct 2026). Intake's answer is short, so it never exceeds 1000.
 # auto:long has no Groq models. It starts at its ceiling (Step 9.5): its reasoning models
 # (Dots3) hit 8000 tokens on the Researcher, and each truncated attempt cost ~90 s.
+# auto:judge (QA Evaluator, Step 7) shares no model with auto:long. Its Groq models allow
+# 8,000 tokens per minute, prompt and answer together, so the answer budget stays small;
+# QA's JSON is short, the rest is room for a reasoning model's thinking (tuned in Step 7.4).
 CHAIN_LIMITS: dict[str, dict[str, int]] = {
     "auto:qa": {"default": 1000, "ceiling": 1000},
     "auto:long": {"default": 16000, "ceiling": 16000},
+    "auto:judge": {"default": 3000, "ceiling": 3000},
 }
 
 # The router's own fallback budget is 45 s; leave headroom on top of it.

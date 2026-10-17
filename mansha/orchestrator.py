@@ -13,8 +13,12 @@ Stops, each with a short message written by code in the user's language:
     LLM_ERROR      Intake or Researcher call failed (provider outage); the Builder
                    never causes this, it has a code-only fallback
 
-The QA slot is a pass-through until Step 7: it returns SKIPPED (never APPROVED),
-and the phase log says the output was NOT reviewed by QA.
+The QA slot runs the QA Evaluator (Step 7, mansha/qa.py) by default. It returns
+APPROVED or REJECTED (corrections join the single shared revision), or ERROR when
+QA could not review the output (call failed, or its answer stayed invalid): the run
+then goes on, and the phase log and a pipeline warning say the output was NOT
+reviewed by QA (decision D5 A, Haris 17 Oct). `qa_passthrough` (SKIPPED, never
+APPROVED) runs the pipeline without QA.
 
 The report check (Step 9.6b, mansha/report_check.py) is FLAG ONLY (Haris, 17 Oct): its
 problems and warnings go to the phase log and the pipeline warnings; the report is shown.
@@ -39,6 +43,16 @@ from mansha.evidence import EvidencePack, build_evidence
 from mansha.intake import IntakeResult, detect_language, run_intake
 from mansha.kb import CORRIDORS, corridor_for
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
+from mansha.qa import (
+    QA_ACCEPTS,
+    QA_APPROVED,
+    QA_ERROR,
+    QA_NOT_REVIEWED,
+    QA_REJECTED,
+    QA_SKIPPED,
+    QAOutcome,
+    run_qa,
+)
 from mansha.report_check import check_report
 from mansha.researcher import ResearcherResult, run_researcher
 
@@ -54,26 +68,16 @@ NOT_COVERED = "NOT_COVERED"
 CHECKS_FAILED = "CHECKS_FAILED"
 LLM_ERROR = "LLM_ERROR"
 
-# QA statuses (APPROVED / REJECTED from Step 7; SKIPPED = the pass-through)
-QA_APPROVED, QA_REJECTED, QA_SKIPPED = "APPROVED", "REJECTED", "SKIPPED"
-QA_ACCEPTS = {QA_APPROVED, QA_SKIPPED}
+# QA statuses and QAOutcome live in mansha/qa.py (imported above):
+# APPROVED / REJECTED from the QA Evaluator; SKIPPED = the pass-through; ERROR = not reviewed.
 
 
 # ---------- results ----------
 
 @dataclass
-class QAOutcome:
-    status: str                              # APPROVED | REJECTED | SKIPPED
-    corrections: list[str] = field(default_factory=list)
-    scores: dict | None = None
-    llm: LLMResult | None = None
-    note: str = ""
-
-
-@dataclass
 class Phase:
     name: str                                # e.g. "Researcher (round 1)"
-    status: str                              # OK | STOP | FAILED | SKIPPED | FALLBACK | FLAGGED
+    status: str                              # OK | STOP | FAILED | SKIPPED | FALLBACK | FLAGGED | REJECTED
     seconds: float
     summary: str                             # one line a judge can read
     calls: list[dict] = field(default_factory=list)    # LLM calls, every attempt included
@@ -109,9 +113,8 @@ class PipelineResult:
 
 def qa_passthrough(intake: dict, pack: EvidencePack, research: ResearcherResult,
                    *, llm=call_llm) -> QAOutcome:
-    """Placeholder until Step 7. Approves nothing: the output is simply not reviewed."""
-    return QAOutcome(status=QA_SKIPPED,
-                     note="QA Evaluator not built yet (Step 7): output NOT reviewed by QA")
+    """No QA (tests, or a run without QA). Approves nothing: the output is simply not reviewed."""
+    return QAOutcome(status=QA_SKIPPED, note="QA not run: output NOT reviewed by QA")
 
 
 # ---------- user-facing messages (code-written, en/ar) ----------
@@ -302,6 +305,13 @@ def render_phase_log(result: PipelineResult) -> str:
         if p.warnings:
             label = "Code warnings (for QA):" if p.name.startswith("Researcher") else "Warnings:"
             lines += ["", label] + [f"- {x}" for x in p.warnings]
+        judged = p.details.get("warning_judgements")
+        if judged:
+            lines += ["", "Code warnings judged by QA:"] + [
+                f"- {j['id']} {j['judgement']}: {j['warning']} -> {j['reason']}" for j in judged]
+        bad = p.details.get("qa_answer_problems")
+        if bad:
+            lines += ["", "Problems in QA's own answer (code validation):"] + [f"- {x}" for x in bad]
         changes = p.details.get("normalized_by_code")
         if changes:
             lines += ["", "Normalized by code:"] + [f"- {x}" for x in changes]
@@ -314,13 +324,13 @@ def render_phase_log(result: PipelineResult) -> str:
 # ---------- the pipeline ----------
 
 def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=call_llm,
-                 qa: Callable[..., QAOutcome] = qa_passthrough,
+                 qa: Callable[..., QAOutcome] = run_qa,
                  out_dir: str | Path | None = None) -> PipelineResult:
     """Run Mansha end to end on one user message.
 
     case_folder: folder with bom.csv / declaration.json (read only by code), or None.
     llm: the LLM call function for every agent (tests pass a fake one).
-    qa: the QA slot (Step 7 replaces the pass-through; tests pass fakes).
+    qa: the QA slot: run_qa (default), qa_passthrough (no QA), or a fake in tests.
     out_dir: if given, every phase's input/output is saved there (it is created).
     """
     total = _Timer()
@@ -435,21 +445,32 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
 
         t = _Timer()
         q = qa(intake, pack, research, llm=llm)
-        q_calls = [call_record(q.llm)] if q.llm else []
+        q_calls = [call_record(c) for c in (q.llm_calls or ([q.llm] if q.llm else []))]
+        if q.failed_attempts:
+            q_calls.append({"ok": False, "served_by": None, "error": "LLM call failed",
+                            "attempts": q.failed_attempts})
         _write(out, f"qa_{round_no}.json", {"status": q.status, "scores": q.scores,
                                             "corrections": q.corrections, "note": q.note,
+                                            "warning_judgements": q.judgements,
+                                            "answer_problems": q.output_problems,
                                             "served_by": q.llm.routed_via if q.llm else None,
+                                            "calls": q_calls,
                                             "code_warnings_given": research.warnings})
         phases.append(Phase(
-            f"QA (round {round_no})", {QA_APPROVED: "OK", QA_SKIPPED: "SKIPPED"}.get(q.status, "FAILED"),
-            t(), q.note or f"{q.status} | scores {q.scores}", calls=q_calls, problems=q.corrections))
+            f"QA (round {round_no})",
+            {QA_APPROVED: "OK", QA_SKIPPED: "SKIPPED", QA_REJECTED: "REJECTED"}.get(q.status, "FAILED"),
+            t(), q.note or f"{q.status} | scores {q.scores}", calls=q_calls, problems=q.corrections,
+            details={**({"warning_judgements": q.judgements} if q.judgements else {}),
+                     **({"qa_answer_problems": q.output_problems} if q.output_problems else {})}))
         w = same_model_warning(research.llm.routed_via if research.llm else None,
                                q.llm.routed_via if q.llm else None)
         if w and w not in warnings:
             warnings.append(w)
-        if q.status == QA_SKIPPED and research.warnings:
+        if q.status == QA_ERROR:
+            warnings.append(f"QA round {round_no}: {q.note}")
+        if q.status in QA_NOT_REVIEWED and research.warnings:
             warnings.append(f"Researcher round {round_no}: {len(research.warnings)} code warning(s) "
-                            "not reviewed (QA not built yet)")
+                            "not reviewed by QA")
 
         # Code problems and QA corrections share the single revision.
         corrections = list(research.problems)

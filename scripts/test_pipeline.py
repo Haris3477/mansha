@@ -12,6 +12,7 @@ import copy
 import csv
 import json
 import logging
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -21,6 +22,7 @@ from mansha.llm_client import LLMCallError, LLMResult
 from mansha.orchestrator import (
     MOFT_CEPA_URL,
     QAOutcome,
+    qa_passthrough,
     render_phase_log,
     run_pipeline,
     same_model_warning,
@@ -76,6 +78,8 @@ class FakeLLM:
     def __call__(self, agent, chain, messages, **kwargs):
         self.seen.append((agent, messages))
         r = self.queues[agent].pop(0)
+        if callable(r):          # a reply built from the prompt (fake QA judging the warnings it got)
+            r = r(messages)
         if isinstance(r, Exception):
             raise r
         return LLMResult(text=json.dumps(r), data=copy.deepcopy(r), routed_via=f"fake/{agent}",
@@ -89,10 +93,26 @@ class FakeLLM:
         return "\n".join(m["content"] for _, msgs in self.seen for m in msgs)
 
 
+def qa_approves(messages) -> dict:
+    """A QA answer that approves and judges every code warning in the prompt as NOISE."""
+    ids = re.findall(r"^(W\d+): ", messages[1]["content"], re.MULTILINE)
+    return {"warnings": [{"id": w, "judgement": "NOISE", "reason": "fake"} for w in ids],
+            "corrections": [], "scores": {"factuality": 1, "completeness": 1, "formatting_safety": 1}}
+
+
+def qa_rejects(messages) -> dict:
+    ans = qa_approves(messages)
+    ans["corrections"] = [{"field": "follow_up_questions", "problem": "asks for data already given.",
+                           "fix": "remove it.", "source_id": None}]
+    ans["scores"]["completeness"] = 0
+    return ans
+
+
 def fake_for(case: str, **overrides) -> FakeLLM:
     queues = {"intake": [EXTRA_INTAKES.get(case) or INTAKES[case][0]]}
     if case in INTAKES:
         queues["researcher"] = [research_fixture(case)]
+        queues["qa"] = [qa_approves, qa_approves]
         queues["document_builder"] = [builder_prose(case)]
     queues.update(overrides)
     return FakeLLM(**queues)
@@ -130,8 +150,11 @@ res, llm = results["windows"]
 check("windows: phases in order", phase_names(res) == [
     "Intake", "Coverage check", "Tools + evidence", "Researcher (round 1)", "QA (round 1)",
     "Document Builder", "Report check"], phase_names(res))
-check("windows: agents called intake -> researcher -> builder",
-      llm.agents() == ["intake", "researcher", "document_builder"], llm.agents())
+check("windows: agents called intake -> researcher -> qa -> builder",
+      llm.agents() == ["intake", "researcher", "qa", "document_builder"], llm.agents())
+check("windows: QA approved by default (run_qa)", phase(res, "QA (round 1)").status == "OK"
+      and phase(res, "QA (round 1)").summary.startswith("APPROVED"), phase(res, "QA (round 1)").summary)
+check("windows: QA ran on the judge chain", "qa" in llm.agents())
 check("windows: LLM prose used (no fallback)", phase(res, "Document Builder").status == "OK")
 check("windows: every LLM phase records who served it",
       all(c.get("served_by") for p in res.phases for c in p.calls))
@@ -202,7 +225,7 @@ llm = fake_for("windows", researcher=[bad, research_fixture("windows")])
 res = run("windows", llm)
 check("bad then good: REPORT after 2 rounds", res.status == "REPORT"
       and "Researcher (round 2)" in phase_names(res), phase_names(res))
-sent = llm.seen[2][1][-1]["content"]
+sent = llm.seen[3][1][-1]["content"]
 check("round 2 receives the code corrections", "CORRECTIONS" in sent and "origin_result.status" in sent)
 check("researcher_2.json and qa_2.json saved", (res.out_dir / "researcher_2.json").exists()
       and (res.out_dir / "qa_2.json").exists())
@@ -218,7 +241,7 @@ check("bad twice: short notice, no report", "couldn't verify" in res.output
 
 # ---------------------------------------------------------------- 4
 print("\n4. The QA slot")
-res, _ = results["windows"]
+res = run("windows", fake_for("windows"), qa=qa_passthrough)
 qa_phase = res.phases[4]
 check("pass-through: QA SKIPPED, not APPROVED", qa_phase.status == "SKIPPED"
       and "NOT reviewed by QA" in qa_phase.summary)
@@ -227,9 +250,45 @@ check("pass-through: nothing in the phase log says APPROVED",
 
 warn = research_fixture("windows")
 warn["procedure"][0]["step"] += " It costs AED 777."   # a number not in the cited record -> warning
-res = run("windows", fake_for("windows", researcher=[warn]))
+res = run("windows", fake_for("windows", researcher=[warn]), qa=qa_passthrough)
 check("code warnings with QA skipped: pipeline warns they were not reviewed",
-      any("not reviewed" in w for w in res.warnings), res.warnings)
+      any("not reviewed by QA" in w for w in res.warnings), res.warnings)
+
+print("\n4b. The real QA Evaluator (run_qa) with a fake LLM")
+llm = fake_for("windows", researcher=[warn])
+res = run("windows", llm)
+qp = phase(res, "QA (round 1)")
+check("code warning sent to QA as W1", "W1: procedure[0]: number(s) ['777']"
+      in llm.seen[2][1][1]["content"], llm.seen[2][1][1]["content"][:300])
+check("QA judged it: shown in the phase log", "Code warnings judged by QA:" in
+      (res.out_dir / "phase_log.md").read_text() and qp.details["warning_judgements"][0]["id"] == "W1")
+check("judged warnings: no 'not reviewed' warning", not any("not reviewed" in w for w in res.warnings),
+      res.warnings)
+saved = json.loads((res.out_dir / "qa_1.json").read_text())
+check("qa_1.json holds the judgements and the call", saved["warning_judgements"]
+      and saved["calls"] and saved["served_by"] == "fake/qa")
+
+llm = fake_for("windows", researcher=[research_fixture("windows")] * 2, qa=[qa_rejects, qa_approves])
+res = run("windows", llm)
+check("QA rejects: phase REJECTED, revision, then REPORT", phase(res, "QA (round 1)").status == "REJECTED"
+      and phase(res, "QA (round 2)").status == "OK" and res.status == "REPORT", phase_names(res))
+check("QA's correction reaches the Researcher", "QA: follow_up_questions: asks for data already given."
+      in llm.seen[3][1][-1]["content"])
+
+llm = fake_for("windows", qa=[ERR])
+res = run("windows", llm)
+check("QA call fails: run goes on to a REPORT (D5 A)", res.status == "REPORT"
+      and "document_builder" in llm.agents())
+check("QA call fails: phase FAILED, attempts kept", phase(res, "QA (round 1)").status == "FAILED"
+      and any(c.get("attempts") == ERR.attempts for c in phase(res, "QA (round 1)").calls))
+check("QA call fails: pipeline warns NOT reviewed", any("NOT reviewed by QA" in w for w in res.warnings),
+      res.warnings)
+
+llm = fake_for("windows", qa=[{"warnings": [], "corrections": [], "scores": {"factuality": 2}}] * 2)
+res = run("windows", llm)
+check("QA answer invalid twice: ERROR, run goes on, problems logged", res.status == "REPORT"
+      and phase(res, "QA (round 1)").status == "FAILED"
+      and phase(res, "QA (round 1)").details.get("qa_answer_problems"), phase(res, "QA (round 1)"))
 
 
 def qa_script(*outcomes):
@@ -318,7 +377,7 @@ check("title gives status and verdict", md.startswith("# Mansha run: REPORT (ELI
 check("message shown", "We run a factory in Sharjah" in md)
 check("one table row per phase", all(f"| {i} | {p.name} |" in md for i, p in enumerate(res.phases, 1)))
 check("model column filled for LLM phases", "| fake/researcher |" in md and "| fake/intake |" in md)
-check("QA pass-through visible", "NOT reviewed by QA" in md)
+check("QA result visible", "| QA (round 1) | OK |" in md and "APPROVED | factuality 1" in md)
 
 llm = fake_for("windows", researcher=[bad, research_fixture("windows")], document_builder=[ERR])
 res = run("windows", llm)
@@ -401,16 +460,31 @@ def chain_spy(fake: FakeLLM):
 llm, seen = chain_spy(fake_for("windows"))
 code = try_chain_main(["trial", "windows"], llm=llm, runs_root=TMP / "try")
 check("try_chain: dev case runs, exit 0", code == 0, code)
-check("try_chain: Researcher and Builder on auto:trial, Intake keeps auto:qa",
-      seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("document_builder", "auto:trial")],
+check("try_chain: Researcher and Builder on auto:trial, Intake and QA keep theirs",
+      seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("qa", "auto:judge"),
+               ("document_builder", "auto:trial")],
       seen)
 check("try_chain: runs saved apart, in runs/try_trial/",
       any(f.name.endswith("_windows") and (f / "report.md").exists() for f in (TMP / "try" / "try_trial").iterdir()))
 llm, seen = chain_spy(fake_for("windows"))
 try_chain_main(["auto:trial", "windows", "--agents", "researcher"], llm=llm, runs_root=TMP / "try")
 check("try_chain --agents researcher: only the Researcher switched",
-      seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("document_builder", "auto:long")],
+      seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("qa", "auto:judge"),
+               ("document_builder", "auto:long")],
       seen)
+budgets = []
+
+
+def budget_spy(agent, chain, messages, **kwargs):
+    budgets.append((agent, chain, kwargs.get("max_tokens")))
+    return fake_for_qa(agent, chain, messages, **kwargs)
+
+
+fake_for_qa = fake_for("windows")
+try_chain_main(["trial", "windows", "--agents", "qa"], llm=budget_spy, runs_root=TMP / "try")
+check("try_chain --agents qa: QA on auto:trial with the judge budget, others unchanged",
+      budgets == [("intake", "auto:qa", None), ("researcher", "auto:long", None),
+                  ("qa", "auto:trial", 3000), ("document_builder", "auto:long", None)], budgets)
 try:
     try_chain_main(["long"], llm=FakeLLM(), runs_root=TMP / "try")
     check("try_chain refuses a pipeline chain", False, "no error")
