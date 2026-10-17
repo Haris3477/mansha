@@ -1,6 +1,7 @@
 """Offline tests for the Document Builder (no LLM, no router).
 
 Uses the 4 saved Researcher outputs in samples/researcher_outputs/ and a fake LLM.
+Section 5 (Step 7.6) checks the call loop with a scripted prose check (review=...).
 Run: python -m scripts.test_document_builder
 Also saves the code-only (fallback) report of each case to runs/<case>/report_fallback.md.
 """
@@ -27,6 +28,7 @@ from mansha.document_builder import (
 from mansha.evidence import build_evidence
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
+from mansha.prose_qa import ProseQAOutcome
 from mansha.tools.duty_estimate import duty_estimate
 from scripts.pipeline_cases import DEV_INTAKES as CASES
 
@@ -295,6 +297,111 @@ check("system prompt has the Agent 4 section and language",
 check("no unfilled {language} left", "{language}" not in msgs[0]["content"])
 check("prompt tells the model mandatory notes are printed by code",
       "word for word by code" in msgs[0]["content"])
+
+print("\n5. The prose check in the call loop (Step 7.6, scripted review)")
+
+
+def scripted(*outcomes):
+    """A stand-in for review_prose: returns the given ProseQAOutcomes in order, records its input."""
+    queue = list(outcomes)
+    seen: list[tuple[str, dict]] = []
+
+    def review(facts_text, prose, *, llm):
+        seen.append((facts_text, copy.deepcopy(prose)))
+        return queue.pop(0)
+    review.seen = seen
+    return review
+
+
+def ok_review():
+    return ProseQAOutcome("APPROVED", scores={"factuality": 1, "completeness": 1}, note="APPROVED")
+
+
+def rejected_review(*corrections):
+    return ProseQAOutcome("REJECTED", list(corrections), {"factuality": 0, "completeness": 1}, note="REJECTED")
+
+
+def error_review():
+    return ProseQAOutcome("ERROR", note="prose QA call failed: prose NOT reviewed by QA")
+
+
+FIX = "notes[0].text: drops 'likely'. Fix: keep 'likely not eligible' (see N1)"
+
+r = run_document_builder(research, intake, pack.id_sources, llm=fake_llm(good))
+check("no review asked for: review_status SKIPPED, one round", r.review_status == "SKIPPED"
+      and len(r.rounds) == 1 and r.rounds[0]["review"] is None)
+
+rv = scripted(ok_review())
+llm = fake_llm(good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+check("approved: 1 Builder call, 1 review, LLM prose kept", len(llm.seen) == 1 and len(rv.seen) == 1
+      and not r.used_fallback and r.review_status == "APPROVED" and good["summary"] in r.markdown)
+check("review gets exactly the Builder's input (FACTS + sent NOTES) and its prose",
+      rv.seen[0][0] == facts and rv.seen[0][1] == good)
+
+rv = scripted(rejected_review(FIX), ok_review())
+llm = fake_llm(good, good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+retry = llm.seen[1][-1]["content"] if len(llm.seen) > 1 else "(no retry was sent)"
+check("QA rejects, then approves: 2 Builder calls, 2 reviews, no fallback",
+      len(llm.seen) == 2 and len(rv.seen) == 2 and not r.used_fallback and r.review_status == "APPROVED")
+check("QA's correction reaches the Builder's retry, prefixed 'QA:'", "CORRECTIONS" in retry
+      and "QA: notes[0].text: drops 'likely'" in retry, retry)
+check("rounds record what was sent", r.rounds[1]["corrections_sent"] == [f"QA: {FIX}"])
+
+rv = scripted(rejected_review(FIX), ok_review())
+llm = fake_llm(bad, good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+retry = llm.seen[1][-1]["content"] if len(llm.seen) > 1 else "(no retry was sent)"
+check("P1: code problem + QA rejection share the ONE retry", len(llm.seen) == 2 and len(rv.seen) == 2
+      and "40000" in retry and "QA: notes[0].text" in retry and not r.used_fallback, retry)
+check("code problems kept per round", r.rounds[0]["code_problems"] and not r.rounds[1]["code_problems"])
+
+rv = scripted(rejected_review(FIX), rejected_review(FIX))
+llm = fake_llm(good, good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+check("P2 A: rejected twice -> code-only report", r.used_fallback and r.review_status == "FALLBACK"
+      and good["summary"] not in r.markdown and "## Summary" in r.markdown)
+check("rejected twice: reason and corrections kept", "prose QA" in r.fallback_reason
+      and r.problems == [f"QA: {FIX}"], (r.fallback_reason, r.problems))
+
+rv = scripted(error_review())
+llm = fake_llm(good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+check("P3 A: QA ERROR -> code-checked prose kept, marked ERROR (NOT reviewed)",
+      len(llm.seen) == 1 and not r.used_fallback and r.review_status == "ERROR"
+      and good["summary"] in r.markdown)
+
+rv = scripted(error_review(), ok_review())
+llm = fake_llm(bad, good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+check("QA ERROR + code problem: retry, then the new prose is reviewed and approved",
+      len(llm.seen) == 2 and len(rv.seen) == 2 and r.review_status == "APPROVED"
+      and "QA:" not in llm.seen[1][-1]["content"])
+
+rv = scripted(ok_review(), error_review())
+llm = fake_llm(bad, good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+check("final prose not reviewed (round 2 ERROR) -> ERROR, prose kept", r.review_status == "ERROR"
+      and not r.used_fallback)
+
+rv = scripted(rejected_review(FIX))
+llm = fake_llm(good, LLMCallError("router down", failed[:1]))
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+check("QA rejects, Builder retry fails -> code-only report", r.used_fallback
+      and r.fallback_reason == "Builder call failed in round 2" and len(rv.seen) == 1, r.fallback_reason)
+
+llm = fake_llm(good, good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=scripted(rejected_review(), ok_review()))
+check("rejected without corrections: the retry still says so", len(llm.seen) == 2
+      and "QA: rejected without corrections" in llm.seen[1][-1]["content"])
+
+rv = scripted(ok_review())
+llm = fake_llm(dict(good, summary=""), good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
+check("malformed prose is not sent for review (nothing to read); the retry's prose is",
+      len(rv.seen) == 1 and rv.seen[0][1] == good and r.rounds[0]["review"] is None
+      and r.review_status == "APPROVED")
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

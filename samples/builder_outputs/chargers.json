@@ -1,0 +1,121 @@
+{
+  "source": "runs/pipeline/20261017-165813_chargers (17 Oct 2026, Document Builder served by openrouter/dots-studio/dots-3-note-preview:free)",
+  "read_for_meaning": "17 Oct 2026, Step 7.6: every field read against FACTS and NOTES",
+  "edits": [
+    {
+      "field": "origin",
+      "was": "the value addition check failed because only 12.0% of the price was added in the UAE, below the required 40%",
+      "now": "the value addition check failed because the value addition is only 12.0%, below the required 40%",
+      "why": "TERMS defines VA as the share of the price not from non-originating materials, not 'added in the UAE'"
+    }
+  ],
+  "intake": {
+    "product_description": "battery chargers",
+    "uae_processing": "repacked and relabeled",
+    "destination_country": "India",
+    "hs_code_given": null,
+    "exporter_role": "trader",
+    "shipment_value": {
+      "amount": 50000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given"
+    ]
+  },
+  "research": {
+    "reasoning": [
+      "Classification: 'battery chargers' matches TL-IN-85044030 'Battery chargers' exactly; no HS code was given, so no conflict; confidence is high.",
+      "Preference: CEPA status is PREFERENTIAL (not EXCLUDED), so the product is eligible for preference subject to origin.",
+      "Tariff: MFN rate is 20% (tariff and effective both 20%), CEPA rate is 0%, from TL-IN-85044030.",
+      "Origin: Rule PSR-IN-R126 'CTH + VA 40%' applies; origin check FAILS on all four checks (final manufacture, minimal operations, CTH, VA); status is DOES_NOT_QUALIFY.",
+      "Saving: Since origin is DOES_NOT_QUALIFY, the estimated saving is NOT_APPLICABLE with null amount and currency.",
+      "Procedure: Empty because origin status is DOES_NOT_QUALIFY (only QUALIFIES or NEEDS_MORE_DATA trigger procedure steps).",
+      "Caveats: Compiled relevant notes from tariff line, duty tool, and origin tool that affect how the result should be read."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in UAE: FAIL - declared final manufacture did not take place in the UAE. Minimal operations: FAIL - declared operations (repacking and relabeling) are minimal operations under Art. 3.5.1 (b), (k), (l) which never confer origin. CTH: FAIL - 1 non-originating input in the same heading 8504, representing 88.0% of the price, above the 10% de minimis threshold. VA: FAIL - build-down value addition of 12.0% against a required threshold of 40% on an FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [
+      "The build-up value addition percentage is not available, so the value-addition test could only be assessed using the build-down method."
+    ],
+    "verdict": "NOT_ELIGIBLE"
+  },
+  "prose": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. This is because the final manufacture did not take place in the UAE. Consequently, no CEPA saving is available.",
+    "classification": "The product is classified under tariff line 85044030, Battery chargers, with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate, which is the standard import duty when no trade‑agreement preference is claimed, is 20% and the CEPA rate is 0%. Since the product does not qualify, the normal rate applies and no saving is available.",
+    "origin": "The rule of origin requires a change in tariff heading, meaning each non‑originating input must be classified in a different four‑digit heading than the product, and at least 40% value addition, which is the share of the product's price that does not come from non‑originating materials, calculated on an FOB basis, meaning the price of the goods loaded on board at the UAE port. The final manufacture check failed because the last manufacturing step did not take place in the UAE, and the minimal operations check failed because only repacking and relabeling were performed, which are simple operations that never confer origin. The change in tariff heading check failed because one non‑originating input is classified in the same heading as the product and its share exceeds the de minimis threshold, and the value addition check failed because the value addition is only 12.0%, below the required 40%, with the build‑down method used since the build‑up percentage was not available.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025‑Customs (S.No. 323) applies only for electric‑vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Mansha has not checked whether India charges anti‑dumping duty on this product; you should verify with Indian customs or a customs broker.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  }
+}

@@ -44,6 +44,7 @@ def run_one(name: str, message: str, folder: str | None, *, llm, runs_root: Path
     print(f"  saved: {out}/  (read {'report.md' if res.status == 'REPORT' else 'notice.md'} "
           "and phase_log.md)")
     builder = next((p for p in res.phases if p.name == "Document Builder"), None)
+    prose = [p for p in res.phases if p.name.startswith("Prose QA")]   # Step 7.6
     check = next((p for p in res.phases if p.name == "Report check"), None)
     if check:
         for x in check.problems:
@@ -52,6 +53,7 @@ def run_one(name: str, message: str, folder: str | None, *, llm, runs_root: Path
             print(f"  REPORT CHECK warning: {x}")
     return {"case": name, "status": res.status, "verdict": res.verdict, "seconds": res.seconds,
             "fallback": bool(builder and builder.status == "FALLBACK"), "out": out,
+            "prose": "/".join(p.status for p in prose) if prose else None,
             "check": (len(check.problems), len(check.warnings)) if check else None}
 
 
@@ -60,6 +62,11 @@ def check_text(r: dict) -> str:
         return "check -"
     p, w = r["check"]
     return f"check {p}P/{w}W"
+
+
+def prose_text(r: dict) -> str:
+    """The Builder prose check per round (Step 7.6), e.g. '  prose REJECTED/OK'."""
+    return f"  prose {r['prose']}" if r.get("prose") else ""
 
 
 def main(argv: list[str] | None = None, *, llm=call_llm, runs_root: Path = RUNS_ROOT) -> int:
@@ -94,9 +101,11 @@ def main(argv: list[str] | None = None, *, llm=call_llm, runs_root: Path = RUNS_
     for r in rows:
         got = r["status"] + (f" ({r['verdict']})" if r["verdict"] else "")
         print(f"{'OK  ' if r['ok'] else 'FAIL'} {r['case']:<15} expected {r['expected']:<26} got {got:<26} "
-              f"{r['seconds']:>6.1f}s  {check_text(r)}{'  [Builder fallback]' if r['fallback'] else ''}")
+              f"{r['seconds']:>6.1f}s  {check_text(r)}{prose_text(r)}"
+              f"{'  [Builder fallback]' if r['fallback'] else ''}")
     print("\nOK/FAIL checks the status and verdict only; 'check NP/NW' is the automatic report check "
-          "(problems/warnings, flag only).\nRead each report.md and phase_log.md before calling a run good.")
+          "(problems/warnings, flag only); 'prose' is the Builder prose check per round "
+          "(OK / REJECTED / FAILED = not reviewed).\nRead each report.md and phase_log.md before calling a run good.")
     flagged = any(r["check"] and r["check"][0] for r in rows)
     return 0 if all(r["ok"] for r in rows) and not flagged else 1
 

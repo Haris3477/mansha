@@ -20,6 +20,12 @@ then goes on, and the phase log and a pipeline warning say the output was NOT
 reviewed by QA (decision D5 A, Haris 17 Oct). `qa_passthrough` (SKIPPED, never
 APPROVED) runs the pipeline without QA.
 
+The Document Builder's prose is checked for meaning by the Builder prose check (Step 7.6,
+mansha/prose_qa.py, D2 = B) on the same `judge` chain: one call per Builder round, never
+split; its corrections join the Builder's single retry; still rejected -> the code-only
+report; ERROR -> the code-checked prose is kept and the run says it was NOT reviewed.
+`prose_qa=None` runs without it.
+
 The report check (Step 9.6b, mansha/report_check.py) is FLAG ONLY (Haris, 17 Oct): its
 problems and warnings go to the phase log and the pipeline warnings; the report is shown.
 
@@ -43,6 +49,7 @@ from mansha.evidence import EvidencePack, build_evidence
 from mansha.intake import IntakeResult, detect_language, run_intake
 from mansha.kb import CORRIDORS, corridor_for
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
+from mansha.prose_qa import ProseQAOutcome, review_prose
 from mansha.qa import (
     QA_ACCEPTS,
     QA_APPROVED,
@@ -217,6 +224,25 @@ def same_model_warning(researcher_model: str | None, qa_model: str | None) -> st
     return None
 
 
+def builder_vs_prose_qa_warning(builder_model: str | None, qa_model: str | None) -> str | None:
+    """The prose check should not grade its own model's text (Step 7.6)."""
+    if builder_model and qa_model and builder_model == qa_model:
+        return (f"Document Builder and prose QA were served by the same model ({builder_model}): "
+                "the prose check is not an independent check in this run")
+    return None
+
+
+def prose_qa_record(q: ProseQAOutcome) -> dict:
+    """prose_qa_N.json: everything the judge said, and every call."""
+    calls = [call_record(c) for c in q.llm_calls]
+    if q.failed_attempts:
+        calls.append({"ok": False, "served_by": None, "error": "LLM call failed",
+                      "attempts": q.failed_attempts})
+    return {"status": q.status, "scores": q.scores, "corrections": q.corrections, "note": q.note,
+            "answer_problems": q.output_problems, "served_by": q.llm.routed_via if q.llm else None,
+            "calls": calls}
+
+
 def research_record(res: ResearcherResult) -> dict:
     return {"served_by": res.llm.routed_via if res.llm else None,
             "latency_s": res.llm.latency_s if res.llm else None,
@@ -298,6 +324,10 @@ def render_phase_log(result: PipelineResult) -> str:
         sent = p.details.get("corrections_sent")
         if sent:
             lines += ["", "Corrections sent (one shared revision):"] + [f"- {c}" for c in sent]
+        by_round = p.details.get("code_problems_by_round")
+        if by_round:
+            lines += ["", "Code check problems by round:"] + [
+                f"- round {r}: {x}" for r, xs in by_round.items() for x in xs]
         if p.calls:
             lines += ["", "LLM calls:"] + [f"- {call_text(c)}" for c in p.calls]
         if p.problems:
@@ -332,12 +362,14 @@ def render_phase_log(result: PipelineResult) -> str:
 
 def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=call_llm,
                  qa: Callable[..., QAOutcome] = run_qa,
+                 prose_qa: Callable[..., ProseQAOutcome] | None = review_prose,
                  out_dir: str | Path | None = None) -> PipelineResult:
     """Run Mansha end to end on one user message.
 
     case_folder: folder with bom.csv / declaration.json (read only by code), or None.
     llm: the LLM call function for every agent (tests pass a fake one).
     qa: the QA slot: run_qa (default), qa_passthrough (no QA), or a fake in tests.
+    prose_qa: the Builder prose check: review_prose (default), None (code checks only), or a fake.
     out_dir: if given, every phase's input/output is saved there (it is created).
     """
     total = _Timer()
@@ -493,23 +525,56 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         return finish(CHECKS_FAILED, msg_checks_failed(lang), intake=intake, research=research.data)
     research = accepted
 
-    # 5. Document Builder (always returns a report; code-only fallback on failure)
+    # 5. Document Builder (always returns a report; code-only fallback on failure).
+    # Step 7.6: each round's prose is checked for meaning by the prose QA (one call, never split).
     t = _Timer()
     br: BuilderResult = run_document_builder(research.data, intake, pack.id_sources,
-                                             corridor=corridor, llm=llm)
+                                             corridor=corridor, llm=llm, review=prose_qa)
     calls = [call_record(c) for c in br.llm_calls]
     if br.failed_attempts:
         calls.append({"ok": False, "served_by": None, "error": "LLM call failed",
                       "attempts": br.failed_attempts})
     n_mand = sum(n["mandatory"] for n in br.notes)
-    _write(out, "builder.json", {"calls": calls, "used_fallback": br.used_fallback,
-                                 "problems_left": br.problems, "prose": br.prose, "notes": br.notes})
+    reviews = [(r["round"], r["review"]) for r in br.rounds if r.get("review") is not None]
+    for round_no, q in reviews:
+        _write(out, f"prose_qa_{round_no}.json", prose_qa_record(q))
+    _write(out, "builder.json", {
+        "calls": calls, "used_fallback": br.used_fallback, "fallback_reason": br.fallback_reason,
+        "review_status": br.review_status, "problems_left": br.problems,
+        "rounds": [{"round": r["round"], "code_problems": r["code_problems"],
+                    "prose_qa": r["review"].status if r.get("review") else None} for r in br.rounds],
+        "prose": br.prose, "notes": br.notes})
+    review_text = {QA_APPROVED: "prose QA approved", QA_ERROR: "prose NOT reviewed by QA",
+                   "SKIPPED": "prose QA not run"}.get(br.review_status, "")
+    if br.used_fallback:
+        what = f"code-only report (fallback): {br.fallback_reason or 'LLM prose failed'}"
+    else:
+        what = "LLM prose passed the code checks" + (f"; {review_text}" if review_text else "")
+    builder_seconds = round(t() - sum(q.seconds for _, q in reviews), 2)
+    round2 = next((r for r in br.rounds if r["round"] == 2), None)
     phases.append(Phase(
-        "Document Builder", "FALLBACK" if br.used_fallback else "OK", t(),
-        f"{'code-only report (fallback)' if br.used_fallback else 'LLM prose passed the checks'} | "
-        f"notes: {len(br.notes)} in ({n_mand} mandatory, verbatim) -> "
+        "Document Builder", "FALLBACK" if br.used_fallback else "OK", max(builder_seconds, 0.0),
+        f"{what} | rounds: {len(br.rounds)} | notes: {len(br.notes)} in ({n_mand} mandatory, verbatim) -> "
         f"{n_mand + len(br.prose.get('notes', []))} in the report",
-        calls=calls, problems=br.problems))
+        calls=calls, problems=br.problems,
+        details={**({"corrections_sent": round2["corrections_sent"]}
+                    if round2 and round2["corrections_sent"] else {}),
+                 **({"code_problems_by_round": {r["round"]: r["code_problems"] for r in br.rounds
+                                                if r["code_problems"]}}
+                    if any(r["code_problems"] for r in br.rounds) else {})}))
+    for round_no, q in reviews:
+        q_calls = prose_qa_record(q)["calls"]
+        phases.append(Phase(
+            f"Prose QA (round {round_no})",
+            {QA_APPROVED: "OK", QA_REJECTED: "REJECTED"}.get(q.status, "FAILED"), q.seconds,
+            q.note, calls=q_calls, problems=q.corrections,
+            details={"qa_answer_problems": q.output_problems} if q.output_problems else {}))
+        w = builder_vs_prose_qa_warning(served_by(calls), q.llm.routed_via if q.llm else None)
+        if w and w not in warnings:
+            warnings.append(w)
+    if br.review_status == QA_ERROR:
+        last = reviews[-1][1].note if reviews else "prose QA did not run"
+        warnings.append(f"Document Builder: report prose NOT reviewed by QA ({last})")
 
     # 6. Report check: plain code on the finished report. Flag only: the report is shown anyway.
     t = _Timer()

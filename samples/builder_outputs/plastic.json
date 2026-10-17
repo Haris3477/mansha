@@ -1,0 +1,88 @@
+{
+  "source": "runs/pipeline/20261017-170414_plastic (17 Oct 2026, Document Builder served by openrouter/dots-studio/dots-3-note-preview:free)",
+  "read_for_meaning": "17 Oct 2026, Step 7.6: every field read against FACTS and NOTES",
+  "edits": [],
+  "intake": {
+    "product_description": "plastic packing articles",
+    "uae_processing": "manufactured in UAE",
+    "destination_country": "India",
+    "hs_code_given": "39239090",
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 50000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": []
+  },
+  "research": {
+    "reasoning": [
+      "Step 1: Classified the product as TL-IN-39239090 because the description matches 'plastic packing articles' and the HS code is an exact 8-digit match.",
+      "Step 2: The tariff line has CEPA status EXCLUDED, so no preferential rate applies regardless of origin.",
+      "Step 3: MFN rate is 15% (tariff and effective); preferential rate is EXCLUDED.",
+      "Step 4: Origin is not applicable because the line is excluded from CEPA preference.",
+      "Step 5: The duty tool returns NO_PREFERENCE with a saving of 0.00 AED.",
+      "Step 6: Procedure is empty because origin is not applicable.",
+      "Step 7: Caveats capture the exclusion, the CIF-based duty estimate, and the remaining Indian duties that would apply even if the product were eligible."
+    ],
+    "classification": {
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "confidence": "high",
+      "source_id": "TL-IN-39239090"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 15%, effective 15%",
+      "preferential_rate": "EXCLUDED",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_rule": {
+      "rule": "NOT_APPLICABLE",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_result": {
+      "status": "NOT_APPLICABLE",
+      "basis": "The tariff line is excluded from CEPA preference, so origin is not applicable.",
+      "source_id": "TL-IN-39239090"
+    },
+    "estimated_saving": {
+      "status": "NO_PREFERENCE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:39239090"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "This tariff line is excluded from India's CEPA concessions, so the normal MFN rate applies regardless of origin.",
+        "source_id": "TL-IN-39239090"
+      },
+      {
+        "note": "Duty estimate is based on the shipment value provided; India charges duty on the assessable (CIF) value, so actual amounts may differ.",
+        "source_id": "TOOL:duty:39239090"
+      },
+      {
+        "note": "The CEPA rate, if applicable, would only reduce Basic Customs Duty and the Agriculture Infrastructure and Development Cess; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping, countervailing or safeguard duties would still apply.",
+        "source_id": "P-IN-DUTY-SCOPE"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NO_PREFERENCE"
+  },
+  "prose": {
+    "summary": "The tariff line is excluded from CEPA preference, so the normal (MFN) rate applies whatever the product's origin. Consequently, no CEPA rate is available and there is no saving.",
+    "classification": "The product is classified under tariff line 39239090, described as Other plastic articles for packing. Mansha's confidence in this classification is high, but the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 15% and the CEPA rate is excluded for this line. No saving applies because the tariff line is excluded from CEPA preference.",
+    "origin": "The rule of origin does not apply because the tariff line is excluded from CEPA preference. As a result, the product's origin is not checked and no origin result is given.",
+    "notes": [
+      {
+        "text": "This tariff line is excluded from India's CEPA concessions, so the normal MFN rate applies regardless of origin.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  }
+}

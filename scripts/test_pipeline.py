@@ -3,7 +3,8 @@
 Run: python -m scripts.test_pipeline
 The fake LLM answers each agent with saved outputs (samples/researcher_outputs/) or
 canned JSON, so every path of run_pipeline() is checked in about a second:
-statuses, stops, the shared revision, the QA slot, LLM failures, saved files, and
+statuses, stops, the shared revision, the QA slot, the Builder prose check (Step 7.6),
+LLM failures, saved files, and
 that nothing from a bill of materials (supplier names, input values) reaches an LLM
 or a saved file.
 """
@@ -16,12 +17,15 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 
 from mansha.document_builder import build_facts, fallback_prose, max_llm_notes
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.orchestrator import (
     MOFT_CEPA_URL,
+    ProseQAOutcome,
     QAOutcome,
+    builder_vs_prose_qa_warning,
     qa_passthrough,
     render_phase_log,
     run_pipeline,
@@ -108,12 +112,20 @@ def qa_rejects(messages) -> dict:
     return ans
 
 
+PROSE_APPROVES = {"corrections": [], "scores": {"factuality": 1, "completeness": 1}}
+PROSE_REJECTS = {"corrections": [{"field": "summary", "problem": "'eliminates your customs duty' is wider "
+                                  "than the CEPA rate term.", "fix": "Say it cuts Basic Customs Duty only.",
+                                  "based_on": "FACTS"}],
+                 "scores": {"factuality": 0, "completeness": 1}}
+
+
 def fake_for(case: str, **overrides) -> FakeLLM:
     queues = {"intake": [EXTRA_INTAKES.get(case) or INTAKES[case][0]]}
     if case in INTAKES:
         queues["researcher"] = [research_fixture(case)]
         queues["qa"] = [qa_approves] * 8   # windows splits into 2 QA parts, windows_nodata into 3
         queues["document_builder"] = [builder_prose(case)]
+        queues["prose_qa"] = [PROSE_APPROVES] * 2   # Step 7.6: the Builder prose check, one per round
     queues.update(overrides)
     return FakeLLM(**queues)
 
@@ -133,8 +145,13 @@ def phase_names(res) -> list[str]:
     return [p.name for p in res.phases]
 
 
+MISSING_PHASE = SimpleNamespace(name="(missing)", status="MISSING", summary="", calls=[], problems=[],
+                                warnings=[], details={})
+
+
 def phase(res, name: str):
-    return next(p for p in res.phases if p.name == name)
+    """The named phase, or a MISSING placeholder (so a missing phase fails a check, not the script)."""
+    return next((p for p in res.phases if p.name == name), MISSING_PHASE)
 
 
 ERR = LLMCallError("router down", [{"attempt": 1, "ok": False, "http_status": 502,
@@ -154,9 +171,9 @@ for case, (_, _, status, verdict) in PIPELINE_CASES.items():
 res, llm = results["windows"]
 check("windows: phases in order", phase_names(res) == [
     "Intake", "Coverage check", "Tools + evidence", "Researcher (round 1)", "QA (round 1)",
-    "Document Builder", "Report check"], phase_names(res))
-check("windows: agents called intake -> researcher -> qa (2 parts) -> builder",
-      llm.agents() == ["intake", "researcher", "qa", "qa", "document_builder"], llm.agents())
+    "Document Builder", "Prose QA (round 1)", "Report check"], phase_names(res))
+check("windows: agents called intake -> researcher -> qa (2 parts) -> builder -> prose check",
+      llm.agents() == ["intake", "researcher", "qa", "qa", "document_builder", "prose_qa"], llm.agents())
 check("windows: QA split shown in phase_log.md (plan B)",
       "Review split into parts" in (res.out_dir / "phase_log.md").read_text()
       and "part 2/2: steps and notes: APPROVED" in (res.out_dir / "phase_log.md").read_text())
@@ -166,17 +183,23 @@ check("windows: QA approved by default (run_qa)", phase(res, "QA (round 1)").sta
       and phase(res, "QA (round 1)").summary.startswith("APPROVED"), phase(res, "QA (round 1)").summary)
 check("windows: QA ran on the judge chain", "qa" in llm.agents())
 check("windows: LLM prose used (no fallback)", phase(res, "Document Builder").status == "OK")
+check("windows: prose check approved, on the judge chain (one call, no split)",
+      phase(res, "Prose QA (round 1)").status == "OK" and llm.agents().count("prose_qa") == 1
+      and "prose QA approved" in phase(res, "Document Builder").summary)
+for case in ("chargers", "windows_nodata", "plastic"):
+    check(f"{case}: one prose check, approved", results[case][1].agents().count("prose_qa") == 1
+          and phase(results[case][0], "Prose QA (round 1)").status == "OK")
 check("windows: every LLM phase records who served it",
       all(c.get("served_by") for p in res.phases for c in p.calls))
 files = sorted(f.name for f in res.out_dir.iterdir())
 check("windows: all phase files saved", files == sorted([
     "message.txt", "intake.json", "evidence.txt", "researcher_1.json", "qa_1.json",
-    "builder.json", "report.md", "phase_log.json", "phase_log.md"]), files)
+    "builder.json", "prose_qa_1.json", "report.md", "phase_log.json", "phase_log.md"]), files)
 check("windows: report.md is the report", (res.out_dir / "report.md").read_text() == res.output
       and res.output.startswith("#"))
 plog = json.loads((res.out_dir / "phase_log.json").read_text())
-check("phase_log.json: status, verdict and 7 phases", plog["status"] == "REPORT"
-      and plog["verdict"] == "ELIGIBLE" and len(plog["phases"]) == 7)
+check("phase_log.json: status, verdict and 8 phases", plog["status"] == "REPORT"
+      and plog["verdict"] == "ELIGIBLE" and len(plog["phases"]) == 8)
 for case in ("windows", "chargers", "windows_nodata", "plastic"):
     rc = phase(results[case][0], "Report check")
     check(f"{case}: report check clean", rc.status == "OK" and not rc.problems and not rc.warnings,
@@ -251,7 +274,7 @@ check("bad twice: short notice, no report", "couldn't verify" in res.output
 
 # ---------------------------------------------------------------- 4
 print("\n4. The QA slot")
-res = run("windows", fake_for("windows"), qa=qa_passthrough)
+res = run("windows", fake_for("windows"), qa=qa_passthrough, prose_qa=None)   # no QA of any kind
 qa_phase = res.phases[4]
 check("pass-through: QA SKIPPED, not APPROVED", qa_phase.status == "SKIPPED"
       and "NOT reviewed by QA" in qa_phase.summary)
@@ -337,6 +360,71 @@ res = run("windows", fake_for("windows"), qa=qa_script(same))
 check("same model for Researcher and QA: warned", any("same model" in w for w in res.warnings), res.warnings)
 check("same_model_warning: different models -> none", same_model_warning("a", "b") is None
       and same_model_warning("a", None) is None)
+
+print("\n4c. The Builder prose check (Step 7.6) in the pipeline")
+llm = fake_for("windows", document_builder=[builder_prose("windows")] * 2,
+               prose_qa=[PROSE_REJECTS, PROSE_APPROVES])
+res = run("windows", llm)
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+check("prose rejected then approved: REPORT with LLM prose, both rounds logged", res.status == "REPORT"
+      and phase(res, "Document Builder").status == "OK" and phase(res, "Prose QA (round 1)").status == "REJECTED"
+      and phase(res, "Prose QA (round 2)").status == "OK", phase_names(res))
+check("prose phases follow the Builder, before the report check", phase_names(res)[-4:] == [
+    "Document Builder", "Prose QA (round 1)", "Prose QA (round 2)", "Report check"], phase_names(res))
+builder_calls = [m for a, m in llm.seen if a == "document_builder"]
+builder_round2 = builder_calls[1][-1]["content"] if len(builder_calls) > 1 else "(no retry was sent)"
+check("the prose correction reaches the Builder's retry", "QA: summary: 'eliminates your customs duty'"
+      in builder_round2, builder_round2[:300])
+check("phase_log.md shows the correction sent and the rejection",
+      "Corrections sent (one shared revision):" in md and "| Prose QA (round 1) | REJECTED |" in md
+      and "factuality 0" in md)
+check("prose_qa_1.json and prose_qa_2.json saved", (res.out_dir / "prose_qa_1.json").exists()
+      and json.loads((res.out_dir / "prose_qa_2.json").read_text())["status"] == "APPROVED")
+saved = json.loads((res.out_dir / "builder.json").read_text())
+check("builder.json records the rounds and the review status", saved["review_status"] == "APPROVED"
+      and [r["prose_qa"] for r in saved["rounds"]] == ["REJECTED", "APPROVED"], saved.get("rounds"))
+
+llm = fake_for("windows", document_builder=[builder_prose("windows")] * 2,
+               prose_qa=[PROSE_REJECTS, PROSE_REJECTS])
+res = run("windows", llm)
+b = phase(res, "Document Builder")
+check("prose rejected twice: code-only report, reason shown", res.status == "REPORT" and b.status == "FALLBACK"
+      and "code-only report (fallback): prose QA still failing after round 2" in b.summary, b.summary)
+check("prose rejected twice: report check still clean", phase(res, "Report check").status == "OK")
+
+llm = fake_for("windows", prose_qa=[ERR])
+res = run("windows", llm)
+pq_phase = phase(res, "Prose QA (round 1)")
+check("prose check fails: report keeps the LLM prose, phase FAILED with attempts",
+      res.status == "REPORT" and phase(res, "Document Builder").status == "OK" and pq_phase.status == "FAILED"
+      and any(c.get("attempts") == ERR.attempts for c in pq_phase.calls))
+check("prose check fails: pipeline warns the prose was NOT reviewed",
+      any("report prose NOT reviewed by QA" in w for w in res.warnings), res.warnings)
+check("prose check fails: Builder summary says so", "prose NOT reviewed by QA"
+      in phase(res, "Document Builder").summary)
+
+res = run("windows", fake_for("windows", prose_qa=[]), prose_qa=None)
+check("prose_qa=None: no prose check phase, no call", not any(n.startswith("Prose QA") for n in phase_names(res))
+      and "prose QA not run" in phase(res, "Document Builder").summary)
+
+res = run("windows", fake_for("windows", document_builder=[ERR], prose_qa=[]))
+check("Builder call fails: no prose check (nothing to read)",
+      not any(n.startswith("Prose QA") for n in phase_names(res)) and phase(res, "Document Builder").status
+      == "FALLBACK")
+
+
+def same_model_review(facts_text, prose, *, llm):
+    return ProseQAOutcome("APPROVED", scores={"factuality": 1, "completeness": 1}, note="APPROVED",
+                          llm=LLMResult(text="{}", data={}, routed_via="fake/document_builder",
+                                        finish_reason="stop", latency_s=0.1))
+
+
+res = run("windows", fake_for("windows"), prose_qa=same_model_review)
+check("same model for Builder and prose check: warned",
+      any("Document Builder and prose QA were served by the same model" in w for w in res.warnings), res.warnings)
+check("builder_vs_prose_qa_warning: different models -> none",
+      builder_vs_prose_qa_warning("a", "b") is None and builder_vs_prose_qa_warning(None, "a") is None)
+
 
 # ---------------------------------------------------------------- 5
 print("\n5. LLM failures")
@@ -474,7 +562,7 @@ code = try_chain_main(["trial", "windows"], llm=llm, runs_root=TMP / "try")
 check("try_chain: dev case runs, exit 0", code == 0, code)
 check("try_chain: Researcher and Builder on auto:trial, Intake and QA keep theirs",
       seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("qa", "auto:judge"),
-               ("qa", "auto:judge"), ("document_builder", "auto:trial")],
+               ("qa", "auto:judge"), ("document_builder", "auto:trial"), ("prose_qa", "auto:judge")],
       seen)
 check("try_chain: runs saved apart, in runs/try_trial/",
       any(f.name.endswith("_windows") and (f / "report.md").exists() for f in (TMP / "try" / "try_trial").iterdir()))
@@ -482,7 +570,7 @@ llm, seen = chain_spy(fake_for("windows"))
 try_chain_main(["auto:trial", "windows", "--agents", "researcher"], llm=llm, runs_root=TMP / "try")
 check("try_chain --agents researcher: only the Researcher switched",
       seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("qa", "auto:judge"),
-               ("qa", "auto:judge"), ("document_builder", "auto:long")],
+               ("qa", "auto:judge"), ("document_builder", "auto:long"), ("prose_qa", "auto:judge")],
       seen)
 budgets = []
 
@@ -497,7 +585,7 @@ try_chain_main(["trial", "windows", "--agents", "qa"], llm=budget_spy, runs_root
 check("try_chain --agents qa: QA on auto:trial with the part budget (windows splits), others unchanged",
       budgets == [("intake", "auto:qa", None), ("researcher", "auto:long", None),
                   ("qa", "auto:trial", 2000), ("qa", "auto:trial", 2000),
-                  ("document_builder", "auto:long", None)], budgets)
+                  ("document_builder", "auto:long", None), ("prose_qa", "auto:judge", 2000)], budgets)
 try:
     try_chain_main(["long"], llm=FakeLLM(), runs_root=TMP / "try")
     check("try_chain refuses a pipeline chain", False, "no error")

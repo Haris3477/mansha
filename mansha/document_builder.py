@@ -9,6 +9,11 @@ Split of work (design D1-D4, Step 8.1; mandatory notes verbatim since 8.5):
   sent to the LLM: code prints them word for word, so no warning can be softened
 - code checks the prose (numbers, note sources, no IDs or code words) and
   sends corrections once; if it still fails, code writes the prose itself
+- since Step 7.6 an optional `review` (the pipeline passes mansha/prose_qa.review_prose)
+  checks the prose's MEANING against FACTS and NOTES in each round; its corrections join the
+  code problems in the same single retry, and a rejection after the retry also means the
+  code-only report. A review that could not run (ERROR) leaves the code-checked prose in place,
+  marked NOT reviewed
 - code renders everything fixed: headings, the claim checklist, the mandatory
   notes, the sources list and the disclaimer
 """
@@ -24,6 +29,7 @@ from dataclasses import dataclass, field
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
+from mansha.prose_qa import QA_ERROR, QA_REJECTED, ProseQAOutcome
 from mansha.researcher import EVIDENCE_ID_RE, GAP, number_keys
 from mansha.tools.duty_estimate import reduces_bcd_only
 
@@ -168,6 +174,12 @@ class BuilderResult:
     problems: list[str] = field(default_factory=list)   # left over when the fallback was used
     llm_calls: list[LLMResult] = field(default_factory=list)
     failed_attempts: list[dict] = field(default_factory=list)  # attempts of a call that failed (LLMCallError)
+    # Step 7.6: one item per round: {round, code_problems, review (ProseQAOutcome | None), corrections_sent}
+    rounds: list[dict] = field(default_factory=list)
+    # The meaning check of the prose in the report: APPROVED | ERROR (prose NOT reviewed) |
+    # FALLBACK (code-only prose, nothing to review) | SKIPPED (no review asked for)
+    review_status: str = "SKIPPED"
+    fallback_reason: str = ""
 
 
 # ---------- FACTS and NOTES (code, before the call) ----------
@@ -541,47 +553,83 @@ def build_messages(facts_text: str, language: str | None, *, previous: dict | No
     return messages
 
 
+def reviewable(prose: dict) -> bool:
+    """True when the prose has the shape a meaning check needs (text fields and note items)."""
+    if not all(isinstance(prose.get(k), str) and prose[k].strip() for k in TEXT_KEYS):
+        return False
+    items = prose.get("notes")
+    return isinstance(items, list) and all(isinstance(i, dict) and isinstance(i.get("text"), str)
+                                           for i in items)
+
+
 def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dict[str, str]],
-                         *, corridor: str = "india", llm=call_llm) -> BuilderResult:
+                         *, corridor: str = "india", llm=call_llm, review=None) -> BuilderResult:
     """Write the report for APPROVED Researcher output. Always returns a report.
 
     llm: the call function (tests pass a fake one).
+    review: None (code checks only), or a meaning check called as
+            review(facts_text, prose, llm=llm) -> ProseQAOutcome (Step 7.6: review_prose).
     """
     research = copy.deepcopy(research)
     facts_text, notes = build_facts(research, intake, corridor)
     language = intake.get("language")
     calls: list[LLMResult] = []
     failed_attempts: list[dict] = []
+    rounds: list[dict] = []
     prose, problems = None, []
+    reviewed: ProseQAOutcome | None = None
+    fallback_reason = ""
 
     for round_no in (1, 2):   # first pass, then at most one correction round
+        sent = problems if round_no == 2 else []
         try:
             res = llm("document_builder", "auto:long",
-                      build_messages(facts_text, language, previous=prose,
-                                     corrections=problems if round_no == 2 else None),
+                      build_messages(facts_text, language, previous=prose, corrections=sent or None),
                       expect_json=True, required_keys=REQUIRED_KEYS)
         except LLMCallError as exc:
             log.warning("document builder | LLM call failed: %s", exc)
             problems = [f"LLM call failed: {exc}"]
             failed_attempts = list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)
+            fallback_reason = f"Builder call failed in round {round_no}"
+            rounds.append({"round": round_no, "code_problems": problems, "review": None,
+                           "corrections_sent": sent})
             break
         calls.append(res)
         prose = res.data
-        problems = check_prose(prose, facts_text, notes)
+        code_problems = check_prose(prose, facts_text, notes)
         log.info("document builder checks | round=%d | served_by=%s | problems=%d",
-                 round_no, res.routed_via, len(problems))
-        for p in problems:
+                 round_no, res.routed_via, len(code_problems))
+        for p in code_problems:
             log.info("document builder problem | %s", p)
+
+        # 7.6: the meaning check runs even when code found problems (P1: one shared retry),
+        # unless the prose is malformed (nothing to read yet).
+        reviewed = review(facts_text, prose, llm=llm) if review and reviewable(prose) else None
+        qa_problems = []
+        if reviewed is not None and reviewed.status == QA_REJECTED:
+            qa_problems = [f"QA: {c}" for c in reviewed.corrections] or ["QA: rejected without corrections"]
+        rounds.append({"round": round_no, "code_problems": code_problems, "review": reviewed,
+                       "corrections_sent": sent})
+        problems = code_problems + qa_problems
         if not problems:
             break
+        fallback_reason = ("code checks and prose QA" if code_problems and qa_problems else
+                           "prose QA" if qa_problems else "code checks")
+        fallback_reason += f" still failing after round {round_no}"
 
     used_fallback = bool(problems)
     if used_fallback:
         log.warning("document builder | using the code-only report (%d problem(s) left)", len(problems))
         prose = fallback_prose(research, notes)
+        review_status = "FALLBACK"
+    elif review is None:
+        review_status = "SKIPPED"
+    else:   # prose passed code checks and was not rejected: approved, or not reviewed (ERROR)
+        review_status = reviewed.status if reviewed is not None else QA_ERROR
 
     kb_sources = load_corridor(corridor)["sources"]
     md = render_report(research, intake, prose, notes, id_sources, kb_sources)
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
                          problems=problems if used_fallback else [], llm_calls=calls,
-                         failed_attempts=failed_attempts)
+                         failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,
+                         fallback_reason=fallback_reason if used_fallback else "")
