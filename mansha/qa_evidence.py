@@ -24,6 +24,12 @@ plus what the user already gave. Why (Step 7.4, first live run): GPT-OSS "correc
 correct NOT_APPLICABLE saving and a correct NOT_APPLICABLE origin status, because it did not
 know the mapping rules that code enforces. QA should not judge what code already proves.
 
+Plan B (Step 7.4b): when one review is too big for Groq's limit, mansha/qa.py splits
+it into parts. `qa_evidence(..., part=...)` and `research_for_qa(..., part=...)` build
+each part's view from a list of keys: "findings" (candidates, chosen-line tools, records
+cited by the findings, uncited index) and/or steps and notes ("procedure[2]", "caveats[0]")
+with only the records they cite.
+
 Pure code, no LLM. Built only from the EVIDENCE text the Researcher already saw, so it
 carries counts and percentages only (Step 9.3) and adds nothing new.
 """
@@ -45,6 +51,8 @@ CODE_FILLED = ("verdict", "origin_rule", "estimated_saving")  # set or verified 
 STEP_CODE_FILLED = ("authority",)
 # Correction targets QA may not use: code fills or verifies them exactly (check_qa refuses them).
 CODE_OWNED = ("verdict", "origin_rule", "estimated_saving", "origin_result.status")
+# The fields reviewed in the "findings" part when a review is split (plan B, Step 7.4b).
+FINDINGS_KEYS = ("reasoning", "classification", "tariff", "origin_result", "follow_up_questions", "gaps")
 
 
 def _clean(block: str) -> str:
@@ -87,11 +95,54 @@ def cited_ids(research: dict) -> list[str]:
     return out
 
 
-def qa_evidence(pack: EvidencePack, research: dict) -> str:
-    """The QA view of the evidence: see the module docstring."""
+def item_keys(research: dict) -> list[str]:
+    """The steps and notes, as field names: procedure[0], ..., caveats[0], ..."""
+    return ([f"procedure[{i}]" for i in range(len(research.get("procedure") or []))]
+            + [f"caveats[{i}]" for i in range(len(research.get("caveats") or []))])
+
+
+def item_value(research: dict, key: str) -> dict:
+    """One step or note as QA reads it (no code-filled authority)."""
+    name, idx = key[:-1].split("[")
+    value = copy.deepcopy(research[name][int(idx)])
+    if isinstance(value, dict):
+        for k in STEP_CODE_FILLED:
+            value.pop(k, None)
+    return value
+
+
+def _split_scope(part) -> tuple[bool, list[str]]:
+    """part (plan B) -> (includes the findings?, [item keys])."""
+    if part is None:
+        return True, []
+    return "findings" in part, [k for k in part if k != "findings"]
+
+
+def _part_cited(research: dict, part) -> set[str]:
+    """IDs cited by the fields one review part covers (Step 7.4b, plan B)."""
+    has_findings, items = _split_scope(part)
+    ids = set(cited_ids([item_value(research, k) for k in items]))
+    if has_findings:
+        ids |= set(cited_ids({k: research.get(k) for k in FINDINGS_KEYS}))
+    return ids
+
+
+def qa_evidence(pack: EvidencePack, research: dict, part=None) -> str:
+    """The QA view of the evidence: see the module docstring.
+
+    part: None (the whole review, one call) or, for one part of a split review (plan B),
+    a list of keys: "findings" and/or item keys ("procedure[0]", "caveats[3]", ...).
+    """
     records = {rid: _clean(txt) for rid, txt in split_records(pack.text).items()}
     order = [rid for rid in pack.allowed_ids if rid in records]
-    cited = set(cited_ids(research))
+    has_findings, _ = _split_scope(part)
+    if not has_findings:
+        ids = _part_cited(research, part)
+        blocks = [records[rid] for rid in order if rid in ids]
+        return ("=== CITED RECORDS (for the steps and notes in this part) ===\n\n"
+                + ("\n\n".join(blocks) if blocks else "none"))
+    cited = set(cited_ids(research)) if part is None else _part_cited(research, part)
+    cited_anywhere = set(cited_ids(research))
     line = digits((research.get("classification") or {}).get("tariff_line"))
     used: set[str] = set()
     parts: list[str] = []
@@ -126,15 +177,27 @@ def qa_evidence(pack: EvidencePack, research: dict) -> str:
 
     # 4. Rules and passages not cited: ID + title only
     index = [f"- [{rid}] {_title(records[rid])}".rstrip()
-             for rid in order if rid not in used and rid.startswith(INDEX_PREFIXES)]
+             for rid in order if rid not in used and rid not in cited_anywhere
+             and rid.startswith(INDEX_PREFIXES)]
     parts.append("=== NOT CITED (titles only) ===\n" + ("\n".join(index) if index else "none"))
 
     return "\n\n".join(parts)
 
 
-def research_for_qa(research: dict) -> dict:
-    """The Researcher JSON as QA reads it: see the module docstring."""
+def research_for_qa(research: dict, part=None) -> dict:
+    """The Researcher JSON as QA reads it: see the module docstring.
+
+    part (plan B): a list of keys. With "findings": only the findings fields; item keys add
+    those steps and notes under `items`, keyed by their field name. Without "findings":
+    the items plus the origin basis as context.
+    """
+    has_findings, items = _split_scope(part)
+    if not has_findings:
+        return {"origin_basis_for_context": (research.get("origin_result") or {}).get("basis"),
+                "items": {k: item_value(research, k) for k in items}}
     data = copy.deepcopy(research)
+    if part is not None:
+        data = {k: data[k] for k in FINDINGS_KEYS if k in data}
     for k in CODE_FILLED:
         data.pop(k, None)
     if isinstance(data.get("origin_result"), dict):
@@ -146,6 +209,8 @@ def research_for_qa(research: dict) -> dict:
         if isinstance(step, dict):
             for k in STEP_CODE_FILLED:
                 step.pop(k, None)
+    if items:
+        data["items"] = {k: item_value(research, k) for k in items}
     return data
 
 
@@ -164,8 +229,8 @@ def checked_facts(research: dict, intake: dict, pack: EvidencePack) -> str:
         + ("(the line is excluded, so no origin check applies)" if origin == "NOT_APPLICABLE"
            else "(the origin tool's result for the chosen line, mapped by code)"),
         f"- rule of origin: {rule.get('rule')} ({rule.get('source_id')})",
-        f"- duty saving status: {s_text} (from the duty tool, by code's rule: no saving when the "
-        "product does not qualify or the line is excluded)",
+        (f"- duty saving status: {s_text} (from the duty tool, by code's rule: no saving when the "
+         "product does not qualify or the line is excluded)"),
     ]
     value = intake.get("shipment_value")
     gave = [f"shipment value {value.get('amount')} {value.get('currency')}" if value

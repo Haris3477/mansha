@@ -18,15 +18,20 @@ import scripts.eval_qa as ev
 from mansha.evidence import build_evidence
 from mansha.llm_client import CHAIN_LIMITS, LLMCallError, LLMResult
 from mansha.qa import (
+    PART_BUDGET,
     QA_APPROVED,
     QA_CHAIN,
     QA_ERROR,
     QA_REJECTED,
+    SPLIT_LIMIT,
     build_messages,
     check_qa,
     correction_text,
+    estimate_tokens,
+    plan_parts,
     run_qa,
 )
+from mansha.qa_evidence import item_keys
 from mansha.researcher import ResearcherResult, number_keys
 from scripts.pipeline_cases import DEV_INTAKES
 
@@ -277,6 +282,95 @@ try:
     check("refuses QA on the long chain", False)
 except SystemExit as e:
     check("refuses QA on the long chain", e.code == 2)
+
+
+# ---------------------------------------------------------------- 5
+print("\n5. Plan B: big reviews split into parts that fit Groq (8,000 tokens a minute)")
+for name, want in (("clean_chargers", 1), ("clean_plastic", 1), ("clean_windows", 2),
+                   ("clean_windows_nodata", 3)):
+    pi, pp, pr = ev.prepare(ev.BY_NAME[name])
+    parts = plan_parts(pi, pp, pr.data, pr.warnings)
+    check(f"{name}: {want} part(s)", len(parts) == want, [p.label for p in parts])
+    if want == 1:
+        check(f"{name}: one call keeps the whole review and the chain budget",
+              parts[0].scope is None and parts[0].max_tokens is None)
+        continue
+    sizes = [estimate_tokens(build_messages(pi, pp, pr.data, None, part=p)) for p in parts]
+    check(f"{name}: every part fits (prompt + {PART_BUDGET} <= {SPLIT_LIMIT})",
+          all(x + PART_BUDGET <= SPLIT_LIMIT for x in sizes) and all(p.max_tokens == PART_BUDGET for p in parts),
+          sizes)
+    keys = [k for p in parts for k in p.scope]
+    check(f"{name}: findings first, every step and note in exactly one part, in order",
+          keys == ["findings"] + item_keys(pr.data), keys)
+    first = build_messages(pi, pp, pr.data, None, part=parts[0])[1]["content"]
+    last = build_messages(pi, pp, pr.data, None, part=parts[-1])[1]["content"]
+    check(f"{name}: part 1 has the candidates and the findings",
+          first.startswith("REVIEW PART 1/") and "=== CANDIDATE TARIFF LINES ===" in first
+          and '"classification"' in first)
+    check(f"{name}: a later part has only its items, their records and the basis as context",
+          "=== CANDIDATE TARIFF LINES ===" not in last and '"origin_basis_for_context"' in last
+          and '"classification"' not in last and all(f'"{k}"' in last for k in parts[-1].scope))
+
+ti, tp, tr = ev.prepare(ev.BY_NAME["invented_timeline"])
+tparts = plan_parts(ti, tp, tr.data, tr.warnings)
+owner = [p for p in tparts if p.warnings]
+check("a code warning goes to the part holding its field (procedure[1])",
+      len(owner) == 1 and "procedure[1]" in owner[0].scope and owner[0].warnings[0][0] == "W1",
+      [(p.label, p.warnings) for p in tparts])
+wi, wp, wr = ev.prepare(ev.BY_NAME["clean_windows"])
+wwarn = ["origin_result: number(s) ['3'] not found in TOOL:origin:76101000",
+         "caveats[5]: number(s) ['9'] not found in P-MOET-FACTORY-REG"]
+wparts = plan_parts(wi, wp, wr.data, wwarn)
+check("warnings keep their global numbers: W1 (origin) in part 1, W2 (caveats[5]) where caveats[5] is",
+      [w for w, _ in wparts[0].warnings] == ["W1"]
+      and [w for p in wparts if "caveats[5]" in p.scope for w, _ in p.warnings][-1:] == ["W2"],
+      [(p.label, p.warnings) for p in wparts])
+
+later = wparts[-1]
+item = next(k for k in later.scope if k != "findings")
+judged_here = [(w, "NOISE") for w, _ in later.warnings]
+ok = answer(judged_here, [{**FIX, "field": f"{item}.note" if item.startswith("caveats") else f"{item}.step",
+                           "source_id": None}], c=0)
+check("a part may correct its own items", check_qa(ok, wr.data, later.warnings, wp.allowed_ids,
+                                                     allowed_fields=later.fields()) == [])
+outside = answer(judged_here, [{**FIX, "field": "classification", "source_id": None}], f=0)
+check("a part may not correct a field it does not show",
+      any("not in this part" in x for x in check_qa(outside, wr.data, later.warnings, wp.allowed_ids,
+                                                     allowed_fields=later.fields())))
+
+
+def scripted(*replies):
+    """A fake judge answering the parts in order."""
+    queue = list(replies)
+
+    def llm(agent, chain, messages, **kwargs):
+        r = queue.pop(0)
+        if isinstance(r, Exception):
+            raise r
+        return LLMResult(text=json.dumps(r), data=copy.deepcopy(r), routed_via="fake/judge",
+                         finish_reason="stop", latency_s=0.1, attempts=[{"attempt": 1, "ok": True}])
+    return llm
+
+
+wres = ResearcherResult(data=wr.data, problems=[], warnings=[])
+fix0 = {**FIX, "field": "procedure[0].step", "source_id": None}
+q = run_qa(wi, wp, wres, llm=scripted(answer(), answer()))
+check("merge: every part approves -> APPROVED, '2 parts' in the note, both parts logged",
+      q.status == QA_APPROVED and "2 parts" in q.note and len(q.parts) == 2 and len(q.llm_calls) == 2, q.note)
+q = run_qa(wi, wp, wres, llm=scripted(answer(corrections=[fix0], f=0), answer()))
+check("merge: one part rejects -> REJECTED, its correction kept, lowest score wins",
+      q.status == QA_REJECTED and q.corrections == [correction_text(fix0)] and q.scores["factuality"] == 0
+      and q.scores["completeness"] == 1, (q.status, q.scores))
+q = run_qa(wi, wp, wres, llm=scripted(err, answer()))
+check("merge: a part fails, none rejects -> ERROR (NOT reviewed in full), attempts kept",
+      q.status == QA_ERROR and "NOT reviewed by QA" in q.note and "part 1/2" in q.note
+      and q.failed_attempts == err.attempts, q.note)
+q = run_qa(wi, wp, wres, llm=scripted(err, answer(corrections=[{**FIX, "field": f"{item}.note"
+                                                                 if item.startswith("caveats") else
+                                                                 f"{item}.step", "source_id": None}],
+                                                  c=0)))
+check("merge: a part fails but another rejects -> REJECTED (a known mistake is still fixed)",
+      q.status == QA_REJECTED and len(q.corrections) == 1, (q.status, q.corrections))
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

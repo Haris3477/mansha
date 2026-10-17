@@ -22,6 +22,17 @@ makes sense for the verdict, and whether each code warning is a real problem or 
 
 Corrections go back to the orchestrator, which sends them to the Researcher together
 with any code problems, in the pipeline's single shared revision.
+
+Plan B (Step 7.4b): Groq's free tier allows 8,000 tokens per minute per request,
+prompt and answer together. When code estimates that one review will not fit
+(prompt + 3,000-token answer > SPLIT_LIMIT), it splits the review into parts:
+part 1 reviews the findings (classification, origin basis, what's still needed);
+the steps and notes are packed, in order, into as many further parts as needed, each
+with only the records they cite and a 2,000-token answer budget. Each part is
+validated and retried like a single review; code merges them: the lowest score wins
+per metric, all corrections and judgements are kept; APPROVED only if every part
+approves, REJECTED if any part rejects, ERROR if a part failed and none rejected.
+A paid model without this limit makes the split unnecessary (it then never triggers).
 """
 
 from __future__ import annotations
@@ -33,9 +44,16 @@ import re
 from dataclasses import dataclass, field
 
 from mansha.evidence import EvidencePack
-from mansha.llm_client import LLMCallError, LLMResult, call_llm
+from mansha.llm_client import CHAIN_LIMITS, LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
-from mansha.qa_evidence import CODE_OWNED, checked_facts, qa_evidence, research_for_qa
+from mansha.qa_evidence import (
+    CODE_OWNED,
+    FINDINGS_KEYS,
+    checked_facts,
+    item_keys,
+    qa_evidence,
+    research_for_qa,
+)
 
 log = logging.getLogger("mansha.qa")
 
@@ -49,6 +67,16 @@ JUDGEMENTS = ("REAL", "NOISE")
 QA_APPROVED, QA_REJECTED, QA_SKIPPED, QA_ERROR = "APPROVED", "REJECTED", "SKIPPED", "ERROR"
 QA_ACCEPTS = {QA_APPROVED, QA_SKIPPED, QA_ERROR}  # statuses that let the pipeline go on
 QA_NOT_REVIEWED = {QA_SKIPPED, QA_ERROR}
+
+# Plan B sizes (tokens). Estimates use ~3.6 characters per token, which ran ~10% high
+# against Groq's real counts on 17 Oct (windows: estimated 6,214, real 5,675).
+GROQ_TPM = 8000
+SPLIT_LIMIT = 7600                      # estimated prompt + answer budget must stay under this
+PART_BUDGET = 2000                      # answer budget of one part (a part has fewer items)
+MAX_PARTS = 6                           # beyond this, the review is not attempted (ERROR)
+CHARS_PER_TOKEN = 3.6
+# A code warning starts with the field it is about: "procedure[2]: number(s) ..."
+WARNING_FIELD_RE = re.compile(r"^([a-z_]+(?:\[\d+\])?)")
 
 # "procedure[2].step" -> ("procedure", 2); "classification" -> ("classification", None)
 FIELD_RE = re.compile(r"^([a-z_]+)(?:\[(\d+)\])?(?:\.[a-z_]+)?$")
@@ -65,20 +93,67 @@ class QAOutcome:
     llm_calls: list[LLMResult] = field(default_factory=list)  # every successful call (incl. the retry)
     failed_attempts: list[dict] = field(default_factory=list)  # attempts of a call that failed
     output_problems: list[str] = field(default_factory=list)   # what was wrong with QA's own answer
+    parts: list[dict] = field(default_factory=list)  # plan B: one summary per part (empty = one call)
+
+
+@dataclass
+class Part:
+    """One QA call of a review: the whole review, the findings, or some steps and notes."""
+    label: str                                # e.g. "part 2/3: steps and notes"
+    scope: list[str] | None                   # None (all) | ["findings", "procedure[0]", "caveats[1]", ...]
+    warnings: list[tuple[str, str]]           # (W-id, warning text) for this part's fields
+    max_tokens: int | None = None             # None = the chain's default (3,000)
+
+    def fields(self) -> set[str] | None:
+        """Correction fields this part may use (None = any)."""
+        if self.scope is None:
+            return None
+        items = {k for k in self.scope if k != "findings"}
+        out = set(FINDINGS_KEYS) if "findings" in self.scope else set()
+        return out | items | ({"caveats", "procedure"} if items else set())
 
 
 def warning_ids(warnings: list[str]) -> list[str]:
     return [f"W{i}" for i in range(1, len(warnings) + 1)]
 
 
-def build_messages(intake: dict, pack: EvidencePack, research: dict, warnings: list[str], *,
-                   previous: dict | None = None, problems: list[str] | None = None) -> list[dict]:
-    listed = "\n".join(f"{wid}: {w}" for wid, w in zip(warning_ids(warnings), warnings)) or "none"
-    user = ("INTAKE JSON:\n" + json.dumps(intake, ensure_ascii=False, indent=2)
+def numbered(warnings) -> list[tuple[str, str]]:
+    """Warnings as (W-id, text) pairs; accepts plain strings (numbered W1, W2, ...) or pairs."""
+    warnings = list(warnings)
+    if warnings and isinstance(warnings[0], tuple):
+        return warnings
+    return list(zip(warning_ids(warnings), warnings))
+
+
+def part_header(part: Part | None) -> str:
+    if part is None or part.scope is None:
+        return ""
+    what = []
+    if "findings" in part.scope:
+        what.append("the findings (classification, tariff, origin basis, follow-up questions, gaps)")
+    if any(k != "findings" for k in part.scope):
+        what.append("the steps and notes listed under `items`, each keyed by its field name: use that "
+                    "name in corrections (for example `procedure[4].step`, `caveats[2].note`)")
+    extra = ("" if "findings" in part.scope else
+             " `origin_basis_for_context` is context only; it is reviewed in another part.")
+    return (f"REVIEW {part.label.upper()}. The review is split into parts to fit the model's limit. "
+            f"This part covers only {' and '.join(what)}; everything else is reviewed in other parts. "
+            f"Score only what is shown here.{extra}\n\n")
+
+
+def build_messages(intake: dict, pack: EvidencePack, research: dict, warnings, *,
+                   previous: dict | None = None, problems: list[str] | None = None,
+                   part: Part | None = None) -> list[dict]:
+    scope = part.scope if part else None
+    pairs = part.warnings if part else numbered(warnings)
+    listed = "\n".join(f"{wid}: {w}" for wid, w in pairs) or "none"
+    user = (part_header(part)
+            + "INTAKE JSON:\n" + json.dumps(intake, ensure_ascii=False, indent=2)
             + "\n\nCHECKED BY CODE (correct; never correct these):\n" + checked_facts(research, intake, pack)
             + "\n\nCODE WARNINGS:\n" + listed
-            + "\n\nEVIDENCE:\n" + qa_evidence(pack, research)
-            + "\n\nRESEARCHER JSON:\n" + json.dumps(research_for_qa(research), ensure_ascii=False, indent=1))
+            + "\n\nEVIDENCE:\n" + qa_evidence(pack, research, scope)
+            + "\n\nRESEARCHER JSON:\n"
+            + json.dumps(research_for_qa(research, scope), ensure_ascii=False, indent=1))
     messages = [
         {"role": "system", "content": build_system_prompt("qa")},
         {"role": "user", "content": user},
@@ -101,8 +176,13 @@ def _score(v) -> int | None:
     return None
 
 
-def check_qa(data: dict, research: dict, warnings: list[str], allowed_ids) -> list[str]:
-    """Problems in QA's own answer (empty = valid). Pure code."""
+def check_qa(data: dict, research: dict, warnings, allowed_ids, *,
+             allowed_fields: set[str] | None = None) -> list[str]:
+    """Problems in QA's own answer (empty = valid). Pure code.
+
+    warnings: plain strings (numbered W1, W2, ...) or (W-id, text) pairs.
+    allowed_fields: the fields one review part covers (plan B); None = any field.
+    """
     problems: list[str] = []
     allowed = set(allowed_ids)
 
@@ -114,7 +194,7 @@ def check_qa(data: dict, research: dict, warnings: list[str], allowed_ids) -> li
         if m in scores and _score(scores[m]) is None:
             problems.append(f"scores.{m} must be 0 or 1, not {scores[m]!r}")
 
-    ids = warning_ids(warnings)
+    ids = [wid for wid, _ in numbered(warnings)]
     judged = data.get("warnings")
     if not isinstance(judged, list):
         problems.append("`warnings` must be a list")
@@ -154,11 +234,15 @@ def check_qa(data: dict, research: dict, warnings: list[str], allowed_ids) -> li
                             "(see CHECKED BY CODE); remove this correction and rescore without it")
         elif not m or m.group(1) not in research:
             problems.append(f"corrections[{i}]: field {f!r} is not a field of the Researcher JSON")
-        elif m.group(2) is not None:
+        elif m.group(2) is not None and (not isinstance(research.get(m.group(1)), list)
+                                         or int(m.group(2)) >= len(research[m.group(1)])):
             items = research.get(m.group(1))
-            if not isinstance(items, list) or int(m.group(2)) >= len(items):
-                problems.append(f"corrections[{i}]: {f} does not exist "
-                                f"({m.group(1)} has {len(items) if isinstance(items, list) else 0} item(s))")
+            problems.append(f"corrections[{i}]: {f} does not exist "
+                            f"({m.group(1)} has {len(items) if isinstance(items, list) else 0} item(s))")
+        elif allowed_fields is not None:
+            base = m.group(1) + (f"[{m.group(2)}]" if m.group(2) is not None else "")
+            if base not in allowed_fields and m.group(1) not in allowed_fields:
+                problems.append(f"corrections[{i}]: {f} is not in this part; correct only the fields shown")
         for k in ("problem", "fix"):
             if not str(c.get(k) or "").strip():
                 problems.append(f"corrections[{i}] needs a `{k}`")
@@ -185,28 +269,70 @@ def correction_text(c: dict) -> str:
     return s + (f" (see {sid})" if sid not in (None, "", "null") else "")
 
 
-def run_qa(intake: dict, pack: EvidencePack, research, *, llm=call_llm) -> QAOutcome:
-    """Review one Researcher result (a ResearcherResult: `.data` and `.warnings`)."""
-    data = research.data
-    warnings = list(research.warnings)
+def estimate_tokens(messages: list[dict]) -> int:
+    return int(sum(len(m["content"]) for m in messages) / CHARS_PER_TOKEN) + 1
+
+
+def plan_parts(intake: dict, pack: EvidencePack, research: dict, warnings) -> list[Part]:
+    """One part when the review fits Groq's limit; else the findings, then the steps and notes in
+    order, packed into as few parts as fit (each prompt + PART_BUDGET <= SPLIT_LIMIT)."""
+    pairs = numbered(warnings)
+    whole = Part("whole review", None, pairs)
+    budget = CHAIN_LIMITS[QA_CHAIN]["default"]
+    if estimate_tokens(build_messages(intake, pack, research, pairs, part=whole)) + budget <= SPLIT_LIMIT:
+        return [whole]
+
+    def fits(scope: list[str]) -> bool:
+        trial = Part("part 9/9", scope, pairs)  # worst case: every warning listed
+        return (estimate_tokens(build_messages(intake, pack, research, pairs, part=trial))
+                + PART_BUDGET <= SPLIT_LIMIT)
+
+    groups: list[list[str]] = []
+    for key in ["findings"] + item_keys(research):
+        if groups and fits(groups[-1] + [key]):
+            groups[-1].append(key)
+        else:
+            groups.append([key])
+
+    def owner(text: str) -> int:
+        m = WARNING_FIELD_RE.match(text)
+        for i, g in enumerate(groups):
+            if m and m.group(1) in g:
+                return i
+        return 0  # the findings part (it always comes first)
+
+    n = len(groups)
+    parts = []
+    for i, scope in enumerate(groups):
+        kinds = (["findings"] if "findings" in scope else []) + (
+            ["steps and notes"] if any(k != "findings" for k in scope) else [])
+        parts.append(Part(f"part {i + 1}/{n}: {' + '.join(kinds)}", scope,
+                          [(w, t) for w, t in pairs if owner(t) == i], PART_BUDGET))
+    return parts
+
+
+def _review(intake: dict, pack: EvidencePack, data: dict, part: Part, llm) -> QAOutcome:
+    """One QA call (with its one retry) for one part."""
     calls: list[LLMResult] = []
     previous: dict | None = None
     problems: list[str] = []
     first_problems: list[str] = []   # what the retry had to fix (kept for the phase log)
+    kwargs = {"max_tokens": part.max_tokens} if part.max_tokens else {}
     for attempt in (1, 2):
         try:
-            res = llm("qa", QA_CHAIN, build_messages(intake, pack, data, warnings,
-                                                     previous=previous, problems=problems or None),
-                      expect_json=True, required_keys=REQUIRED_KEYS)
+            res = llm("qa", QA_CHAIN, build_messages(intake, pack, data, None, previous=previous,
+                                                     problems=problems or None, part=part),
+                      expect_json=True, required_keys=REQUIRED_KEYS, **kwargs)
         except LLMCallError as exc:
-            log.info("qa | call failed: %s", exc)
+            log.info("qa | %s | call failed: %s", part.label, exc)
             return QAOutcome(status=QA_ERROR, llm_calls=calls, failed_attempts=list(exc.attempts),
                              output_problems=first_problems,
                              note="QA call failed: output NOT reviewed by QA")
         calls.append(res)
         answer = copy.deepcopy(res.data)
-        problems = check_qa(answer, data, warnings, pack.allowed_ids)
-        log.info("qa | attempt %d | served_by=%s | answer problems=%d", attempt, res.routed_via, len(problems))
+        problems = check_qa(answer, data, part.warnings, pack.allowed_ids, allowed_fields=part.fields())
+        log.info("qa | %s | attempt %d | served_by=%s | answer problems=%d",
+                 part.label, attempt, res.routed_via, len(problems))
         if not problems:
             break
         if attempt == 1:
@@ -218,15 +344,66 @@ def run_qa(intake: dict, pack: EvidencePack, research, *, llm=call_llm) -> QAOut
                          note="QA answer still invalid after its retry: output NOT reviewed by QA")
 
     scores = {m: _score(answer["scores"][m]) for m in METRICS}
-    by_id = dict(zip(warning_ids(warnings), warnings))
+    by_id = dict(part.warnings)
     judgements = [{"id": j["id"], "warning": by_id.get(j["id"], ""), "judgement": j["judgement"],
                    "reason": str(j.get("reason", "")).strip()} for j in answer["warnings"]]
-    corrections = [correction_text(c) for c in answer["corrections"]]
     status = QA_REJECTED if 0 in scores.values() else QA_APPROVED
+    return QAOutcome(status=status, corrections=[correction_text(c) for c in answer["corrections"]],
+                     scores=scores, llm=calls[-1], judgements=judgements, llm_calls=calls,
+                     output_problems=first_problems)
+
+
+def _note(status: str, scores: dict | None, judgements: list[dict], n_parts: int) -> str:
     real = sum(j["judgement"] == "REAL" for j in judgements)
-    note = (f"{status} | factuality {scores['factuality']}, completeness {scores['completeness']}, "
-            f"formatting_safety {scores['formatting_safety']} | code warnings judged: "
-            f"{len(judgements)} ({real} real)")
+    s = status
+    if scores:
+        s += (f" | factuality {scores['factuality']}, completeness {scores['completeness']}, "
+              f"formatting_safety {scores['formatting_safety']}")
+    s += f" | code warnings judged: {len(judgements)} ({real} real)"
+    return s + (f" | {n_parts} parts" if n_parts > 1 else "")
+
+
+def run_qa(intake: dict, pack: EvidencePack, research, *, llm=call_llm) -> QAOutcome:
+    """Review one Researcher result (a ResearcherResult: `.data` and `.warnings`)."""
+    data = research.data
+    parts = plan_parts(intake, pack, data, list(research.warnings))
+    if len(parts) > MAX_PARTS:
+        return QAOutcome(status=QA_ERROR, note=f"review too large ({len(parts)} parts > {MAX_PARTS}): "
+                                               "output NOT reviewed by QA")
+    if len(parts) == 1:
+        q = _review(intake, pack, data, parts[0], llm)
+        if q.status != QA_ERROR:
+            q.note = _note(q.status, q.scores, q.judgements, 1)
+        log.info("qa | %s", q.note)
+        return q
+
+    results = [_review(intake, pack, data, p, llm) for p in parts]
+    done = [r for r in results if r.status != QA_ERROR]
+    calls = [c for r in results for c in r.llm_calls]
+    summaries = [{"label": p.label, "status": r.status, "scores": r.scores,
+                  "served_by": r.llm.routed_via if r.llm else None,
+                  "seconds": round(sum(c.latency_s or 0 for c in r.llm_calls), 2),
+                  "scope": p.scope,
+                  "warnings": [w for w, _ in p.warnings], "note": r.note}
+                 for p, r in zip(parts, results)]
+    scores = ({m: min(r.scores[m] for r in done) for m in METRICS} if done else None)
+    judgements = [j for r in results for j in r.judgements]
+    if any(r.status == QA_REJECTED for r in results):
+        status = QA_REJECTED
+    elif any(r.status == QA_ERROR for r in results):
+        status = QA_ERROR
+    else:
+        status = QA_APPROVED
+    if status == QA_ERROR:
+        failed = ", ".join(p.label.split(":")[0] for p, r in zip(parts, results) if r.status == QA_ERROR)
+        note = f"QA {failed} failed: output NOT reviewed by QA in full ({len(parts)} parts)"
+    else:
+        note = _note(status, scores, judgements, len(parts))
     log.info("qa | %s", note)
-    return QAOutcome(status=status, corrections=corrections, scores=scores, llm=calls[-1], note=note,
-                     judgements=judgements, llm_calls=calls, output_problems=first_problems)
+    return QAOutcome(
+        status=status, corrections=[c for r in results for c in r.corrections], scores=scores,
+        llm=next((r.llm for r in reversed(results) if r.llm), None), note=note,
+        judgements=judgements, llm_calls=calls,
+        failed_attempts=[a for r in results for a in r.failed_attempts],
+        output_problems=[f"{p.label}: {x}" for p, r in zip(parts, results) for x in r.output_problems],
+        parts=summaries)

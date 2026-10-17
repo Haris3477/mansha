@@ -112,10 +112,15 @@ def fake_for(case: str, **overrides) -> FakeLLM:
     queues = {"intake": [EXTRA_INTAKES.get(case) or INTAKES[case][0]]}
     if case in INTAKES:
         queues["researcher"] = [research_fixture(case)]
-        queues["qa"] = [qa_approves, qa_approves]
+        queues["qa"] = [qa_approves] * 8   # windows splits into 2 QA parts, windows_nodata into 3
         queues["document_builder"] = [builder_prose(case)]
     queues.update(overrides)
     return FakeLLM(**queues)
+
+
+def researcher_round2(llm: FakeLLM) -> str:
+    """The last message of the Researcher's second call (its corrections)."""
+    return [m for a, m in llm.seen if a == "researcher"][1][-1]["content"]
 
 
 def run(case: str, llm: FakeLLM, **kwargs):
@@ -150,8 +155,13 @@ res, llm = results["windows"]
 check("windows: phases in order", phase_names(res) == [
     "Intake", "Coverage check", "Tools + evidence", "Researcher (round 1)", "QA (round 1)",
     "Document Builder", "Report check"], phase_names(res))
-check("windows: agents called intake -> researcher -> qa -> builder",
-      llm.agents() == ["intake", "researcher", "qa", "document_builder"], llm.agents())
+check("windows: agents called intake -> researcher -> qa (2 parts) -> builder",
+      llm.agents() == ["intake", "researcher", "qa", "qa", "document_builder"], llm.agents())
+check("windows: QA split shown in phase_log.md (plan B)",
+      "Review split into parts" in (res.out_dir / "phase_log.md").read_text()
+      and "part 2/2: steps and notes: APPROVED" in (res.out_dir / "phase_log.md").read_text())
+check("chargers: one QA call (fits Groq)", results["chargers"][1].agents().count("qa") == 1)
+check("windows_nodata: three QA calls", results["windows_nodata"][1].agents().count("qa") == 3)
 check("windows: QA approved by default (run_qa)", phase(res, "QA (round 1)").status == "OK"
       and phase(res, "QA (round 1)").summary.startswith("APPROVED"), phase(res, "QA (round 1)").summary)
 check("windows: QA ran on the judge chain", "qa" in llm.agents())
@@ -225,7 +235,7 @@ llm = fake_for("windows", researcher=[bad, research_fixture("windows")])
 res = run("windows", llm)
 check("bad then good: REPORT after 2 rounds", res.status == "REPORT"
       and "Researcher (round 2)" in phase_names(res), phase_names(res))
-sent = llm.seen[3][1][-1]["content"]
+sent = researcher_round2(llm)
 check("round 2 receives the code corrections", "CORRECTIONS" in sent and "origin_result.status" in sent)
 check("researcher_2.json and qa_2.json saved", (res.out_dir / "researcher_2.json").exists()
       and (res.out_dir / "qa_2.json").exists())
@@ -268,14 +278,15 @@ saved = json.loads((res.out_dir / "qa_1.json").read_text())
 check("qa_1.json holds the judgements and the call", saved["warning_judgements"]
       and saved["calls"] and saved["served_by"] == "fake/qa")
 
-llm = fake_for("windows", researcher=[research_fixture("windows")] * 2, qa=[qa_rejects, qa_approves])
+llm = fake_for("windows", researcher=[research_fixture("windows")] * 2,
+               qa=[qa_rejects, qa_approves, qa_approves, qa_approves])
 res = run("windows", llm)
 check("QA rejects: phase REJECTED, revision, then REPORT", phase(res, "QA (round 1)").status == "REJECTED"
       and phase(res, "QA (round 2)").status == "OK" and res.status == "REPORT", phase_names(res))
 check("QA's correction reaches the Researcher", "QA: follow_up_questions: asks for data already given."
-      in llm.seen[3][1][-1]["content"])
+      in researcher_round2(llm))
 
-llm = fake_for("windows", qa=[ERR])
+llm = fake_for("windows", qa=[ERR, qa_approves])
 res = run("windows", llm)
 check("QA call fails: run goes on to a REPORT (D5 A)", res.status == "REPORT"
       and "document_builder" in llm.agents())
@@ -284,7 +295,8 @@ check("QA call fails: phase FAILED, attempts kept", phase(res, "QA (round 1)").s
 check("QA call fails: pipeline warns NOT reviewed", any("NOT reviewed by QA" in w for w in res.warnings),
       res.warnings)
 
-llm = fake_for("windows", qa=[{"warnings": [], "corrections": [], "scores": {"factuality": 2}}] * 2)
+llm = fake_for("windows", qa=[{"warnings": [], "corrections": [], "scores": {"factuality": 2}}] * 2
+               + [qa_approves])
 res = run("windows", llm)
 check("QA answer invalid twice: ERROR, run goes on, problems logged", res.status == "REPORT"
       and phase(res, "QA (round 1)").status == "FAILED"
@@ -462,7 +474,7 @@ code = try_chain_main(["trial", "windows"], llm=llm, runs_root=TMP / "try")
 check("try_chain: dev case runs, exit 0", code == 0, code)
 check("try_chain: Researcher and Builder on auto:trial, Intake and QA keep theirs",
       seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("qa", "auto:judge"),
-               ("document_builder", "auto:trial")],
+               ("qa", "auto:judge"), ("document_builder", "auto:trial")],
       seen)
 check("try_chain: runs saved apart, in runs/try_trial/",
       any(f.name.endswith("_windows") and (f / "report.md").exists() for f in (TMP / "try" / "try_trial").iterdir()))
@@ -470,7 +482,7 @@ llm, seen = chain_spy(fake_for("windows"))
 try_chain_main(["auto:trial", "windows", "--agents", "researcher"], llm=llm, runs_root=TMP / "try")
 check("try_chain --agents researcher: only the Researcher switched",
       seen == [("intake", "auto:qa"), ("researcher", "auto:trial"), ("qa", "auto:judge"),
-               ("document_builder", "auto:long")],
+               ("qa", "auto:judge"), ("document_builder", "auto:long")],
       seen)
 budgets = []
 
@@ -482,9 +494,10 @@ def budget_spy(agent, chain, messages, **kwargs):
 
 fake_for_qa = fake_for("windows")
 try_chain_main(["trial", "windows", "--agents", "qa"], llm=budget_spy, runs_root=TMP / "try")
-check("try_chain --agents qa: QA on auto:trial with the judge budget, others unchanged",
+check("try_chain --agents qa: QA on auto:trial with the part budget (windows splits), others unchanged",
       budgets == [("intake", "auto:qa", None), ("researcher", "auto:long", None),
-                  ("qa", "auto:trial", 3000), ("document_builder", "auto:long", None)], budgets)
+                  ("qa", "auto:trial", 2000), ("qa", "auto:trial", 2000),
+                  ("document_builder", "auto:long", None)], budgets)
 try:
     try_chain_main(["long"], llm=FakeLLM(), runs_root=TMP / "try")
     check("try_chain refuses a pipeline chain", False, "no error")

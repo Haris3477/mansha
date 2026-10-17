@@ -20,7 +20,7 @@ Score each metric 0 or 1.
 3. A code warning you judge REAL (below).
 
 **completeness**: 0 if any of these is true.
-1. `follow_up_questions` or `gaps` ask the user for something they already gave (see "the user already gave" in CHECKED BY CODE), or for something that cannot change this result. For example: asking for a bill of materials when it says GIVEN, or for a shipment value it already lists.
+1. `follow_up_questions` or `gaps` ask the user for something they already gave (see "the user already gave" in CHECKED BY CODE), or list something that cannot change this result. For example: asking for a bill of materials when it says GIVEN, asking for a shipment value it already lists, or a gap about a missing alternative calculation (such as a build-up percentage) when the product already fails other checks.
 2. The origin result is DOES_NOT_QUALIFY and `basis` does not name every failed check of the chosen line's origin tool.
 3. A caveat clearly does not apply to this product or this result.
 
@@ -37,6 +37,8 @@ Score each metric 0 or 1.
 - `source_id`: the evidence ID that shows it, or null.
 
 Be strict about errors and only about errors. Reject only for a specific mistake you can point to in a field. Wording you would write differently, a shorter or longer sentence, or an extra detail that its cited record supports is not a mistake. If everything holds, all scores are 1 and `corrections` is empty.
+
+**Split reviews.** If the input starts with "REVIEW PART", the review is split into parts to fit the model's limit. Judge and score only the fields shown in that part: the others are reviewed separately. Steps and notes then appear under `items`, keyed by their field name (for example `procedure[4]`); use that name in corrections (`procedure[4].step`).
 
 Return JSON only, in this order (judge the warnings first, then write corrections, then score):
 

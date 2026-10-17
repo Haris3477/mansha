@@ -305,6 +305,13 @@ def render_phase_log(result: PipelineResult) -> str:
         if p.warnings:
             label = "Code warnings (for QA):" if p.name.startswith("Researcher") else "Warnings:"
             lines += ["", label] + [f"- {x}" for x in p.warnings]
+        qa_parts = p.details.get("qa_parts")
+        if qa_parts:
+            lines += ["", "Review split into parts (Groq's 8,000-token limit):"] + [
+                f"- {x['label']}: {x['status']}"
+                + (f", served by {x['served_by']} ({x['seconds']} s)" if x.get("served_by") else "")
+                + (f"; code warnings {', '.join(x['warnings'])}" if x.get("warnings") else "")
+                for x in qa_parts]
         judged = p.details.get("warning_judgements")
         if judged:
             lines += ["", "Code warnings judged by QA:"] + [
@@ -453,6 +460,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
                                             "corrections": q.corrections, "note": q.note,
                                             "warning_judgements": q.judgements,
                                             "answer_problems": q.output_problems,
+                                            "parts": q.parts,
                                             "served_by": q.llm.routed_via if q.llm else None,
                                             "calls": q_calls,
                                             "code_warnings_given": research.warnings})
@@ -461,7 +469,8 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
             {QA_APPROVED: "OK", QA_SKIPPED: "SKIPPED", QA_REJECTED: "REJECTED"}.get(q.status, "FAILED"),
             t(), q.note or f"{q.status} | scores {q.scores}", calls=q_calls, problems=q.corrections,
             details={**({"warning_judgements": q.judgements} if q.judgements else {}),
-                     **({"qa_answer_problems": q.output_problems} if q.output_problems else {})}))
+                     **({"qa_answer_problems": q.output_problems} if q.output_problems else {}),
+                     **({"qa_parts": q.parts} if q.parts else {})}))
         w = same_model_warning(research.llm.routed_via if research.llm else None,
                                q.llm.routed_via if q.llm else None)
         if w and w not in warnings:

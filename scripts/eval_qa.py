@@ -75,6 +75,22 @@ def irrelevant_caveat(d):      # G12: a note that does not apply to this product
                                  "calculated on a different basis.", "source_id": "PSR-GEN-HS71"})
 
 
+def useless_gap(d):            # 17 Oct 16:59 chargers run (Dots3): a gap that cannot change a failed result
+    d["gaps"] = [("The build-up value addition percentage is not available, so the value-addition test "
+                  "could only be assessed using the build-down method.")]
+
+
+def nodata_dropped_qualifier(d):   # problem 6 inside a big (split) review
+    note = d["caveats"][11]["note"]
+    d["caveats"][11]["note"] = note.replace(
+        "are reportedly accepted and uploaded to e-Sanchit (unconfirmed, seen only in secondary sources).",
+        "are accepted and uploaded to e-Sanchit.")
+
+
+def nodata_merged_step(d):     # G8 inside a big (split) review: a fact from P-AGR-3.17-APPLICATION
+    d["procedure"][4]["step"] += " The issuing authority may also visit the factory before issuing it."
+
+
 @dataclass
 class Case:
     name: str
@@ -95,6 +111,11 @@ CASES = [
     Case("invented_timeline", "windows", invented_timeline, ("procedure[1]", "procedure"), "code warning"),
     Case("bom_already_given", "chargers", bom_already_given, ("follow_up_questions", "follow_up_questions[0]"), "problem 55"),
     Case("irrelevant_caveat", "chargers", irrelevant_caveat, ("caveats", "caveats[6]"), "G12"),
+    Case("useless_gap", "chargers", useless_gap, ("gaps", "gaps[0]"), "17 Oct live run"),
+    Case("nodata_dropped_qualifier", "windows_nodata", nodata_dropped_qualifier,
+         ("caveats[11]", "caveats"), "problem 6, split review"),
+    Case("nodata_merged_step", "windows_nodata", nodata_merged_step,
+         ("procedure[4]", "procedure"), "G8, split review"),
 ]
 BY_NAME = {c.name: c for c in CASES}
 
