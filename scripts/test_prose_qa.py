@@ -234,7 +234,12 @@ for case in ev.CASES:
     clean = ev.fixture(case.base)["prose"]
     changed = [k for k in ("summary", "classification", "duty", "origin") if seeded[k] != clean[k]] + [
         f"notes[{i}]" for i, (a, b) in enumerate(zip(seeded["notes"], clean["notes"])) if a != b]
-    check(f"seed {case.name}: invisible to the code checks", problems == [], problems)
+    if case.code_catches:   # 7.6b: this one must be stopped by code, with the BCD-only message
+        check(f"seed {case.name}: stopped by the Builder's code checks", len(problems) == 1
+              and problems[0].startswith(f"`{case.fields[0]}`") and "Basic Customs Duty only" in problems[0],
+              problems)
+    else:
+        check(f"seed {case.name}: invisible to the code checks", problems == [], problems)
     check(f"seed {case.name}: changes exactly its expected field", changed == list(case.fields), changed)
 
 # ---------------------------------------------------------------- 5
@@ -262,7 +267,10 @@ def eval_llm(judge_fn):
 code = ev.main([], llm=eval_llm(perfect_judge), runs_root=TMP)
 saved_files = sorted(p.name for d in TMP.iterdir() for p in d.iterdir())
 check("a perfect judge: exit 0", code == 0, code)
-check("one saved answer per case", len(saved_files) == len(ev.CASES), saved_files)
+check("one saved answer per case (incl. the code-stopped seed)", len(saved_files) == len(ev.CASES), saved_files)
+judge_calls = []
+code = ev.main(["eliminates_duty"], llm=lambda *a, **k: judge_calls.append(a), runs_root=TMP / "code")
+check("a code-stopped seed: exit 0 and no judge call", code == 0 and not judge_calls, (code, judge_calls))
 code = ev.main(["free_zone_cannot", "clean_plastic"], llm=eval_llm(lambda m: APPROVE), runs_root=TMP)
 check("a judge that approves everything misses the seed: exit 1", code == 1, code)
 code = ev.main(["clean_plastic"], llm=eval_llm(lambda m: REJECT), runs_root=TMP / "fr")

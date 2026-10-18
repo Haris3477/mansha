@@ -48,6 +48,38 @@ MANDATORY_PREFIXES = ("TOOL:duty:", "TOOL:origin:")   # duty basis (BCD, CIF); s
 # D4: verdicts that come with a claim checklist.
 CHECKLIST_VERDICTS = {"ELIGIBLE", "NEEDS_MORE_DATA"}
 
+# Problem 53 (7.6b): the CEPA rate never removes ALL import duty in India: it cuts Basic Customs
+# Duty only, and IGST, cess, SWS and any trade-remedy duty are still paid. A fixed wording rule,
+# so code applies it to the Builder's prose (a problem -> the Builder's retry) and report_check
+# repeats it on the finished report as a last safety net. The LLM judge missed this sentence live
+# on 18 Oct even with it as the prompt's own example, which is why it is code, not judgement.
+ALL_DUTY_GONE_RE = re.compile(
+    r"\beliminat\w*\s+(?:\w+\s+){0,3}(?:dut(?:y|ies)|charges|taxes)\b|\bduty[- ]free\b|"
+    r"\bfree of (?:all )?(?:customs |import )?dut(?:y|ies)\b|"
+    r"\bno (?:customs |import )?duty\b(?!\s+saving)|"
+    r"\b(?:removes?|waives?|cancels?)\s+(?:all|the|your|any)\s+(?:\w+\s+){0,2}(?:dut(?:y|ies)|charges|taxes)\b|"
+    r"\b(?:dut(?:y|ies)|charges|taxes)\s+(?:is|are|will be)\s+(?:eliminated|removed|waived|cancelled)\b",
+    re.IGNORECASE)
+BCD_NAMED_RE = re.compile(r"\bbasic customs dut(?:y|ies)\b|\bBCD\b", re.IGNORECASE)
+
+
+def all_duty_gone(text: str) -> list[re.Match]:
+    """Matches of ALL_DUTY_GONE_RE that do not name Basic Customs Duty itself.
+
+    "eliminates the Basic Customs Duty" / "Basic Customs Duty is removed" are correct for a 0% line,
+    so a match that names BCD (in the match or the 25 characters before it) is not a problem.
+    """
+    out = []
+    for m in ALL_DUTY_GONE_RE.finditer(text or ""):
+        if not BCD_NAMED_RE.search(text[max(0, m.start() - 25):m.end()]):
+            out.append(m)
+    return out
+
+
+ALL_DUTY_GONE_FIX = ("the CEPA rate applies to Basic Customs Duty only; IGST and other import charges are "
+                     "still paid, so say the CEPA rate reduces (or removes) Basic Customs Duty, never all duty")
+
+
 # Fixed meanings for the TERMS line. Only terms that appear in the facts are sent.
 TERMS = {
     "MFN": "MFN rate = the normal import duty rate, charged when no trade-agreement preference is claimed",
@@ -374,6 +406,8 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
         if CODE_WORD_RE.search(text):
             problems.append(f"{where}: replace the code word {CODE_WORD_RE.search(text).group(0)!r} "
                             "with plain words")
+        for m in all_duty_gone(text):           # problem 53, 7.6b
+            problems.append(f"{where}: {m.group(0)!r} says all duty is removed, but {ALL_DUTY_GONE_FIX}")
 
     for k in TEXT_KEYS:
         text_problems(f"`{k}`", prose[k], facts_numbers)

@@ -30,6 +30,7 @@ from mansha.document_builder import (
     HEADINGS,
     ID_RE,
     NO_CEPA_RATE_VERDICTS,
+    all_duty_gone,
 )
 from mansha.researcher import INTERNAL_WORD_RE, number_keys
 
@@ -48,11 +49,7 @@ CLAIM_WORDS_RE = re.compile(
     r"certificates? of origin|factory registration|e-sanchit|\bissuer\b|issuing authority|"
     r"\bcertificate fee\b", re.IGNORECASE)
 ESTIMATE_WORDS_RE = re.compile(r"\bthe estimate\b|\bestimate shown\b|\bduty estimate\b", re.IGNORECASE)
-# Problem 53: the CEPA rate never removes ALL import duty in India (IGST etc. still apply).
-ALL_DUTY_GONE_RE = re.compile(
-    r"\beliminat\w*\s+(?:\w+\s+){0,3}dut(?:y|ies)\b|\bduty[- ]free\b|\bno (?:customs |import )?duty\b(?!\s+saving)|"
-    r"\b(?:removes?|waives?)\s+(?:all|the|your)\s+(?:\w+\s+){0,2}dut(?:y|ies)\b|"
-    r"\bdut(?:y|ies)\s+(?:is|are|will be)\s+(?:eliminated|removed|waived)\b", re.IGNORECASE)
+# Problem 53: ALL_DUTY_GONE_RE lives in document_builder (one copy; the Builder also blocks it).
 
 
 def sections(markdown: str) -> dict[str, str]:
@@ -146,7 +143,7 @@ def check_report(markdown: str, *, research: dict, evidence_text: str, message: 
             warnings.append(f"no saving shown, but the report mentions an estimate: {_show(m, text)}")
 
     # 9. No claim that the CEPA rate removes all import duty (problem 53) - wording, so a warning
-    for m in _all(ALL_DUTY_GONE_RE, text):
+    for m in all_duty_gone(text):
         warnings.append(f"says all duty is removed, but the CEPA rate cuts Basic Customs Duty only: "
                         f"{_show(m, text)}")
 

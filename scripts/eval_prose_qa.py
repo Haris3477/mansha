@@ -101,6 +101,7 @@ class Case:
     seed: object = None        # function that plants the mistake (None = clean)
     fields: tuple = ()         # correction fields that count as a catch (a ".text" suffix is fine)
     note: str = ""
+    code_catches: bool = False  # 7.6b: the Builder's code checks stop this seed before any judge call
 
 
 CASES = [
@@ -109,7 +110,8 @@ CASES = [
     Case("clean_windows_nodata", "windows_nodata", note="NEEDS_MORE_DATA, 12 optional notes"),
     Case("clean_plastic", "plastic", note="NO_PREFERENCE"),
     Case("free_zone_cannot", "windows", free_zone_cannot, ("notes[0]",), "problem 57"),
-    Case("eliminates_duty", "windows", eliminates_duty, ("summary",), "problem 53"),
+    Case("eliminates_duty", "windows", eliminates_duty, ("summary",), "problem 53; blocked by code since 7.6b",
+         code_catches=True),
     Case("minimal_ops_completed", "windows", minimal_ops_completed, ("origin",), "problem 30"),
     Case("claims_qualifies", "windows_nodata", claims_qualifies, ("summary",), "verdict contradicted"),
     Case("missing_failed_checks", "chargers", missing_failed_checks, ("origin",), "completeness"),
@@ -119,7 +121,9 @@ BY_NAME = {c.name: c for c in CASES}
 
 
 def prepare(case: Case) -> tuple[str, list[dict], dict, list[str]]:
-    """(facts_text, notes, prose, code problems) for a case. Code problems must be empty."""
+    """(facts_text, notes, prose, code problems) for a case.
+
+    Code problems must be empty, except for a seed marked `code_catches`, which must have them."""
     fx = fixture(case.base)
     facts_text, notes = build_facts(fx["research"], fx["intake"])
     prose = copy.deepcopy(fx["prose"])
@@ -141,7 +145,15 @@ def judge(case: Case, q) -> str:
     return "CAUGHT" if hit else "WRONG FIELD"
 
 
-GOOD = {"CAUGHT", "APPROVED"}
+GOOD = {"CAUGHT", "CAUGHT BY CODE", "APPROVED"}
+
+
+def setup_problem(case: Case, problems: list[str]) -> str | None:
+    """Why a case cannot run as set up, or None. A seed tests the judge only if code lets it through;
+    a `code_catches` seed tests that code stops it (and is never sent to the judge)."""
+    if case.code_catches:
+        return None if problems else "the Builder's code checks should stop this seed but don't"
+    return f"code checks catch it: {problems}" if problems else None
 
 
 def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RUNS_ROOT) -> int:
@@ -166,15 +178,20 @@ def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RU
         lc.CHAIN_LIMITS.setdefault(chain, dict(lc.CHAIN_LIMITS[PROSE_QA_CHAIN]))
 
     if args.dry_run:
-        total = 0
+        total, calls = 0, 0
         print(f"{'case':<24} {'est. prompt':>11} {'+ budget':>9}  code check")
         for case in cases:
             facts_text, _, prose, problems = prepare(case)
             est = estimate_tokens(build_messages(facts_text, prose))
+            bad = setup_problem(case, problems)
+            if case.code_catches and not bad:
+                print(f"{case.name:<24} {'-':>11} {'-':>9}  CAUGHT BY CODE (no call)")
+                continue
             total += est * args.repeat
+            calls += args.repeat
             print(f"{case.name:<24} {est:>11} {est + ANSWER_BUDGET:>9}  "
-                  f"{'OK' if not problems else 'SETUP ERROR: ' + '; '.join(problems)}")
-        print(f"\n{len(cases) * args.repeat} call(s), estimated prompt tokens {total} (Groq counted ~10% less on "
+                  f"{'OK' if not bad else 'SETUP ERROR: ' + bad}")
+        print(f"\n{calls} call(s), estimated prompt tokens {total} (Groq counted ~10% less on "
               "17 Oct), plus each answer's real length incl. hidden reasoning (~300-900, a guess).")
         return 0
 
@@ -187,9 +204,20 @@ def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RU
     rows = []
     for case in cases:
         facts_text, _, prose, problems = prepare(case)
-        if problems:      # a seed must get past the code checks, or it tests code, not the judge
-            print(f"  SETUP ERROR {case.name}: code checks catch it: {problems}")
+        bad = setup_problem(case, problems)
+        if bad:           # a seed must get past the code checks, or it tests code, not the judge
+            print(f"  SETUP ERROR {case.name}: {bad}")
             rows.append((case, 0, "SETUP ERROR", None, 0.0))
+            continue
+        if case.code_catches:   # 7.6b: stopped by the Builder's code checks; no judge call
+            rows.append((case, 1, "CAUGHT BY CODE", None, 0.0))
+            (out / f"{case.name}_1.json").write_text(json.dumps({
+                "case": case.name, "base": case.base, "note": case.note, "result": "CAUGHT BY CODE",
+                "expected_fields": list(case.fields), "code_problems": problems,
+                "prose_reviewed": prose}, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"  {'CAUGHT BY CODE':<16} {case.name:<24} (no judge call)")
+            for pr in problems:
+                print(f"      - {pr[:160]}")
             continue
         est = estimate_tokens(build_messages(facts_text, prose))
         for n in range(1, args.repeat + 1):
@@ -217,7 +245,10 @@ def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RU
     print("\n================ SUMMARY ================")
     seeded = [r for r in rows if r[0].seed]
     clean = [r for r in rows if not r[0].seed]
-    print(f"seeded caught on the right field: {sum(r[2] == 'CAUGHT' for r in seeded)}/{len(seeded)}")
+    by_code = sum(r[2] == "CAUGHT BY CODE" for r in seeded)
+    judged = [r for r in seeded if r[2] != "CAUGHT BY CODE"]
+    print(f"seeded caught by the judge:       {sum(r[2] == 'CAUGHT' for r in judged)}/{len(judged)}")
+    print(f"seeded stopped by code (no call): {by_code}")
     print(f"clean approved:                   {sum(r[2] == 'APPROVED' for r in clean)}/{len(clean)}")
     print(f"errors (not reviewed):            {sum(r[2] in ('ERROR', 'SETUP ERROR') for r in rows)}")
     times = sorted(r[4] for r in rows if r[2] not in ("ERROR", "SETUP ERROR"))

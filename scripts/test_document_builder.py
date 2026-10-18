@@ -199,6 +199,23 @@ expect_problem(f"more than {limit} notes fails (6 in total with the {sum(x['mand
                lambda p: p.update(notes=[{"text": "x", "from": [first_opt]}] * (limit + 1)))
 expect_problem("note number not in its own notes fails",
                lambda p: p["notes"].append({"text": "Keep records for 7 years.", "from": [first_opt]}))
+# 7.6b, problem 53: "all duty removed" wording is a problem (the CEPA rate cuts Basic Customs Duty only)
+for wrong in ("This eliminates your customs duty in India.", "The goods enter India duty-free.",
+              "There is no customs duty to pay.", "The duty is eliminated.", "It removes all import charges.",
+              "The windows enter free of customs duty."):
+    expect_problem(f"53: {wrong!r} fails", lambda p, w=wrong: p.update(summary=p["summary"] + " " + w))
+expect_problem("53: also inside a note", lambda p: p["notes"][0].update(text=p["notes"][0]["text"] + " It is duty-free."))
+p = copy.deepcopy(good)
+p["summary"] += " " + "The windows enter duty-free."
+check("53: the problem names the field and says 'Basic Customs Duty only'",
+      any(x.startswith("`summary`") and "Basic Customs Duty only" in x for x in check_prose(p, facts, notes)),
+      check_prose(p, facts, notes))
+for fine in ("The CEPA rate removes Basic Customs Duty.", "It eliminates the Basic Customs Duty.",
+             "Basic Customs Duty is eliminated under the CEPA.", "No duty saving can be estimated."):
+    p = copy.deepcopy(good)
+    p["duty"] += " " + fine
+    check(f"53: {fine!r} is fine (names BCD, or no saving)", check_prose(p, facts, notes) == [],
+          check_prose(p, facts, notes))
 p = copy.deepcopy(good)
 p["notes"] = []
 check("no LLM notes is fine (mandatory notes are added by code)", check_prose(p, facts, notes) == [])
