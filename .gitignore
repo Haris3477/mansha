@@ -12,3 +12,9 @@ runs/
 # macOS / editor
 .DS_Store
 .vscode/
+# Graphify code map (generated; regenerate any time)
+graphify-out/
+
+# Linux test environment for Claude's shell (offline wheels + venv; never committed)
+.wheels-linux/
+.venv-linux/
