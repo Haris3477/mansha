@@ -6,7 +6,10 @@ everything that can be checked mechanically:
 - warnings (numbers not found in the cited record) -> passed to QA to judge
 Code, not the LLM, sets the final `verdict` and each procedure step's
 `authority` (copied from the cited record's `actor`, Step 6.4g). Code also drops
-`gaps` items that repeat a caveat (Step 9.6e, problem 52) and records that in `changes`.
+`gaps` items that repeat a caveat (Step 9.6e, problem 52), removes square brackets around
+evidence IDs in `source_id` (Step 7.6c, problem 75) and, when the verdict is NOT_ELIGIBLE or
+NO_PREFERENCE, empties `follow_up_questions` (Step 7.6c, problem 74) and drops the caveats
+about claiming the CEPA rate (Step 7.6d, problem 76); each change is recorded in `changes`.
 """
 
 from __future__ import annotations
@@ -19,6 +22,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 
 from mansha.evidence import HEADER_RE, EvidencePack
+from mansha.kb import load_corridor
 from mansha.llm_client import LLMResult, call_llm
 from mansha.prompts import build_system_prompt
 
@@ -236,6 +240,98 @@ def drop_caveat_gaps(data: dict) -> list[str]:
     return [f"gaps: dropped a copy of a caveat: {g!r}" for g in removed]
 
 
+BRACKETED_ID_RE = re.compile(r"\s*\[\s*([^\[\]]+?)\s*\]\s*")
+
+# Verdicts where no CEPA rate can apply on what the user gave (not eligible, excluded line):
+# no follow-up questions (problem 74) and no notes about claiming the rate (problem 76).
+NO_CEPA_RATE_VERDICTS = {"NOT_ELIGIBLE", "NO_PREFERENCE"}
+CLAIM_PASSAGE_KINDS = {"duty", "procedure", "authority"}   # passage kinds about claiming the CEPA rate
+CLAIM_TOOL_PREFIXES = ("TOOL:duty:", "TOOL:coo_fee")        # duty saving, certificate fee
+
+
+def claim_source_ids(corridor: str = "india") -> set[str]:
+    """IDs of the corridor's passages about claiming the CEPA rate (duty, procedure, authority)."""
+    return {p["id"] for p in load_corridor(corridor)["passages"]["passages"]
+            if p.get("kind") in CLAIM_PASSAGE_KINDS}
+
+
+def is_claim_note(source_id, claim_ids: set[str]) -> bool:
+    """A note is about claiming the CEPA rate if it cites the duty or fee tool or a claim passage.
+
+    Matched by source, not wording, because the Researcher paraphrases notes (Steps 9.5b-c).
+    Shared by the Researcher (drop_claim_caveats, before QA) and the Document Builder (build_notes).
+    """
+    return str(source_id).startswith(CLAIM_TOOL_PREFIXES) or source_id in claim_ids
+
+
+def unbracket_ids(data: dict, pack: EvidencePack) -> list[str]:
+    """Write a `source_id` "[X]" as "X" when X is an evidence ID; return what changed (Step 7.6c).
+
+    Problem 75 (19 Oct, chargers, Dots3): the model copied the evidence headers' brackets into
+    every `source_id` ("[TL-IN-85044030]"): 22 code problems that used up the single revision,
+    which QA's real corrections then had to share. Only the format is fixed: an ID that is not
+    in the evidence keeps its brackets and is reported by check_researcher.
+    """
+    fixed: list[str] = []
+
+    def fix(where: str, obj) -> None:
+        sid = obj.get("source_id") if isinstance(obj, dict) else None
+        m = BRACKETED_ID_RE.fullmatch(sid) if isinstance(sid, str) else None
+        if m and m.group(1) in pack.allowed_ids:
+            obj["source_id"] = m.group(1)
+            fixed.append(where)
+
+    for k in OBJECT_KEYS:
+        fix(k, data.get(k))
+    for k in ("procedure", "caveats"):
+        items = data.get(k)
+        for i, item in enumerate(items if isinstance(items, list) else []):
+            fix(f"{k}[{i}]", item)
+    if not fixed:
+        return []
+    return [f"source_id: square brackets removed around {len(fixed)} evidence ID(s) ({', '.join(fixed)})"]
+
+
+def drop_follow_ups(data: dict, verdict: str) -> list[str]:
+    """Empty `follow_up_questions` for NOT_ELIGIBLE / NO_PREFERENCE; return what went (Step 7.6c).
+
+    Problem 74 (19 Oct, chargers): a not-eligible report asked for the UAE operations, the
+    place of final manufacture and the FOB/CIF values, all already given, as if another
+    answer could change the result (a nudge to change a declaration). QA rejected one such
+    question in round 1 and approved the rest in round 2. Follow-up questions belong to
+    NEEDS_MORE_DATA and NEEDS_VALUE; the "confirm the code" advice is in the Builder's
+    classification text. `gaps` are left alone.
+    """
+    qs = data.get("follow_up_questions")
+    if verdict not in NO_CEPA_RATE_VERDICTS or not isinstance(qs, list) or not qs:
+        return []
+    data["follow_up_questions"] = []
+    return [f"follow_up_questions: dropped for verdict {verdict} (the result does not depend on "
+            f"more information from the user): {q!r}" for q in qs]
+
+
+def drop_claim_caveats(data: dict, verdict: str, corridor: str = "india") -> list[str]:
+    """Drop caveats about claiming the CEPA rate for NOT_ELIGIBLE / NO_PREFERENCE (Step 7.6d).
+
+    Problem 76 (19 Oct, chargers, Dots3): a not-eligible answer carried 17 caveats, among them
+    the certificate issuer, fee, factory registration and importer steps. The Builder never
+    shows those notes for this verdict (build_notes, same rule), but QA reviewed them all: the
+    review split into 2 parts, and an invented website in the hidden issuer note ("doit.gov.ae")
+    was rejected twice; the Researcher returned the same JSON, so the run ended CHECKS_FAILED
+    over text the exporter would never have read. Dropping them here makes QA judge what the
+    report shows. Other caveats (origin, tariff line, origin-rule passages) stay.
+    """
+    caveats = data.get("caveats")
+    if verdict not in NO_CEPA_RATE_VERDICTS or not isinstance(caveats, list):
+        return []
+    claim_ids = claim_source_ids(corridor)
+    keep = [c for c in caveats if not (isinstance(c, dict) and is_claim_note(c.get("source_id"), claim_ids))]
+    gone = [c for c in caveats if c not in keep]
+    data["caveats"] = keep
+    return [f"caveats: dropped a note about claiming the CEPA rate for verdict {verdict} "
+            f"({c.get('source_id')}): {c.get('note')!r}" for c in gone]
+
+
 # ---------- the checks ----------
 
 def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[str], str]:
@@ -422,12 +518,18 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
               expect_json=True, required_keys=REQUIRED_KEYS)
     data = copy.deepcopy(res.data)
     data.pop("verdict", None)  # the verdict is code's job
+    changes = unbracket_ids(data, pack)  # "[ID]" -> "ID" first: the fills below read source_id (problem 75)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
-    changes = drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
+    changes += drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
+    problems, warnings, verdict = check_researcher(data, pack)
+    dropped = drop_follow_ups(data, verdict)  # no follow-ups once no CEPA rate can apply (problem 74)
+    dropped += drop_claim_caveats(data, verdict, pack.corridor)  # nor notes about claiming it (problem 76)
+    if dropped:
+        changes += dropped
+        problems, warnings, verdict = check_researcher(data, pack)  # checked again without them
     for c in changes:
         log.info("researcher normalized | %s", c)
-    problems, warnings, verdict = check_researcher(data, pack)
     data["verdict"] = verdict
     log.info("researcher checks | served_by=%s | verdict=%s | problems=%d | warnings=%d",
              res.routed_via, verdict, len(problems), len(warnings))

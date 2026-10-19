@@ -7,6 +7,42 @@
       "was": "If the product qualifies, the saving would be the difference between the normal rate and the CEPA rate, but the exact amount cannot be estimated without the shipment value.",
       "now": "If the product qualifies, the saving cannot be estimated without the shipment value.",
       "why": "'the difference between the normal rate and the CEPA rate' is not in FACTS"
+    },
+    {
+      "field": "notes[0].from",
+      "was": [
+        "N3"
+      ],
+      "now": [
+        "N2"
+      ],
+      "why": "Step 7.6e (19 Oct): notes with a qualifier are printed verbatim by code and never sent to the Builder; 'from' renumbered to the new note numbers"
+    },
+    {
+      "field": "notes[1].from",
+      "was": [
+        "N6"
+      ],
+      "now": [
+        "N5"
+      ],
+      "why": "Step 7.6e (19 Oct): notes with a qualifier are printed verbatim by code and never sent to the Builder; 'from' renumbered to the new note numbers"
+    },
+    {
+      "field": "notes[2].from",
+      "was": [
+        "N10"
+      ],
+      "now": [
+        "N7"
+      ],
+      "why": "Step 7.6e (19 Oct): notes with a qualifier are printed verbatim by code and never sent to the Builder; 'from' renumbered to the new note numbers"
+    },
+    {
+      "field": "notes[2]",
+      "was": "UAE law sets a shorter 3-year minimum for record keeping, but the CEPA's 5-year requirement governs CEPA claims.",
+      "now": null,
+      "why": "Step 7.6e: the Builder may now write 2 items here (6 notes are printed verbatim), so the third item (record-keeping detail) is dropped, as the Builder may drop notes"
     }
   ],
   "intake": {
@@ -175,19 +211,13 @@
       {
         "text": "Minimal operations listed in Article 3.5.1 (a) to (q) never confer origin, whatever the product-specific rule says.",
         "from": [
-          "N3"
+          "N2"
         ]
       },
       {
         "text": "Preference is given only to originating goods shipped directly from the UAE to India. Transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar. An invoice issued by a third party does not by itself cause the claim to be denied, but the exporter must indicate 'third-party invoicing'.",
         "from": [
-          "N6"
-        ]
-      },
-      {
-        "text": "UAE law sets a shorter 3-year minimum for record keeping, but the CEPA's 5-year requirement governs CEPA claims.",
-        "from": [
-          "N10"
+          "N5"
         ]
       }
     ]

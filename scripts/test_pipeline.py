@@ -495,6 +495,34 @@ check("caveats copied into gaps: dropped by code, shown in phase_log.md, not in 
       "Normalized by code:" in md and "gaps: dropped a copy of a caveat" in md
       and "What's still needed" not in res.output, md[-800:])
 check("report check row", "| Report check | OK |" in md)
+# Step 7.6c (problems 74-75, live 19 Oct): bracketed IDs and follow-ups in a NOT_ELIGIBLE answer
+asks = research_fixture("chargers")
+asks["follow_up_questions"] = ["Where was the final manufacture of these battery chargers completed?",
+                               "What is the FOB value of this shipment?"]
+asks["origin_result"]["source_id"] = "[" + asks["origin_result"]["source_id"] + "]"
+res = run("chargers", fake_for("chargers", researcher=[asks, asks]))  # 2nd: a missing fix fails by name
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+check("NOT_ELIGIBLE follow-ups and bracketed IDs: fixed by code in round 1, shown in phase_log.md, "
+      "no 'What's still needed' in the report",
+      res.status == "REPORT" and "Researcher (round 2)" not in md
+      and "follow_up_questions: dropped for verdict NOT_ELIGIBLE" in md
+      and "square brackets removed" in md
+      and "What's still needed" not in res.output and "final manufacture of these" not in res.output, md[-900:])
+# Step 7.6d (problem 76, live 19 Oct 04:16): claim notes in a NOT_ELIGIBLE answer, one with an
+# invented website, are dropped by code before QA, so QA never reviews text the report won't show.
+claims = research_fixture("chargers")
+claims["caveats"] += [{"source_id": "P-UAE-ISSUER", "note": "The India-specific page is still on doit.gov.ae."},
+                      {"source_id": "TOOL:coo_fee", "note": "The certificate fee for this shipment is AED 50."},
+                      {"source_id": "P-IN-IMPORTER", "note": "The importer claims the CEPA rate on the bill of entry."}]
+llm = fake_for("chargers", researcher=[claims, claims])  # 2nd: a missing fix fails by name
+res = run("chargers", llm)
+md = (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+qa_text = "\n".join(m["content"] for a, msgs in llm.seen if a == "qa" for m in msgs)
+check("NOT_ELIGIBLE claim notes: dropped by code before QA (QA never sees them), shown in phase_log.md, "
+      "one QA call, report OK",
+      res.status == "REPORT" and "Researcher (round 2)" not in md and llm.agents().count("qa") == 1
+      and md.count("caveats: dropped a note about claiming the CEPA rate") >= 3
+      and "doit.gov.ae" not in qa_text and "doit.gov.ae" not in res.output, md[-900:])
 
 # A report with a problem is FLAGGED but still shown (decision 9.6b: flag only)
 # Mandatory notes are printed verbatim from the Researcher's caveats (path of problem 34), so a

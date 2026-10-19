@@ -15,11 +15,13 @@ from mansha.document_builder import (
     ESTIMATE_NOTE_START,
     EVIDENCE_ID_RE,
     MAX_NOTES,
+    MIN_LLM_NOTES,
     build_facts,
     build_messages,
     check_prose,
     cite,
     fallback_prose,
+    is_mandatory,
     max_llm_notes,
     render_report,
     run_document_builder,
@@ -103,13 +105,45 @@ for name, (research, intake, _) in cases.items():
 research, intake, _ = cases["windows"]
 facts, notes = build_facts(research, intake)
 mand = {n["source_id"] for n in notes if n["mandatory"]}
-check("windows: mandatory notes are issuer, duty basis and self-declaration",
-      mand == {"P-UAE-ISSUER", "TOOL:duty:76101000", "TOOL:origin:76101000"}, mand)
-check("windows: rule-interpretation note is optional",
-      not any(n["mandatory"] for n in notes if n["source_id"].startswith("TOOL:rule_lookup")))
-check("windows: optional notes are sent", all(n["text"] in facts for n in notes if not n["mandatory"]))
+check("windows: mandatory notes are issuer, duty basis, self-declaration and (7.6e) the two with a qualifier",
+      mand == {"P-UAE-ISSUER", "TOOL:duty:76101000", "TOOL:origin:76101000",
+               "TOOL:rule_lookup:76101000", "P-MOET-FACTORY-REG"}, mand)
+check("windows: rule-interpretation note is mandatory since 7.6e ('interpretation')",
+      all(n["mandatory"] for n in notes if n["source_id"].startswith("TOOL:rule_lookup")))
+check("windows: problem 57 prevented by code (7.6e): 'likely not eligible' printed verbatim, never sent",
+      any(n["mandatory"] and "likely not eligible" in n["text"] for n in notes)
+      and "likely not eligible" not in facts)
+check("windows: no optional notes left, so none sent", "NOTES: none" in facts, facts.split("NOTES")[-1][:80])
+
+print("\n   7.6e qualifier rule (problem 78)")
+for text, want in (("Interpretation: de minimis helps only the tariff-shift part of a rule.", True),
+                   ("Free-zone producers are likely not eligible.", True),
+                   ("Electronic certificates are reportedly uploaded to e-Sanchit.", True),
+                   ("This is unconfirmed.", True), ("'Direct labour cost' is not defined.", True),
+                   ("Mansha has not checked anti-dumping duty.", True), ("Unlikely to apply.", True),
+                   ("Cumulation is bilateral only.", False), ("India may charge anti-dumping duty.", False),
+                   ("The defined term is used.", False), ("Checked by the ministry.", False)):
+    check(f"qualifier rule: {'mandatory' if want else 'optional '} <- {text!r}",
+          is_mandatory("P-AGR-3.7-CUMULATION", text) == want)
+two_m = [{"mandatory": True}] * 6 + [{"mandatory": False}] * 3
+check("Builder keeps 2 note slots even with 6 verbatim notes", max_llm_notes(two_m) == MIN_LLM_NOTES == 2)
+check("...and no slots when there are no optional notes", max_llm_notes([{"mandatory": True}] * 6) == 0)
+check("...and 6 minus the verbatim ones otherwise", max_llm_notes([{"mandatory": True}] * 2
+                                                                  + [{"mandatory": False}] * 9) == 4)
+
+# The real windows answer has no optional note any more (both carry a qualifier). The prose-check
+# sections below need one, so they use windows with one plain note added (the KB's cumulation
+# summary, no qualifier).
+PLAIN_NOTE = {"note": "Cumulation is bilateral only: originating materials from India used in production "
+                      "in the UAE may be counted as originating.", "source_id": "P-AGR-3.7-CUMULATION"}
+cases["windows"] = (dict(cases["windows"][0], caveats=cases["windows"][0]["caveats"] + [PLAIN_NOTE]),
+                    *cases["windows"][1:])
+research, intake, _ = cases["windows"]
+facts, notes = build_facts(research, intake)
+check("windows + plain note: that note is optional and sent",
+      [n["text"] for n in notes if not n["mandatory"]] == [PLAIN_NOTE["note"]] and PLAIN_NOTE["note"] in facts)
 limit = max_llm_notes(notes)
-check(f"windows: NOTES header gives the limit ({limit})", f"at most {limit} items" in facts)
+check(f"windows + plain note: NOTES header gives the limit ({limit})", f"at most {limit} items" in facts)
 check("windows: saving in FACTS", "ESTIMATED SAVING: 10000.00 AED" in facts)
 check("windows: CTSH and VA terms sent", "CTSH = " in facts and "VA = " in facts)
 check("windows: origin check names explained (problem 30)",
@@ -123,13 +157,14 @@ _, nd_notes = build_facts(*cases["windows_nodata"][:2])
 n_cav = len(cases["windows_nodata"][0]["caveats"])
 n_opt = sum(not n["mandatory"] for n in nd_notes)
 check(f"windows_nodata: all {n_cav} caveats kept as notes", len(nd_notes) == n_cav)
-check("windows_nodata: 2 mandatory notes, numbered M1, M2",
-      [n["nid"] for n in nd_notes if n["mandatory"]] == ["M1", "M2"])
+check("windows_nodata: 6 mandatory notes since 7.6e (2 by source, 4 by qualifier), numbered M1..M6",
+      [n["nid"] for n in nd_notes if n["mandatory"]] == [f"M{i}" for i in range(1, 7)])
 check(f"windows_nodata: {n_opt} optional notes, numbered N1..N{n_opt}",
       [n["nid"] for n in nd_notes if not n["mandatory"]] == [f"N{i}" for i in range(1, n_opt + 1)])
 nd_facts, _ = build_facts(*cases["windows_nodata"][:2])
 check("windows_nodata: saving needs the value", "cannot be estimated without the shipment value" in nd_facts)
-check(f"windows_nodata: LLM may write {MAX_NOTES - 2} notes", f"at most {MAX_NOTES - 2} items" in nd_facts)
+check(f"windows_nodata: LLM may still write {MIN_LLM_NOTES} notes (7.6e floor; 6 are verbatim)",
+      f"at most {MIN_LLM_NOTES} items" in nd_facts)
 pl_facts, _ = build_facts(*cases["plastic"][:2])
 check("plastic: CEPA rate shown as excluded", "CEPA RATE: excluded" in pl_facts)
 
@@ -278,7 +313,9 @@ mand_texts = [x["text"] for x in notes if x["mandatory"]]
 check("mandatory notes shown verbatim in the LLM report", all(f"- {t}" in sec for t in mand_texts))
 check("mandatory notes come before the LLM notes",
       max(sec.index(t) for t in mand_texts) < sec.index(good["notes"][0]["text"]))
-check(f"report has at most {MAX_NOTES} notes", sec.count("\n- ") <= MAX_NOTES, sec.count("\n- "))
+cap = max(MAX_NOTES, len(mand_texts) + MIN_LLM_NOTES)   # 7.6e: verbatim notes + at least 2 LLM items
+check(f"report has at most {cap} notes (6, or the verbatim ones + {MIN_LLM_NOTES})",
+      sec.count("\n- ") <= cap, sec.count("\n- "))
 sent = "\n".join(m["content"] for m in llm.seen[0])
 check("mandatory note texts never reach the LLM", not any(t in sent for t in mand_texts))
 

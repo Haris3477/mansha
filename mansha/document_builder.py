@@ -5,7 +5,8 @@ Split of work (design D1-D4, Step 8.1; mandatory notes verbatim since 8.5):
   Researcher JSON (no evidence IDs are sent to the model)
 - the LLM writes only the prose: summary, classification, duty, origin, and a
   condensed list of the OPTIONAL notes
-- MANDATORY notes (certificate issuer, duty basis, self-declaration) are never
+- MANDATORY notes (certificate issuer, duty basis, self-declaration, and since Step 7.6e
+  any note whose text carries a qualifier such as "Interpretation" or "likely") are never
   sent to the LLM: code prints them word for word, so no warning can be softened
 - code checks the prose (numbers, note sources, no IDs or code words) and
   sends corrections once; if it still fails, code writes the prose itself
@@ -30,7 +31,14 @@ from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
 from mansha.prose_qa import QA_ERROR, QA_REJECTED, ProseQAOutcome
-from mansha.researcher import EVIDENCE_ID_RE, GAP, number_keys
+from mansha.researcher import (  # noqa: F401  (NO_CEPA_RATE_VERDICTS is re-exported for report_check)
+    EVIDENCE_ID_RE,
+    GAP,
+    NO_CEPA_RATE_VERDICTS,
+    claim_source_ids,
+    is_claim_note,
+    number_keys,
+)
 from mansha.tools.duty_estimate import reduces_bcd_only
 
 log = logging.getLogger("mansha.document_builder")
@@ -38,12 +46,23 @@ log = logging.getLogger("mansha.document_builder")
 REQUIRED_KEYS = ("summary", "classification", "duty", "origin", "notes")
 TEXT_KEYS = ("summary", "classification", "duty", "origin")
 MAX_NOTES = 6          # notes in the report in total: mandatory (verbatim) + the LLM's items
+# Step 7.6e (A'): the LLM always keeps this many items, so qualifier notes printed verbatim never
+# crowd out every optional note (windows_nodata: 6 verbatim would have dropped 7 notes unread).
+MIN_LLM_NOTES = 2
 NOT_IN_SOURCES = "not in Mansha's sources"
 
 # D2: caveats that must always reach the reader, by the record they cite.
 # Since 8.5 they are shown verbatim by code and never rewritten by the LLM (problem 25).
 MANDATORY_IDS = {"P-UAE-ISSUER"}                      # who issues the certificate
 MANDATORY_PREFIXES = ("TOOL:duty:", "TOOL:origin:")   # duty basis (BCD, CIF); self-declaration
+# Step 7.6e (problem 78, live 19 Oct 17:59 chargers): a note that says how sure a fact is, is also
+# mandatory, by its text. The Builder rewrote "Interpretation: de minimis helps only the tariff-shift
+# part of a rule" as a plain rule, and the prose check approved it (the judge misses strength-of-claim
+# changes, G35; earlier: problems 57, 71). A note that is never rewritten cannot lose its qualifier.
+# "may" is left out on purpose: too common, it would make ordinary notes mandatory.
+QUALIFIER_RE = re.compile(
+    r"\b(?:interpretation|inference|(?:un)?likely|reportedly|unconfirmed|"
+    r"not (?:confirmed|defined|verified|checked))\b", re.IGNORECASE)
 
 # D4: verdicts that come with a claim checklist.
 CHECKLIST_VERDICTS = {"ELIGIBLE", "NEEDS_MORE_DATA"}
@@ -254,25 +273,15 @@ def rule_text(research: dict) -> str:
 ESTIMATE_NOTE_START = "Estimate on the shipment value given"
 
 
-def is_mandatory(source_id: str) -> bool:
-    return source_id in MANDATORY_IDS or str(source_id).startswith(MANDATORY_PREFIXES)
+def is_mandatory(source_id: str, text: str = "") -> bool:
+    """Printed verbatim by code: by the record it cites (8.5), or by a qualifier in its text (7.6e)."""
+    return (source_id in MANDATORY_IDS or str(source_id).startswith(MANDATORY_PREFIXES)
+            or bool(QUALIFIER_RE.search(text or "")))
 
 
-# Verdicts where no CEPA rate can apply: notes about claiming it (the saving, the certificate,
-# who issues it, the claim steps) don't apply.
-NO_CEPA_RATE_VERDICTS = {"NOT_ELIGIBLE", "NO_PREFERENCE"}
-CLAIM_PASSAGE_KINDS = {"duty", "procedure", "authority"}   # passage kinds about claiming the CEPA rate
-CLAIM_TOOL_PREFIXES = ("TOOL:duty:", "TOOL:coo_fee")        # duty saving, certificate fee
-
-
-def claim_source_ids(corridor: str = "india") -> set[str]:
-    """IDs of the corridor's passages about claiming the CEPA rate (duty, procedure, authority)."""
-    return {p["id"] for p in load_corridor(corridor)["passages"]["passages"]
-            if p.get("kind") in CLAIM_PASSAGE_KINDS}
-
-
-def is_claim_note(source_id, claim_ids: set[str]) -> bool:
-    return str(source_id).startswith(CLAIM_TOOL_PREFIXES) or source_id in claim_ids
+# NO_CEPA_RATE_VERDICTS, claim_source_ids and is_claim_note (which notes are about claiming the
+# CEPA rate) live in mansha/researcher.py since Step 7.6d: one definition, used by the Researcher
+# (claim caveats dropped before QA) and here (the same filter, kept as a second net).
 
 
 def build_notes(research: dict, corridor: str = "india") -> list[dict]:
@@ -300,7 +309,7 @@ def build_notes(research: dict, corridor: str = "india") -> list[dict]:
         if no_cepa_rate and is_claim_note(sid, claim_ids):
             continue   # about claiming a CEPA rate that cannot apply
         seen.add(text)
-        mand = is_mandatory(sid)
+        mand = is_mandatory(sid, text)
         count[mand] += 1
         notes.append({"nid": f"{'M' if mand else 'N'}{count[mand]}", "text": text,
                       "source_id": sid, "mandatory": mand})
@@ -308,8 +317,10 @@ def build_notes(research: dict, corridor: str = "india") -> list[dict]:
 
 
 def max_llm_notes(notes: list[dict]) -> int:
-    """How many items the LLM may write: the total cap minus the mandatory notes."""
-    return max(0, MAX_NOTES - sum(n["mandatory"] for n in notes))
+    """How many items the LLM may write: the total cap minus the mandatory notes, but at least
+    MIN_LLM_NOTES while there are optional notes to write about (Step 7.6e)."""
+    room = max(0, MAX_NOTES - sum(n["mandatory"] for n in notes))
+    return max(room, MIN_LLM_NOTES) if any(not n["mandatory"] for n in notes) else room
 
 
 def sent_notes(notes: list[dict]) -> list[dict]:

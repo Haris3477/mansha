@@ -44,6 +44,7 @@ class EvidencePack:
     candidates: list[dict]                 # candidates from the tariff lookup
     excluded_ids: set[str] = field(default_factory=set)  # candidate IDs with no CEPA preference
     actors: dict[str, str] = field(default_factory=dict)  # evidence ID -> who acts (code copies it into steps)
+    corridor: str = "india"                # whose KB the evidence came from (Step 7.6d: claim passages)
 
 
 # ---------- formatting helpers ----------
@@ -419,4 +420,5 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
         candidates=candidates,
         excluded_ids=excluded,
         actors=actors,
+        corridor=corridor,
     )

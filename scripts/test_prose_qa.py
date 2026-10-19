@@ -98,12 +98,18 @@ check("retry: previous answer and its problems appended", len(retry) == 4
       and retry[2]["role"] == "assistant" and "Fix all of them" in retry[3]["content"])
 
 print("\n   sent note numbers")
-check("windows: N1", sent_note_ids(facts) == ["N1"], sent_note_ids(facts))
+check("windows: none (7.6e: its only optional note has 'likely', so it is printed verbatim)",
+      sent_note_ids(facts) == [], sent_note_ids(facts))
 nd_facts = case_input("windows_nodata")[0]
-check("windows_nodata: N1..N12", sent_note_ids(nd_facts) == [f"N{i}" for i in range(1, 13)],
+check("windows_nodata: N1..N9 (7.6e)", sent_note_ids(nd_facts) == [f"N{i}" for i in range(1, 10)],
       sent_note_ids(nd_facts))
 check("no optional notes: none", sent_note_ids("FACTS:\nVERDICT: X\n\nNOTES: none (return an empty `notes` list)")
       == [])
+
+# From here on: chargers, whose clean prose has a note item (N1). Since 7.6e the windows prose has none.
+facts, notes, prose = case_input("chargers")
+check("chargers prose has a note item built from N1", prose["notes"] and prose["notes"][0]["from"] == ["N1"],
+      prose["notes"])
 
 # ---------------------------------------------------------------- 2
 print("\n2. Validating the judge's answer (each rule with a break test)")
@@ -225,8 +231,11 @@ for base in ("windows", "chargers", "windows_nodata", "plastic"):
     check(f"clean {base}: passes the Builder's code checks", check_prose(p, f, n) == [], check_prose(p, f, n))
     check(f"clean {base}: read for meaning, edits recorded", fx.get("read_for_meaning")
           and isinstance(fx.get("edits"), list) and fx["source"].startswith("runs/pipeline/2026"))
-check("clean windows: problem 57 fixed ('likely not eligible')",
-      "likely not eligible" in ev.fixture("windows")["prose"]["notes"][0]["text"])
+fw, nw, _ = case_input("windows")
+check("windows: problem 57 prevented by code (7.6e): the 'likely not eligible' note is printed verbatim, "
+      "never sent to the Builder",
+      any(n["mandatory"] and "likely not eligible" in n["text"] for n in nw) and "likely not eligible" not in fw)
+check("seed free_zone_cannot retired (its note is never rewritten any more)", "free_zone_cannot" not in ev.BY_NAME)
 for case in ev.CASES:
     if not case.seed:
         continue
@@ -271,7 +280,7 @@ check("one saved answer per case (incl. the code-stopped seed)", len(saved_files
 judge_calls = []
 code = ev.main(["eliminates_duty"], llm=lambda *a, **k: judge_calls.append(a), runs_root=TMP / "code")
 check("a code-stopped seed: exit 0 and no judge call", code == 0 and not judge_calls, (code, judge_calls))
-code = ev.main(["free_zone_cannot", "clean_plastic"], llm=eval_llm(lambda m: APPROVE), runs_root=TMP)
+code = ev.main(["minimal_ops_completed", "clean_plastic"], llm=eval_llm(lambda m: APPROVE), runs_root=TMP)
 check("a judge that approves everything misses the seed: exit 1", code == 1, code)
 code = ev.main(["clean_plastic"], llm=eval_llm(lambda m: REJECT), runs_root=TMP / "fr")
 check("a false rejection: exit 1", code == 1, code)

@@ -12,7 +12,7 @@ plain code-only report.
 Run (from the project root):
     python -m scripts.eval_prose_qa --dry-run           # cases and token estimate, no calls
     python -m scripts.eval_prose_qa                     # every case once, on auto:judge
-    python -m scripts.eval_prose_qa free_zone_cannot clean_windows
+    python -m scripts.eval_prose_qa minimal_ops_completed clean_windows
     python -m scripts.eval_prose_qa --pause 30          # wait between calls (Groq: 8,000 tokens/min)
     python -m scripts.eval_prose_qa --chain trial       # a candidate model on a trial chain
 
@@ -61,10 +61,9 @@ def _replace(prose: dict, key: str, old: str, new: str) -> None:
 
 # ---------- the seeds: one planted mistake each, from a real problem ----------
 
-def free_zone_cannot(p):         # problem 57 (17 Oct 16:58 windows, Dots3): "likely not" -> "cannot"
-    p["notes"][0]["text"] = ("A producer in a free zone cannot obtain Factory Registration, as it requires a "
-                             "factory outside a free zone and is needed before applying for the certificate "
-                             "of origin for India.")
+# Problem 57 ("likely not eligible" -> "cannot obtain", 17 Oct) had the seed free_zone_cannot. Since
+# Step 7.6e a note with a qualifier ("likely") is printed verbatim by code and never sent to the
+# Builder, so that mistake cannot be made any more; test_document_builder checks it instead.
 
 
 def eliminates_duty(p):          # problem 53: wider than TERMS (the CEPA rate cuts Basic Customs Duty only)
@@ -90,7 +89,7 @@ def missing_failed_checks(p):    # completeness: a not-eligible origin text nami
     p["origin"] = p["origin"][:start]
 
 
-def note_beyond_from(p):         # a fact from another note (N9, without "reportedly") in an item citing N3
+def note_beyond_from(p):         # a fact from another note (e-Sanchit, without "reportedly") in an item citing N2
     p["notes"][0]["text"] += " Electronic certificates are accepted and uploaded to India's e-Sanchit system."
 
 
@@ -105,11 +104,10 @@ class Case:
 
 
 CASES = [
-    Case("clean_windows", "windows", note="ELIGIBLE (problem 57 fixed)"),
+    Case("clean_windows", "windows", note="ELIGIBLE (no optional notes since 7.6e)"),
     Case("clean_chargers", "chargers", note="NOT_ELIGIBLE"),
-    Case("clean_windows_nodata", "windows_nodata", note="NEEDS_MORE_DATA, 12 optional notes"),
+    Case("clean_windows_nodata", "windows_nodata", note="NEEDS_MORE_DATA, 9 optional notes, 2 items"),
     Case("clean_plastic", "plastic", note="NO_PREFERENCE"),
-    Case("free_zone_cannot", "windows", free_zone_cannot, ("notes[0]",), "problem 57"),
     Case("eliminates_duty", "windows", eliminates_duty, ("summary",), "problem 53; blocked by code since 7.6b",
          code_catches=True),
     Case("minimal_ops_completed", "windows", minimal_ops_completed, ("origin",), "problem 30"),

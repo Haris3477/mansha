@@ -17,11 +17,14 @@ from mansha.researcher import (
     build_messages,
     check_researcher,
     drop_caveat_gaps,
+    drop_claim_caveats,
+    drop_follow_ups,
     fill_authorities,
     fill_tariff_line,
     number_keys,
     run_researcher,
     strip_list_markers,
+    unbracket_ids,
 )
 from scripts.pipeline_cases import DEV_INTAKES
 
@@ -405,6 +408,130 @@ check("run_researcher: copies dropped, recorded, still passes",
       res.passed and res.data["gaps"] == [] and len(res.changes) == len(leaky["caveats"]), res.changes)
 check("prompt forbids copying caveats into gaps",
       "Never copy a caveat or a note into `gaps`" in build_messages(wi, w)[0]["content"])
+
+# ---------------- bracketed IDs (Step 7.6c, problem 75) ----------------
+print("\n== unbracket_ids (problem 75)")
+ci_ = {"product_description": "battery chargers"}
+br = copy.deepcopy(GOOD_C)
+br["caveats"] = [{"note": "Operations and final manufacture are the exporter's own declaration.",
+                  "source_id": "TOOL:origin:85044030"}]
+for k in ("classification", "tariff", "origin_rule", "origin_result", "estimated_saving"):
+    br[k]["source_id"] = f"[{br[k]['source_id']}]"
+br["caveats"][0]["source_id"] = " [ TOOL:origin:85044030 ] "
+d = copy.deepcopy(br)
+changes = unbracket_ids(d, c)
+check("every bracketed evidence ID written plainly",
+      all(d[k]["source_id"] == GOOD_C[k]["source_id"]
+          for k in ("classification", "tariff", "origin_rule", "origin_result", "estimated_saving"))
+      and d["caveats"][0]["source_id"] == "TOOL:origin:85044030", d)
+check("one change line naming the 6 fields", len(changes) == 1 and "6 evidence ID(s)" in changes[0]
+      and "caveats[0]" in changes[0], changes)
+unknown = copy.deepcopy(GOOD_C); unknown["tariff"]["source_id"] = "[TL-IN-99999999]"
+check("unknown ID keeps its brackets (left for the checks)",
+      unbracket_ids(unknown, c) == [] and unknown["tariff"]["source_id"] == "[TL-IN-99999999]")
+expect_problem("unknown bracketed ID is still a problem", unknown, c)
+check("plain IDs: no change", unbracket_ids(copy.deepcopy(GOOD_C), c) == [])
+res = run_researcher(ci_, c, llm=fake_llm(br))
+check("run_researcher: bracketed answer passes without using the revision",
+      res.passed and res.data["verdict"] == "NOT_ELIGIBLE" and len(res.changes) == 1, (res.problems, res.changes))
+brw = copy.deepcopy(GOOD_W)
+brw["classification"]["source_id"] = f"[{brw['classification']['source_id']}]"
+for st in brw["procedure"]:
+    st["source_id"] = f"[{st['source_id']}]"
+res = run_researcher(wi, w, llm=fake_llm(brw))
+check("brackets removed before code fills the tariff line and the step authorities",
+      res.passed and all(s.get("authority") == w.actors.get(s["source_id"], GAP) for s in res.data["procedure"]),
+      res.problems)
+
+# ---------------- no follow-ups when no CEPA rate can apply (Step 7.6c, problem 74) ----------------
+print("\n== drop_follow_ups (problem 74)")
+LIVE_74 = ["What manufacturing operations were performed on these battery chargers in the UAE, "
+           "beyond repacking and relabeling?",
+           "Where was the final manufacture of these battery chargers completed?",
+           "What is the FOB value of this shipment and the customs (CIF) value of any "
+           "non-originating materials used?"]
+asks = copy.deepcopy(GOOD_C); asks["follow_up_questions"] = list(LIVE_74)
+d = copy.deepcopy(asks)
+changes = drop_follow_ups(d, "NOT_ELIGIBLE")
+check("NOT_ELIGIBLE: every follow-up dropped, one change each",
+      d["follow_up_questions"] == [] and len(changes) == 3
+      and all(x.startswith("follow_up_questions: dropped for verdict NOT_ELIGIBLE") for x in changes), changes)
+d = copy.deepcopy(GOOD_P); d["follow_up_questions"] = ["Can you confirm the HS code?"]
+check("NO_PREFERENCE: dropped", drop_follow_ups(d, "NO_PREFERENCE") and d["follow_up_questions"] == [])
+for v in ("ELIGIBLE", "NEEDS_MORE_DATA", GAP):
+    d = copy.deepcopy(GOOD_WN)
+    check(f"{v}: follow-ups kept", drop_follow_ups(d, v) == []
+          and d["follow_up_questions"] == GOOD_WN["follow_up_questions"])
+d = copy.deepcopy(asks); d["gaps"] = ["A real gap."]
+drop_follow_ups(d, "NOT_ELIGIBLE")
+check("gaps are left alone", d["gaps"] == ["A real gap."])
+res = run_researcher(ci_, c, llm=fake_llm(asks))
+check("run_researcher (live 19 Oct case): passes, no follow-ups, drops recorded",
+      res.passed and res.data["follow_up_questions"] == [] and res.data["verdict"] == "NOT_ELIGIBLE"
+      and sum(x.startswith("follow_up_questions: dropped") for x in res.changes) == 3, (res.problems, res.changes))
+leak = copy.deepcopy(GOOD_C); leak["follow_up_questions"] = ["Please re-check TOOL:origin:85044030."]
+check("a follow-up with an evidence ID is a problem on its own", any("follow_up" in x for x in run(leak, c)[0]))
+res = run_researcher(ci_, c, llm=fake_llm(leak))
+check("...but no stale problem once code has dropped it (checked again)", res.passed, res.problems)
+res = run_researcher(wi, wn, llm=fake_llm(GOOD_WN))
+check("run_researcher NEEDS_MORE_DATA: follow-ups kept, no change",
+      res.passed and res.data["follow_up_questions"] == GOOD_WN["follow_up_questions"] and res.changes == [],
+      (res.problems, res.changes))
+
+# ---------------- no claim notes when no CEPA rate can apply (Step 7.6d, problem 76) ----------------
+print("\n== drop_claim_caveats (problem 76)")
+# The 17 caveats of the 19 Oct 04:16 chargers run (Dots3), by source; [11] had the invented website.
+LIVE_76 = [("TOOL:duty:85044030", "Duty estimate on the shipment value given."),
+           ("TOOL:duty:85044030", "CEPA rates reduce Basic Customs Duty (BCD) only."),
+           ("TOOL:origin:85044030", "The result relies on the exporter's own declaration."),
+           ("TOOL:rule_lookup:85044030", "The '+' in the rule is read as 'and'."),
+           ("TL-IN-85044030", "A lower 15% rate applies only for electric-vehicle manufacture."),
+           ("TL-IN-85044030", "Mansha has not checked anti-dumping duty on this product."),
+           ("P-AGR-3.4-DEMINIMIS", "De minimis helps only the tariff-shift part of a rule."),
+           ("TOOL:origin:85044030", "The non-originating input is 88% of the price."),
+           ("TOOL:origin:85044030", "The value addition build-down is 12%."),
+           ("P-AGR-3.5-MINIMAL", "The declared operations are minimal operations."),
+           ("TOOL:coo_fee", "The certificate fee for this shipment value is AED 50."),
+           ("P-UAE-ISSUER", "The India-specific service page is still on doit.gov.ae."),
+           ("P-MOET-FACTORY-REG", "Factory registration is a prerequisite for the certificate."),
+           ("P-AGR-3.2.2-VA", "The agreement does not define 'direct labour cost'."),
+           ("P-AGR-RECORDS-VERIFICATION", "The exporter must keep origin records for five years."),
+           ("P-IN-IMPORTER", "The Indian importer must claim the CEPA rate on the bill of entry."),
+           ("P-IN-IMPORTER", "Electronic certificates are reportedly uploaded to e-Sanchit.")]
+CLAIM_SIDS = {"TOOL:duty:85044030", "TOOL:coo_fee", "P-UAE-ISSUER", "P-MOET-FACTORY-REG",
+              "P-AGR-RECORDS-VERIFICATION", "P-IN-IMPORTER"}
+many = copy.deepcopy(GOOD_C)
+many["caveats"] = [{"source_id": s, "note": n} for s, n in LIVE_76]
+kept_live = [(s, n) for s, n in LIVE_76 if s not in CLAIM_SIDS]
+d = copy.deepcopy(many)
+changes = drop_claim_caveats(d, "NOT_ELIGIBLE")
+check("NOT_ELIGIBLE: the 8 claim notes go (duty, fee, issuer, factory registration, records, importer)",
+      len(changes) == 8 and all(x.startswith("caveats: dropped a note about claiming") for x in changes), changes)
+check("...the 9 others stay, in order (origin, rule, tariff line, origin-rule passages)",
+      [(c["source_id"], c["note"]) for c in d["caveats"]] == kept_live, d["caveats"])
+check("the invented-website note is among the dropped", "doit.gov.ae" not in json.dumps(d))
+d = copy.deepcopy(GOOD_P)
+d["caveats"] = [{"source_id": "TOOL:duty:39239090", "note": "No CEPA rate."},
+                {"source_id": "TL-IN-39239090", "note": "Excluded heading."}]
+check("NO_PREFERENCE: claim note dropped, tariff-line note kept",
+      len(drop_claim_caveats(d, "NO_PREFERENCE")) == 1 and [c["source_id"] for c in d["caveats"]] == ["TL-IN-39239090"])
+for v in ("ELIGIBLE", "NEEDS_MORE_DATA", GAP):
+    d = copy.deepcopy(many)
+    check(f"{v}: every caveat kept", drop_claim_caveats(d, v) == [] and d["caveats"] == many["caveats"])
+res = run_researcher(ci_, c, llm=fake_llm(many))
+check("run_researcher (live 19 Oct case): passes, 9 caveats, 8 drops recorded",
+      res.passed and len(res.data["caveats"]) == 9 and res.data["verdict"] == "NOT_ELIGIBLE"
+      and sum(x.startswith("caveats: dropped a note about claiming") for x in res.changes) == 8,
+      (res.problems, res.changes))
+leak = copy.deepcopy(GOOD_C)
+leak["caveats"] = [{"source_id": "P-UAE-ISSUER", "note": "See P-UAE-ISSUER for the issuer."}]
+check("a claim note with an evidence ID is a problem on its own", any("caveats[0]" in x for x in run(leak, c)[0]))
+res = run_researcher(ci_, c, llm=fake_llm(leak))
+check("...but no stale problem once code has dropped it", res.passed, res.problems)
+res = run_researcher(wi, w, llm=fake_llm(GOOD_W))
+check("run_researcher ELIGIBLE: caveats untouched, no change",
+      res.passed and res.data["caveats"] == GOOD_W["caveats"] and res.changes == [], (res.problems, res.changes))
+check("pack knows its corridor", c.corridor == "india")
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
