@@ -1,0 +1,93 @@
+# Mansha — runbook and code map
+
+_How to run things and where the code is. Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. Git and router state in these sections are as of that save; the current state is in the Project doc CURRENT_STATE.md._
+
+## How to run
+- VS Code terminal (bash), prompt shows `(.venv)`; else `source .venv/bin/activate`.
+- Router: second terminal `cd ~/Projects/freellmapi && npm run dev` (not needed for offline tests).
+- From project root: `python -m scripts.<name>`; exception `python scripts/smoke_test.py`.
+- **Full pipeline (live):** `python -m scripts.run_pipeline` (all 6 cases), `python -m scripts.run_pipeline windows chargers`, or `python -m scripts.run_pipeline --message "..." [--bom samples/windows_qualifies]`. **On the free judge, run multi-part cases (windows, windows_nodata) one at a time, ≥10 min apart (problem 80).**
+- **QA evaluation (live):** `python -m scripts.eval_qa --pause 65 [cases]`, `--chain trial`, `--repeat 2`. Mind the 200k/day Groq budget (G31).
+- **Prose-check evaluation (live, branch `step-7.6`):** `python -m scripts.eval_prose_qa --dry-run` first, then `python -m scripts.eval_prose_qa [--pause 30] [cases]`.
+- **Try a new model:** put it alone in the `trial` chain, then `python -m scripts.try_chain trial [case ...] [--agents researcher document_builder qa]`.
+- **Edit a chain in the dashboard:** Activate it, toggle models, re-Activate Default. A new chain: name box + **tick "Start empty"** + Create.
+- **Re-check saved reports:** `python -m scripts.check_reports [folders]`.
+- **All offline tests in one go (16 on `step-7.6`):**
+  `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
+  (`usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected: tests check that bad arguments are refused and that the runner reports a mismatch.)
+- Branches: `git switch -c <name>`, `git switch <name>`, `git push -u origin <name>`; merge with `git switch main && git merge --ff-only <name> && git push`.
+- **Commit by file name, check `git status` first** (19 Oct: untracked `.archify/` and `docs/` would have slipped into a `git add -A`).
+- End of a step: `git add <files>`, `git commit -m "…"`, `git push`, `git status`.
+- Preview a report: `code <path>/report.md`, then ⌘⇧V.
+
+## Repo: ~/Projects/mansha
+```
+.env, .env.example, .gitignore (runs/, graphify-out/, .wheels-linux/, .venv-linux/ ignored), requirements.txt
+data/india/          # sources, tariff_lines, psr_rules, passages (.json)
+samples/             # windows_qualifies/, chargers_repacked/, researcher_outputs/ (+ builder_outputs/ on step-7.6)
+mansha/
+  llm_client.py      # CHAIN_LIMITS (long 16000/16000, qa 1000/1000, judge 3000/3000); timeout 300 s; busy waits, cooldown waits, busy budget
+  prompts.py, intake.py, kb.py (CORRIDORS)
+  evidence.py        # build_evidence() -> EvidencePack (+ corridor, 7.6d); counts and percentages only
+  researcher.py      # run_researcher(), fill_authorities(), fill_tariff_line(), drop_caveat_gaps(), strip_list_markers(), check_researcher(); 7.6c-d: unbracket_ids(), drop_follow_ups(), drop_claim_caveats(), the claim-note rule
+  qa_evidence.py     # qa_evidence(), research_for_qa(), checked_facts(): what QA reads (Step 7)
+  qa.py              # run_qa(), plan_parts(), check_qa(): the QA Evaluator (Step 7, plan B)
+  prose_qa.py        # (step-7.6) review_prose(), check_prose_qa(): the Builder prose check
+  document_builder.py # 7.6b all_duty_gone(); 7.6e QUALIFIER_RE, is_mandatory(sid, text), MIN_LLM_NOTES
+  orchestrator.py    # run_pipeline() (qa=run_qa; on step-7.6 prose_qa=review_prose), qa_passthrough(), render_phase_log()
+  report_check.py    # check_report(): form checks on the finished report (flag only)
+  tools/             # tariff_lookup, rule_lookup, origin_calculator, duty_estimate, coo_fee
+prompts/             # shared_rules.md, intake.md, researcher.md, qa.md, document_builder.md (+ prose_qa.md on step-7.6); unchanged by 7.6c-e
+scripts/
+  smoke_test, test_llm_client (live), check_data
+  test_tariff_lookup, test_rule_lookup, test_origin_calculator, test_duty_estimate, test_coo_fee
+  test_evidence, test_researcher, test_intake (--offline), test_document_builder, test_llm_retry,
+  test_pipeline, test_report_check, test_qa_evidence, test_qa (+ test_prose_qa on step-7.6)
+  pipeline_cases.py, run_pipeline.py, try_chain.py, eval_qa.py, eval_prose_qa.py (step-7.6), check_reports.py
+runs/                # git-ignored
+graphify-out/        # git-ignored code map (built at 85ba0e2; regenerate after 7.6 merges)
+```
+Untracked, not ours: `.archify/`, `docs/` (architecture-diagram tool, 20 Oct ~01:28; Haris decides).
+
+Git: `main` pushed, clean at **784ff16**. **Branch `step-7.6` at d651902** (1d51e30 7.6, 85ba0e2 7.6b, d651902 .gitignore), pushed, **11 files modified and not committed (7.6c–e)**: commit them by name as WIP first (command in "Next"). Fast-forward merge to `main` still possible. Step 7 commits: fc03c35 (7.2), 811fea5 (7.3), 248c5d0 (7.4), a697f5b + 784ff16 (plan B), 1d51e30 (7.6), 85ba0e2 (7.6b), d651902 (.gitignore). Identity Haris3477 with his existing commit email, no AI attribution. `gh` signed in on the Mac.
+
+Router (dashboard at **localhost:5173** and `.env`, not in git; details in llm_backend_setup.md). **GPT-OSS 120B (Groq) TPD override 400,000 since 18 Oct 16:13** (problem 70; real Groq cap 200k/UTC day): `long` = Gemini 3.5 Flash, Gemini 3.6 Flash, Gemini 3.7 Flash, Dots3 Note Preview; `qa` = GPT-OSS 120B, Gemini 3.7 Flash (Intake); **`judge` = GPT-OSS 120B only**; `trial` = Dots3 only; Default chain active (354 models). `PROVIDER_TIMEOUT_OPENROUTER=150000`. **19 Oct: free Gemini served `long` only once (Intake/Builder); the Researcher was on Dots3 in all 6 runs.** Router cooldown ladder (`ratelimit.ts`): 2 min after the 1st limit hit in 24 h, 10 min after the 2nd, … a day from the 4th (problem 80).
+
+### Files
+- `mansha/orchestrator.py`, `mansha/report_check.py`, `mansha/kb.py`, `mansha/intake.py`, `mansha/researcher.py`, `mansha/document_builder.py`, `mansha/tools/duty_estimate.py`.
+- `scripts/pipeline_cases.py`, `scripts/run_pipeline.py`, `scripts/check_reports.py`, `scripts/try_chain.py`.
+- Saved per run: `message.txt`, `intake.json`, `evidence.txt`, `researcher_N.json`, `qa_N.json`, `builder.json`, `prose_qa_N.json`, `report.md` or `notice.md`, `phase_log.json`, `phase_log.md`.
+
+### `mansha/document_builder.py`
+- `run_document_builder(research, intake, id_sources, *, corridor="india", llm=call_llm, review=None) -> BuilderResult(...)`. Chain `auto:long`. Always returns a report.
+- `build_facts`, `build_notes`, `is_mandatory`, `max_llm_notes`, `check_prose`, `fallback_prose`, `render_report`, `still_needed`, `cite`, `chosen_line`. The claim-note rule is imported from `mansha/researcher.py` (7.6d). Prompt `prompts/document_builder.md`. Test `scripts/test_document_builder.py` (7.6e section "qualifier rule (problem 78)"; the prose-check sections use windows + one plain cumulation note, because the real windows answer has no optional note left).
+
+### LLM client changes in Step 8
+- 8.6: wait before the retry when the router is busy (502/503/504 → 30 s; cap 90 s). 8.6b: router cooldown replies waited out without using the retry, at most 2 per call. Test `scripts/test_llm_retry.py`.
+
+## Step 3 as built (14 Oct 2026)
+- `prompts/shared_rules.md` + `prompts/intake.md`; `mansha/prompts.py` (`load_prompt`, `build_system_prompt`).
+- `mansha/intake.py`: `run_intake(message, *, llm=call_llm) -> IntakeResult(data, changes, llm)`, `.blocking_missing`; `normalize(raw, message)` pure code. `scripts/test_intake.py` (`--offline`).
+
+### Knowledge base (`data/india/`; `mansha/kb.py` `load_corridor()` cached, read-only; `KBError`)
+- `sources.json` (21 keys; several non-government hosts, G21); `tariff_lines.json` (metadata, `heading_exclusions` 3923/3924/3925/3303, 14 lines, all preferential lines Table I; all 12 CEPA rates confirmed on the official 09/2026, G22; metadata `open_risks` stale since 17 Oct); `psr_rules.json` (3 general rules, 9 chapter rules: 19, 32, 33, 39, 73, 76, 84, 85, 94); `passages.json` (16 `P-...`: title, kind, actor, tags, source_keys, provision, quotes, items, summary, params, notes, `dev_notes`; kinds used by the 7.6d claim rule: duty, procedure, authority); `kb.validate()`.
+
+### Tools (`mansha/tools/`, pure Python)
+- `tariff_lookup`, `rule_lookup`, `calculate_origin` / `origin_from_folder`, `duty_estimate` (+ `reduces_bcd_only`), `certificate_fee`.
+- Samples: `samples/windows_qualifies/` (MEETS, VA 49% ≥ 45%), `samples/chargers_repacked/` (FAILS on all four checks), `samples/researcher_outputs/` (Builder, pipeline and QA fixtures); on `step-7.6`: `samples/builder_outputs/` (prose-check fixtures, migrated to 7.6e numbering on 19 Oct, each change in its `edits`).
+
+### Research docs (Project)
+- `claude/cepa_india_fact_base.md`: updated 17 Oct evening (source of truth for facts).
+- `claude/research_paid_models_data_checks.md` (17 Oct): paid models, data checks, browser to-do list.
+- `claude/browser_checks_2026-10-17.md`: what the browser checks found.
+- `claude/evaluation_set_design.md`: the approved evaluation-set design.
+- `claude/roadmap.md`: updated 20 Oct (positioning option A, verified "What exists", milestones renumbered).
+
+### 9.5 / 9.6e fixes (summary)
+- Researcher hard check: no evidence IDs and no "intake" in exporter-visible text; `fill_tariff_line()`; `drop_caveat_gaps()` (52).
+- KB notes rewritten as exporter facts; team to-dos in `dev_notes`.
+- Origin calculator: failed minimal operations named with Art. 3.5.1 wording.
+- Evidence totals in words, counts and percentages only.
+- Duty tool "BCD only" note only for Table I lines; Builder drops claim notes by source when no CEPA rate applies; TERMS `CEPA_BCD` (53).
+- LLM client: busy budget; `auto:long` 16000.
+- Router (not in git): Nemotron off in `long` and `qa`; `PROVIDER_TIMEOUT_OPENROUTER=150000`.
