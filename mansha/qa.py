@@ -33,6 +33,17 @@ validated and retried like a single review; code merges them: the lowest score w
 per metric, all corrections and judgements are kept; APPROVED only if every part
 approves, REJECTED if any part rejects, ERROR if a part failed and none rejected.
 A paid model without this limit makes the split unnecessary (it then never triggers).
+
+KB shield (Step 7.6g, gap G39, problem 82): a QA correction is itself a claim, and nothing
+checked it. On 23 Oct QA "fixed" a correct note ("no official page names the Ministry of
+Foreign Trade as issuer") into "the Ministry of Foreign Trade is identified as the issuer",
+and the writer copied it. Code now checks each correction on a note or gap whose cited record
+has KB notes (kb_shield): when the item keeps a qualifier that the matching KB note carries
+("not defined", "no official ...", "Inference ... likely") and the fix drops every qualifier,
+the correction contradicts the KB, so it is OVERRULED and never reaches the Researcher. If
+every correction of a rejection is overruled, the judge gets ONE re-judge with the KB notes
+shown (Haris, 23 Oct: option iii); still all overruled -> status OVERRULED (option i: the run
+goes on, the phase log and a pipeline warning say QA's rejection was overruled by the KB).
 """
 
 from __future__ import annotations
@@ -46,6 +57,7 @@ from dataclasses import dataclass, field
 from mansha.evidence import EvidencePack
 from mansha.llm_client import CHAIN_LIMITS, LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
+from mansha.researcher import content_words, coverage, record_notes
 from mansha.qa_evidence import (
     CODE_OWNED,
     FINDINGS_KEYS,
@@ -65,7 +77,9 @@ JUDGEMENTS = ("REAL", "NOISE")
 # QA statuses. APPROVED / REJECTED come from run_qa; SKIPPED is the orchestrator's
 # pass-through (no QA); ERROR means QA could not review this output.
 QA_APPROVED, QA_REJECTED, QA_SKIPPED, QA_ERROR = "APPROVED", "REJECTED", "SKIPPED", "ERROR"
-QA_ACCEPTS = {QA_APPROVED, QA_SKIPPED, QA_ERROR}  # statuses that let the pipeline go on
+# OVERRULED: QA rejected, but code showed every correction contradicts the KB (Step 7.6g).
+QA_OVERRULED = "OVERRULED"
+QA_ACCEPTS = {QA_APPROVED, QA_SKIPPED, QA_ERROR, QA_OVERRULED}  # statuses that let the pipeline go on
 QA_NOT_REVIEWED = {QA_SKIPPED, QA_ERROR}
 
 # Plan B sizes (tokens). Estimates use ~3.6 characters per token, which ran ~10% high
@@ -81,6 +95,15 @@ WARNING_FIELD_RE = re.compile(r"^([a-z_]+(?:\[\d+\])?)")
 # "procedure[2].step" -> ("procedure", 2); "classification" -> ("classification", None)
 FIELD_RE = re.compile(r"^([a-z_]+)(?:\[(\d+)\])?(?:\.[a-z_]+)?$")
 
+# KB shield (Step 7.6g): qualifiers a KB note can carry. The Builder's QUALIFIER_RE (7.6e) plus
+# "no official ..." and "does/do not define|confirm|state|say|name"; kept separate so the
+# Builder's mandatory-note rule does not change.
+SHIELD_QUALIFIER_RE = re.compile(
+    r"\b(?:interpretation|inference|(?:un)?likely|reportedly|unconfirmed|"
+    r"not (?:confirmed|defined|verified|checked|named|stated)|no official|"
+    r"(?:does|do) not (?:define|confirm|state|say|name))\b", re.IGNORECASE)
+SHIELDED_FIELDS = ("caveats", "gaps")  # notes and gaps: the items that restate KB notes
+
 
 @dataclass
 class QAOutcome:
@@ -94,6 +117,9 @@ class QAOutcome:
     failed_attempts: list[dict] = field(default_factory=list)  # attempts of a call that failed
     output_problems: list[str] = field(default_factory=list)   # what was wrong with QA's own answer
     parts: list[dict] = field(default_factory=list)  # plan B: one summary per part (empty = one call)
+    raw_corrections: list[dict] = field(default_factory=list)  # QA's corrections as given (kept ones)
+    overruled: list[dict] = field(default_factory=list)  # corrections the KB shield overruled
+    rejudged: bool = False                   # a re-judge with the KB notes was asked for
 
 
 @dataclass
@@ -264,9 +290,59 @@ def check_qa(data: dict, research: dict, warnings, allowed_ids, *,
 
 
 def correction_text(c: dict) -> str:
+    """A correction for the Researcher. The record goes in its own sentence, as a source_id to
+    cite, not glued to the fix: on 23 Oct the writer copied "(see P-MOET-COO-INDIA)" into
+    exporter text (Step 7.6g)."""
     s = f"{c.get('field')}: {str(c.get('problem')).strip()} Fix: {str(c.get('fix')).strip()}"
     sid = c.get("source_id")
-    return s + (f" (see {sid})" if sid not in (None, "", "null") else "")
+    return s + (f" Cite {sid} in source_id, not in the text." if sid not in (None, "", "null") else "")
+
+
+def _item(research: dict, f: str):
+    """(text, source_id) of the note or gap a correction names, or None."""
+    m = FIELD_RE.match(str(f or ""))
+    if not m or m.group(1) not in SHIELDED_FIELDS or m.group(2) is None:
+        return None
+    items = research.get(m.group(1))
+    i = int(m.group(2))
+    if not isinstance(items, list) or i >= len(items):
+        return None
+    it = items[i]
+    if isinstance(it, dict):
+        return str(it.get("note") or it.get("text") or ""), it.get("source_id")
+    return str(it or ""), None
+
+
+def kb_shield(corrections: list[dict], research: dict, notes: dict[str, list[str]]) -> tuple[list, list]:
+    """Split QA corrections into (kept, overruled) against the KB notes. Pure code.
+
+    Overruled: the corrected item is a note or gap citing a record with KB notes; its best
+    matching note carries a qualifier; the item keeps a qualifier too; and the fix has none.
+    Then the fix would turn what the KB qualifies into a plain fact (problem 82). Each overruled
+    item is {**correction, "record": id, "kb_note": note}.
+    """
+    kept, overruled = [], []
+    for c in corrections:
+        item = _item(research, c.get("field"))
+        record = item[1] if item else None
+        if item and record in notes:
+            text = item[0]
+            note = max(notes[record], key=lambda n: coverage(n, text))
+            if (content_words(note) & content_words(text) and SHIELD_QUALIFIER_RE.search(note)
+                    and SHIELD_QUALIFIER_RE.search(text)
+                    and not SHIELD_QUALIFIER_RE.search(str(c.get("fix") or ""))):
+                overruled.append({**c, "record": record, "kb_note": note})
+                continue
+        kept.append(c)
+    return kept, overruled
+
+
+def rejudge_problems(overruled: list[dict]) -> list[str]:
+    """What the judge is told when code overruled every correction of its rejection."""
+    return [f"{o.get('field')}: your fix drops the qualifier the knowledge base itself states. Record "
+            f"{o['record']} has this note: \"{o['kb_note']}\" The text keeps that qualifier, so it is "
+            "supported. Remove this correction and rescore, unless something else in this field is wrong"
+            for o in overruled]
 
 
 def estimate_tokens(messages: list[dict]) -> int:
@@ -318,7 +394,12 @@ def _review(intake: dict, pack: EvidencePack, data: dict, part: Part, llm) -> QA
     problems: list[str] = []
     first_problems: list[str] = []   # what the retry had to fix (kept for the phase log)
     kwargs = {"max_tokens": part.max_tokens} if part.max_tokens else {}
-    for attempt in (1, 2):
+    notes = record_notes(pack)
+    overruled: list[dict] = []
+    rejudged = False
+    attempt, retried = 0, False
+    while True:
+        attempt += 1
         try:
             res = llm("qa", QA_CHAIN, build_messages(intake, pack, data, None, previous=previous,
                                                      problems=problems or None, part=part),
@@ -333,33 +414,52 @@ def _review(intake: dict, pack: EvidencePack, data: dict, part: Part, llm) -> QA
         problems = check_qa(answer, data, part.warnings, pack.allowed_ids, allowed_fields=part.fields())
         log.info("qa | %s | attempt %d | served_by=%s | answer problems=%d",
                  part.label, attempt, res.routed_via, len(problems))
-        if not problems:
-            break
-        if attempt == 1:
-            first_problems = problems
-        previous = answer
-    else:
-        return QAOutcome(status=QA_ERROR, llm=calls[-1], llm_calls=calls,
-                         output_problems=first_problems + [f"after retry: {p}" for p in problems],
-                         note="QA answer still invalid after its retry: output NOT reviewed by QA")
+        if problems:
+            if retried:
+                return QAOutcome(status=QA_ERROR, llm=calls[-1], llm_calls=calls,
+                                 output_problems=first_problems + [f"after retry: {p}" for p in problems],
+                                 note="QA answer still invalid after its retry: output NOT reviewed by QA",
+                                 overruled=overruled, rejudged=rejudged)
+            retried, first_problems, previous = True, problems, answer
+            continue
+        kept, over = kb_shield(answer["corrections"], data, notes)
+        rejected = 0 in [_score(answer["scores"][m]) for m in METRICS]
+        if rejected and over and not kept and not rejudged:
+            # Every correction contradicts the KB: one re-judge with the notes shown (option iii).
+            overruled += over
+            rejudged, previous, problems = True, answer, rejudge_problems(over)
+            log.info("qa | %s | %d correction(s) overruled by the KB: re-judge", part.label, len(over))
+            continue
+        overruled += over
+        break
 
     scores = {m: _score(answer["scores"][m]) for m in METRICS}
     by_id = dict(part.warnings)
     judgements = [{"id": j["id"], "warning": by_id.get(j["id"], ""), "judgement": j["judgement"],
                    "reason": str(j.get("reason", "")).strip()} for j in answer["warnings"]]
-    status = QA_REJECTED if 0 in scores.values() else QA_APPROVED
-    return QAOutcome(status=status, corrections=[correction_text(c) for c in answer["corrections"]],
+    if 0 not in scores.values():
+        status = QA_APPROVED
+    elif kept:
+        status = QA_REJECTED
+    else:
+        status = QA_OVERRULED  # option i: still every correction contradicts the KB
+    return QAOutcome(status=status, corrections=[correction_text(c) for c in kept],
                      scores=scores, llm=calls[-1], judgements=judgements, llm_calls=calls,
-                     output_problems=first_problems)
+                     output_problems=first_problems, raw_corrections=kept, overruled=overruled,
+                     rejudged=rejudged)
 
 
-def _note(status: str, scores: dict | None, judgements: list[dict], n_parts: int) -> str:
+def _note(status: str, scores: dict | None, judgements: list[dict], n_parts: int,
+          overruled: list[dict] | None = None, rejudged: bool = False) -> str:
     real = sum(j["judgement"] == "REAL" for j in judgements)
     s = status
     if scores:
         s += (f" | factuality {scores['factuality']}, completeness {scores['completeness']}, "
               f"formatting_safety {scores['formatting_safety']}")
     s += f" | code warnings judged: {len(judgements)} ({real} real)"
+    if overruled:
+        s += (f" | {len(overruled)} correction(s) overruled by the KB"
+              + (", after a re-judge" if rejudged else ""))
     return s + (f" | {n_parts} parts" if n_parts > 1 else "")
 
 
@@ -373,7 +473,7 @@ def run_qa(intake: dict, pack: EvidencePack, research, *, llm=call_llm) -> QAOut
     if len(parts) == 1:
         q = _review(intake, pack, data, parts[0], llm)
         if q.status != QA_ERROR:
-            q.note = _note(q.status, q.scores, q.judgements, 1)
+            q.note = _note(q.status, q.scores, q.judgements, 1, q.overruled, q.rejudged)
         log.info("qa | %s", q.note)
         return q
 
@@ -388,17 +488,21 @@ def run_qa(intake: dict, pack: EvidencePack, research, *, llm=call_llm) -> QAOut
                  for p, r in zip(parts, results)]
     scores = ({m: min(r.scores[m] for r in done) for m in METRICS} if done else None)
     judgements = [j for r in results for j in r.judgements]
+    overruled = [o for r in results for o in r.overruled]
+    rejudged = any(r.rejudged for r in results)
     if any(r.status == QA_REJECTED for r in results):
         status = QA_REJECTED
     elif any(r.status == QA_ERROR for r in results):
         status = QA_ERROR
+    elif any(r.status == QA_OVERRULED for r in results):
+        status = QA_OVERRULED
     else:
         status = QA_APPROVED
     if status == QA_ERROR:
         failed = ", ".join(p.label.split(":")[0] for p, r in zip(parts, results) if r.status == QA_ERROR)
         note = f"QA {failed} failed: output NOT reviewed by QA in full ({len(parts)} parts)"
     else:
-        note = _note(status, scores, judgements, len(parts))
+        note = _note(status, scores, judgements, len(parts), overruled, rejudged)
     log.info("qa | %s", note)
     return QAOutcome(
         status=status, corrections=[c for r in results for c in r.corrections], scores=scores,
@@ -406,4 +510,5 @@ def run_qa(intake: dict, pack: EvidencePack, research, *, llm=call_llm) -> QAOut
         judgements=judgements, llm_calls=calls,
         failed_attempts=[a for r in results for a in r.failed_attempts],
         output_problems=[f"{p.label}: {x}" for p, r in zip(parts, results) for x in r.output_problems],
-        parts=summaries)
+        parts=summaries, raw_corrections=[c for r in results for c in r.raw_corrections],
+        overruled=overruled, rejudged=rejudged)

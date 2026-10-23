@@ -355,6 +355,26 @@ res = run("windows", llm, qa=qa_script(rejected, rejected))
 check("QA rejects twice: CHECKS_FAILED", res.status == "CHECKS_FAILED"
       and "document_builder" not in llm.agents())
 
+overruled = QAOutcome("OVERRULED", [], {"factuality": 0, "completeness": 1, "formatting_safety": 1},
+                      qa_llm("fake/qa"), note="OVERRULED | 1 correction(s) overruled by the KB, after a re-judge",
+                      overruled=[{"field": "caveats[3].note", "problem": "p", "fix": "f", "source_id": None,
+                                  "record": "P-AGR-3.2.2-VA", "kb_note": "'Direct labour cost' ... not defined"}],
+                      rejudged=True)
+llm = fake_for("windows")
+res = run("windows", llm, qa=qa_script(overruled))
+qa1 = phase(res, "QA (round 1)")
+check("Step 7.6g: QA OVERRULED by the KB -> no revision, REPORT, phase OVERRULED",
+      res.status == "REPORT" and "Researcher (round 2)" not in phase_names(res) and qa1.status == "OVERRULED",
+      (res.status, qa1.status))
+check("OVERRULED: pipeline warning names the field; phase log lists the overruled correction",
+      any("rejection overruled by the KB" in w and "caveats[3].note" in w for w in res.warnings)
+      and "QA corrections overruled by the KB" in render_phase_log(res)
+      and "P-AGR-3.2.2-VA" in render_phase_log(res), res.warnings)
+saved = json.loads((res.out_dir / "qa_1.json").read_text())
+check("OVERRULED: qa_1.json keeps the overruled corrections and the re-judge flag",
+      saved["overruled_by_kb"][0]["record"] == "P-AGR-3.2.2-VA" and saved["rejudged"] is True
+      and saved["raw_corrections"] == [], saved.keys())
+
 same = QAOutcome("APPROVED", [], None, qa_llm("fake/researcher"))
 res = run("windows", fake_for("windows"), qa=qa_script(same))
 check("same model for Researcher and QA: warned", any("same model" in w for w in res.warnings), res.warnings)

@@ -76,15 +76,15 @@ Return JSON only:
   "procedure": [{ "step": "string", "source_id": "string" }],
   "caveats": [{ "note": "string", "source_id": "string" }],
   "follow_up_questions": ["string"],
-  "gaps": ["string"]
+  "gaps": [{ "text": "string", "source_id": "string | null" }]
 }
 ```
 
 Rules:
 
 - Every item must have a `source_id` that is an ID from the evidence. Anything not supported by the evidence goes into `gaps` and is marked REGULATORY_GAP_DETECTED.
-- `gaps` lists only what this check needed and the evidence does not give. Never copy a caveat or a note into `gaps`: notes belong in `caveats` only, once.
+- `gaps` lists only what this check needed and the evidence does not give. Each gap has a `source_id`: the record that shows the gap (for example the tool result with a missing value), or null when no record covers it. Never copy a caveat or a note into `gaps`: notes belong in `caveats` only, once. A record's `notes` (for example "X is not defined in the agreement") are notes: put them in `caveats`, citing that record.
 - Every number you write must appear in the record you cite. Copy numbers as given; never compute, round or convert them.
 - If the status is NEEDS_MORE_DATA, list in `follow_up_questions` exactly what the user must provide, based on the `missing` items in `TOOL:origin:<line>`, in plain words (e.g., "a bill of materials with the origin, HS code and value of each input").
 - `origin_result.basis`, the `procedure` steps, `caveats`, `follow_up_questions` and `gaps` are shown to the exporter. Write them in plain words: cite records only in `source_id`, never in the text (no `PSR-IN-...`, `P-...`, `TOOL:...`), and never use internal words such as "intake".
-- If you receive corrections (from code checks or QA), apply them and return the full corrected JSON.
+- If you receive corrections (from code checks or QA), apply them and return the full corrected JSON. A correction may name the record to cite: put it in `source_id`, never in the text.

@@ -406,7 +406,9 @@ leaky = copy.deepcopy(GOOD_W)
 leaky["gaps"] = [c["note"] for c in leaky["caveats"]]
 res = run_researcher(wi, w, llm=fake_llm(leaky))
 check("run_researcher: copies dropped, recorded, still passes",
-      res.passed and res.data["gaps"] == [] and len(res.changes) == len(leaky["caveats"]), res.changes)
+      res.passed and res.data["gaps"] == []
+      and sum(c.startswith("gaps: dropped") for c in res.changes) == len(leaky["caveats"])
+      and any(c.startswith("gaps: ") and "plain-text item(s)" in c for c in res.changes), res.changes)
 check("prompt forbids copying caveats into gaps",
       "Never copy a caveat or a note into `gaps`" in build_messages(wi, w)[0]["content"])
 

@@ -76,8 +76,9 @@ def irrelevant_caveat(d):      # G12: a note that does not apply to this product
 
 
 def useless_gap(d):            # 17 Oct 16:59 chargers run (Dots3): a gap that cannot change a failed result
-    d["gaps"] = [("The build-up value addition percentage is not available, so the value-addition test "
-                  "could only be assessed using the build-down method.")]
+    d["gaps"] = [{"text": ("The build-up value addition percentage is not available, so the value-addition "
+                           "test could only be assessed using the build-down method."),
+                  "source_id": None}]   # Step 7.6g: gaps are {text, source_id}
 
 
 def nodata_dropped_qualifier(d):   # problem 6 inside a big (split) review

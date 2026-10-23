@@ -175,7 +175,7 @@ check("any 0 -> REJECTED (decided by code)", q.status == QA_REJECTED and q.score
 check("correction for the Researcher: field, problem, fix and source",
       q.corrections == [correction_text(FIX)] and q.corrections[0] ==
       "follow_up_questions[0]: Asks for a bill of materials already given. Fix: Remove the question. "
-      "(see TOOL:origin:85044030)", q.corrections)
+      "Cite TOOL:origin:85044030 in source_id, not in the text.", q.corrections)
 check("judgements keep the warning text", q.judgements[1] == {
       "id": "W2", "warning": WARNS[1], "judgement": "REAL", "reason": "r"}, q.judgements)
 check("note says what happened", q.note.startswith("REJECTED | factuality 0") and "2 (1 real)" in q.note)

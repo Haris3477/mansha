@@ -10,6 +10,13 @@ Code, not the LLM, sets the final `verdict` and each procedure step's
 evidence IDs in `source_id` (Step 7.6c, problem 75) and, when the verdict is NOT_ELIGIBLE or
 NO_PREFERENCE, empties `follow_up_questions` (Step 7.6c, problem 74) and drops the caveats
 about claiming the CEPA rate (Step 7.6d, problem 76); each change is recorded in `changes`.
+
+Gaps carry a source (Step 7.6g, gap G39, problems 81-82): each `gaps` item is
+{text, source_id}, where source_id is the record that shows the gap or null when no record
+covers it. A gap that cites a passage with KB notes is a note, not something the user can
+supply, so code moves it into `caveats` (move_note_gaps); the prompt already said so, and
+on 23 Oct the model put three KB notes into `gaps`, where QA could not see their record and
+called them unsupported. Plain-string gaps (the old format) are read as source null.
 """
 
 from __future__ import annotations
@@ -245,6 +252,96 @@ def _same_text(s) -> str:
     return re.sub(r"\s+", " ", str(s or "")).strip().rstrip(".").lower()
 
 
+def gap_text(g) -> str:
+    """A gap's text: `gaps` items are {text, source_id} since Step 7.6g (plain strings before)."""
+    return str(g.get("text") or "") if isinstance(g, dict) else str(g or "")
+
+
+def normalize_gaps(data: dict) -> list[str]:
+    """Read plain-string gaps (the old format) as {text, source_id: null}; return what changed."""
+    gaps = data.get("gaps")
+    if not isinstance(gaps, list):
+        return []
+    plain = [i for i, g in enumerate(gaps) if isinstance(g, str)]
+    for i in plain:
+        gaps[i] = {"text": gaps[i], "source_id": None}
+    if not plain:
+        return []
+    return [f"gaps: {len(plain)} plain-text item(s) given without a source_id, read as source null "
+            f"({', '.join(f'gaps[{i}]' for i in plain)})"]
+
+
+NOTE_STOPWORDS = frozenset(
+    "the a an of and or to in on for is are be by it its this that with as at from not no any which "
+    "was were has have does do".split())
+
+
+def content_words(text) -> set[str]:
+    return {w for w in re.findall(r"[a-z0-9]+", str(text or "").lower()) if w not in NOTE_STOPWORDS}
+
+
+def coverage(of, by) -> float:
+    """Share of `of`'s content words that `by` also has (0..1). Used to pair a text with a KB note."""
+    a = content_words(of)
+    return len(a & content_words(by)) / len(a) if a else 0.0
+
+
+NOTES_HEADER = "notes:"
+
+
+def record_notes(pack: EvidencePack) -> dict[str, list[str]]:
+    """{evidence ID: that record's `notes:` items, verbatim} from the EVIDENCE text."""
+    out: dict[str, list[str]] = {}
+    for rid, block in split_records(pack.text).items():
+        notes, inside = [], False
+        for line in block.splitlines():
+            if line.strip() == NOTES_HEADER:
+                inside = True
+            elif inside and line.startswith("- "):
+                notes.append(line[2:].strip())
+            elif inside and line.strip() and not line.startswith(" "):
+                inside = False
+        if notes:
+            out[rid] = notes
+    return out
+
+
+# A moved gap whose words are this much inside a caveat with the same source is that caveat again.
+SAME_NOTE_COVERAGE = 0.6
+
+
+def move_note_gaps(data: dict, pack: EvidencePack) -> list[str]:
+    """Move `gaps` items that cite a passage with KB notes into `caveats` (Step 7.6g, G39).
+
+    Problems 81-82 (23 Oct, windows_nodata): the model put KB notes ("'direct labour cost' is not
+    defined", "no official page names the Ministry of Foreign Trade as issuer", the free-zone
+    inference) into `gaps` as plain strings. QA could not see their record, called them
+    unsupported, and its "fix" (MoFT confirmed as issuer) was copied by the writer. A gap whose
+    cited passage has notes is a note: it goes to `caveats` with that source, where QA reads it
+    beside its record. A copy of a caveat with the same source (or of the fixed issuer note) is
+    dropped instead. Gaps citing a tool result (e.g. a missing value) or no record stay gaps.
+    """
+    gaps, caveats = data.get("gaps"), data.get("caveats")
+    if not isinstance(gaps, list) or not isinstance(caveats, list):
+        return []
+    notes = record_notes(pack)
+    keep, changes = [], []
+    for i, g in enumerate(gaps):
+        sid = g.get("source_id") if isinstance(g, dict) else None
+        if not (isinstance(sid, str) and sid.startswith("P-") and sid in pack.allowed_ids and sid in notes):
+            keep.append(g)
+            continue
+        same = [c for c in caveats if isinstance(c, dict) and c.get("source_id") == sid]
+        if (sid in pack.fixed_notes and same) or any(
+                coverage(gap_text(g), c.get("note")) >= SAME_NOTE_COVERAGE for c in same):
+            changes.append(f"gaps[{i}]: dropped, already a note from {sid}: {gap_text(g)!r}")
+            continue
+        caveats.append({"note": gap_text(g), "source_id": sid})
+        changes.append(f"gaps[{i}]: moved to caveats[{len(caveats) - 1}], a KB note from {sid}: {gap_text(g)!r}")
+    data["gaps"] = keep
+    return changes
+
+
 def drop_caveat_gaps(data: dict) -> list[str]:
     """Remove `gaps` items that repeat a caveat's text; return what was removed (Step 9.6e).
 
@@ -257,10 +354,10 @@ def drop_caveat_gaps(data: dict) -> list[str]:
     if not isinstance(gaps, list) or not isinstance(caveats, list):
         return []
     notes = {_same_text(c.get("note")) for c in caveats if isinstance(c, dict)}
-    keep = [g for g in gaps if _same_text(g) not in notes]
-    removed = [g for g in gaps if _same_text(g) in notes]
+    keep = [g for g in gaps if _same_text(gap_text(g)) not in notes]
+    removed = [g for g in gaps if _same_text(gap_text(g)) in notes]
     data["gaps"] = keep
-    return [f"gaps: dropped a copy of a caveat: {g!r}" for g in removed]
+    return [f"gaps: dropped a copy of a caveat: {gap_text(g)!r}" for g in removed]
 
 
 BRACKETED_ID_RE = re.compile(r"\s*\[\s*([^\[\]]+?)\s*\]\s*")
@@ -306,7 +403,7 @@ def unbracket_ids(data: dict, pack: EvidencePack) -> list[str]:
 
     for k in OBJECT_KEYS:
         fix(k, data.get(k))
-    for k in ("procedure", "caveats"):
+    for k in ("procedure", "caveats", "gaps"):
         items = data.get(k)
         for i, item in enumerate(items if isinstance(items, list) else []):
             fix(f"{k}[{i}]", item)
@@ -375,6 +472,10 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
         for i, item in enumerate(data[k]):
             if not isinstance(item, dict):
                 problems.append(f"`{k}[{i}]` must be an object with a source_id")
+    for i, g in enumerate(data["gaps"]):
+        if not isinstance(g, dict) or not gap_text(g).strip():
+            problems.append(f"`gaps[{i}]` must be an object with a `text` and a `source_id` (null when no "
+                            "record covers the gap)")
     if problems:
         return problems, warnings, GAP
 
@@ -383,7 +484,7 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     shown += [(f"procedure[{i}].step", s.get("step")) for i, s in enumerate(data["procedure"])]
     shown += [(f"caveats[{i}].note", c.get("note")) for i, c in enumerate(data["caveats"])]
     shown += [(f"follow_up_questions[{i}]", q) for i, q in enumerate(data["follow_up_questions"])]
-    shown += [(f"gaps[{i}]", g) for i, g in enumerate(data["gaps"])]
+    shown += [(f"gaps[{i}].text", gap_text(g)) for i, g in enumerate(data["gaps"])]
     for where, text in shown:
         text = str(text or "")
         found = EVIDENCE_ID_RE.search(text) or INTERNAL_WORD_RE.search(text)
@@ -400,6 +501,11 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     for where, sid in cited:
         if sid not in allowed:
             problems.append(f"{where}.source_id {sid!r} is not an ID in the evidence")
+    for i, g in enumerate(data["gaps"]):
+        sid = g.get("source_id")
+        if sid not in (None, "", "null") and sid not in allowed:
+            problems.append(f"gaps[{i}].source_id {sid!r} is not an ID in the evidence "
+                            "(use null when no record covers the gap)")
 
     # 3. Classification is a candidate (or a declared gap)
     chosen, cls_problems = find_chosen(data, pack)
@@ -541,7 +647,9 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
               expect_json=True, required_keys=REQUIRED_KEYS)
     data = copy.deepcopy(res.data)
     data.pop("verdict", None)  # the verdict is code's job
-    changes = unbracket_ids(data, pack)  # "[ID]" -> "ID" first: the fills below read source_id (problem 75)
+    changes = normalize_gaps(data)  # old plain-string gaps -> {text, source_id: null} (Step 7.6g)
+    changes += unbracket_ids(data, pack)  # "[ID]" -> "ID": the fills below read source_id (problem 75)
+    changes += move_note_gaps(data, pack)  # KB notes put in gaps -> caveats, before the fills (G39)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)

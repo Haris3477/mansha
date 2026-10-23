@@ -36,6 +36,7 @@ from mansha.researcher import (  # noqa: F401  (NO_CEPA_RATE_VERDICTS is re-expo
     GAP,
     NO_CEPA_RATE_VERDICTS,
     claim_source_ids,
+    gap_text,
     is_claim_note,
     number_keys,
 )
@@ -257,8 +258,11 @@ def saving_text(research: dict) -> str:
 
 
 def still_needed(research: dict) -> list[str]:
-    """Follow-up questions, then gaps. Gaps may carry the gap marker: the reader gets plain words."""
-    items = list(research.get("follow_up_questions") or []) + list(research.get("gaps") or [])
+    """Follow-up questions, then gaps. Gaps may carry the gap marker: the reader gets plain words.
+
+    Gaps are {text, source_id} since Step 7.6g; plain strings (older JSON, fixtures) still work."""
+    items = list(research.get("follow_up_questions") or []) + [
+        gap_text(g) for g in research.get("gaps") or []]
     return [str(n).replace(GAP, NOT_IN_SOURCES) for n in items]
 
 

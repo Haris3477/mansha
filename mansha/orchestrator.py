@@ -55,6 +55,7 @@ from mansha.qa import (
     QA_APPROVED,
     QA_ERROR,
     QA_NOT_REVIEWED,
+    QA_OVERRULED,
     QA_REJECTED,
     QA_SKIPPED,
     QAOutcome,
@@ -346,6 +347,10 @@ def render_phase_log(result: PipelineResult) -> str:
         if judged:
             lines += ["", "Code warnings judged by QA:"] + [
                 f"- {j['id']} {j['judgement']}: {j['warning']} -> {j['reason']}" for j in judged]
+        over = p.details.get("overruled_by_kb")
+        if over:
+            lines += ["", "QA corrections overruled by the KB (not sent to the Researcher):"] + [
+                f"- {x}" for x in over]
         bad = p.details.get("qa_answer_problems")
         if bad:
             lines += ["", "Problems in QA's own answer (code validation):"] + [f"- {x}" for x in bad]
@@ -493,14 +498,21 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
                                             "warning_judgements": q.judgements,
                                             "answer_problems": q.output_problems,
                                             "parts": q.parts,
+                                            "raw_corrections": q.raw_corrections,
+                                            "overruled_by_kb": q.overruled,
+                                            "rejudged": q.rejudged,
                                             "served_by": q.llm.routed_via if q.llm else None,
                                             "calls": q_calls,
                                             "code_warnings_given": research.warnings})
         phases.append(Phase(
             f"QA (round {round_no})",
-            {QA_APPROVED: "OK", QA_SKIPPED: "SKIPPED", QA_REJECTED: "REJECTED"}.get(q.status, "FAILED"),
+            {QA_APPROVED: "OK", QA_SKIPPED: "SKIPPED", QA_REJECTED: "REJECTED",
+             QA_OVERRULED: "OVERRULED"}.get(q.status, "FAILED"),
             t(), q.note or f"{q.status} | scores {q.scores}", calls=q_calls, problems=q.corrections,
             details={**({"warning_judgements": q.judgements} if q.judgements else {}),
+                     **({"overruled_by_kb": [f"{o.get('field')}: fix {o.get('fix')!r} drops the qualifier "
+                                             f"of {o['record']}'s note {o['kb_note']!r}"
+                                             for o in q.overruled]} if q.overruled else {}),
                      **({"qa_answer_problems": q.output_problems} if q.output_problems else {}),
                      **({"qa_parts": q.parts} if q.parts else {})}))
         w = same_model_warning(research.llm.routed_via if research.llm else None,
@@ -509,6 +521,10 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
             warnings.append(w)
         if q.status == QA_ERROR:
             warnings.append(f"QA round {round_no}: {q.note}")
+        if q.status == QA_OVERRULED:
+            warnings.append(f"QA round {round_no}: rejection overruled by the KB (every correction dropped a "
+                            f"qualifier its record's note carries: "
+                            f"{', '.join(str(o.get('field')) for o in q.overruled)})")
         if q.status in QA_NOT_REVIEWED and research.warnings:
             warnings.append(f"Researcher round {round_no}: {len(research.warnings)} code warning(s) "
                             "not reviewed by QA")

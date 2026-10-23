@@ -1,0 +1,261 @@
+{
+ "about": "QA corrections from the live windows_nodata runs of 23 Oct 2026 (Cerebras judge), parsed from each run's qa_N.json, with the item as the Researcher wrote it. kb_verdict = Claude's check against the KB; expect = the KB shield's intended result (Step 7.6g). Gap source_ids were added as the new prompt asks.",
+ "cases": [
+  {
+   "run": "20261023-044254_windows_nodata",
+   "round": 1,
+   "field": "gaps[2]",
+   "item": {
+    "text": "No official source confirms which UAE ministry is the issuing authority for the India CEPA certificate.",
+    "source_id": "P-UAE-ISSUER",
+    "source_assigned": "as the Step 7.6g prompt asks"
+   },
+   "correction": {
+    "field": "gaps[2]",
+    "problem": "Incorrect claim that no official source confirms the issuing ministry.",
+    "fix": "Official source P-MOET-COO-INDIA confirms the Ministry of Foreign Trade issues the CEPA certificate for India.",
+    "source_id": "P-MOET-COO-INDIA"
+   },
+   "kb_verdict": "wrong",
+   "expect": "overruled",
+   "why": "fix says P-MOET-COO-INDIA confirms MoFT issues the certificate; P-UAE-ISSUER's note says no official page names MoFT (problem 82)"
+  },
+  {
+   "run": "20261023-044254_windows_nodata",
+   "round": 1,
+   "field": "follow_up_questions[3]",
+   "item": "Confirm which UAE ministry issues the CEPA certificate for India (the Ministry of Foreign Trade or the Ministry of Economy and Tourism).",
+   "correction": {
+    "field": "follow_up_questions[3]",
+    "problem": "Question about which UAE ministry issues the CEPA certificate does not affect origin qualification.",
+    "fix": "Remove this question as it does not impact the origin determination.",
+    "source_id": null
+   },
+   "kb_verdict": "right",
+   "expect": "kept",
+   "why": "asking the user which ministry issues the certificate cannot change the origin result"
+  },
+  {
+   "run": "20261023-044254_windows_nodata",
+   "round": 2,
+   "field": "gaps[0]",
+   "item": {
+    "text": "The agreement does not define 'direct labour cost' and 'direct overhead cost' needed for the build-up value addition method.",
+    "source_id": "P-AGR-3.2.2-VA",
+    "source_assigned": "as the Step 7.6g prompt asks"
+   },
+   "correction": {
+    "field": "gaps[0]",
+    "problem": "The claim that the agreement does not define 'direct labour cost' and 'direct overhead cost' is unsupported.",
+    "fix": "The agreement specifies the rule 'CTSH + VA 45%' but does not define the components of CTSH such as direct labour cost or direct overhead cost.",
+    "source_id": "TOOL:rule_lookup:76101000"
+   },
+   "kb_verdict": "wrong",
+   "expect": "kept",
+   "why": "fix ties direct labour/overhead cost to CTSH; it keeps 'does not define', so the shield cannot see it (known limit)"
+  },
+  {
+   "run": "20261023-044254_windows_nodata",
+   "round": 2,
+   "field": "gaps[1]",
+   "item": {
+    "text": "The agreement does not state whether the build-down and build-up methods use the same threshold for value addition.",
+    "source_id": "P-AGR-3.2.2-VA",
+    "source_assigned": "as the Step 7.6g prompt asks"
+   },
+   "correction": {
+    "field": "gaps[1]",
+    "problem": "The statement about the agreement not stating whether build-down and build-up methods use the same threshold is unsupported.",
+    "fix": "The cited records do not provide information on whether the build-down and build-up methods use the same threshold for value addition.",
+    "source_id": null
+   },
+   "kb_verdict": "wrong",
+   "expect": "overruled",
+   "why": "the gap is P-AGR-3.2.2-VA's own note; the fix drops 'does not state' (harmless wording, but a false rejection)"
+  },
+  {
+   "run": "20261023-044254_windows_nodata",
+   "round": 2,
+   "field": "gaps[2]",
+   "item": {
+    "text": "The factory registration requires a 40% domestic value added letter, but the CEPA product-specific rule requires 45% value addition; the relationship is unclear.",
+    "source_id": "P-MOET-FACTORY-REG",
+    "source_assigned": "as the Step 7.6g prompt asks"
+   },
+   "correction": {
+    "field": "gaps[2]",
+    "problem": "The claim that the relationship between the 40% domestic value added letter and the 45% rule is unclear contradicts the record, which clarifies they are separate.",
+    "fix": "The factory registration requires a 40% domestic value added letter, while the CEPA product-specific rule requires 45% value addition; the registration requirement is separate and does not serve as the rule of origin test.",
+    "source_id": "P-MOET-FACTORY-REG"
+   },
+   "kb_verdict": "right",
+   "expect": "kept",
+   "why": "P-MOET-FACTORY-REG says the 40% letter is a registration condition, not the PSR test; the gap called it unclear"
+  },
+  {
+   "run": "20261023-044254_windows_nodata",
+   "round": 2,
+   "field": "caveats[3].note",
+   "item": {
+    "note": "Direct labour cost and direct overhead cost are not defined in the agreement, so the build-up value addition method is uncertain.",
+    "source_id": "P-AGR-3.2.2-VA"
+   },
+   "correction": {
+    "field": "caveats[3].note",
+    "problem": "The note adds an unsupported inference that the build-up value addition method is uncertain.",
+    "fix": "Direct labour cost and direct overhead cost are not defined in the agreement.",
+    "source_id": "P-AGR-3.2.2-VA"
+   },
+   "kb_verdict": "right",
+   "expect": "kept",
+   "why": "the note added 'so the build-up method is uncertain', which the record does not say"
+  },
+  {
+   "run": "20261023-190511_windows_nodata",
+   "round": 1,
+   "field": "gaps[0]",
+   "item": {
+    "text": "The agreement does not define 'direct labour cost' and 'direct overhead cost' for the build-up value addition method.",
+    "source_id": "P-AGR-3.2.2-VA",
+    "source_assigned": "as the Step 7.6g prompt asks"
+   },
+   "correction": {
+    "field": "gaps[0]",
+    "problem": "The claim about the agreement not defining 'direct labour cost' and 'direct overhead cost' is not supported by any cited record.",
+    "fix": "The cited records do not provide information on whether the agreement defines 'direct labour cost' and 'direct overhead cost' for the build‑up value addition method.",
+    "source_id": null
+   },
+   "kb_verdict": "wrong",
+   "expect": "overruled",
+   "why": "the gap is P-AGR-3.2.2-VA's note almost word for word (problem 81)"
+  },
+  {
+   "run": "20261023-190511_windows_nodata",
+   "round": 1,
+   "field": "gaps[1]",
+   "item": {
+    "text": "No official source confirms that the Ministry of Foreign Trade is the issuing authority for the India CEPA certificate; India's origin rules list the Ministry of Economy or any other agency notified.",
+    "source_id": "P-UAE-ISSUER",
+    "source_assigned": "as the Step 7.6g prompt asks"
+   },
+   "correction": {
+    "field": "gaps[1]",
+    "problem": "The statement contradicts the cited record that identifies the Ministry of Foreign Trade as the issuing authority.",
+    "fix": "The Ministry of Foreign Trade is identified as the issuing authority for the India CEPA Certificate of Origin in the cited records.",
+    "source_id": "P-MOET-COO-INDIA"
+   },
+   "kb_verdict": "wrong",
+   "expect": "overruled",
+   "why": "fix says MoFT is identified as the issuer; P-UAE-ISSUER's note says the opposite; the writer copied it (problem 82)"
+  },
+  {
+   "run": "20261023-190511_windows_nodata",
+   "round": 1,
+   "field": "gaps[3]",
+   "item": {
+    "text": "No official confirmation is available that a free-zone factory cannot obtain Factory Registration, which is a prerequisite for the certificate of origin.",
+    "source_id": "P-MOET-FACTORY-REG",
+    "source_assigned": "as the Step 7.6g prompt asks"
+   },
+   "correction": {
+    "field": "gaps[3]",
+    "problem": "The claim contradicts the cited record which confirms that free‑zone factories cannot obtain registration.",
+    "fix": "According to the cited record, factory registration requires the factory to be located outside a free zone, confirming that free‑zone factories cannot obtain registration.",
+    "source_id": "P-MOET-FACTORY-REG"
+   },
+   "kb_verdict": "wrong",
+   "expect": "overruled",
+   "why": "the KB marks it 'Inference ... likely ... confirm'; the fix turns it into a confirmed fact"
+  },
+  {
+   "run": "20261023-190511_windows_nodata",
+   "round": 1,
+   "field": "caveats[3].note",
+   "item": {
+    "note": "Value addition percentages are on an FOB basis; on an Ex-Works basis the threshold is 5 percentage points lower.",
+    "source_id": "PSR-GEN-EXW"
+   },
+   "correction": {
+    "field": "caveats[3].note",
+    "problem": "The note adds that value addition percentages are on an FOB basis, which is not stated in the cited record.",
+    "fix": "The value addition threshold is 5 percentage points lower when the Ex-Works price is used as the basis.",
+    "source_id": "PSR-GEN-EXW"
+   },
+   "kb_verdict": "right",
+   "expect": "kept",
+   "why": "'FOB basis' is in P-AGR-3.2.2-VA, not in the cited PSR-GEN-EXW (wrong citation)"
+  },
+  {
+   "run": "20261023-190743_windows_nodata",
+   "round": 1,
+   "field": "caveats[0].note",
+   "item": {
+    "note": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply.",
+    "source_id": "P-IN-DUTY-SCOPE"
+   },
+   "correction": {
+    "field": "caveats[0].note",
+    "problem": "The note claims CEPA reduces only Basic Customs Duty, omitting the reduction of Agriculture Infrastructure and Development Cess and incorrectly using \"only\".",
+    "fix": "The CEPA rate reduces Basic Customs Duty and, for lines in Table II, also the Agriculture Infrastructure and Development Cess; IGST, GST compensation cess, Social Welfare Surcharge, and any anti‑dumping or safeguard duty still apply.",
+    "source_id": "P-IN-DUTY-SCOPE"
+   },
+   "kb_verdict": "borderline",
+   "expect": "kept",
+   "why": "the agricultural cess applies to Table II lines only; 7610 10 00 is not one"
+  },
+  {
+   "run": "20261023-190743_windows_nodata",
+   "round": 1,
+   "field": "caveats[1].note",
+   "item": {
+    "note": "The duty saving is estimated on BCD only; the actual saving depends on the shipment value and other duties.",
+    "source_id": "TOOL:duty:76101000"
+   },
+   "correction": {
+    "field": "caveats[1].note",
+    "problem": "The note adds that duty saving depends on shipment value, which is not stated in the cited record.",
+    "fix": "CEPA rates reduce Basic Customs Duty only; no shipment value was provided, so only the rate difference is shown.",
+    "source_id": "TOOL:duty:76101000"
+   },
+   "kb_verdict": "right",
+   "expect": "kept",
+   "why": "no saving was estimated (NEEDS_VALUE); the note said 'estimated'"
+  },
+  {
+   "run": "20261023-190743_windows_nodata",
+   "round": 1,
+   "field": "caveats[3].note",
+   "item": {
+    "note": "'Direct labour cost' and 'direct overhead cost' in the value-addition build-up method are not defined in the agreement.",
+    "source_id": "P-AGR-3.2-VA"
+   },
+   "correction": {
+    "field": "caveats[3].note",
+    "problem": "The claim about undefined \"Direct labour cost\" and \"direct overhead cost\" is not supported by any cited record.",
+    "fix": "Remove this note or replace it with information that is supported by the available evidence.",
+    "source_id": null
+   },
+   "kb_verdict": "borderline",
+   "expect": "kept",
+   "why": "the fact is in the KB, but the cited ID P-AGR-3.2-VA does not exist (code already flags it)"
+  },
+  {
+   "run": "20261023-190743_windows_nodata",
+   "round": 2,
+   "field": "caveats[0].note",
+   "item": {
+    "note": "The CEPA rate reduces Basic Customs Duty and, for lines in Table II, also the Agriculture Infrastructure and Development Cess; IGST, GST compensation cess, Social Welfare Surcharge, and any anti‑dumping or safeguard duty still apply.",
+    "source_id": "P-IN-DUTY-SCOPE"
+   },
+   "correction": {
+    "field": "caveats[0].note",
+    "problem": "The note omits the 'countervailing' duty qualifier present in the source record.",
+    "fix": "The CEPA rate reduces Basic Customs Duty and, for lines in Table II, also the Agriculture Infrastructure and Development Cess; IGST, GST compensation cess, Social Welfare Surcharge, and any anti‑dumping, countervailing or safeguard duties still apply.",
+    "source_id": "P-IN-DUTY-SCOPE"
+   },
+   "kb_verdict": "borderline",
+   "expect": "kept",
+   "why": "right about the record ('countervailing'), but the gap came from QA's own round-1 wording"
+  }
+ ]
+}

@@ -300,6 +300,10 @@ gap_research = dict(ch_research, gaps=["REGULATORY_GAP_DETECTED: the rule for th
 check("gap marker becomes plain words in 'still needed'",
       still_needed(gap_research) == ["not in Mansha's sources: the rule for this line is not loaded."],
       still_needed(gap_research))
+obj_gaps = dict(ch_research, gaps=[{"text": "REGULATORY_GAP_DETECTED: the rule is not loaded.",
+                                     "source_id": "TOOL:rule_lookup:85044030"}])
+check("Step 7.6g gaps {text, source_id}: the text only, no source, in 'still needed'",
+      still_needed(obj_gaps) == ["not in Mansha's sources: the rule is not loaded."], still_needed(obj_gaps))
 
 print("\n4. The call loop (fake LLM)")
 bad = dict(good, duty="The saving is AED 40,000.")

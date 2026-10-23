@@ -8,9 +8,9 @@ Input:
 - CHECKED BY CODE: the verdict, the origin status, the rule of origin and the duty saving, already verified against the tools, and what the user already gave. These are correct: never correct them, and judge the text fields against them.
 - CODE WARNINGS: numbered `W1`, `W2`, ... (or "none").
 - EVIDENCE, in four parts: the candidate tariff lines (lines not chosen are shortened to code, description and rates); the tool results for the chosen line; every other record the Researcher cited, in full; and the records not cited, by title only.
-- RESEARCHER JSON: the findings to review. The text fields (`origin_result.basis`, `procedure[].step`, `caveats[].note`, `follow_up_questions`, `gaps`) are shown to the exporter.
+- RESEARCHER JSON: the findings to review. The text fields (`origin_result.basis`, `procedure[].step`, `caveats[].note`, `follow_up_questions`, `gaps[].text`) are shown to the exporter. Each gap cites its record, or null when none covers it.
 
-Check against the evidence only, never against your own knowledge: a claim that sounds right but is not in its cited record is unsupported.
+Check against the evidence only, never against your own knowledge: a claim that sounds right but is not in its cited record is unsupported. A record's `notes` are part of it: a note or gap that restates one and keeps its qualifier ("not defined", "no official page", "Inference ... likely") is supported; never turn it into a plainer claim.
 
 Score each metric 0 or 1.
 
@@ -31,7 +31,7 @@ Score each metric 0 or 1.
 - NOISE: the number or name is in the record in another form (for example "10,000.00" for "10000"), or it is not a claim at all (for example list numbering such as "(3)", or the number in an article reference).
 
 **Corrections.** For every score of 0, at least one correction. Each names:
-- `field`: the exact field, for example `procedure[2].step`, `caveats[0].note`, `follow_up_questions[1]`, `origin_result.basis`, `classification`, or `caveats` for a missing item;
+- `field`: the exact field, for example `procedure[2].step`, `caveats[0].note`, `follow_up_questions[1]`, `gaps[0].text`, `origin_result.basis`, `classification`, or `caveats` for a missing item;
 - `problem`: what is wrong, in one sentence;
 - `fix`: what to write instead, using only the evidence;
 - `source_id`: the evidence ID that shows it, or null.
