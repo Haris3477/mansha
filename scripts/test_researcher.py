@@ -20,6 +20,7 @@ from mansha.researcher import (
     drop_claim_caveats,
     drop_follow_ups,
     fill_authorities,
+    fill_fixed_notes,
     fill_tariff_line,
     number_keys,
     run_researcher,
@@ -132,7 +133,7 @@ GOOD_W = {
                          "source_id": "TOOL:duty:76101000"},
     "procedure": STEPS,
     "caveats": [{"note": "Duty estimated on BCD only.", "source_id": "TOOL:duty:76101000"},
-                {"note": "Verify the current issuing ministry.", "source_id": "P-UAE-ISSUER"}],
+                {"note": w.fixed_notes["P-UAE-ISSUER"], "source_id": "P-UAE-ISSUER"}],  # as the KB says (7.6f)
     "follow_up_questions": [],
     "gaps": [],
 }
@@ -532,6 +533,46 @@ res = run_researcher(wi, w, llm=fake_llm(GOOD_W))
 check("run_researcher ELIGIBLE: caveats untouched, no change",
       res.passed and res.data["caveats"] == GOOD_W["caveats"] and res.changes == [], (res.problems, res.changes))
 check("pack knows its corridor", c.corridor == "india")
+
+# ---------------- fixed notes written from the KB (Step 7.6f, problem 79) ----------------
+print("\n== fill_fixed_notes (problem 79)")
+kb_note = next(p["notes"] for p in passages_of(load_corridor("india")) if p["id"] == "P-UAE-ISSUER")
+check("pack carries the issuer note from the KB, verbatim", w.fixed_notes.get("P-UAE-ISSUER") == " ".join(kb_note))
+check("only the fixed-note passages are in the map", set(w.fixed_notes) == {"P-UAE-ISSUER"}, set(w.fixed_notes))
+check("the KB note names moet.gov.ae", "moet.gov.ae" in w.fixed_notes["P-UAE-ISSUER"])
+invented = copy.deepcopy(GOOD_W)
+invented["caveats"][1]["note"] = w.fixed_notes["P-UAE-ISSUER"].replace("moet.gov.ae", "doit.gov.ae")
+ch = fill_fixed_notes(invented, w)
+check("invented domain replaced by the KB note",
+      invented["caveats"][1]["note"] == w.fixed_notes["P-UAE-ISSUER"] and "doit" not in json.dumps(invented))
+check("the change is logged", ch == ["caveats[1]: note written from the KB (P-UAE-ISSUER)"], ch)
+check("other caveats untouched", invented["caveats"][0] == GOOD_W["caveats"][0])
+check("already verbatim: no change", fill_fixed_notes(copy.deepcopy(GOOD_W), w) == [])
+check("no caveats list: no change, no crash", fill_fixed_notes({"caveats": None}, w) == [])
+invented = copy.deepcopy(GOOD_W)  # fresh copy: fill_fixed_notes above fixed the first one in place
+invented["caveats"][1]["note"] = w.fixed_notes["P-UAE-ISSUER"].replace("moet.gov.ae", "doit.gov.ae")
+res = run_researcher(wi, w, llm=fake_llm(invented))
+check("run_researcher: invented domain gone, change recorded, still passes",
+      res.passed and "doit" not in json.dumps(res.data)
+      and "caveats[1]: note written from the KB (P-UAE-ISSUER)" in res.changes, (res.problems, res.changes))
+missing = copy.deepcopy(GOOD_W)
+missing["caveats"] = [cv for cv in missing["caveats"] if cv["source_id"] != "P-UAE-ISSUER"]
+res = run_researcher(wi, w, llm=fake_llm(missing))
+check("a missing issuer caveat is still a problem (code does not add it)",
+      any("P-UAE-ISSUER" in x for x in res.problems), res.problems)
+# Replay the two 19 Oct answers that invented "doit.gov.ae" (runs are git-ignored: skipped if absent).
+RUNS = Path(__file__).resolve().parent.parent / "runs" / "pipeline"
+for folder in ("20261019-041546_chargers", "20261019-183123_windows"):
+    f = RUNS / folder / "researcher_1.json"
+    if not f.exists():
+        print(f"  SKIP  replay {folder} (run folder not on this machine)")
+        continue
+    saved = json.loads(f.read_text())
+    d = copy.deepcopy(saved["output"])
+    intake = json.loads((RUNS / folder / "intake.json").read_text())["output"]
+    pack = build_evidence(intake, None)
+    fill_fixed_notes(d, pack)
+    check(f"replay {folder}: no invented domain left", "doit.gov.ae" not in json.dumps(d))
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

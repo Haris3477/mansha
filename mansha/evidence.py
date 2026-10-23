@@ -26,6 +26,10 @@ HEADER_RE = re.compile(r"^\[([^\]\n]+)\]", re.MULTILINE)
 
 EXCLUDED_TEXT = "EXCLUDED (no preferential rate; the normal MFN rate applies)"
 # Passage parameters that a tool computes from; the model sees the tool's result instead.
+# Passages whose note is a fixed fact the model must not reword: code writes the
+# caveat text citing them from the KB, word for word (Step 7.6f, problem 79).
+FIXED_NOTE_IDS = {"P-UAE-ISSUER"}
+
 TOOL_COMPUTED_PARAMS = {"fee_bands_aed"}  # -> TOOL:coo_fee
 # Origin-calculator totals the model may see: counts and percentages only (Step 9.3).
 # Money amounts from the bill of materials (price, non-originating and originating totals)
@@ -44,6 +48,7 @@ class EvidencePack:
     candidates: list[dict]                 # candidates from the tariff lookup
     excluded_ids: set[str] = field(default_factory=set)  # candidate IDs with no CEPA preference
     actors: dict[str, str] = field(default_factory=dict)  # evidence ID -> who acts (code copies it into steps)
+    fixed_notes: dict[str, str] = field(default_factory=dict)  # evidence ID -> KB note code prints verbatim (7.6f)
     corridor: str = "india"                # whose KB the evidence came from (Step 7.6d: claim passages)
 
 
@@ -350,6 +355,7 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
     excluded: set[str] = set()
     psr_rules: dict[str, dict] = {}
     actors: dict[str, str] = {}
+    fixed_notes: dict[str, str] = {}
 
     tl = tariff_lookup(product_description=intake.get("product_description"),
                        hs_code_given=intake.get("hs_code_given"), corridor=corridor).to_dict()
@@ -411,6 +417,8 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
         b.add(p["id"], render_passage(p), b.urls(p.get("source_keys")))
         if p.get("actor"):
             actors[p["id"]] = p["actor"]
+        if p["id"] in FIXED_NOTE_IDS and p.get("notes"):
+            fixed_notes[p["id"]] = " ".join(p["notes"])
 
     return EvidencePack(
         text="\n\n".join(b.parts),
@@ -420,5 +428,6 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
         candidates=candidates,
         excluded_ids=excluded,
         actors=actors,
+        fixed_notes=fixed_notes,
         corridor=corridor,
     )

@@ -218,6 +218,29 @@ def fill_tariff_line(data: dict, pack: EvidencePack) -> None:
         cls["tariff_line"] = line
 
 
+def fill_fixed_notes(data: dict, pack: EvidencePack) -> list[str]:
+    """Write each caveat citing a fixed-note passage as that passage's KB note (Step 7.6f).
+
+    The issuer note is printed verbatim in ELIGIBLE / NEEDS_MORE_DATA reports, so a
+    reworded copy is unsafe: on 19 Oct the model wrote "doit.gov.ae" for moet.gov.ae
+    twice (problem 79). The model still has to cite the passage (check_researcher);
+    code only replaces the text. Returns what changed, for the phase log.
+    """
+    changes: list[str] = []
+    caveats = data.get("caveats")
+    if not isinstance(caveats, list):
+        return changes
+    for i, cv in enumerate(caveats):
+        if not isinstance(cv, dict):
+            continue
+        sid = cv.get("source_id")
+        kb_note = pack.fixed_notes.get(sid)
+        if kb_note and cv.get("note") != kb_note:
+            cv["note"] = kb_note
+            changes.append(f"caveats[{i}]: note written from the KB ({sid})")
+    return changes
+
+
 def _same_text(s) -> str:
     return re.sub(r"\s+", " ", str(s or "")).strip().rstrip(".").lower()
 
@@ -521,6 +544,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes = unbracket_ids(data, pack)  # "[ID]" -> "ID" first: the fills below read source_id (problem 75)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
+    changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)
     changes += drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
     problems, warnings, verdict = check_researcher(data, pack)
     dropped = drop_follow_ups(data, verdict)  # no follow-ups once no CEPA rate can apply (problem 74)
