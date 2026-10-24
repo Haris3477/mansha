@@ -19,6 +19,8 @@ from mansha.researcher import (
     drop_caveat_gaps,
     drop_claim_caveats,
     drop_follow_ups,
+    drop_user_data_gaps,
+    plain_check_names,
     fill_authorities,
     fill_fixed_notes,
     fill_tariff_line,
@@ -575,6 +577,101 @@ for folder in ("20261019-041546_chargers", "20261019-183123_windows"):
     pack = build_evidence(intake, None)
     fill_fixed_notes(d, pack)
     check(f"replay {folder}: no invented domain left", "doit.gov.ae" not in json.dumps(d))
+
+print("\n== drop_user_data_gaps (problem 85, Step 7.6h)")
+# The two gaps of 23 Oct 20:08 windows_nodata (researcher_1 and _2), word for word.
+GAPS_2008 = [
+    {"text": "No shipment value in AED is available, so the actual duty saving cannot be computed.",
+     "source_id": "TOOL:duty:76101000"},
+    {"text": "No bill of materials or declaration is available, so the origin rule PSR-IN-R118 cannot be "
+             "evaluated.", "source_id": "TOOL:origin:76101000"},
+]
+check("windows_nodata pack: origin INSUFFICIENT_DATA, duty NEEDS_VALUE",
+      wn.tool_results["TOOL:origin:76101000"]["status"] == "INSUFFICIENT_DATA"
+      and wn.tool_results["TOOL:duty:76101000"]["status"] == "NEEDS_VALUE")
+d = copy.deepcopy(GOOD_WN); d["gaps"] = copy.deepcopy(GAPS_2008)
+ch = drop_user_data_gaps(d, wn)
+check("20:08 replay: both gaps dropped", d["gaps"] == [], d["gaps"])
+check("20:08 replay: each drop logged with its tool and status",
+      len(ch) == 2 and "TOOL:duty:76101000 NEEDS_VALUE" in ch[0] and "TOOL:origin:76101000 INSUFFICIENT_DATA" in ch[1], ch)
+check("20:08 replay: follow-up questions untouched", d["follow_up_questions"] == GOOD_WN["follow_up_questions"])
+expect_ok("20:08 replay: still a correct needs-more-data answer", d, wn, "NEEDS_MORE_DATA")
+keep = [{"text": "Mansha's data has no rule for this line.", "source_id": None},
+        {"text": "The fee band is not in the sources.", "source_id": "TOOL:coo_fee"},
+        {"text": "The agreement does not say X.", "source_id": "PSR-IN-R118"}]
+d = copy.deepcopy(GOOD_WN); d["gaps"] = copy.deepcopy(keep)
+check("other gaps stay (no source, fee tool, rule)", drop_user_data_gaps(d, wn) == [] and d["gaps"] == keep, d["gaps"])
+# The same tool IDs with other statuses are gaps in Mansha's data, not user data: they stay.
+d = copy.deepcopy(GOOD_W); d["gaps"] = copy.deepcopy(GAPS_2008)
+check("windows (files and value given): tool-cited gaps stay (status MEETS / ESTIMATED)",
+      drop_user_data_gaps(d, w) == [] and len(d["gaps"]) == 2)
+fake_pack = copy.copy(wn)
+fake_pack.tool_results = {**wn.tool_results,
+                          "TOOL:origin:76101000": {**wn.tool_results["TOOL:origin:76101000"], "status": "RULE_GAP"},
+                          "TOOL:duty:76101000": {**wn.tool_results["TOOL:duty:76101000"],
+                                                 "status": "REGULATORY_GAP_DETECTED"}}
+d = {"gaps": copy.deepcopy(GAPS_2008)}
+check("RULE_GAP / REGULATORY_GAP_DETECTED gaps stay", drop_user_data_gaps(d, fake_pack) == [] and len(d["gaps"]) == 2)
+check("plain-string or missing gaps: no crash", drop_user_data_gaps({"gaps": ["x"]}, wn) == []
+      and drop_user_data_gaps({}, wn) == [])
+d = copy.deepcopy(GOOD_WN); d["gaps"] = copy.deepcopy(GAPS_2008); d["follow_up_questions"] = []
+res = run_researcher(wi, wn, llm=fake_llm(d))
+check("run_researcher: gaps dropped, but missing follow-ups are still a problem (check 7)",
+      res.data["gaps"] == [] and any("follow_up_questions" in x for x in res.problems)
+      and sum("data the user must supply" in c for c in res.changes) == 2, (res.problems, res.changes))
+d = copy.deepcopy(GOOD_WN); d["gaps"] = copy.deepcopy(GAPS_2008)
+res = run_researcher(wi, wn, llm=fake_llm(d))
+check("run_researcher: 20:08 answer passes with the gaps dropped", res.passed and res.data["gaps"] == [],
+      (res.problems, res.data["gaps"]))
+for name in ("researcher_1.json", "researcher_2.json"):  # the saved answers (git-ignored: skipped if absent)
+    f = RUNS / "20261023-200806_windows_nodata" / name
+    if not f.exists():
+        print(f"  SKIP  replay 20261023-200806_windows_nodata/{name} (run folder not on this machine)")
+        continue
+    saved = json.loads(f.read_text())["output"]
+    intake = json.loads((RUNS / "20261023-200806_windows_nodata" / "intake.json").read_text())["output"]
+    pack = build_evidence(intake, None)
+    d = copy.deepcopy(saved)
+    ch = drop_user_data_gaps(d, pack)
+    check(f"replay 20:08 {name}: both tool-cited gaps dropped, follow-ups kept",
+          len(ch) == 2 and d["gaps"] == [] and len(d["follow_up_questions"]) == 2, (ch, d["gaps"]))
+
+print("\n== Step 7.6j: check names in plain words, raw names, confidence")
+BASIS_0359 = ("final_manufacture_in_uae: PASS - final manufacture took place in the UAE; minimal_operations: PASS - "
+              "manufacturing goes beyond the minimal operations of Art. 3.5.1; CTSH: PASS - all 3 non-originating "
+              "inputs are classified outside subheading 761010; VA: PASS - build-down 49.0% against a threshold of "
+              "45%, FOB basis.")   # 24 Oct 03:59 windows, researcher_1 and _2, word for word
+d = copy.deepcopy(GOOD_W); d["origin_result"]["basis"] = BASIS_0359
+ch = plain_check_names(d)
+check("03:59 replay: check names written in plain words",
+      d["origin_result"]["basis"].startswith("final manufacture check: PASS")
+      and "minimal operations check: PASS" in d["origin_result"]["basis"] and "_" not in d["origin_result"]["basis"],
+      d["origin_result"]["basis"])
+check("03:59 replay: the change is logged", ch == ["origin_result.basis: check names written in plain words"], ch)
+check("03:59 replay: no raw-name problem after the rewrite",
+      not any("internal name" in x for x in run(d, w)[0]), run(d, w)[0])
+res = run_researcher(wi, w, llm=fake_llm({**copy.deepcopy(GOOD_W), "origin_result": {
+    **GOOD_W["origin_result"], "basis": BASIS_0359}}))
+check("run_researcher: 03:59 basis fixed by code, no problem, change recorded",
+      not any("internal name" in x for x in res.problems) and "_" not in res.data["origin_result"]["basis"]
+      and "origin_result.basis: check names written in plain words" in res.changes, (res.problems, res.changes))
+for where, mutate in (
+        ("basis", lambda x: x["origin_result"].update(basis="price_basis: FOB; VA 49.0%.")),
+        ("a caveat", lambda x: x["caveats"][0].update(note="non_originating_share_pct is 51.0.")),
+        ("a follow-up", lambda x: x.update(follow_up_questions=["Set final_manufacture_flag to true."]))):
+    d = copy.deepcopy(GOOD_W); mutate(d)
+    check(f"another raw name in {where} is a problem", any("internal name" in x for x in run(d, w)[0]), run(d, w)[0])
+check("plain English with no underscore: no raw-name problem", not any("internal name" in x for x in run(GOOD_W, w)[0]))
+for bad in (None, "", "certain"):
+    d = copy.deepcopy(GOOD_W); d["classification"]["confidence"] = bad
+    check(f"confidence {bad!r} is a problem (03:59: QA made it null)",
+          any("classification.confidence" in x for x in run(d, w)[0]), run(d, w)[0])
+d = copy.deepcopy(GOOD_W); d["classification"]["confidence"] = "High"
+check("confidence 'High' is fine (case ignored)", not any("confidence" in x for x in run(d, w)[0]))
+d = copy.deepcopy(GOOD_W)
+d["classification"] = {"tariff_line": GAP, "description": GAP, "confidence": GAP, "source_id": "TOOL:tariff_lookup"}
+check("no fitting line: the gap marker as confidence is not a confidence problem",
+      not any("classification.confidence" in x for x in run(d, w)[0]), run(d, w)[0])
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

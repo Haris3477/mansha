@@ -19,6 +19,7 @@ from mansha.evidence import build_evidence
 from mansha.llm_client import CHAIN_LIMITS, LLMCallError, LLMResult
 from mansha.qa import (
     PART_BUDGET,
+    PLAN_BUDGET,
     QA_APPROVED,
     QA_CHAIN,
     QA_ERROR,
@@ -162,6 +163,24 @@ check("field forms accepted: 'classification', 'caveats', 'origin_result.basis'"
                           f=0)) == [])
 check("source_id null accepted", problems_for(answer([("W1", "NOISE"), ("W2", "NOISE")],
                                                       [{**FIX, "source_id": None}], c=0)) == [])
+# Step 7.6j: the confidence is not QA's to correct; code-fixed sources get no "cite" advice.
+LIVE_0359 = {"field": "classification.confidence", "problem": "Confidence level is not supported by any cited "
+             "evidence.", "fix": "Remove the confidence field or set it to null.", "source_id": None}
+caught("7.6j replay 03:59: correction on classification.confidence refused",
+       answer([("W1", "NOISE"), ("W2", "NOISE")], [LIVE_0359], f=0), "own judgement")
+check("7.6j: a correction on the classification itself is still allowed", problems_for(answer(
+      [("W1", "NOISE"), ("W2", "NOISE")], [{**FIX, "field": "classification"}], f=0)) == [])
+LIVE_0409 = {"field": "origin_result.basis", "problem": "The statement includes a 40% value-addition requirement.",
+             "fix": "The origin check could not be completed because the required information was not provided.",
+             "source_id": "TOOL:rule_lookup:76101000"}
+t = correction_text(LIVE_0409)
+check("7.6j replay 04:09: no 'cite the rule lookup' for origin_result; keep its source",
+      "Cite" not in t and "TOOL:rule_lookup" not in t and t.endswith("Keep this field's source_id as it is."), t)
+for f in ("classification", "tariff.mfn_rate", "origin_rule", "estimated_saving"):
+    check(f"7.6j: no cite advice for {f}", "Cite" not in correction_text({**LIVE_0409, "field": f}))
+check("7.6j: a note still gets its record to cite",
+      correction_text({**LIVE_0409, "field": "caveats[0].note"}).endswith(
+          "Cite TOOL:rule_lookup:76101000 in source_id, not in the text."))
 
 # ---------------------------------------------------------------- 3
 print("\n3. run_qa: status, corrections, retry, failures")
@@ -296,9 +315,11 @@ for name, want in (("clean_chargers", 1), ("clean_plastic", 1), ("clean_windows"
               parts[0].scope is None and parts[0].max_tokens is None)
         continue
     sizes = [estimate_tokens(build_messages(pi, pp, pr.data, None, part=p)) for p in parts]
-    check(f"{name}: every part fits (prompt + {PART_BUDGET} <= {SPLIT_LIMIT})",
-          all(x + PART_BUDGET <= SPLIT_LIMIT for x in sizes) and all(p.max_tokens == PART_BUDGET for p in parts),
-          sizes)
+    check(f"{name}: every part planned to fit (prompt + {PLAN_BUDGET} <= {SPLIT_LIMIT})",
+          all(x + PLAN_BUDGET <= SPLIT_LIMIT for x in sizes), sizes)
+    check(f"{name}: every part sent with the {PART_BUDGET}-token answer budget (7.6h)",
+          PART_BUDGET == 3000 and all(p.max_tokens == PART_BUDGET for p in parts),
+          [p.max_tokens for p in parts])
     keys = [k for p in parts for k in p.scope]
     check(f"{name}: findings first, every step and note in exactly one part, in order",
           keys == ["findings"] + item_keys(pr.data), keys)

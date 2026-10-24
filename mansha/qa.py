@@ -28,7 +28,8 @@ prompt and answer together. When code estimates that one review will not fit
 (prompt + 3,000-token answer > SPLIT_LIMIT), it splits the review into parts:
 part 1 reviews the findings (classification, origin basis, what's still needed);
 the steps and notes are packed, in order, into as many further parts as needed, each
-with only the records they cite and a 2,000-token answer budget. Each part is
+with only the records they cite (packed assuming a 2,000-token answer; since 7.6h each
+part is sent with a 3,000-token answer budget, problem 83). Each part is
 validated and retried like a single review; code merges them: the lowest score wins
 per metric, all corrections and judgements are kept; APPROVED only if every part
 approves, REJECTED if any part rejects, ERROR if a part failed and none rejected.
@@ -86,7 +87,12 @@ QA_NOT_REVIEWED = {QA_SKIPPED, QA_ERROR}
 # against Groq's real counts on 17 Oct (windows: estimated 6,214, real 5,675).
 GROQ_TPM = 8000
 SPLIT_LIMIT = 7600                      # estimated prompt + answer budget must stay under this
-PART_BUDGET = 2000                      # answer budget of one part (a part has fewer items)
+PLAN_BUDGET = 2000                      # answer budget assumed when packing parts (planning only)
+# Answer budget sent with each part (7.6h, problem 83): on Cerebras the reasoning model cut off
+# at 2,000 in 4 of 8 part calls (23 Oct), and every retry at 3,000 worked. Planning still uses
+# PLAN_BUDGET, so QA sees the same parts as before. If free Groq returns to `judge`, revisit
+# this: Groq refuses a request whose prompt + max_tokens exceeds 8,000 (gap G11).
+PART_BUDGET = 3000
 MAX_PARTS = 6                           # beyond this, the review is not attempted (ERROR)
 CHARS_PER_TOKEN = 3.6
 # A code warning starts with the field it is about: "procedure[2]: number(s) ..."
@@ -103,6 +109,20 @@ SHIELD_QUALIFIER_RE = re.compile(
     r"not (?:confirmed|defined|verified|checked|named|stated)|no official|"
     r"(?:does|do) not (?:define|confirm|state|say|name))\b", re.IGNORECASE)
 SHIELDED_FIELDS = ("caveats", "gaps")  # notes and gaps: the items that restate KB notes
+# Step 7.6j: fields QA may not correct. On 24 Oct 03:59 (windows) QA said the confidence "is not supported
+# by any cited evidence" and asked to remove it; the Researcher set it to null.
+NO_QA_FIELDS = ("classification.confidence",)
+# Step 7.6j: fields whose source_id code requires (the chosen line's record or tool result). A QA
+# "cite X" for them can only break that rule: on 24 Oct 04:09 QA told the Researcher to cite the rule
+# lookup for origin_result, the Researcher did, and the code check failed the run.
+CODE_SOURCE_FIELDS = ("classification", "tariff", "origin_rule", "origin_result", "estimated_saving")
+# Step 7.6i: an item that IS its record's KB note (each text has at least this share of the other's
+# content words) cannot be "unsupported" by that record. On 24 Oct 03:49 QA rejected the
+# P-IN-IMPORTER note, copied word for word, as "not in the cited record" (its fix kept
+# "reportedly", so the qualifier rule above did not see it). A fix that removes the item is
+# kept: a KB note can still not apply to this result (completeness rule 3), which QA may say.
+VERBATIM_COVERAGE = 0.9
+REMOVE_FIX_RE = re.compile(r"\b(?:remove|delete|drop|omit)\b", re.IGNORECASE)
 
 
 @dataclass
@@ -255,7 +275,11 @@ def check_qa(data: dict, research: dict, warnings, allowed_ids, *,
             continue
         f = str(c.get("field") or "")
         m = FIELD_RE.match(f)
-        if any(f == o or f.startswith(o + ".") for o in CODE_OWNED):
+        if f in NO_QA_FIELDS:
+            problems.append(f"corrections[{i}]: {f} is the Researcher's own judgement of how well the "
+                            "description matches, not a claim from a record; judge the chosen tariff line "
+                            "instead (factuality rule 1), and remove this correction and rescore without it")
+        elif any(f == o or f.startswith(o + ".") for o in CODE_OWNED):
             problems.append(f"corrections[{i}]: {f} is checked by code against the tools and is correct "
                             "(see CHECKED BY CODE); remove this correction and rescore without it")
         elif not m or m.group(1) not in research:
@@ -295,6 +319,9 @@ def correction_text(c: dict) -> str:
     exporter text (Step 7.6g)."""
     s = f"{c.get('field')}: {str(c.get('problem')).strip()} Fix: {str(c.get('fix')).strip()}"
     sid = c.get("source_id")
+    m = FIELD_RE.match(str(c.get("field") or ""))
+    if m and m.group(1) in CODE_SOURCE_FIELDS:   # Step 7.6j: code fixes these sources; keep them
+        return s + " Keep this field's source_id as it is."
     return s + (f" Cite {sid} in source_id, not in the text." if sid not in (None, "", "null") else "")
 
 
@@ -316,10 +343,14 @@ def _item(research: dict, f: str):
 def kb_shield(corrections: list[dict], research: dict, notes: dict[str, list[str]]) -> tuple[list, list]:
     """Split QA corrections into (kept, overruled) against the KB notes. Pure code.
 
-    Overruled: the corrected item is a note or gap citing a record with KB notes; its best
-    matching note carries a qualifier; the item keeps a qualifier too; and the fix has none.
-    Then the fix would turn what the KB qualifies into a plain fact (problem 82). Each overruled
-    item is {**correction, "record": id, "kb_note": note}.
+    Overruled, when the corrected item is a note or gap citing a record with KB notes, and
+    - "qualifier" (7.6g): its best matching note carries a qualifier; the item keeps a qualifier
+      too; and the fix has none. Then the fix would turn what the KB qualifies into a plain fact
+      (problem 82);
+    - "verbatim" (7.6i): the item is that note almost word for word (VERBATIM_COVERAGE both
+      ways), and the fix does not remove the item. A record's own note cannot be unsupported
+      by it.
+    Each overruled item is {**correction, "record": id, "kb_note": note, "why": rule}.
     """
     kept, overruled = [], []
     for c in corrections:
@@ -327,22 +358,42 @@ def kb_shield(corrections: list[dict], research: dict, notes: dict[str, list[str
         record = item[1] if item else None
         if item and record in notes:
             text = item[0]
+            fix = str(c.get("fix") or "")
             note = max(notes[record], key=lambda n: coverage(n, text))
             if (content_words(note) & content_words(text) and SHIELD_QUALIFIER_RE.search(note)
-                    and SHIELD_QUALIFIER_RE.search(text)
-                    and not SHIELD_QUALIFIER_RE.search(str(c.get("fix") or ""))):
-                overruled.append({**c, "record": record, "kb_note": note})
+                    and SHIELD_QUALIFIER_RE.search(text) and not SHIELD_QUALIFIER_RE.search(fix)):
+                overruled.append({**c, "record": record, "kb_note": note, "why": "qualifier"})
+                continue
+            if (coverage(text, note) >= VERBATIM_COVERAGE and coverage(note, text) >= VERBATIM_COVERAGE
+                    and not REMOVE_FIX_RE.search(fix)):
+                overruled.append({**c, "record": record, "kb_note": note, "why": "verbatim"})
                 continue
         kept.append(c)
     return kept, overruled
 
 
+def overruled_text(o: dict) -> str:
+    """One line for the phase log: why code overruled this correction."""
+    if o.get("why") == "verbatim":
+        return (f"{o.get('field')}: fix {o.get('fix')!r} rejects text that is {o['record']}'s own KB note "
+                f"{o['kb_note']!r}")
+    return f"{o.get('field')}: fix {o.get('fix')!r} drops the qualifier of {o['record']}'s note {o['kb_note']!r}"
+
+
 def rejudge_problems(overruled: list[dict]) -> list[str]:
     """What the judge is told when code overruled every correction of its rejection."""
-    return [f"{o.get('field')}: your fix drops the qualifier the knowledge base itself states. Record "
-            f"{o['record']} has this note: \"{o['kb_note']}\" The text keeps that qualifier, so it is "
-            "supported. Remove this correction and rescore, unless something else in this field is wrong"
-            for o in overruled]
+    out = []
+    for o in overruled:
+        if o.get("why") == "verbatim":
+            out.append(f"{o.get('field')}: this text is the knowledge base's own note for record {o['record']}: "
+                       f"\"{o['kb_note']}\" A record's notes are part of it, so the text is supported by "
+                       "its cited record. Remove this correction and rescore, unless the note does not apply "
+                       "to this result")
+        else:
+            out.append(f"{o.get('field')}: your fix drops the qualifier the knowledge base itself states. Record "
+                       f"{o['record']} has this note: \"{o['kb_note']}\" The text keeps that qualifier, so it is "
+                       "supported. Remove this correction and rescore, unless something else in this field is wrong")
+    return out
 
 
 def estimate_tokens(messages: list[dict]) -> int:
@@ -351,7 +402,8 @@ def estimate_tokens(messages: list[dict]) -> int:
 
 def plan_parts(intake: dict, pack: EvidencePack, research: dict, warnings) -> list[Part]:
     """One part when the review fits Groq's limit; else the findings, then the steps and notes in
-    order, packed into as few parts as fit (each prompt + PART_BUDGET <= SPLIT_LIMIT)."""
+    order, packed into as few parts as fit (each prompt + PLAN_BUDGET <= SPLIT_LIMIT); each
+    part is then sent with a PART_BUDGET answer budget."""
     pairs = numbered(warnings)
     whole = Part("whole review", None, pairs)
     budget = CHAIN_LIMITS[QA_CHAIN]["default"]
@@ -361,7 +413,7 @@ def plan_parts(intake: dict, pack: EvidencePack, research: dict, warnings) -> li
     def fits(scope: list[str]) -> bool:
         trial = Part("part 9/9", scope, pairs)  # worst case: every warning listed
         return (estimate_tokens(build_messages(intake, pack, research, pairs, part=trial))
-                + PART_BUDGET <= SPLIT_LIMIT)
+                + PLAN_BUDGET <= SPLIT_LIMIT)
 
     groups: list[list[str]] = []
     for key in ["findings"] + item_keys(research):

@@ -546,9 +546,10 @@ check("NOT_ELIGIBLE claim notes: dropped by code before QA (QA never sees them),
 
 # A report with a problem is FLAGGED but still shown (decision 9.6b: flag only)
 # Mandatory notes are printed verbatim from the Researcher's caveats (path of problem 34), so a
-# raw field name there gets past the Builder's checks; only the report check sees it.
+# raw Python value there gets past the Builder's checks; only the report check sees it. (Until 7.6j this
+# used a raw field name, "price_basis"; the Researcher's own checks now catch those in round 1.)
 leaky = research_fixture("windows")
-leaky["caveats"].append({"note": "Totals: price_basis FOB.", "source_id": "TOOL:origin:76101000"})
+leaky["caveats"].append({"note": "Operations declared: ['b', 'k'].", "source_id": "TOOL:origin:76101000"})
 res = run("windows", fake_for("windows", researcher=[leaky], document_builder=[ERR]))   # code prose
 rc = phase(res, "Report check")
 check("flagged report: still a REPORT, shown to the user", res.status == "REPORT"
@@ -632,7 +633,7 @@ fake_for_qa = fake_for("windows")
 try_chain_main(["trial", "windows", "--agents", "qa"], llm=budget_spy, runs_root=TMP / "try")
 check("try_chain --agents qa: QA on auto:trial with the part budget (windows splits), others unchanged",
       budgets == [("intake", "auto:qa", None), ("researcher", "auto:long", None),
-                  ("qa", "auto:trial", 2000), ("qa", "auto:trial", 2000),
+                  ("qa", "auto:trial", 3000), ("qa", "auto:trial", 3000),  # part budget 3,000 (7.6h)
                   ("document_builder", "auto:long", None), ("prose_qa", "auto:judge", 2000)], budgets)
 try:
     try_chain_main(["long"], llm=FakeLLM(), runs_root=TMP / "try")

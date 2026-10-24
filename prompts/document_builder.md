@@ -28,7 +28,7 @@ What each field says:
 - `summary`: 2–3 sentences. Whether the product qualifies for the CEPA rate, and what that means for the duty in India. Follow the VERDICT line exactly:
   - ELIGIBLE: the product meets the rule of origin, so the CEPA rate can be claimed; give the saving if FACTS gives one; point the reader to the checklist below.
   - NOT_ELIGIBLE: the product does not meet the rule of origin, so the normal (MFN) rate applies; say in one phrase why (the main failed check).
-  - NEEDS_MORE_DATA: Mansha cannot confirm the result yet; say what is missing; give the saving only as "if the product qualifies".
+  - NEEDS_MORE_DATA: Mansha cannot confirm the result yet; say what is missing. If FACTS gives a saving amount, give it as the saving "if the product qualifies"; if FACTS says the saving cannot be estimated without the shipment value, say only that. Never explain how a saving is worked out.
   - NO_PREFERENCE: this tariff line is excluded from India's CEPA concessions, so the normal (MFN) rate applies whatever the product's origin.
   - REGULATORY_GAP_DETECTED: Mansha's sources do not cover this product well enough to give a result; say which part is missing.
 - `classification`: 1–2 sentences. The tariff line and its description, and Mansha's confidence. Always say the code should be confirmed with Indian customs or a customs broker before shipping. If the confidence is medium or low, say so plainly.

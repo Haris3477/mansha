@@ -99,6 +99,28 @@ def all_duty_gone(text: str) -> list[re.Match]:
 ALL_DUTY_GONE_FIX = ("the CEPA rate applies to Basic Customs Duty only; IGST and other import charges are "
                      "still paid, so say the CEPA rate reduces (or removes) Basic Customs Duty, never all duty")
 
+# Problem 67 (7.6h, 4a): the Builder explains how the saving is worked out ("If the product
+# qualifies, the saving would be the difference between the normal (MFN) rate and the CEPA rate",
+# 23 Oct 20:05 and 20:08; "the saving can be determined based on the difference between the two
+# rates", 19 Oct). FACTS never says this, and it is wrong as a rule: the duty tool applies the rate
+# difference to the assessable value, with IGST and other charges still due. The prose check
+# approved it twice, so it is a fixed wording rule in code, like ALL_DUTY_GONE_RE. English only (G19).
+SAVING_HOW_RE = re.compile(
+    r"\bdifference\s+(?:between|of)\s+(?:[\w()\u2011-]+\s+){0,4}rates?\b|"
+    r"\brates?\s+difference\b|"
+    r"\bsaving\w*\s+(?:\w+\s+){0,3}(?:calculated|computed|worked\s+out)\s+(?:by|as|based\s+on)\b|"
+    r"\bmultipl(?:y|ied|ying)\s+(?:[\w()]+\s+){0,5}by\s+(?:the\s+)?(?:\w+\s+){0,2}rates?\b",
+    re.IGNORECASE)
+
+
+def saving_how(text: str) -> list[re.Match]:
+    """Matches of SAVING_HOW_RE: wording that explains how the saving is worked out (problem 67)."""
+    return list(SAVING_HOW_RE.finditer(text or ""))
+
+
+SAVING_HOW_FIX = ("never explain how the saving is worked out; say only what FACTS says about the saving "
+                  "(the amount, or that it cannot be estimated without the shipment value)")
+
 
 # Fixed meanings for the TERMS line. Only terms that appear in the facts are sent.
 TERMS = {
@@ -410,7 +432,7 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
     if problems:
         return problems
 
-    def text_problems(where: str, text: str, allowed_numbers: set[str]) -> None:
+    def text_problems(where: str, text: str, allowed_numbers: set[str], sources: str = "") -> None:
         extra = number_keys(text) - allowed_numbers
         if extra:
             problems.append(f"{where}: number(s) {sorted(extra)} are not in the input; "
@@ -423,6 +445,10 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
                             "with plain words")
         for m in all_duty_gone(text):           # problem 53, 7.6b
             problems.append(f"{where}: {m.group(0)!r} says all duty is removed, but {ALL_DUTY_GONE_FIX}")
+        if not saving_how(sources):               # a note may repeat what its own source says
+            for m in saving_how(text):            # problem 67, 7.6h
+                problems.append(f"{where}: {m.group(0)!r} explains how the saving is worked out, "
+                                f"which FACTS does not say; {SAVING_HOW_FIX}")
 
     for k in TEXT_KEYS:
         text_problems(f"`{k}`", prose[k], facts_numbers)
@@ -446,7 +472,8 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
         for s in src:
             if s in by_nid:
                 allowed |= number_keys(by_nid[s]["text"])
-        text_problems(where, item["text"], allowed)
+        text_problems(where, item["text"], allowed,
+                      " ".join(by_nid[s]["text"] for s in src if s in by_nid))
     return problems
 
 

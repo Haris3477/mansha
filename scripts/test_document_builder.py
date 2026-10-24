@@ -16,6 +16,7 @@ from mansha.document_builder import (
     EVIDENCE_ID_RE,
     MAX_NOTES,
     MIN_LLM_NOTES,
+    SAVING_HOW_RE,
     build_facts,
     build_messages,
     check_prose,
@@ -254,6 +255,43 @@ for fine in ("The CEPA rate removes Basic Customs Duty.", "It eliminates the Bas
 p = copy.deepcopy(good)
 p["notes"] = []
 check("no LLM notes is fine (mandatory notes are added by code)", check_prose(p, facts, notes) == [])
+# 7.6h 4a, problem 67: wording that explains how the saving is worked out is a problem.
+# Replays: the exact live fields (runs/pipeline/*/builder.json) from 17, 19 and 23 Oct windows_nodata.
+LIVE_67 = [
+    ("17 Oct 17:01 summary", "summary", "Mansha cannot confirm whether the aluminium window frames qualify for the preferential duty rate under the India-UAE CEPA because the required information is missing. If the product qualifies, the saving would be the difference between the normal rate and the CEPA rate, but the exact amount cannot be estimated without the shipment value. To proceed, the exporter needs to provide a bill of materials, a declaration, and the shipment value in AED."),
+    ("17 Oct 18:06 summary", "summary", "Mansha cannot confirm the result yet, because information is missing. To proceed, you need to provide a bill of materials, a declaration, the shipment value in AED, and confirm the HS code. If the product qualifies, the duty saving would be the difference between the normal import duty rate (MFN rate) and the reduced rate under the trade agreement (CEPA rate), but the amount cannot be estimated without the shipment value."),
+    ("17 Oct 18:06 duty", "duty", "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10% and the CEPA rate is 0%. The saving would be the difference between these rates, but the exact amount cannot be estimated without the shipment value in AED."),
+    ("19 Oct 18:38 duty", "duty", "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10%, while the CEPA rate is 0%. Because the shipment value is not provided, the estimated saving cannot be calculated yet. Once the shipment value is known, the saving can be determined based on the difference between the two rates."),
+    ("23 Oct 20:05 summary", "summary", "Mansha cannot confirm the result yet because complete bill of materials data and manufacturer origin declaration details are missing. If the product qualifies, the saving would be the difference between the normal (MFN) rate and the CEPA rate."),
+    ("23 Oct 20:08 summary", "summary", "Mansha cannot confirm the result yet, because the bill of materials, declaration and shipment value are missing. If the product qualifies, the saving would be the difference between the normal rate and the CEPA rate."),
+]
+for label, fld, text in LIVE_67:
+    p = copy.deepcopy(good)
+    p[fld] = text
+    probs = check_prose(p, facts, notes)
+    check(f"67 replay {label}: caught in `{fld}` with the fix", any(
+        x.startswith(f"`{fld}`") and "explains how the saving is worked out" in x for x in probs), probs)
+for wrong in ("The saving is calculated by multiplying the shipment value by the rate difference.",
+              "Multiply the shipment value by the difference in rates.",
+              "Your saving is worked out as the gap between the two rates."):
+    expect_problem(f"67: {wrong!r} fails", lambda p, w=wrong: p.update(duty=p["duty"] + " " + w))
+expect_problem("67: also inside a note",
+               lambda p: p["notes"][0].update(text="The saving is the difference between the two rates."))
+for fine in ("The estimated saving cannot be estimated without the shipment value.",
+             "If the product qualifies, the saving cannot be estimated without the shipment value.",
+             "The estimated saving cannot be determined without the shipment value.",
+             "The CEPA rate is lower than the normal (MFN) rate.",
+             "The saving cannot be calculated yet."):
+    p = copy.deepcopy(good)
+    p["duty"] += " " + fine
+    check(f"67: {fine!r} is fine", check_prose(p, facts, notes) == [], check_prose(p, facts, notes))
+n2 = copy.deepcopy(notes)
+src = next(n for n in n2 if not n["mandatory"])
+src["text"] += " The saving depends on the difference between the two rates."
+p = copy.deepcopy(good)
+p["notes"] = [{"text": "The saving depends on the difference between the two rates.", "from": [src["nid"]]}]
+check("67: a note item may repeat it when its own note says it",
+      not any("worked out" in x for x in check_prose(p, facts, n2)), check_prose(p, facts, n2))
 p = copy.deepcopy(good)
 p["summary"] = p["summary"].replace("AED 10,000", "AED 10000")
 check("thousands separators are the same number", check_prose(p, facts, notes) == [])
@@ -349,12 +387,29 @@ llm = fake_llm(good)
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("no error: no failed attempts", r.failed_attempts == [])
 
+# 7.6h 4a: a 67 sentence goes into the Builder's one retry; if it persists, the code-only report.
+bad67 = dict(good, summary=LIVE_67[-1][2])
+llm = fake_llm(bad67, good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("67: caught, then fixed in the retry (2 calls, no fallback)",
+      len(llm.seen) == 2 and not r.used_fallback and "difference between" not in r.markdown)
+check("67: the retry carries the saving correction",
+      "explains how the saving is worked out" in llm.seen[1][-1]["content"])
+llm = fake_llm(bad67, bad67)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("67: still there after the retry -> code-only report without it",
+      r.used_fallback and not SAVING_HOW_RE.search(r.markdown))
+
 msgs = build_messages(facts, "en")
 check("system prompt has the Agent 4 section and language",
       "AGENT 4" in msgs[0]["content"] and "Write in English" in msgs[0]["content"])
 check("no unfilled {language} left", "{language}" not in msgs[0]["content"])
 check("prompt tells the model mandatory notes are printed by code",
       "word for word by code" in msgs[0]["content"])
+check("prompt (7.6h): NEEDS_MORE_DATA gives the saving only when FACTS has an amount, never how it is worked out",
+      "If FACTS gives a saving amount" in msgs[0]["content"]
+      and "Never explain how a saving is worked out" in msgs[0]["content"]
+      and 'give the saving only as "if the product qualifies".' not in msgs[0]["content"])
 
 print("\n5. The prose check in the call loop (Step 7.6, scripted review)")
 

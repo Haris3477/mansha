@@ -17,6 +17,9 @@ covers it. A gap that cites a passage with KB notes is a note, not something the
 supply, so code moves it into `caveats` (move_note_gaps); the prompt already said so, and
 on 23 Oct the model put three KB notes into `gaps`, where QA could not see their record and
 called them unsupported. Plain-string gaps (the old format) are read as source null.
+A gap citing the origin tool (INSUFFICIENT_DATA) or the duty tool (NEEDS_VALUE) asks for data the
+user must supply, which the follow-up questions already ask for, so code drops it (Step 7.6h,
+problem 85, drop_user_data_gaps).
 """
 
 from __future__ import annotations
@@ -64,6 +67,16 @@ PROCEDURE_TOOL_IDS = {"TOOL:coo_fee"}
 # Evidence IDs: allowed in `source_id` fields only, never in text the exporter reads.
 EVIDENCE_ID_RE = re.compile(r"\b(?:TL|EXC|PSR)-[A-Z0-9]|\bP-[A-Z]|TOOL:")
 INTERNAL_WORD_RE = re.compile(r"\bintake\b", re.IGNORECASE)   # Mansha's own pipeline words
+# Step 7.6j: raw tool names (snake_case, e.g. "final_manufacture_in_uae: PASS") copied from the EVIDENCE
+# into text the exporter reads. On 24 Oct 03:59 (windows) QA missed them in round 1 and caught them in
+# round 2, after the one revision was spent. Plain English never has an underscore inside a word.
+RAW_NAME_RE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
+# Step 7.6j: the origin calculator's check names, written in plain words by code (the same words as the
+# Builder's TERMS). They reached `origin_result.basis` in 8 of 71 saved Researcher answers (17-24 Oct).
+CHECK_NAME_WORDS = {"final_manufacture_in_uae": "final manufacture check",
+                    "minimal_operations": "minimal operations check"}
+# Step 7.6j: the classification's confidence is one of these (or the gap marker with the line).
+CONFIDENCE_VALUES = ("high", "medium", "low")
 
 
 @dataclass
@@ -342,6 +355,70 @@ def move_note_gaps(data: dict, pack: EvidencePack) -> list[str]:
     return changes
 
 
+# A gap citing one of these tool results with this status is data the user must supply (7.6h).
+USER_DATA_TOOL_STATUS = {"TOOL:origin:": "INSUFFICIENT_DATA", "TOOL:duty:": "NEEDS_VALUE"}
+
+
+def drop_user_data_gaps(data: dict, pack: EvidencePack) -> list[str]:
+    """Drop `gaps` items that ask for data the user must supply (Step 7.6h, problem 85).
+
+    On 23 Oct 20:08 (windows_nodata) "What's still needed" asked twice for the same things: the
+    follow-up questions asked for a bill of materials and the shipment value, and two gaps citing
+    `TOOL:origin:<line>` (INSUFFICIENT_DATA) and `TOOL:duty:<line>` (NEEDS_VALUE) said they were
+    missing. For those statuses check 7 already requires follow-up questions, so such a gap only
+    repeats them. A gap citing the origin tool with RULE_GAP, or the duty tool with
+    REGULATORY_GAP_DETECTED, is a gap in Mansha's data and stays.
+    """
+    gaps = data.get("gaps")
+    if not isinstance(gaps, list):
+        return []
+    keep, changes = [], []
+    for i, g in enumerate(gaps):
+        sid = g.get("source_id") if isinstance(g, dict) else None
+        tool = pack.tool_results.get(sid) if isinstance(sid, str) else None
+        want = next((st for pre, st in USER_DATA_TOOL_STATUS.items()
+                     if isinstance(sid, str) and sid.startswith(pre)), None)
+        if tool is not None and want and tool.get("status") == want:
+            changes.append(f"gaps[{i}]: dropped, data the user must supply ({sid} {want}; "
+                           f"asked in follow_up_questions): {gap_text(g)!r}")
+            continue
+        keep.append(g)
+    data["gaps"] = keep
+    return changes
+
+
+def plain_check_names(data: dict) -> list[str]:
+    """Write the origin calculator's check names in plain words in exporter text (Step 7.6j).
+
+    "final_manufacture_in_uae: PASS - ..." -> "final manufacture check: PASS - ...". A fixed
+    mapping, so code does it instead of spending the revision; any other raw name is a problem
+    in check_researcher (RAW_NAME_RE).
+    """
+    changes: list[str] = []
+
+    def fix(where: str, text):
+        if not isinstance(text, str):
+            return text
+        new = text
+        for raw, words in CHECK_NAME_WORDS.items():
+            new = re.sub(rf"\b{raw}\b", words, new)
+        if new != text:
+            changes.append(f"{where}: check names written in plain words")
+        return new
+
+    res = data.get("origin_result")
+    if isinstance(res, dict):
+        res["basis"] = fix("origin_result.basis", res.get("basis"))
+    for k, key in (("procedure", "step"), ("caveats", "note"), ("gaps", "text")):
+        for i, item in enumerate(data.get(k) if isinstance(data.get(k), list) else []):
+            if isinstance(item, dict):
+                item[key] = fix(f"{k}[{i}].{key}", item.get(key))
+    qs = data.get("follow_up_questions")
+    if isinstance(qs, list):
+        data["follow_up_questions"] = [fix(f"follow_up_questions[{i}]", q) for i, q in enumerate(qs)]
+    return changes
+
+
 def drop_caveat_gaps(data: dict) -> list[str]:
     """Remove `gaps` items that repeat a caveat's text; return what was removed (Step 9.6e).
 
@@ -492,6 +569,18 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
             span = text[found.start():found.start() + 25].split()[0]
             problems.append(f"{where} contains {span!r}: this text is shown to the exporter, so write it in "
                             "plain words without evidence IDs or internal words (cite only in source_id)")
+        raw = RAW_NAME_RE.search(text)
+        if raw and not found:
+            problems.append(f"{where} contains the internal name {raw.group(0)!r}: this text is shown to the "
+                            "exporter, so describe the check in plain words (e.g. 'final manufacture took "
+                            "place in the UAE'), never with tool field names")
+
+    # 1c. Confidence is high, medium or low (Step 7.6j: on 24 Oct 03:59 a QA correction made it null)
+    cls = data["classification"]
+    conf = str(cls.get("confidence") or "").strip().lower()
+    if str(cls.get("tariff_line", "")).strip() != GAP and conf not in CONFIDENCE_VALUES:
+        problems.append(f"classification.confidence must be one of {', '.join(CONFIDENCE_VALUES)} "
+                        f"(got {cls.get('confidence')!r}): judge it from how well the description matches")
 
     # 2. Every source_id is an ID in the evidence
     allowed = set(pack.allowed_ids)
@@ -650,6 +739,8 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes = normalize_gaps(data)  # old plain-string gaps -> {text, source_id: null} (Step 7.6g)
     changes += unbracket_ids(data, pack)  # "[ID]" -> "ID": the fills below read source_id (problem 75)
     changes += move_note_gaps(data, pack)  # KB notes put in gaps -> caveats, before the fills (G39)
+    changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
+    changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)

@@ -59,6 +59,7 @@ from mansha.qa import (
     QA_REJECTED,
     QA_SKIPPED,
     QAOutcome,
+    overruled_text,
     run_qa,
 )
 from mansha.report_check import check_report
@@ -338,7 +339,7 @@ def render_phase_log(result: PipelineResult) -> str:
             lines += ["", label] + [f"- {x}" for x in p.warnings]
         qa_parts = p.details.get("qa_parts")
         if qa_parts:
-            lines += ["", "Review split into parts (Groq's 8,000-token limit):"] + [
+            lines += ["", "Review split into parts (size limit):"] + [
                 f"- {x['label']}: {x['status']}"
                 + (f", served by {x['served_by']} ({x['seconds']} s)" if x.get("served_by") else "")
                 + (f"; code warnings {', '.join(x['warnings'])}" if x.get("warnings") else "")
@@ -510,9 +511,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
              QA_OVERRULED: "OVERRULED"}.get(q.status, "FAILED"),
             t(), q.note or f"{q.status} | scores {q.scores}", calls=q_calls, problems=q.corrections,
             details={**({"warning_judgements": q.judgements} if q.judgements else {}),
-                     **({"overruled_by_kb": [f"{o.get('field')}: fix {o.get('fix')!r} drops the qualifier "
-                                             f"of {o['record']}'s note {o['kb_note']!r}"
-                                             for o in q.overruled]} if q.overruled else {}),
+                     **({"overruled_by_kb": [overruled_text(o) for o in q.overruled]} if q.overruled else {}),
                      **({"qa_answer_problems": q.output_problems} if q.output_problems else {}),
                      **({"qa_parts": q.parts} if q.parts else {})}))
         w = same_model_warning(research.llm.routed_via if research.llm else None,
@@ -523,7 +522,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
             warnings.append(f"QA round {round_no}: {q.note}")
         if q.status == QA_OVERRULED:
             warnings.append(f"QA round {round_no}: rejection overruled by the KB (every correction dropped a "
-                            f"qualifier its record's note carries: "
+                            f"qualifier its record's note carries, or rejected the record's own note: "
                             f"{', '.join(str(o.get('field')) for o in q.overruled)})")
         if q.status in QA_NOT_REVIEWED and research.warnings:
             warnings.append(f"Researcher round {round_no}: {len(research.warnings)} code warning(s) "
