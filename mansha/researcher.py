@@ -519,6 +519,40 @@ def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
     return changes
 
 
+# ---------- product HS-code follow-ups (Step 7.9, problem 92) ----------
+# A follow-up about the product's own HS / tariff code ("Please confirm the HS code for aluminium window
+# frames"), as opposed to a bill-of-materials question that mentions each input's HS code.
+HS_QUESTION_RE = re.compile(r"\b(?:HS|tariff|customs)[ -]?(?:code|line)s?\b|\bclassification\b", re.IGNORECASE)
+NOT_PRODUCT_CODE_RE = re.compile(r"\bbill of materials\b|\binputs?\b|\bmaterials?\b|\bcomponents?\b|"
+                                 r"\bdeclaration\b", re.IGNORECASE)
+TARIFF_LOOKUP_ID = "TOOL:tariff_lookup"
+
+
+def drop_hs_follow_ups(data: dict, pack: EvidencePack) -> list[str]:
+    """Drop follow-ups asking to confirm the product's HS code when the tariff lookup found no problem (7.9).
+
+    The prompt asks for that question only when `TOOL:tariff_lookup` notes a conflict between the code and
+    the description; in the saved runs of 16-24 Oct the model added it in 14 of 76 answers, every time with
+    no HS code given and no note (problem 92). It repeats the Builder's "confirm the code with Indian
+    customs or a customs broker" advice, and in an ELIGIBLE report it adds a "What's still needed" section
+    to a finished answer. Kept whenever the tariff lookup wrote any note (a conflict, an 8-digit code with
+    no exact match, a code that matched nothing). Check 7 still requires the real follow-ups afterwards.
+    """
+    qs = data.get("follow_up_questions")
+    tl = pack.tool_results.get(TARIFF_LOOKUP_ID)
+    if not isinstance(qs, list) or not isinstance(tl, dict) or tl.get("notes"):
+        return []
+    keep, changes = [], []
+    for i, q in enumerate(qs):
+        if isinstance(q, str) and HS_QUESTION_RE.search(q) and not NOT_PRODUCT_CODE_RE.search(q):
+            changes.append(f"follow_up_questions[{i}]: HS-code confirmation dropped, the tariff lookup found "
+                           f"no conflict: {q!r}")
+        else:
+            keep.append(q)
+    data["follow_up_questions"] = keep
+    return changes
+
+
 def drop_caveat_gaps(data: dict) -> list[str]:
     """Remove `gaps` items that repeat a caveat's text; return what was removed (Step 9.6e).
 
@@ -860,6 +894,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
     changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
+    changes += drop_hs_follow_ups(data, pack)  # "confirm the HS code" with no conflict noted (problem 92, 7.9)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)

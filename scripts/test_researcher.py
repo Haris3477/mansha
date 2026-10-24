@@ -20,6 +20,7 @@ from mansha.researcher import (
     drop_caveat_gaps,
     drop_claim_caveats,
     drop_follow_ups,
+    drop_hs_follow_ups,
     drop_user_data_gaps,
     plain_check_names,
     qualifier_drops,
@@ -825,6 +826,73 @@ for folder, name, want in (("20261018-051708_windows_nodata", "researcher_1.json
     ch = restore_qualified_notes(d, pack)
     check(f"replay {folder}/{name}: the dropped qualifier(s) restored",
           all(d["caveats"][i]["note"] == t for i, t in want.items()) and len(ch) == len(want), ch)
+
+print("\n== Step 7.9: HS-code follow-ups without a tariff-lookup conflict (problem 92)")
+check("no HS code given: the tariff lookup notes nothing (windows, windows_nodata)",
+      w.tool_results["TOOL:tariff_lookup"]["notes"] == [] and wn.tool_results["TOOL:tariff_lookup"]["notes"] == [])
+# Live wordings, word for word (16-24 Oct, all with no HS code given and no tariff-lookup note).
+HS_LIVE = ["Please confirm the HS code for aluminium window frames.",
+           "Confirm the HS code for aluminium window frames (proposed 76101000).",
+           "Please provide the HS code for aluminium window frames (if different from 76101000).",
+           "Please confirm the HS code for aluminium window frames (candidate 76101000) or provide the correct code.",
+           "Confirm that HS code 76101000 is correct for aluminium window frames (the code was not provided in "
+           "the intake)."]
+BOM_Q = ["Please provide a bill of materials with each input's description, 6-digit HS code, origin country, "
+         "value and currency.",
+         "Provide a declaration with the product price, FOB or Ex-Works basis, final manufacture in the UAE, "
+         "and operations done in the UAE.",
+         "Please provide the shipment value in AED."]
+for q in HS_LIVE:
+    d = copy.deepcopy(GOOD_WN); d["follow_up_questions"] = BOM_Q[:1] + [q] + BOM_Q[1:]
+    ch = drop_hs_follow_ups(d, wn)
+    check(f"dropped: {q[:55]!r}", d["follow_up_questions"] == BOM_Q and len(ch) == 1
+          and "HS-code confirmation dropped" in ch[0], (d["follow_up_questions"], ch))
+d = copy.deepcopy(GOOD_WN); d["follow_up_questions"] = list(BOM_Q)
+check("bill-of-materials, declaration and value questions kept (inputs' HS codes are not the product's)",
+      drop_hs_follow_ups(d, wn) == [] and d["follow_up_questions"] == BOM_Q)
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = [HS_LIVE[0]]
+drop_hs_follow_ups(d, w)
+check("ELIGIBLE windows: the only follow-up was the HS question, so nothing is left for 'What's still needed'",
+      d["follow_up_questions"] == [] and not run(d, w)[0], run(d, w)[0])
+d = copy.deepcopy(GOOD_WN); d["follow_up_questions"] = [HS_LIVE[1]]
+drop_hs_follow_ups(d, wn)
+check("NEEDS_MORE_DATA left with no follow-up: check 7 still asks for the real ones",
+      any("follow_up_questions must say" in x for x in run(d, wn)[0]), run(d, wn)[0])
+# A tariff-lookup note (code/description conflict, no exact 8-digit match, code matched nothing): kept.
+for intake, label in (({"product_description": "aluminium window frames", "hs_code_given": "39239090",
+                        "shipment_value": None}, "code points elsewhere than the description"),
+                      ({"product_description": "aluminium window frames", "hs_code_given": "76101099",
+                        "shipment_value": None}, "8-digit code with no exact match")):
+    pk = build_evidence(intake, None)
+    notes = pk.tool_results["TOOL:tariff_lookup"]["notes"]
+    d = copy.deepcopy(GOOD_WN); d["follow_up_questions"] = [HS_LIVE[0]] + BOM_Q
+    check(f"tariff lookup noted something ({label}): HS question kept",
+          bool(notes) and drop_hs_follow_ups(d, pk) == [] and d["follow_up_questions"][0] == HS_LIVE[0], notes)
+res = run_researcher(wi, wn, llm=fake_llm({**copy.deepcopy(GOOD_WN),
+                                           "follow_up_questions": GOOD_WN["follow_up_questions"] + [HS_LIVE[1]]}))
+check("run_researcher: HS question dropped by code, answer passes, change recorded",
+      res.passed and HS_LIVE[1] not in res.data["follow_up_questions"]
+      and any("HS-code confirmation dropped" in x for x in res.changes), (res.problems, res.changes))
+for base in ("windows", "chargers", "windows_nodata", "plastic"):
+    fx = json.loads(Path(f"samples/researcher_outputs/{base}.json").read_text(encoding="utf-8"))["output"]
+    intake, folder, _ = DEV_INTAKES[base]
+    d = copy.deepcopy(fx)
+    check(f"fixture {base}: no follow-up dropped", drop_hs_follow_ups(d, build_evidence(intake, folder)) == [])
+# Replays of the saved answers (git-ignored run folders: skipped if absent).
+for folder, name, idx in (("20261024-164944_windows_nodata", "researcher_1.json", 0),
+                          ("20261024-152756_windows", "researcher_1.json", 0),
+                          ("20261024-040243_windows_nodata", "researcher_1.json", 2)):
+    f = RUNS / folder / name
+    if not f.exists():
+        print(f"  SKIP  replay {folder}/{name} (run folder not on this machine)")
+        continue
+    intake = json.loads((RUNS / folder / "intake.json").read_text())["output"]
+    pk = build_evidence(intake, "samples/windows_qualifies" if folder.endswith("_windows") else None)
+    d = copy.deepcopy(json.loads(f.read_text())["output"])
+    before = list(d["follow_up_questions"])
+    ch = drop_hs_follow_ups(d, pk)
+    check(f"replay {folder}: only the HS question dropped",
+          len(ch) == 1 and d["follow_up_questions"] == before[:idx] + before[idx + 1:], ch)
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
