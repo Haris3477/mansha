@@ -1,0 +1,14 @@
+{
+  "product": "Skin cream (synthetic test batch)",
+  "price_basis": "FOB",
+  "price": 60000,
+  "currency": "AED",
+  "final_manufacture_in_uae": true,
+  "factory_in_free_zone": false,
+  "operations": [
+    "beyond_minimal"
+  ],
+  "operations_description": "Ingredients emulsified, blended and filled into jars",
+  "direct_labour": null,
+  "direct_overhead": null
+}

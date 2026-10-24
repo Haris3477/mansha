@@ -1,0 +1,5 @@
+input_description,hs_code,origin_country,value,currency,value_basis,supplier
+Wheat flour,110100,AU,5400,USD,CIF,Supplier A (synthetic)
+Cane sugar,170199,BR,3240,USD,CIF,Supplier B (synthetic)
+Butter,040510,NZ,3510,USD,CIF,Supplier C (synthetic)
+Printed cartons,481910,AE,810,USD,PURCHASE,Supplier D (synthetic)

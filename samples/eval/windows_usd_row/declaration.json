@@ -1,0 +1,14 @@
+{
+  "product": "Aluminium windows with frames (synthetic test batch)",
+  "price_basis": "FOB",
+  "price": 100000,
+  "currency": "AED",
+  "final_manufacture_in_uae": true,
+  "factory_in_free_zone": false,
+  "operations": [
+    "beyond_minimal"
+  ],
+  "operations_description": "Profiles cut, machined, thermally broken and assembled into glazed window units",
+  "direct_labour": null,
+  "direct_overhead": null
+}

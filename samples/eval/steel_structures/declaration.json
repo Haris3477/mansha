@@ -1,0 +1,14 @@
+{
+  "product": "Steel building structures (synthetic test batch)",
+  "price_basis": "FOB",
+  "price": 100000,
+  "currency": "AED",
+  "final_manufacture_in_uae": true,
+  "factory_in_free_zone": false,
+  "operations": [
+    "beyond_minimal"
+  ],
+  "operations_description": "Sections cut, drilled, welded and painted into building frames",
+  "direct_labour": null,
+  "direct_overhead": null
+}

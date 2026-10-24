@@ -1,0 +1,5 @@
+input_description,hs_code,origin_country,value,currency,value_basis,supplier
+Mineral oil base,271019,CN,15000,AED,CIF,Supplier A (synthetic)
+Emollients,,DE,10000,AED,CIF,Supplier B (synthetic)
+Plastic jars,392330,AE,4000,AED,PURCHASE,Supplier C (synthetic)
+Fragrance compound,330290,FR,3000,AED,CIF,Supplier D (synthetic)

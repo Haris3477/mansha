@@ -1,0 +1,14 @@
+{
+  "product": "Wooden bedroom furniture (synthetic test batch)",
+  "price_basis": "FOB",
+  "price": 100000,
+  "currency": "AED",
+  "final_manufacture_in_uae": true,
+  "factory_in_free_zone": true,
+  "operations": [
+    "beyond_minimal"
+  ],
+  "operations_description": "Timber cut, shaped, joined, assembled and varnished into finished furniture",
+  "direct_labour": null,
+  "direct_overhead": null
+}

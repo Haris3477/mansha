@@ -1,0 +1,5 @@
+input_description,hs_code,origin_country,value,currency,value_basis,supplier
+Acrylic resin,390690,IN,30000,AED,CIF,Supplier A (synthetic)
+Titanium dioxide,282300,CN,25000,AED,CIF,Supplier B (synthetic)
+Paint additives,382499,CN,10000,AED,CIF,Supplier C (synthetic)
+Metal cans,731021,AE,5000,AED,PURCHASE,Supplier D (synthetic)

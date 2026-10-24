@@ -1,0 +1,4 @@
+input_description,hs_code,origin_country,value,currency,value_basis,supplier
+Mainboards,847330,TW,30000,AED,CIF,Supplier A (synthetic)
+Display panels,852410,CN,15000,AED,CIF,Supplier B (synthetic)
+Aluminium casings,847330,AE,10000,AED,PURCHASE,Supplier C (synthetic)

@@ -1,0 +1,16 @@
+{
+  "product": "Smartphones (synthetic test batch)",
+  "price_basis": "FOB",
+  "price": 90000,
+  "currency": "AED",
+  "final_manufacture_in_uae": true,
+  "factory_in_free_zone": false,
+  "operations": [
+    "n",
+    "k",
+    "l"
+  ],
+  "operations_description": "Imported kits assembled, boxed and labelled",
+  "direct_labour": null,
+  "direct_overhead": null
+}

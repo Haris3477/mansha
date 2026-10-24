@@ -1,0 +1,14 @@
+{
+  "product": "Aluminium cookware (synthetic test batch)",
+  "price_basis": "FOB",
+  "price": 100000,
+  "currency": "AED",
+  "final_manufacture_in_uae": true,
+  "factory_in_free_zone": false,
+  "operations": [
+    "beyond_minimal"
+  ],
+  "operations_description": "Sheet pressed, formed, coated and fitted with handles into cookware",
+  "direct_labour": null,
+  "direct_overhead": null
+}
