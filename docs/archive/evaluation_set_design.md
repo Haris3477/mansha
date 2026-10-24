@@ -92,3 +92,28 @@ Synthetic BOMs (suppliers "X (synthetic)"); FOB price 100,000 AED unless noted. 
 - Case data file (message, BOM folder, expected values, anchors) + `samples/eval/<case>/bom.csv, declaration.json`.
 - `scripts/eval_set.py`: tools-only dry run first (re-derives the key), then live; `--subset free`, `--repeat`, `--pause`; saves under `runs/eval_set/<time>/`; prints a summary table (case, status, verdict, check, QA, seconds, tokens).
 - Builds on `main` only after plan B and 7.6 are merged.
+
+## Update 24 Oct 2026: design check, build and first runs
+**Design check (Haris approved A + E6, 24 Oct 18:29).** The 17 Oct design stands, with these changes:
+- **E1 Budget in `long` requests, not judge tokens.** The judge moved to Cerebras (1M tokens a day on the trial); the binding limit is now `long` (Dots3 50 per sliding 24 h + Gemini). Each report case uses about 3–5 `long` requests. A **budget guard** reads the router's own counts before a live run and stops if the worst case doesn't fit (D3 = A: hard stop, `--force` to override). The 17 Oct "free-day subset" is retired.
+- **E2 Global anchors** on every report count known open problems: 72, 86, 92, 93, 94, 95, G12 and 67. **D1 = A:** a hit is a *slip* (counted, confirmed by reading), not a failed case. Problem 56 and the rest of G35 stay reading checks (no fixed pattern).
+- **E3 QA coverage:** APPROVED, OVERRULED, or REJECTED followed by a revision count as reviewed; ERROR or any NOT-reviewed part fails. **Changed 24 Oct 19:21 (Haris):** a router refusal that the retry got past is *counted* (summary "router refusals"), not failed; only a part left NOT reviewed fails.
+- **E4** Problems 88–91 are not live cases (they have offline replays); 92–95 are covered by E2.
+- **E5** N14 runs once in the baseline as an expected failure (G34), then stays out of the repeats until G34 is built.
+- **E6 Order:** build → dry run → baseline (every case once, over as many sittings as the budget allows) → **then the G17 `long` decision (B vs C) using the baseline's numbers** → repeats ×3 on the repeat group (C1–C4, N2, N3, N10).
+- **D2 = A** case anchors only where a pattern is safe: N1 (an AED amount for a USD shipment), N2 (duty removed), N3 (a saving from 15%), N4 (45% applied / 40% present), S3 (the MoFT CEPA list link), and no claim checklist for NOT_ELIGIBLE / NO_PREFERENCE / gap verdicts. The rest stays reading only.
+
+**As built (commits 0d5b41a, 9625f1e, 379de15, c056b30):**
+- `scripts/eval_cases.py`: 25 cases (20 + 5 reserves) with message, BOM folder, expected Intake JSON, answer key, expected status / verdict / saving status, reading items; `samples/eval/`: 12 synthetic BOM folders rebuilt from the table above (the 17 Oct ones were never saved as files).
+- `scripts/eval_set.py`: `--dry-run`, live run, `--repeat`, `--only-repeat`, `--grade` (re-grade saved runs), budget guard (sliding 24 h counts from `rate_limit_usage`, benches from `rate_limit_cooldowns`; a benched model counts 0; a provider's daily-quota bench covers all its models, because Google's free quota is project-wide), `summary.md` / `summary.json` / `reading.md` per run.
+- `scripts/eval_grade.py`: status, verdict, Intake fields, the tools re-run on the *live* intake vs the key, the Researcher's line / origin / saving, report check, QA and prose-QA coverage, language, privacy (supplier names in every saved file; BOM amounts ≥ 1,000 in evidence, Researcher JSON and report), case anchors, global anchors, requests and tokens per chain.
+- `scripts/test_eval_set.py`: 70 checks (clean fake-LLM runs of the 4 branches, one planted failure at a time, anchors, budget guard on a throwaway router DB, replay over saved runs).
+
+**Dry run:** 25/25 match the 17 Oct key (the tools and KB were unchanged since 784ff16). First-run mismatches were two of Claude's expected intakes (Arabic product text where Intake writes English; "skin cream" for N10, now "cosmetic skin creams").
+**Finding for G23:** plain names like "skin cream" and "face cream" match no tariff line (line 33049990's keywords are cosmetics, make-up, beauty): NOT_COVERED from keyword search. Milestone 5 (classification).
+**Anchor replay over 77 saved pipeline runs:** 45 hits, all true instances; 0 false alarms; no problem-92 hit after 7.9.
+
+**First live runs (24 Oct, Haris's Mac):**
+- 19:09 C1 smoke: PASS; 7.9 and 7.8 fired live correctly. Reading: new **problem 96** (the Builder added "you must use box 9 on your certificate" to a KB note that says only that India's form uses box 9; prose QA approved); a problem-86-kind duty sentence the anchor doesn't match (reading only); confidence "medium". 279 s (Gemini 3.7 timeout 60 s on Intake; Dots3 95 s + 117 s).
+- 19:20 core + stop: C1, C2, S1–S3 PASS (C1: problem 72 again, approved by QA; confidence "high"); **C3, C4 LLM_ERROR: free capacity ran out**, not a Mansha defect: Google answered "exceeded your current quota" for Gemini 3.6 and 3.5 although the router counted 3/20 and 10/20 (Google's free quota is per project; the router benched all three until the Pacific midnight reset, 11:00 Dubai), Gemini 3.7 timed out, Dots3 was at 50/50. To be re-run. The guard had trusted the router's per-model counts; fixed (c056b30).
+- Free `long` realistically gives about 6–8 report cases a day.

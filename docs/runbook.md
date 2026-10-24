@@ -7,13 +7,14 @@ _How to run things and where the code is. Moved verbatim from progress.md (20 Oc
 - Router: second terminal `cd ~/Projects/freellmapi && npm run dev` (not needed for offline tests).
 - From project root: `python -m scripts.<name>`; exception `python scripts/smoke_test.py`.
 - **Full pipeline (live):** `python -m scripts.run_pipeline` (all 6 cases), `python -m scripts.run_pipeline windows chargers`, or `python -m scripts.run_pipeline --message "..." [--bom samples/windows_qualifies]`. The usual live set: `python -m scripts.run_pipeline windows windows_nodata windows_nodata windows_nodata` (~10–15 min; ~20–30 Cerebras calls ≈ $0.07). Since 7.6k the client paces `auto:judge` (4 requests / 60 s), so cases can run back to back. **Budget the day:** Dots3 (the Researcher's fallback in `long`) allows 50 requests per rolling 24 h; on 24 Oct our own live sets used it up (52 in 24 h) and a Gemini outage then ended a run in LLM_ERROR (G17). Check the router's `requests` table before a live set.
+- **Evaluation set (since 24 Oct; design and decisions in `docs/archive/evaluation_set_design.md`):** `python -m scripts.eval_set --dry-run` (tools only, no LLM: re-derives the answer key; `--group reserve` for the reserves, `-v` for every fact); live: `python -m scripts.eval_set [--group core --group stop | --case N4 --case N7] [--only-repeat --repeat 3] [--force]`; re-grade saved runs without the LLM: `python -m scripts.eval_set --grade runs/eval_set/<time>`. A live run does the dry run first, then the **budget guard** (reads the router's own sliding-24 h counts in `rate_limit_usage` and its benches in `rate_limit_cooldowns`, read-only; a benched model counts 0, a provider's daily-quota bench covers all its models), then each case through the pipeline in one process. Output in `runs/eval_set/<time>/`: one folder per run, `summary.md`/`summary.json` (code checks, slips, requests and tokens), `reading.md` (what code can't judge; Haris and Claude fill it in). Free capacity is the limit: about 6–8 report cases a day on free `long` (24 Oct: Google's free quota is project-wide and ran out after ~15 Gemini calls; Dots3 50 per 24 h); runs take 2–5 min each on Dots3. Don't pass `--force` to get around a SHORT budget.
 - **QA evaluation (live):** `python -m scripts.eval_qa --pause 65 [cases]`, `--chain trial`, `--repeat 2`. The judge is GPT-OSS 120B on Cerebras (trial: 5 RPM, 1M uncached tokens/day; ≈ $0.003 per call); `--pause` is no longer needed with the client's pacing.
 - **Prose-check evaluation (live):** `python -m scripts.eval_prose_qa --dry-run` first, then `python -m scripts.eval_prose_qa [--pause 30] [cases]`.
 - **Try a new model:** put it alone in the `trial` chain, then `python -m scripts.try_chain trial [case ...] [--agents researcher document_builder qa]`.
 - **Edit a chain in the dashboard:** Activate it, toggle models, re-Activate Default. A new chain: name box + **tick "Start empty"** + Create.
 - **Re-check saved reports:** `python -m scripts.check_reports [folders]`.
-- **All offline tests in one go (18 on `main` since 7.6k):**
-  `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
+- **All offline tests in one go (19 on `main` since the evaluation set, 24 Oct):**
+  `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
   (`usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected: tests check that bad arguments are refused and that the runner reports a mismatch. Replays of saved runs in `test_researcher`/`test_kb_shield` print SKIP when the git-ignored `runs/` folders are absent. `test_llm_retry` passes only on the Mac: Claude's scratch copy uses a stand-in `openai` package.)
 - Branches: `git switch -c <name>`, `git switch <name>`, `git push -u origin <name>`; merge with `git switch main && git merge --ff-only <name> && git push`.
 - **Commit by file name, check `git status` first** (untracked `.archify/` and `docs/architecture*` would slip into a `git add -A`). No AI attribution lines in commits.
@@ -25,7 +26,7 @@ _How to run things and where the code is. Moved verbatim from progress.md (20 Oc
 ```
 .env, .env.example, .gitignore (runs/, graphify-out/, .wheels-linux/, .venv-linux/ ignored), requirements.txt
 data/india/          # sources, tariff_lines, psr_rules, passages (.json)
-samples/             # windows_qualifies/, chargers_repacked/, researcher_outputs/, builder_outputs/ (7.6), qa_replays/ (7.6g)
+samples/             # windows_qualifies/, chargers_repacked/, researcher_outputs/, builder_outputs/ (7.6), qa_replays/ (7.6g), eval/ (12 synthetic BOM folders, evaluation set)
 mansha/
   llm_client.py      # CHAIN_LIMITS (long 16000/16000, qa 1000/1000, judge 3000/3000); timeout 300 s; busy waits, cooldown waits, busy budget; RATE_LIMITS pacing of auto:judge 4/60 s (7.6k)
   prompts.py, intake.py, kb.py (CORRIDORS)
@@ -43,8 +44,9 @@ scripts/
   smoke_test, test_llm_client (live), check_data
   test_tariff_lookup, test_rule_lookup, test_origin_calculator, test_duty_estimate, test_coo_fee
   test_evidence, test_researcher, test_intake (--offline), test_document_builder, test_llm_retry,
-  test_pipeline, test_report_check, test_qa_evidence, test_qa, test_prose_qa, test_kb_shield, test_pacing
+  test_pipeline, test_report_check, test_qa_evidence, test_qa, test_prose_qa, test_kb_shield, test_pacing, test_eval_set
   pipeline_cases.py, run_pipeline.py, try_chain.py, eval_qa.py, eval_prose_qa.py, check_reports.py
+  eval_cases.py (25 cases + answer key), eval_set.py (dry run, budget guard, live runner, summary), eval_grade.py (grading, anchors)
 runs/                # git-ignored
 graphify-out/        # git-ignored code map (built at 85ba0e2, before 7.6c; regenerate before the next big change)
 docs/                # step7_qa.md, runbook.md, lessons.md, pre_demo_retest.md, archive/ (history)

@@ -64,3 +64,9 @@ _Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. Read before
 - **A repo file can be read-only on the Mac** (`prompts/researcher.md`, `mansha/llm_client.py`): write the tested file as `.new` with its hash, then `chmod 644` and move it; check the hash.
 - **Read the terms of free credits before signing up** (24 Oct): forum reports say Google Cloud's $300 trial no longer pays for Gemini through AI Studio (the route our router uses), and the 90-day clock starts at sign-up. Sign up only when the credit is needed and its route is verified.
 - **A small clean sample can hide a rare failure** (24 Oct sets 1–2 each found a new one): judge a step's bar on several runs of every verdict it touches, and move rare-failure measurement to the evaluation set's repeats.
+
+## Added 24 Oct evening (evaluation set)
+- **The router's per-model caps are not the provider's real quota** (24 Oct 19:22): Google's free tier counts one quota for the whole project, so Gemini 3.5 and 3.6 were refused at 3/20 and 10/20 in the router's own count. Read the router's benches (`rate_limit_cooldowns`) as well as its counts before planning a live run; the evaluation set's budget guard now does.
+- **A test that writes through a link reaches the real repo** (24 Oct): Claude's scratch copy links `runs/` to the Mac's folder, so a break test that started a live run left a folder in `runs/eval_set/`. Break tests that can reach a live path need their own `runs/`, or must be checked for leftovers afterwards.
+- **Rebuild a missing fixture from its spec, then let the dry run judge it** (24 Oct): the 17 Oct bills of materials existed only as a table; rebuilt from it, the tools still gave every number in the key, which shows both the rebuild and the unchanged tools.
+- **Hold pipeline fixes while a baseline runs** (24 Oct): every baseline case must be measured on one version; grader-side fixes are safe at any time because saved runs can be re-graded.
