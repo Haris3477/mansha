@@ -18,3 +18,7 @@ graphify-out/
 # Linux test environment for Claude's shell (offline wheels + venv; never committed)
 .wheels-linux/
 .venv-linux/
+
+# Archify architecture-diagram tool output (local only; regenerate a current diagram before the pitch)
+.archify/
+docs/architecture*
