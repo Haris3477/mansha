@@ -226,6 +226,7 @@ CREATE TABLE profile_models (profile_id INTEGER, model_db_id INTEGER, enabled IN
 CREATE TABLE models (id INTEGER, platform TEXT, model_id TEXT, rpd_limit INTEGER, enabled INTEGER);
 CREATE TABLE model_overrides (platform TEXT, model_id TEXT, overrides_json TEXT);
 CREATE TABLE rate_limit_usage (platform TEXT, model_id TEXT, kind TEXT, created_at_ms INTEGER);
+CREATE TABLE rate_limit_cooldowns (platform TEXT, model_id TEXT, key_id INTEGER, expires_at_ms INTEGER, source TEXT);
 INSERT INTO profiles VALUES (3, 'long'), (4, 'qa'), (6, 'judge');
 INSERT INTO models VALUES (1, 'google', 'g', 20, 1), (2, 'openrouter', 'd', 50, 1), (3, 'groq', 'q', 1000, 1),
                           (4, 'cerebras', 'j', 2400, 1), (5, 'google', 'off', 20, 0);
@@ -247,6 +248,23 @@ ok, _ = eval_set.budget_check(core, 1, cap)
 check("the core 4 fit (19 long left, 20 worst case: SHORT)", not ok)
 ok, _ = eval_set.budget_check(core[:3], 1, cap)
 check("3 report cases fit", ok)
+con = sqlite3.connect(db)
+con.execute("INSERT INTO rate_limit_cooldowns VALUES ('google', 'g', 1, ?, 'authoritative')", (now + 15 * 3600e3,))
+con.execute("INSERT INTO rate_limit_cooldowns VALUES ('openrouter', 'd', 1, ?, 'heuristic')", (now - 60e3,))
+con.commit(); con.close()
+cap = eval_set.chain_capacity(db, now)
+g = next(m for m in cap["long"] if m["model"] == "google/g")
+check("a benched model is seen (24 Oct 19:22: Google's project quota)", g["benched_min"] == 900.0, str(g))
+check("an expired bench is ignored", next(m for m in cap["long"] if m["model"] == "openrouter/d")["benched_min"] is None)
+check("a benched model has nothing left", eval_set.left([g]) == 0)
+con = sqlite3.connect(db)
+con.execute("INSERT INTO models VALUES (6, 'google', 'g2', 20, 1)")
+con.execute("INSERT INTO profile_models VALUES (3, 6, 1)")
+con.commit(); con.close()
+g2 = next(m for m in eval_set.chain_capacity(db, now)["long"] if m["model"] == "google/g2")
+check("a provider's daily-quota bench holds its other models too", g2["benched_min"] == 900.0, str(g2))
+ok, lines = eval_set.budget_check(core[:3], 1, cap)
+check("3 report cases no longer fit once Google is benched", not ok and "BENCHED" in "\n".join(lines), "\n".join(lines))
 eval_set.ROUTER_DB = db
 check("a live run that may not fit refuses to start (exit 2)", eval_set.main(["--group", "core"]) == 2)
 eval_set.ROUTER_DB = TMP / "missing.db"

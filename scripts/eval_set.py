@@ -92,12 +92,25 @@ def chain_capacity(db: Path | None = None, now_ms: float | None = None) -> dict[
         used = {(pl, mid): n for pl, mid, n in con.execute(
             "SELECT platform, model_id, COUNT(*) FROM rate_limit_usage WHERE kind = 'request' "
             "AND created_at_ms > ? GROUP BY platform, model_id", (now_ms - DAY_MS,))}
+        # A model the router has benched (e.g. Google's project-wide daily quota, 24 Oct 19:22) has
+        # nothing left until the bench expires, whatever its own request count says.
+        benched = {(pl, mid): (exp, src) for pl, mid, exp, src in con.execute(
+            "SELECT platform, model_id, MAX(expires_at_ms), source FROM rate_limit_cooldowns "
+            "WHERE expires_at_ms > ? GROUP BY platform, model_id", (now_ms,))}
     finally:
         con.close()
     out: dict[str, list[dict]] = {c: [] for c in CHAINS}
     for chain, pl, mid, rpd in rows:
         rpd = overrides.get((pl, mid), {}).get("rpdLimit", rpd)
-        out[chain].append({"model": f"{pl}/{mid}", "rpd": rpd, "used": used.get((pl, mid), 0)})
+        exp, src = benched.get((pl, mid), (None, None))
+        # A provider's own daily quota is account- or project-wide (Google: one quota for the
+        # project's models, 24 Oct 19:22), so its bench holds every model of that provider.
+        pool = [e for (p2, _), (e, s2) in benched.items() if p2 == pl and s2 == "authoritative"]
+        if pool and (exp is None or max(pool) > exp):
+            exp, src = max(pool), "authoritative, provider-wide"
+        out[chain].append({"model": f"{pl}/{mid}", "rpd": rpd, "used": used.get((pl, mid), 0),
+                           "benched_min": round((exp - now_ms) / 60000, 1) if exp else None,
+                           "bench_source": src})
     return out
 
 
@@ -110,10 +123,17 @@ def need(cases: list[EvalCase], repeat: int, table: dict) -> dict[str, int]:
 
 
 def left(models: list[dict]) -> float:
-    """Requests left today across a set of models; a model with no cap counts as unlimited."""
-    if any(m["rpd"] is None for m in models):
+    """Requests left now across a set of models: a benched model has 0; one with no cap is unlimited."""
+    free = [m for m in models if not m.get("benched_min")]
+    if any(m["rpd"] is None for m in free):
         return float("inf")
-    return sum(max(m["rpd"] - m["used"], 0) for m in models)
+    return sum(max(m["rpd"] - m["used"], 0) for m in free)
+
+
+def model_text(m: dict) -> str:
+    cap = m["rpd"] if m["rpd"] is not None else "no cap"
+    bench = f" BENCHED {m['benched_min']:g} min ({m['bench_source']})" if m.get("benched_min") else ""
+    return f"{m['model']} {m['used']}/{cap}{bench}"
 
 
 def budget_check(cases: list[EvalCase], repeat: int, cap: dict[str, list[dict]]) -> tuple[bool, list[str]]:
@@ -124,8 +144,7 @@ def budget_check(cases: list[EvalCase], repeat: int, cap: dict[str, list[dict]])
         cap_ch = left(cap[ch])
         fits = worst[ch] <= cap_ch
         ok &= fits
-        models = ", ".join(f"{m['model']} {m['used']}/{m['rpd'] if m['rpd'] is not None else 'no cap'}"
-                           for m in cap[ch]) or "no models"
+        models = ", ".join(model_text(m) for m in cap[ch]) or "no models"
         lines.append(f"  {ch:6} need {typical[ch]}-{worst[ch]}, left {cap_ch:g}  {'OK' if fits else 'SHORT'}  ({models})")
     shared = {m["model"]: m for ch in ("long", "qa") for m in cap[ch]}
     both = worst["long"] + worst["qa"]
