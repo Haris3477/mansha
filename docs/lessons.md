@@ -1,6 +1,6 @@
 # Mansha — working lessons
 
-_Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. Read before debugging the router, writing a new check, or planning live runs._
+_Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. Read before debugging the router, writing a new check, or planning live runs. **Lessons from 21–24 Oct (7.6f–k, 7.8, 7.9) added on 24 Oct (Step 7.7), at the end.**_
 
 ## Working lessons
 - Copy code with the copy button; create/edit files in VS Code, not long terminal pastes.
@@ -16,7 +16,7 @@ _Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. Read before
 - Router dashboard: chains are "profiles"; the toggles edit **the active chain** only. Router settings in `.env` are read only at startup. **The router keeps its own copy of each model's limits: after a provider upgrade, raise them in the dashboard too.**
 - **When the router misbehaves, read its source and its database** (`server/src`, `server/data/freeapi.db`, read-only). **The `requests` table gives real tokens per call; `server_logs` (time in `created_at_ms`) explains refusals.**
 - **A provider's limits page isn't the whole story** (problem 62). Test a model in `trial` before relying on it.
-- **Free tiers have daily budgets and penalty ladders: plan the day's runs, and don't run multi-part cases back to back** (problems 64, 80).
+- **Free tiers have daily budgets and penalty ladders: plan the day's runs** (problems 64, 80). Since 7.6k the client paces `auto:judge`, so back-to-back cases are fine for the per-minute limit; daily caps still need budgeting (see Dots3 below).
 - Gemini quotas and Groq daily caps reset at 04:00 Dubai. Run live checks earlier in the day.
 - **Don't let new work change what a pending check tests**: put it on a branch.
 - **Upgrading a limit can hide a bug the limit would have shown.**
@@ -50,3 +50,17 @@ _Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. Read before
 - **Read the reports, not just OK/FALLBACK or the report check**: most problems from 30 to 79 passed every automatic check and were found by reading.
 - **A code check on the finished output catches forms of mistakes in milliseconds; it can't judge meaning** (report check, 9.6b).
 - f-strings: no same-type quotes nested inside an f-string before Python 3.12; avoid them anyway.
+
+## Added 24 Oct (21–24 Oct work)
+- **A correction is itself a claim: check it against the source before acting on it** (7.6g, problems 81–82). On 23 Oct a QA "fix" contradicted the KB and the writer copied it; the KB shield now overrules such fixes, re-judges once, and records OVERRULED instead of pretending the review approved.
+- **Before shipping a rule, run it over every saved run and read each hit** (7.8: 47 hits, 44 real drops, 3 false alarms that shaped the rule; 7.9: exactly the 14 real cases, 0 of 39 look-alike questions). A rule tuned on one example misfires on the next wording.
+- **When a model keeps adding or dropping something the facts already settle, code does it** (7.6j check names, 7.8 qualifiers restored from the KB, 7.9 HS follow-ups dropped). Restore from the source rather than asking the model again: a revision spent on a known fix is a revision lost for a real one.
+- **Never rewrite a text that also says other things** (7.8): code replaces an item only when it is the source note and nothing more; anything mixed becomes a hard problem, so no fact is silently lost.
+- **A rule that never fires live is proven offline, not disproven** (7.6k pacing, 7.9): record it as "offline only, watch live" and keep the replays that prove it.
+- **Our own testing can use up a fallback's daily cap** (24 Oct 17:16): Dots3 allows 50 requests per rolling 24 h; four live sets used 52, so `long` was Gemini-only when Gemini returned 503s, and the run ended LLM_ERROR. Count the day's requests before a live set, and spread evaluation-set runs over days.
+- **Reasoning models spend the answer budget on hidden reasoning** (problem 83): GPT-OSS on Cerebras cut off at 2,000 tokens in half the part calls; send 3,000 while planning parts with 2,000.
+- **Pace requests on your side when a provider has a per-minute limit** (7.6k): the router's cooldown escalates (2 min, 10 min, 1 h, a day), so one burst can cost a whole session.
+- **Query a database for the columns you need only** (23 Oct): a broad `settings` query printed the router's key into tool output; the key was regenerated.
+- **A repo file can be read-only on the Mac** (`prompts/researcher.md`, `mansha/llm_client.py`): write the tested file as `.new` with its hash, then `chmod 644` and move it; check the hash.
+- **Read the terms of free credits before signing up** (24 Oct): forum reports say Google Cloud's $300 trial no longer pays for Gemini through AI Studio (the route our router uses), and the 90-day clock starts at sign-up. Sign up only when the credit is needed and its route is verified.
+- **A small clean sample can hide a rare failure** (24 Oct sets 1–2 each found a new one): judge a step's bar on several runs of every verdict it touches, and move rare-failure measurement to the evaluation set's repeats.

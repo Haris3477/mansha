@@ -1,22 +1,23 @@
 # Mansha — runbook and code map
 
-_How to run things and where the code is. Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. Git and router state in these sections are as of that save; the current state is in the Project doc CURRENT_STATE.md._
+_How to run things and where the code is. Moved verbatim from progress.md (20 Oct 03:05 save) on 20 Oct 2026. **Updated 24 Oct 2026 (Step 7.7)** for 7.6–7.9 and the Cerebras judge; the current git and router state is always in the Project doc CURRENT_STATE.md._
 
 ## How to run
 - VS Code terminal (bash), prompt shows `(.venv)`; else `source .venv/bin/activate`.
 - Router: second terminal `cd ~/Projects/freellmapi && npm run dev` (not needed for offline tests).
 - From project root: `python -m scripts.<name>`; exception `python scripts/smoke_test.py`.
-- **Full pipeline (live):** `python -m scripts.run_pipeline` (all 6 cases), `python -m scripts.run_pipeline windows chargers`, or `python -m scripts.run_pipeline --message "..." [--bom samples/windows_qualifies]`. **On the free judge, run multi-part cases (windows, windows_nodata) one at a time, ≥10 min apart (problem 80).**
-- **QA evaluation (live):** `python -m scripts.eval_qa --pause 65 [cases]`, `--chain trial`, `--repeat 2`. Mind the 200k/day Groq budget (G31).
-- **Prose-check evaluation (live, branch `step-7.6`):** `python -m scripts.eval_prose_qa --dry-run` first, then `python -m scripts.eval_prose_qa [--pause 30] [cases]`.
+- **Full pipeline (live):** `python -m scripts.run_pipeline` (all 6 cases), `python -m scripts.run_pipeline windows chargers`, or `python -m scripts.run_pipeline --message "..." [--bom samples/windows_qualifies]`. The usual live set: `python -m scripts.run_pipeline windows windows_nodata windows_nodata windows_nodata` (~10–15 min; ~20–30 Cerebras calls ≈ $0.07). Since 7.6k the client paces `auto:judge` (4 requests / 60 s), so cases can run back to back. **Budget the day:** Dots3 (the Researcher's fallback in `long`) allows 50 requests per rolling 24 h; on 24 Oct our own live sets used it up (52 in 24 h) and a Gemini outage then ended a run in LLM_ERROR (G17). Check the router's `requests` table before a live set.
+- **QA evaluation (live):** `python -m scripts.eval_qa --pause 65 [cases]`, `--chain trial`, `--repeat 2`. The judge is GPT-OSS 120B on Cerebras (trial: 5 RPM, 1M uncached tokens/day; ≈ $0.003 per call); `--pause` is no longer needed with the client's pacing.
+- **Prose-check evaluation (live):** `python -m scripts.eval_prose_qa --dry-run` first, then `python -m scripts.eval_prose_qa [--pause 30] [cases]`.
 - **Try a new model:** put it alone in the `trial` chain, then `python -m scripts.try_chain trial [case ...] [--agents researcher document_builder qa]`.
 - **Edit a chain in the dashboard:** Activate it, toggle models, re-Activate Default. A new chain: name box + **tick "Start empty"** + Create.
 - **Re-check saved reports:** `python -m scripts.check_reports [folders]`.
-- **All offline tests in one go (16 on `step-7.6`):**
-  `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
-  (`usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected: tests check that bad arguments are refused and that the runner reports a mismatch.)
+- **All offline tests in one go (18 on `main` since 7.6k):**
+  `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
+  (`usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected: tests check that bad arguments are refused and that the runner reports a mismatch. Replays of saved runs in `test_researcher`/`test_kb_shield` print SKIP when the git-ignored `runs/` folders are absent. `test_llm_retry` passes only on the Mac: Claude's scratch copy uses a stand-in `openai` package.)
 - Branches: `git switch -c <name>`, `git switch <name>`, `git push -u origin <name>`; merge with `git switch main && git merge --ff-only <name> && git push`.
-- **Commit by file name, check `git status` first** (19 Oct: untracked `.archify/` and `docs/` would have slipped into a `git add -A`).
+- **Commit by file name, check `git status` first** (untracked `.archify/` and `docs/architecture*` would slip into a `git add -A`). No AI attribution lines in commits.
+- **A repo file that refuses writes ("Permission denied") is read-only on the Mac** (`prompts/researcher.md` 23 Oct, `mansha/llm_client.py` 24 Oct): Claude saves the tested file as `<name>.new` with its hash; then `chmod 644 <file> && mv <file>.new <file>` and check the hash.
 - End of a step: `git add <files>`, `git commit -m "…"`, `git push`, `git status`.
 - Preview a report: `code <path>/report.md`, then ⌘⇧V.
 
@@ -24,34 +25,35 @@ _How to run things and where the code is. Moved verbatim from progress.md (20 Oc
 ```
 .env, .env.example, .gitignore (runs/, graphify-out/, .wheels-linux/, .venv-linux/ ignored), requirements.txt
 data/india/          # sources, tariff_lines, psr_rules, passages (.json)
-samples/             # windows_qualifies/, chargers_repacked/, researcher_outputs/ (+ builder_outputs/ on step-7.6)
+samples/             # windows_qualifies/, chargers_repacked/, researcher_outputs/, builder_outputs/ (7.6), qa_replays/ (7.6g)
 mansha/
-  llm_client.py      # CHAIN_LIMITS (long 16000/16000, qa 1000/1000, judge 3000/3000); timeout 300 s; busy waits, cooldown waits, busy budget
+  llm_client.py      # CHAIN_LIMITS (long 16000/16000, qa 1000/1000, judge 3000/3000); timeout 300 s; busy waits, cooldown waits, busy budget; RATE_LIMITS pacing of auto:judge 4/60 s (7.6k)
   prompts.py, intake.py, kb.py (CORRIDORS)
-  evidence.py        # build_evidence() -> EvidencePack (+ corridor, 7.6d); counts and percentages only
-  researcher.py      # run_researcher(), fill_authorities(), fill_tariff_line(), drop_caveat_gaps(), strip_list_markers(), check_researcher(); 7.6c-d: unbracket_ids(), drop_follow_ups(), drop_claim_caveats(), the claim-note rule
+  evidence.py        # build_evidence() -> EvidencePack (+ corridor 7.6d, fixed_notes 7.6f); counts and percentages only
+  researcher.py      # run_researcher(), check_researcher() and the code normalizations, in run order: normalize_gaps, unbracket_ids, move_note_gaps (7.6g), drop_user_data_gaps (7.6h), plain_check_names (7.6j), restore_qualified_notes (7.8), drop_hs_follow_ups (7.9), fill_authorities, fill_tariff_line, fill_fixed_notes (7.6f), drop_caveat_gaps; then drop_follow_ups / drop_claim_caveats (7.6c-d); strip_list_markers(), the claim-note rule
   qa_evidence.py     # qa_evidence(), research_for_qa(), checked_facts(): what QA reads (Step 7)
-  qa.py              # run_qa(), plan_parts(), check_qa(): the QA Evaluator (Step 7, plan B)
-  prose_qa.py        # (step-7.6) review_prose(), check_prose_qa(): the Builder prose check
-  document_builder.py # 7.6b all_duty_gone(); 7.6e QUALIFIER_RE, is_mandatory(sid, text), MIN_LLM_NOTES
-  orchestrator.py    # run_pipeline() (qa=run_qa; on step-7.6 prose_qa=review_prose), qa_passthrough(), render_phase_log()
+  qa.py              # run_qa(), plan_parts(), check_qa(), kb_shield(): the QA Evaluator (Step 7, plan B, KB shield 7.6g/i, OVERRULED)
+  prose_qa.py        # review_prose(), check_prose_qa(): the Builder prose check (7.6)
+  document_builder.py # 7.6b all_duty_gone(); 7.6e QUALIFIER_RE, is_mandatory(sid, text), MIN_LLM_NOTES; 7.6h saving_how()
+  orchestrator.py    # run_pipeline() (qa=run_qa, prose_qa=review_prose), qa_passthrough(), render_phase_log()
   report_check.py    # check_report(): form checks on the finished report (flag only)
   tools/             # tariff_lookup, rule_lookup, origin_calculator, duty_estimate, coo_fee
-prompts/             # shared_rules.md, intake.md, researcher.md, qa.md, document_builder.md (+ prose_qa.md on step-7.6); unchanged by 7.6c-e
+prompts/             # shared_rules.md, intake.md, researcher.md, qa.md, document_builder.md, prose_qa.md (= agent_prompts.md, kept identical)
 scripts/
   smoke_test, test_llm_client (live), check_data
   test_tariff_lookup, test_rule_lookup, test_origin_calculator, test_duty_estimate, test_coo_fee
   test_evidence, test_researcher, test_intake (--offline), test_document_builder, test_llm_retry,
-  test_pipeline, test_report_check, test_qa_evidence, test_qa (+ test_prose_qa on step-7.6)
-  pipeline_cases.py, run_pipeline.py, try_chain.py, eval_qa.py, eval_prose_qa.py (step-7.6), check_reports.py
+  test_pipeline, test_report_check, test_qa_evidence, test_qa, test_prose_qa, test_kb_shield, test_pacing
+  pipeline_cases.py, run_pipeline.py, try_chain.py, eval_qa.py, eval_prose_qa.py, check_reports.py
 runs/                # git-ignored
-graphify-out/        # git-ignored code map (built at 85ba0e2; regenerate after 7.6 merges)
+graphify-out/        # git-ignored code map (built at 85ba0e2, before 7.6c; regenerate before the next big change)
+docs/                # step7_qa.md, runbook.md, lessons.md, pre_demo_retest.md, archive/ (history)
 ```
-Untracked, not ours: `.archify/`, `docs/` (architecture-diagram tool, 20 Oct ~01:28; Haris decides).
+Untracked, not ours: `.archify/`, `docs/architecture*.{html,json}` (architecture-diagram tool, 20 Oct; Haris decides whether to commit `docs/architecture.html` or ignore both).
 
-Git: `main` pushed, clean at **784ff16**. **Branch `step-7.6` at d651902** (1d51e30 7.6, 85ba0e2 7.6b, d651902 .gitignore), pushed, **11 files modified and not committed (7.6c–e)**: commit them by name as WIP first (command in "Next"). Fast-forward merge to `main` still possible. Step 7 commits: fc03c35 (7.2), 811fea5 (7.3), 248c5d0 (7.4), a697f5b + 784ff16 (plan B), 1d51e30 (7.6), 85ba0e2 (7.6b), d651902 (.gitignore). Identity Haris3477 with his existing commit email, no AI attribution. `gh` signed in on the Mac.
+Git (24 Oct, 17:45): `main` at **17612d6** (7.9), in sync with `origin/main`; no other branches. Step 7 commits: fc03c35 (7.2), 811fea5 (7.3), 248c5d0 (7.4), a697f5b + 784ff16 (plan B), 1d51e30 (7.6), 85ba0e2 (7.6b), d651902 (.gitignore), 6b63537 (7.6c–e), c97de08 (docs), bbbf77c (7.6f), c1151c7 (7.6g), 584afa5 (7.6h–j), 7140e2c (7.6k), 17d9d0b (7.8), 17612d6 (7.9). Identity Haris3477 with his existing commit email, no AI attribution (Claude commits with `git -c user.name=… -c user.email=…`, after asking). `gh` signed in on the Mac.
 
-Router (dashboard at **localhost:5173** and `.env`, not in git; details in llm_backend_setup.md). **GPT-OSS 120B (Groq) TPD override 400,000 since 18 Oct 16:13** (problem 70; real Groq cap 200k/UTC day): `long` = Gemini 3.5 Flash, Gemini 3.6 Flash, Gemini 3.7 Flash, Dots3 Note Preview; `qa` = GPT-OSS 120B, Gemini 3.7 Flash (Intake); **`judge` = GPT-OSS 120B only**; `trial` = Dots3 only; Default chain active (354 models). `PROVIDER_TIMEOUT_OPENROUTER=150000`. **19 Oct: free Gemini served `long` only once (Intake/Builder); the Researcher was on Dots3 in all 6 runs.** Router cooldown ladder (`ratelimit.ts`): 2 min after the 1st limit hit in 24 h, 10 min after the 2nd, … a day from the 4th (problem 80).
+Router (dashboard at **localhost:5173** and `.env`, not in git; details in llm_backend_setup.md). Chains since 23 Oct: `long` = Gemini 3.5 Flash, Gemini 3.6 Flash, Gemini 3.7 Flash, Dots3 Note Preview (OpenRouter free: RPM 20, **RPD 50**); `qa` = GPT-OSS 120B (Groq), Gemini 3.7 Flash (Intake); **`judge` = GPT-OSS 120B (Cerebras) only** (trial credit; RPM 5, RPD 2400, TPM 30000, TPD 1000000); `trial` = Cerebras only; Default chain active; global strategy `smartest`. GPT-OSS 120B (Groq) TPD override 400,000 since 18 Oct (problem 70). `PROVIDER_TIMEOUT_OPENROUTER=150000`. Router cooldown ladder (`ratelimit.ts`): 2 min after the 1st limit hit in 24 h, 10 min after the 2nd, … a day from the 4th (problem 80). Query the router DB read-only (`mode=ro`) and only the columns needed (23 Oct: a broad `settings` query printed the router key).
 
 ### Files
 - `mansha/orchestrator.py`, `mansha/report_check.py`, `mansha/kb.py`, `mansha/intake.py`, `mansha/researcher.py`, `mansha/document_builder.py`, `mansha/tools/duty_estimate.py`.
@@ -74,14 +76,11 @@ Router (dashboard at **localhost:5173** and `.env`, not in git; details in llm_b
 
 ### Tools (`mansha/tools/`, pure Python)
 - `tariff_lookup`, `rule_lookup`, `calculate_origin` / `origin_from_folder`, `duty_estimate` (+ `reduces_bcd_only`), `certificate_fee`.
-- Samples: `samples/windows_qualifies/` (MEETS, VA 49% ≥ 45%), `samples/chargers_repacked/` (FAILS on all four checks), `samples/researcher_outputs/` (Builder, pipeline and QA fixtures); on `step-7.6`: `samples/builder_outputs/` (prose-check fixtures, migrated to 7.6e numbering on 19 Oct, each change in its `edits`).
+- Samples: `samples/windows_qualifies/` (MEETS, VA 49% ≥ 45%), `samples/chargers_repacked/` (FAILS on all four checks), `samples/researcher_outputs/` (Builder, pipeline and QA fixtures), `samples/builder_outputs/` (prose-check fixtures, migrated to 7.6e numbering on 19 Oct, each change in its `edits`), `samples/qa_replays/` (23 Oct live QA corrections, 7.6g).
 
-### Research docs (Project)
-- `claude/cepa_india_fact_base.md`: updated 17 Oct evening (source of truth for facts).
-- `claude/research_paid_models_data_checks.md` (17 Oct): paid models, data checks, browser to-do list.
-- `claude/browser_checks_2026-10-17.md`: what the browser checks found.
-- `claude/evaluation_set_design.md`: the approved evaluation-set design.
-- `claude/roadmap.md`: updated 20 Oct (positioning option A, verified "What exists", milestones renumbered).
+### Research and history docs
+- Project: `claude/cepa_india_fact_base.md` (source of truth for facts), `claude/roadmap.md` (updated 20 Oct: positioning option A, milestones renumbered), `claude/llm_backend_setup.md`, `agent_prompts.md`, `claude/CURRENT_STATE.md`.
+- Repo `docs/archive/` (moved 20 Oct): `research_paid_models_data_checks.md` (paid models, data checks, browser to-do list), `browser_checks_2026-10-17.md`, `evaluation_set_design.md` (the approved evaluation-set design), `progress_2026-10-20.md`, `project_instructions_2026-10-20.md`; index in `ARCHIVE_INDEX.md`.
 
 ### 9.5 / 9.6e fixes (summary)
 - Researcher hard check: no evidence IDs and no "intake" in exporter-visible text; `fill_tariff_line()`; `drop_caveat_gaps()` (52).
