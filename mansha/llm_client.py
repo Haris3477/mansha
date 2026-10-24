@@ -16,11 +16,17 @@ call_llm() wraps every model call so each agent gets the same behaviour:
   without a time), the call may try up to MAX_BUSY_ATTEMPTS models in total, each after
   the usual wait. Our own failures (bad JSON, truncation, empty reply, 400, timeout)
   keep the one-retry rule. Nothing is sent again once CALL_BUDGET_S has passed.
+- PACING (Step 7.6k): a chain with a per-minute limit (RATE_LIMITS; today auto:judge, the
+  Cerebras trial's 5 requests a minute) gets at most N requests in any window: before a send
+  that would be one too many, the client waits until the oldest send leaves the window. The
+  router refuses the extra request otherwise, and its escalating cooldown (5-9 min on 24 Oct)
+  left QA parts unreviewed. Counts sends from this process only.
 """
 import json
 import logging
 import os
 import time
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -55,6 +61,13 @@ BUSY_STATUSES = {429, 502, 503, 504}
 MAX_COOLDOWN_WAITS = 2     # cooldown replies (429 + retry time) waited out per call; they ask no model
 MAX_BUSY_ATTEMPTS = 4      # model attempts per call while every failure is provider-busy (Step 9.5b)
 CALL_BUDGET_S = 240        # no new attempt starts after this (seconds since the call began)
+
+# Pacing (Step 7.6k): chain -> (max requests, window in seconds). auto:judge = Cerebras trial,
+# 5 requests a minute (console Limits page, 23 Oct); 4 leaves one request of margin. Raise or
+# remove after a pay-as-you-go purchase.
+RATE_LIMITS: dict[str, tuple[int, float]] = {"auto:judge": (4, 60.0)}
+PACE_MARGIN_S = 1.0        # added to the wait, so the oldest send is surely out of the window
+_sent: dict[str, deque] = {}   # chain -> times of recent sends (this process)
 
 # Replaceable in tests (no real waiting, fixed clock).
 _sleep = time.sleep
@@ -149,6 +162,33 @@ def _wait_before_retry(status: int | None, hint_s: float | None) -> float:
     return UPSTREAM_WAIT_S
 
 
+def _pace(chain: str) -> float:
+    """Wait if one more send on `chain` would exceed its RATE_LIMITS; record the send.
+
+    Returns the seconds waited (0.0 when no wait was needed or the chain has no limit).
+    """
+    limit = RATE_LIMITS.get(chain)
+    if not limit:
+        return 0.0
+    n, window = limit
+    sent = _sent.setdefault(chain, deque())
+    now = _now()
+    while sent and now - sent[0] >= window:
+        sent.popleft()
+    waited = 0.0
+    if len(sent) >= n:
+        waited = max(0.0, sent[0] + window + PACE_MARGIN_S - now)
+        if waited:
+            logger.info("[pacing] %s: %d request(s) in the last %.0fs; waiting %.0fs for the per-minute "
+                        "limit", chain, len(sent), window, waited)
+            _sleep(waited)
+        now = max(_now(), now + waited)
+        while sent and now - sent[0] >= window:
+            sent.popleft()
+    sent.append(now)
+    return round(waited, 1)
+
+
 def call_llm(
     agent: str,
     chain: str,
@@ -175,13 +215,16 @@ def call_llm(
     while True:
         attempt_no = len(attempts) + 1
         record: dict[str, Any] = {"attempt": attempt_no, "chain": chain, "max_tokens": tokens}
-        start = time.monotonic()
         problem: str | None = None
         status: int | None = None
         hint_s: float | None = None
         text = ""
         data: dict[str, Any] | None = None
 
+        paced = _pace(chain)   # Step 7.6k: stay under the chain's per-minute limit
+        if paced:
+            record["paced_wait_s"] = paced
+        start = time.monotonic()
         try:
             raw = client.chat.completions.with_raw_response.create(
                 model=chain,

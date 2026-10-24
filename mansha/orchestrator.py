@@ -276,7 +276,10 @@ def _write(out_dir: Path | None, name: str, content: Any) -> None:
 def attempt_text(a: dict) -> str:
     """One attempt: '#2 gemini-3.6-flash 21.3 s OK' or '#1 router 0.0 s FAILED: HTTP 429 ...'."""
     who = a.get("routed_via") or "router"
-    s = f"#{a.get('attempt')} {who} {a.get('latency_s', 0)} s "
+    s = f"#{a.get('attempt')} "
+    if a.get("paced_wait_s"):   # Step 7.6k
+        s += f"(waited {a['paced_wait_s']} s for the per-minute limit) "
+    s += f"{who} {a.get('latency_s', 0)} s "
     s += "OK" if a.get("ok") else f"FAILED: {a.get('problem', 'unknown')}"
     if a.get("cooldown"):
         s += " (router cooldown, no model tried)"
@@ -291,7 +294,7 @@ def call_text(c: dict) -> str:
     attempts = c.get("attempts") or []
     head = (f"served by {c.get('served_by')} ({c.get('latency_s')} s)" if c.get("ok")
             else "call FAILED")
-    if len(attempts) <= 1 and c.get("ok"):
+    if len(attempts) <= 1 and c.get("ok") and not any(a.get("paced_wait_s") for a in attempts):
         return head
     trail = " | ".join(attempt_text(a) for a in attempts) or "no attempts recorded"
     return f"{head}; attempts: {trail}"
