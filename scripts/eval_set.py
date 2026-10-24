@@ -1,117 +1,43 @@
-"""Evaluation set runner (G15). Sub-step 1: the tools-only dry run.
+"""Evaluation set runner (G15): the fixed exam Mansha retakes after every change.
 
-    python -m scripts.eval_set --dry-run                  # core, stop, new (reserves skipped)
-    python -m scripts.eval_set --dry-run --group reserve  # or --case N4 --case N7, -v for all facts
+    python -m scripts.eval_set --dry-run                  # tools only, no LLM (core, stop, new)
+    python -m scripts.eval_set                            # live: dry run, budget guard, then every case
+    python -m scripts.eval_set --case N4 --case N7        # some cases; --group reserve for the reserves
+    python -m scripts.eval_set --only-repeat --repeat 3   # the repeat group (E6), three times each
+    python -m scripts.eval_set --grade runs/eval_set/<time>   # grade saved runs again (no LLM)
 
-The dry run calls no LLM. For each case it runs the plain-Python tools (the same
-build_evidence the pipeline uses) on the case's expected Intake JSON and bill of
-materials, and compares what they return with the case's answer key
-(scripts/eval_cases.py). A mismatch means the key or the tools changed: the live run
-(sub-step 2) refuses to start until the dry run is clean. It also checks that no
-supplier name from a bill of materials reaches the evidence text (privacy).
+The dry run runs the plain-Python tools on each case's expected Intake JSON and compares them
+with the answer key (scripts/eval_cases.py); a live run refuses to start unless it is clean.
+The budget guard (E1) reads the router's own sliding-24 h request counts (rate_limit_usage,
+read-only) and stops if the worst case doesn't fit, unless --force (D3 = A). Each case then
+runs through the real pipeline in this one process (so the judge pacing covers the gaps
+between cases) and is graded in code (scripts/eval_grade.py). Results go to
+runs/eval_set/<time>/: one folder per run, summary.md / summary.json, and reading.md (the
+reading checks Haris and Claude fill in: must say / must not say, problem 56, G35).
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
+import json
+import os
+import sqlite3
+import statistics
 import sys
+import time
 from pathlib import Path
 
-from mansha.evidence import build_evidence, is_excluded
-from mansha.kb import corridor_for
 from scripts.eval_cases import BY_ID, CASES, GROUPS, EvalCase
+from scripts.eval_grade import Grade, compare, derive, grade, load_run, supplier_leaks
 
+RUNS_ROOT = Path("runs/eval_set")
+ROUTER_DB = Path(os.environ.get("MANSHA_ROUTER_DB",
+                                Path.home() / "Projects/freellmapi/server/data/freeapi.db"))
 DEFAULT_GROUPS = ("core", "stop", "new")
 
 
-def _f(x):
-    try:
-        return float(x)
-    except (TypeError, ValueError):
-        return None
-
-
-def derive(case: EvalCase) -> dict:
-    """The facts the tools produce for this case's expected intake (no LLM)."""
-    facts: dict = {}
-    if case.intake is None:
-        return facts
-    corridor = corridor_for(case.intake.get("destination_country"))
-    facts["corridor"] = corridor
-    if corridor is None:
-        return facts
-    if case.folder and not Path(case.folder).is_dir():
-        raise FileNotFoundError(f"{case.id}: bill-of-materials folder {case.folder} is missing")
-    pack = build_evidence(case.intake, case.folder, corridor)
-    tl = pack.tool_results["TOOL:tariff_lookup"]
-    facts["candidates"] = [c["id"] for c in pack.candidates]
-    facts["tariff_notes"] = tl.get("notes") or []
-    facts["evidence_text"] = pack.text
-
-    line = case.key.get("line")
-    cand = next((c for c in pack.candidates if c.get("tariff_line") == line), None) if line else None
-    facts["line_found"] = cand is not None
-    if cand:
-        mfn, cepa = cand.get("mfn") or {}, cand.get("cepa") or {}
-        facts.update(excluded=is_excluded(cand), hs2017=cand.get("hs2017_code"),
-                     mfn_tariff=mfn.get("tariff_rate_pct"), mfn_effective=mfn.get("effective_rate_pct"),
-                     cepa=cepa.get("rate_pct"))
-    elif pack.candidates and case.key.get("excluded") is not None:
-        facts["excluded"] = all(is_excluded(c) for c in pack.candidates)
-
-    o = pack.tool_results.get(f"TOOL:origin:{line}") if line else None
-    facts["no_origin"] = o is None
-    if o:
-        checks: dict[str, str] = {}
-        for ch in o.get("checks", []):
-            checks.setdefault(ch["check"], ch["result"])
-            if ch["check"] == "VA" and "va_build_down" not in facts:
-                v = ch.get("values") or {}
-                facts["va_build_down"], facts["va_threshold"] = v.get("build_down_pct"), v.get("threshold_pct")
-        facts.update(origin=o.get("status"), checks=checks, origin_missing=o.get("missing") or [],
-                     origin_notes=o.get("notes") or [])
-    d = pack.tool_results.get(f"TOOL:duty:{line}") if line else None
-    if d:
-        facts.update(duty_status=d.get("status"), saving=_f(d.get("saving")), currency=d.get("currency"))
-    fee = pack.tool_results.get("TOOL:coo_fee") or {}
-    facts.update(fee_status=fee.get("status"), fee_aed=fee.get("fee_aed"))
-    return facts
-
-
-def compare(case: EvalCase, facts: dict) -> list[str]:
-    """Every way the tools' facts differ from the case's answer key."""
-    out: list[str] = []
-    for k, want in case.key.items():
-        if k in ("line",):
-            if not facts.get("line_found"):
-                out.append(f"line {want} not among the candidates {facts.get('candidates')}")
-        elif k == "checks":
-            got = facts.get("checks") or {}
-            out += [f"check {n}: expected {r}, got {got.get(n)}" for n, r in want.items() if got.get(n) != r]
-        elif k in ("tariff_notes_contain", "origin_notes_contain", "origin_missing_contains"):
-            src = {"tariff_notes_contain": "tariff_notes", "origin_notes_contain": "origin_notes",
-                   "origin_missing_contains": "origin_missing"}[k]
-            text = " | ".join(facts.get(src) or [])
-            out += [f"{src} lacks {s!r}" for s in want if s not in text]
-        elif k in ("va_build_down", "va_threshold", "mfn_tariff", "mfn_effective", "cepa", "saving"):
-            if _f(facts.get(k)) != _f(want):
-                out.append(f"{k}: expected {want}, got {facts.get(k)}")
-        elif facts.get(k) != want:
-            out.append(f"{k}: expected {want!r}, got {facts.get(k)!r}")
-    return out
-
-
 def privacy_problems(case: EvalCase, facts: dict) -> list[str]:
-    """Supplier names from the bill of materials must never reach the evidence text."""
-    if not case.folder or "evidence_text" not in facts:
-        return []
-    bom = Path(case.folder) / "bom.csv"
-    if not bom.exists():
-        return []
-    with bom.open(encoding="utf-8-sig", newline="") as f:
-        suppliers = [r.get("supplier") for r in csv.DictReader(f) if r.get("supplier")]
-    return [f"supplier {s!r} appears in the evidence" for s in suppliers if s in facts["evidence_text"]]
+    return supplier_leaks(case, facts["evidence_text"]) if "evidence_text" in facts else []
 
 
 def select(groups, ids) -> list[EvalCase]:
@@ -139,17 +65,262 @@ def dry_run(cases: list[EvalCase], verbose: bool = False) -> int:
     return 1 if bad else 0
 
 
+# ---------- budget guard (E1, D3 = A) ----------
+
+CHAINS = ("long", "qa", "judge")
+# Worst case per run, in requests: both Researcher and Builder rounds plus one retry each (long),
+# Intake plus a retry (qa), and up to 3 QA parts x (2 rounds + format retry/re-judge) + prose QA (judge).
+WORST = {"REPORT": {"long": 5, "qa": 2, "judge": 14}, "STOP": {"long": 0, "qa": 2, "judge": 0}}
+TYPICAL = {"REPORT": {"long": 3, "qa": 1, "judge": 4}, "STOP": {"long": 0, "qa": 1, "judge": 0}}
+DAY_MS = 24 * 3600 * 1000
+
+
+def chain_capacity(db: Path | None = None, now_ms: float | None = None) -> dict[str, list[dict]]:
+    """Each chain's enabled models with their daily cap and the router's own sliding-24 h count
+    (rate_limit_usage, the table the router enforces from). Read-only; selected columns only."""
+    db, now_ms = db or ROUTER_DB, now_ms or time.time() * 1000
+    if not Path(db).exists():
+        raise sqlite3.OperationalError(f"no such file: {db}")
+    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    try:
+        rows = con.execute(
+            "SELECT p.name, m.platform, m.model_id, m.rpd_limit FROM profiles p "
+            "JOIN profile_models pm ON pm.profile_id = p.id JOIN models m ON m.id = pm.model_db_id "
+            "WHERE pm.enabled = 1 AND m.enabled = 1 AND p.name IN (?, ?, ?)", CHAINS).fetchall()
+        overrides = {(pl, mid): json.loads(o or "{}") for pl, mid, o in
+                     con.execute("SELECT platform, model_id, overrides_json FROM model_overrides")}
+        used = {(pl, mid): n for pl, mid, n in con.execute(
+            "SELECT platform, model_id, COUNT(*) FROM rate_limit_usage WHERE kind = 'request' "
+            "AND created_at_ms > ? GROUP BY platform, model_id", (now_ms - DAY_MS,))}
+    finally:
+        con.close()
+    out: dict[str, list[dict]] = {c: [] for c in CHAINS}
+    for chain, pl, mid, rpd in rows:
+        rpd = overrides.get((pl, mid), {}).get("rpdLimit", rpd)
+        out[chain].append({"model": f"{pl}/{mid}", "rpd": rpd, "used": used.get((pl, mid), 0)})
+    return out
+
+
+def need(cases: list[EvalCase], repeat: int, table: dict) -> dict[str, int]:
+    tot = {c: 0 for c in CHAINS}
+    for case in cases:
+        for ch, n in table["REPORT" if case.status == "REPORT" else "STOP"].items():
+            tot[ch] += n * repeat
+    return tot
+
+
+def left(models: list[dict]) -> float:
+    """Requests left today across a set of models; a model with no cap counts as unlimited."""
+    if any(m["rpd"] is None for m in models):
+        return float("inf")
+    return sum(max(m["rpd"] - m["used"], 0) for m in models)
+
+
+def budget_check(cases: list[EvalCase], repeat: int, cap: dict[str, list[dict]]) -> tuple[bool, list[str]]:
+    """True when the worst case fits every chain and the models chains share (long + qa)."""
+    worst, typical = need(cases, repeat, WORST), need(cases, repeat, TYPICAL)
+    lines, ok = [], True
+    for ch in CHAINS:
+        cap_ch = left(cap[ch])
+        fits = worst[ch] <= cap_ch
+        ok &= fits
+        models = ", ".join(f"{m['model']} {m['used']}/{m['rpd'] if m['rpd'] is not None else 'no cap'}"
+                           for m in cap[ch]) or "no models"
+        lines.append(f"  {ch:6} need {typical[ch]}-{worst[ch]}, left {cap_ch:g}  {'OK' if fits else 'SHORT'}  ({models})")
+    shared = {m["model"]: m for ch in ("long", "qa") for m in cap[ch]}
+    both = worst["long"] + worst["qa"]
+    if both > left(list(shared.values())):
+        ok = False
+        lines.append(f"  long+qa share models: need up to {both}, left {left(list(shared.values())):g}  SHORT")
+    return ok, lines
+
+
+# ---------- live run ----------
+
+def run_name(case: EvalCase, r: int, repeat: int) -> str:
+    return f"{case.id}_{case.name}" + (f"_r{r}" if repeat > 1 else "")
+
+
+def grade_line(g: Grade) -> str:
+    r = g.run
+    long_n = (g.cost.get("auto:long") or {}).get("requests", 0)
+    judge_n = (g.cost.get("auto:judge") or {}).get("requests", 0)
+    mark = "PASS" if g.passed else ("XFAIL" if g.case.expected_fail else "FAIL")
+    slips = ",".join(sorted(g.slips)) or "-"
+    return (f"{g.case.id:4} {g.case.name:22} {mark:5} {r.status or '-':13} {r.verdict or '-':24} "
+            f"{r.seconds:6.1f}s long {long_n} judge {judge_n} slips {slips}")
+
+
+def live(cases: list[EvalCase], repeat: int, root: Path) -> list[Grade]:
+    from mansha.llm_client import call_llm      # only the live run needs the router
+    from mansha.orchestrator import run_pipeline
+    grades = []
+    for r in range(1, repeat + 1):
+        for case in cases:
+            out = root / run_name(case, r, repeat)
+            print(f"\n--- {case.id} {case.name}" + (f" (repeat {r}/{repeat})" if repeat > 1 else ""), flush=True)
+            run_pipeline(case.message, case_folder=case.folder, llm=call_llm, out_dir=out)
+            g = grade(case, load_run(out))
+            print(grade_line(g), flush=True)
+            for name, _, detail in g.failed:
+                print(f"       {name}: {detail}")
+            grades.append(g)
+    return grades
+
+
+def regrade(folders: list[Path]) -> list[Grade]:
+    """Grade saved eval-set run folders again (case from the folder name: <ID>_<name>[_rN])."""
+    out = []
+    for f in folders:
+        runs = sorted(p for p in f.iterdir() if p.is_dir()) if (f / "summary.json").exists() else [f]
+        for run in runs:
+            cid = run.name.split("_", 1)[0]
+            if cid in BY_ID:
+                out.append(grade(BY_ID[cid], load_run(run)))
+    return out
+
+
+# ---------- summary and reading sheet ----------
+
+def summarize(grades: list[Grade]) -> dict:
+    scored = [g for g in grades if not g.case.expected_fail]
+    reports = [g for g in grades if g.run.status == "REPORT"]
+    slips: dict[str, int] = {}
+    for g in grades:
+        for k in g.slips:
+            slips[k] = slips.get(k, 0) + 1
+    tok = {}
+    for g in grades:
+        for ch, v in g.cost.items():
+            if isinstance(v, dict):
+                t = tok.setdefault(ch, {"requests": 0, "prompt": 0, "completion": 0})
+                for k in t:
+                    t[k] += v[k]
+    return {
+        "runs": len(grades),
+        "passed": sum(g.passed for g in scored), "scored": len(scored),
+        "verdict_correct": sum(g.run.verdict == g.case.verdict for g in scored if g.case.verdict),
+        "verdict_cases": sum(1 for g in scored if g.case.verdict),
+        "expected_failures": [f"{g.case.id}: {'still fails' if not g.passed else 'NOW PASSES'}"
+                              for g in grades if g.case.expected_fail],
+        "checks_failed": sum(g.run.status == "CHECKS_FAILED" for g in grades),
+        "llm_error": sum(g.run.status == "LLM_ERROR" for g in grades),
+        "qa_rejections": sum(p["status"] == "REJECTED" for g in grades for p in g.run.phases
+                             if p["name"].startswith("QA")),
+        "qa_overruled": sum(p["status"] == "OVERRULED" for g in grades for p in g.run.phases),
+        "router_refusals": sum(g.cost.get("refusals", 0) for g in grades),
+        "paced_wait_s": round(sum(g.cost.get("paced_wait_s", 0) for g in grades), 1),
+        "median_seconds_reports": round(statistics.median([g.run.seconds for g in reports]), 1) if reports else None,
+        "slips": dict(sorted(slips.items())),
+        "requests": tok,
+        "failed_checks": {f"{g.case.id}{'' if len(grades) == len({x.case.id for x in grades}) else ' ' + g.run.folder.name}":
+                          [f"{n}: {d}" for n, _, d in g.failed] for g in grades if g.failed},
+    }
+
+
+def summary_md(grades: list[Grade], s: dict, root: Path) -> str:
+    lines = [f"# Evaluation set run {root.name}", "",
+             f"**{s['passed']}/{s['scored']} runs pass every code check** (expected failures not counted); "
+             f"verdicts correct {s['verdict_correct']}/{s['verdict_cases']}; CHECKS_FAILED {s['checks_failed']}; "
+             f"LLM_ERROR {s['llm_error']}; QA rejections {s['qa_rejections']}, overruled {s['qa_overruled']}; "
+             f"router refusals {s['router_refusals']}; pacing waits {s['paced_wait_s']} s; "
+             f"median report time {s['median_seconds_reports']} s.", "",
+             "| Case | Result | Status | Verdict | Seconds | long | judge | Slips |", "|---|---|---|---|---|---|---|---|"]
+    for g in grades:
+        mark = "PASS" if g.passed else ("XFAIL" if g.case.expected_fail else "FAIL")
+        lines.append(f"| {g.run.folder.name} | {mark} | {g.run.status} | {g.run.verdict or '-'} | {g.run.seconds:.1f} | "
+                     f"{(g.cost.get('auto:long') or {}).get('requests', 0)} | {(g.cost.get('auto:judge') or {}).get('requests', 0)} | "
+                     f"{', '.join(f'{k} ×{len(v)}' for k, v in sorted(g.slips.items())) or '-'} |")
+    if s["failed_checks"]:
+        lines += ["", "## Failed code checks"]
+        for k, v in s["failed_checks"].items():
+            lines += [f"- **{k}**"] + [f"  - {x}" for x in v]
+    if s["expected_failures"]:
+        lines += ["", "## Expected failures", *[f"- {x}" for x in s["expected_failures"]]]
+    lines += ["", "## Slips (global anchors: known open problems, counted, confirmed by reading)"]
+    lines += [f"- problem {k}: {n} run(s)" for k, n in s["slips"].items()] or ["- none"]
+    for g in grades:
+        for k, v in sorted(g.slips.items()):
+            lines.append(f"  - {g.run.folder.name} [{k}]: " + " | ".join(repr(x[:100]) for x in v))
+    lines += ["", "## Requests and tokens", "| Chain | Requests | Prompt | Completion |", "|---|---|---|---|"]
+    lines += [f"| {ch} | {v['requests']} | {v['prompt']} | {v['completion']} |" for ch, v in sorted(s["requests"].items())]
+    return "\n".join(lines) + "\n"
+
+
+def reading_md(grades: list[Grade], root: Path) -> str:
+    lines = [f"# Reading sheet: evaluation set run {root.name}", "",
+             "Fill PASS/FAIL with a short note. Code checks are in summary.md; this is what code can't judge.", ""]
+    for g in grades:
+        c = g.case
+        lines += [f"## {g.run.folder.name}: {c.status} / {c.verdict or '-'} (got {g.run.status} / {g.run.verdict or '-'})",
+                  f"Read: `{g.run.folder.name}/{'report.md' if g.run.status == 'REPORT' else 'notice.md'}`", ""]
+        lines += [f"- [ ] must say: {x}" for x in c.must_say]
+        lines += [f"- [ ] must not say: {x}" for x in c.must_not_say]
+        if g.run.status == "REPORT":
+            lines += ["- [ ] every \"What's still needed\" item is something only the user can give and could change the result (problem 56)",
+                      "- [ ] no claim stated stronger or weaker than its source (G35)",
+                      "- [ ] every step and note says what its cited source says, no merged facts (G8, problem 72)"]
+        lines += [f"- [ ] slip {k} confirmed? {v[0][:90]!r}" for k, v in sorted(g.slips.items())]
+        lines.append("")
+    return "\n".join(lines)
+
+
+def write_outputs(grades: list[Grade], root: Path) -> dict:
+    s = summarize(grades)
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "summary.json").write_text(json.dumps(s, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (root / "summary.md").write_text(summary_md(grades, s, root), encoding="utf-8")
+    (root / "reading.md").write_text(reading_md(grades, root), encoding="utf-8")
+    return s
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dry-run", action="store_true", help="tools only, no LLM calls")
     ap.add_argument("--group", action="append", choices=GROUPS, help="case group(s); default core, stop, new")
     ap.add_argument("--case", action="append", choices=sorted(BY_ID), help="run these case IDs only")
-    ap.add_argument("-v", "--verbose", action="store_true", help="print every derived fact")
+    ap.add_argument("--only-repeat", action="store_true", help="only the repeat group (E6)")
+    ap.add_argument("--repeat", type=int, default=1, help="run each selected case N times")
+    ap.add_argument("--force", action="store_true", help="run even if the budget guard says it may not fit")
+    ap.add_argument("--grade", nargs="+", type=Path, help="grade saved eval-set run folders again (no LLM)")
+    ap.add_argument("-v", "--verbose", action="store_true", help="dry run: print every derived fact")
     a = ap.parse_args(argv)
+
+    if a.grade:
+        grades = regrade(a.grade)
+        for g in grades:
+            print(grade_line(g))
+        s = summarize(grades)
+        print(json.dumps({k: s[k] for k in ("passed", "scored", "slips")}))
+        return 0 if s["passed"] == s["scored"] else 1
+
     cases = select(a.group or DEFAULT_GROUPS, a.case)
-    if not a.dry_run:
-        ap.error("only --dry-run exists so far (the live run is sub-step 2)")
-    return dry_run(cases, a.verbose)
+    if a.only_repeat:
+        cases = [c for c in cases if c.repeat]
+    if a.repeat < 1:
+        ap.error("--repeat must be at least 1")
+    rc = dry_run(cases, a.verbose)
+    if a.dry_run:
+        return rc
+    if rc:
+        print("Not started: the tools no longer match the answer key (see above).")
+        return 1
+
+    print("\nBudget guard (router's sliding 24 h counts):")
+    try:
+        ok, lines = budget_check(cases, a.repeat, chain_capacity())
+    except sqlite3.Error as exc:
+        ok, lines = False, [f"  cannot read the router database {ROUTER_DB}: {exc}"]
+    print("\n".join(lines))
+    if not ok and not a.force:
+        print("Not started: the worst case may not fit today. Run fewer cases, wait, or pass --force.")
+        return 2
+    root = RUNS_ROOT / time.strftime("%Y%m%d-%H%M%S")
+    grades = live(cases, a.repeat, root)
+    s = write_outputs(grades, root)
+    print(f"\n{s['passed']}/{s['scored']} runs pass every code check; slips {s['slips'] or 'none'}")
+    print(f"saved: {root}/ (summary.md, reading.md, one folder per run)")
+    return 0 if s["passed"] == s["scored"] else 1
 
 
 if __name__ == "__main__":
