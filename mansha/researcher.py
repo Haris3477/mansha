@@ -419,6 +419,106 @@ def plain_check_names(data: dict) -> list[str]:
     return changes
 
 
+# ---------- qualifiers kept (Step 7.8, G35) ----------
+# What marks a record sentence (summary sentence or KB note) as less than a plain fact. Same words as
+# qa.SHIELD_QUALIFIER_RE (kept separate: qa imports this module).
+SOURCE_QUALIFIER_RE = re.compile(
+    r"\b(?:interpretation|inference|(?:un)?likely|reportedly|unconfirmed|"
+    r"not (?:confirmed|defined|verified|checked|named|stated)|no official|secondary (?:sources?|reports?)|"
+    r"(?:does|do) not (?:define|confirm|state|say|name))\b", re.IGNORECASE)
+# What counts as that qualifier kept in the Researcher's text: the same words plus the ways the model
+# rewords them ("has not been checked", "does not specify", "Mansha's interpretation", "secondary sources").
+# "may" is left out on purpose, as in document_builder.QUALIFIER_RE.
+KEPT_QUALIFIER_RE = re.compile(
+    r"\b(?:interpret\w*|inference|inferred|(?:un)?likely|probably|reportedly|unconfirmed|"
+    r"unclear|uncertain|"
+    r"secondary (?:sources?|reports?)|no official|"
+    r"not (?:been |yet )?(?:confirmed|defined|verified|checked|named|stated|specified)|"
+    r"(?:does|do|did) not (?:define|confirm|state|say|name|specify|address|mention))\b", re.IGNORECASE)
+SENTENCE_SPLIT_RE = re.compile(r"(?<=[.;])\s+(?=[A-Z(\"'])")
+CLAUSE_SPLIT_RE = re.compile(r"(?<=[.;])\s+|,\s+and\s+")   # the Researcher's text, cut into sentences and clauses
+SUMMARY_HEADER = "summary:"
+# A text restates a record sentence when it has this share of the sentence's content words
+# (qualifier words left out, so a copy without them still matches).
+QUALIFIED_MATCH = 0.6
+# A clause of the Researcher's text restates a qualified sentence when this share of its words comes from it.
+RESTATING_CLAUSE = 0.5
+
+
+def record_sentences(pack: EvidencePack) -> dict[str, list[tuple[str, str]]]:
+    """{evidence ID: [(kind, sentence)]}: the record's summary sentences ("summary") and KB notes ("note")."""
+    notes = record_notes(pack)
+    out: dict[str, list[tuple[str, str]]] = {}
+    for rid, block in split_records(pack.text).items():
+        units = []
+        for line in block.splitlines():
+            if line.startswith(SUMMARY_HEADER):
+                units += [("summary", x.strip()) for x in
+                          SENTENCE_SPLIT_RE.split(line[len(SUMMARY_HEADER):].strip()) if x.strip()]
+        units += [("note", n) for n in notes.get(rid, [])]
+        if units:
+            out[rid] = units
+    return out
+
+
+def qualifier_drops(text, units: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """The qualified record sentences that `text` restates without a qualifier (Step 7.8).
+
+    `text` is cut into sentences and clauses. A qualified sentence (its qualifier words left out) is
+    restated when `text` has >= QUALIFIED_MATCH of its content words; a clause restates it when at least
+    RESTATING_CLAUSE of the clause's words come from it and fewer come from any unqualified sentence of
+    the same record (a clause the record also states plainly is supported as written). It is a drop when
+    some clause restates it and none of those clauses keeps a qualifier.
+    """
+    if not isinstance(text, str) or not text.strip() or not units:
+        return []
+    clauses = [x for x in CLAUSE_SPLIT_RE.split(text) if x.strip()]
+    plain = [u for _, u in units if not SOURCE_QUALIFIER_RE.search(u)]
+    drops = []
+    for kind, u in units:
+        if not SOURCE_QUALIFIER_RE.search(u):
+            continue
+        core = SOURCE_QUALIFIER_RE.sub(" ", u)
+        if coverage(core, text) < QUALIFIED_MATCH:
+            continue
+        restating = [c for c in clauses if coverage(c, core) >= RESTATING_CLAUSE
+                     and coverage(c, core) > max((coverage(c, p) for p in plain), default=0.0)]
+        if restating and not any(KEPT_QUALIFIER_RE.search(c) for c in restating):
+            drops.append((kind, u))
+    return drops
+
+
+def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
+    """Write a caveat that dropped its KB note's qualifier as that note, word for word (Step 7.8, G35).
+
+    Seen in most saved runs (16-24 Oct): "Interpretation: de minimis helps only the tariff-shift part
+    ..." came back as "The de minimis tolerance helps only ...", and "Inference: SWS is charged on the
+    reduced BCD" lost "Inference:" (problem 71; 24 Oct 15:58). QA approved these almost every time, so
+    code restores the note instead of spending the revision. Several notes in one caveat are written
+    in KB order. Fixed notes (fill_fixed_notes) and summary sentences are left to check_researcher.
+    """
+    changes: list[str] = []
+    caveats = data.get("caveats")
+    if not isinstance(caveats, list):
+        return changes
+    sents = record_sentences(pack)
+    for i, cv in enumerate(caveats):
+        if not isinstance(cv, dict):
+            continue
+        sid = cv.get("source_id")
+        if not isinstance(sid, str) or sid in pack.fixed_notes:
+            continue
+        notes = [u for kind, u in qualifier_drops(cv.get("note"), sents.get(sid, [])) if kind == "note"]
+        # Only a caveat that is those notes and nothing more (each of its clauses restates one of them)
+        # is rewritten; one that also says other things is left to check_researcher, so nothing is lost.
+        cores = [SOURCE_QUALIFIER_RE.sub(" ", n) for n in notes]
+        if notes and all(any(coverage(c, core) >= RESTATING_CLAUSE for core in cores)
+                         for c in CLAUSE_SPLIT_RE.split(cv.get("note")) if c.strip()):
+            cv["note"] = " ".join(notes)
+            changes.append(f"caveats[{i}]: note written from the KB, qualifier kept ({sid})")
+    return changes
+
+
 def drop_caveat_gaps(data: dict) -> list[str]:
     """Remove `gaps` items that repeat a caveat's text; return what was removed (Step 9.6e).
 
@@ -695,6 +795,24 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
                                     "cite the record that states it, or split the step")
                 text = text.replace(name, "")
 
+    # 10. A text that restates a qualified record sentence keeps the qualifier (Step 7.8, G35). Caveats
+    #     matching a KB note were already restored by code (restore_qualified_notes); this catches the
+    #     rest, e.g. a step restating "Electronic certificates are reportedly accepted ..." as plain fact.
+    sents = record_sentences(pack)
+    restated = [(f"procedure[{i}].step", st.get("step"), st.get("source_id")) for i, st in enumerate(data["procedure"])]
+    restated += [(f"caveats[{i}].note", cv.get("note"), cv.get("source_id")) for i, cv in enumerate(data["caveats"])]
+    restated += [(f"gaps[{i}].text", gap_text(g), g.get("source_id")) for i, g in enumerate(data["gaps"])]
+    for where, text, sid in restated:
+        units = sents.get(sid, []) if isinstance(sid, str) else []
+        if where.startswith("procedure"):  # a step restates the record's summary; its notes belong to caveats
+            units = [x for x in units if x[0] == "summary"]
+        drops = qualifier_drops(text, units)
+        if drops:
+            src = drops[0][1]
+            word = SOURCE_QUALIFIER_RE.search(src).group(0)
+            problems.append(f"{where} states as a plain fact what its cited record qualifies with {word!r} "
+                            f"({src!r}): keep that qualifier in the text")
+
     verdict = VERDICT_MAP.get(origin_exp, GAP)
     return problems, warnings, verdict
 
@@ -741,6 +859,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += move_note_gaps(data, pack)  # KB notes put in gaps -> caveats, before the fills (G39)
     changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
     changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
+    changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)

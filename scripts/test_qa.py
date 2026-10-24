@@ -233,7 +233,11 @@ print("\n4. The live evaluation script (scripts.eval_qa) with a fake LLM")
 for case in ev.CASES:
     _, _, r = ev.prepare(case)
     base = fixture(case.base)
-    check(f"{case.name}: gets past the code checks", r.problems == [], r.problems)
+    if case.code_catches:   # Step 7.8: a full qualifier drop is now a Researcher code problem
+        check(f"{case.name}: caught by the Researcher's code checks",
+              any("plain fact" in x for x in r.problems), r.problems)
+    else:
+        check(f"{case.name}: gets past the code checks", r.problems == [], r.problems)
     if case.seed:
         changed = {k for k in base if base[k] != r.data.get(k)} - {"verdict"}
         check(f"{case.name}: the seed changed exactly one part", len(changed) == 1, changed)
@@ -264,8 +268,9 @@ llm, seen = spy(approve_all)
 code = ev.main([], llm=llm, runs_root=tmp)
 saved = {f.name: json.loads(f.read_text()) for d in tmp.iterdir() for f in d.iterdir()}
 check("approve-everything judge: exit 1", code == 1, code)
-check("clean cases APPROVED, seeded MISSED", all(
-      v["result"] == ("APPROVED" if k.startswith("clean_") else "MISSED") for k, v in saved.items()),
+check("clean cases APPROVED, seeded MISSED (CAUGHT BY CODE where code stops it)", all(
+      v["result"] == ("APPROVED" if k.startswith("clean_") else "CAUGHT BY CODE"
+                      if ev.BY_NAME[k.rsplit("_", 1)[0]].code_catches else "MISSED") for k, v in saved.items()),
       {k: v["result"] for k, v in saved.items()})
 check("one answer file per case", len(saved) == len(ev.CASES), sorted(saved))
 check("QA ran on auto:judge", {c for _, c, _ in seen} == {"auto:judge"})

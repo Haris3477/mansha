@@ -4,6 +4,7 @@ Run: python -m scripts.test_researcher
 """
 
 import copy
+import dataclasses
 import json
 import sys
 from pathlib import Path
@@ -21,6 +22,10 @@ from mansha.researcher import (
     drop_follow_ups,
     drop_user_data_gaps,
     plain_check_names,
+    qualifier_drops,
+    record_notes,
+    record_sentences,
+    restore_qualified_notes,
     fill_authorities,
     fill_fixed_notes,
     fill_tariff_line,
@@ -672,6 +677,154 @@ d = copy.deepcopy(GOOD_W)
 d["classification"] = {"tariff_line": GAP, "description": GAP, "confidence": GAP, "source_id": "TOOL:tariff_lookup"}
 check("no fitting line: the gap marker as confidence is not a confidence problem",
       not any("classification.confidence" in x for x in run(d, w)[0]), run(d, w)[0])
+
+print("\n== Step 7.8: qualifiers kept (G35, problem 71)")
+NOTES_WN = record_notes(wn)
+DEMIN = NOTES_WN["P-AGR-3.4-DEMINIMIS"][0]
+SWS, AD = NOTES_WN["P-IN-DUTY-SCOPE"]
+PLUS = NOTES_WN["TOOL:origin:76101000"][0]
+check("KB notes carry the qualifiers this step protects",
+      DEMIN.startswith("Interpretation:") and SWS.startswith("Inference:") and AD.startswith("Inference:"),
+      (DEMIN, SWS, AD))
+
+
+def with_caveats(*cavs, base=None):
+    d = copy.deepcopy(base or GOOD_WN)
+    d["caveats"] = d["caveats"] + [{"note": n, "source_id": sid} for sid, n in cavs]
+    return d
+
+
+def restored(sid, text, pack=wn):
+    d = with_caveats((sid, text))
+    ch = restore_qualified_notes(d, pack)
+    return d["caveats"][-1]["note"], ch
+
+
+# Live wordings, word for word: problem 71 (18 Oct 05:17 and 16:50 windows_nodata) and 24 Oct 15:58 windows.
+LIVE_DROPS = [
+    ("P-AGR-3.4-DEMINIMIS", "The de minimis tolerance helps only the tariff-shift part of a rule, not the VA percentage.",
+     DEMIN, "18 Oct 05:17 (problem 71)"),
+    ("P-AGR-3.4-DEMINIMIS", "De minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+     DEMIN, "18 Oct 16:50 (problem 71)"),
+    ("P-IN-DUTY-SCOPE", "SWS is charged on the reduced BCD (no CEPA-specific text found).", SWS, "24 Oct 15:58 #7"),
+    ("P-IN-DUTY-SCOPE", "Anti-dumping and safeguard duties still apply (no exemption found).", AD, "24 Oct 15:58 #8"),
+    ("P-AGR-3.4-DEMINIMIS", "The de minimis tolerance applies only to the tariff-shift part of a rule, not to the "
+     "value-addition percentage.", DEMIN, "16 Oct 17:46 chargers (reworded most)"),
+    ("P-IN-DUTY-SCOPE", "SWS is charged on the reduced BCD (no CEPA-specific text found); anti-dumping and safeguard "
+     "duties still apply (no exemption found).", f"{SWS} {AD}", "two notes in one caveat"),
+    ("TOOL:origin:76101000", "The agreement does not define '+' in the rule; read as 'and' (both tests must pass).",
+     None, "the '+' note keeps 'does not define'"),
+]
+for sid, text, want, label in LIVE_DROPS:
+    got, ch = restored(sid, text)
+    if want is None:
+        check(f"kept qualifier, not rewritten: {label}", got == text and ch == [], (got, ch))
+    else:
+        check(f"restored from the KB: {label}", got == want, got)
+        check(f"logged: {label}", ch and "note written from the KB, qualifier kept" in ch[0], ch)
+
+# The ways the model rewords a qualifier it kept (saved runs 16-24 Oct): never rewritten, never a problem.
+KEPT = [
+    ("TOOL:origin:76101000", "The agreement does not define '+' in the rule 'CTSH + VA 45%'; Mansha interprets it as "
+     "'and' (both tests must pass).", wn),
+    ("P-AGR-3.2.2-VA", "The agreement does not specify whether the build-down and build-up methods use the same "
+     "threshold apart from the 5-point Ex-Works adjustment.", wn),
+    ("P-AGR-3.2.2-VA", "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement, and it is "
+     "unclear whether the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works "
+     "adjustment.", wn),
+    ("TL-IN-85044030", "Whether India charges anti-dumping duty on battery chargers has not been checked; confirm with "
+     "Indian customs or a customs broker.", c),
+    ("P-IN-IMPORTER", "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but "
+     "this is seen only in secondary sources (CBIC Instruction 28/2022).", wn),
+]
+for sid, text, pack in KEPT:
+    got, ch = restored(sid, text, pack)
+    check(f"reworded qualifier kept ({sid}): not rewritten", got == text and ch == [], (got, ch))
+    check(f"reworded qualifier kept ({sid}): no problem",
+          not qualifier_drops(text, record_sentences(pack).get(sid, [])))
+
+# A caveat that also says other things is not rewritten (nothing lost): the revision fixes it instead.
+SEED_11 = ("The Indian importer must hold origin information under CAROTAR 2020, including the origin criterion "
+           "claimed, keep supporting documents for at least 5 years, and respond to customs requests within 10 "
+           "working days. Electronic certificates are accepted and uploaded to e-Sanchit.")  # eval_qa seed
+got, ch = restored("P-IN-IMPORTER", SEED_11)
+check("caveat with other facts and a dropped 'reportedly': not rewritten", got == SEED_11 and ch == [], (got, ch))
+d = with_caveats(("P-IN-IMPORTER", SEED_11))
+check("... but a hard problem naming the qualifier",
+      any("plain fact" in x and "'reportedly'" in x for x in run(d, wn)[0]), run(d, wn)[0])
+MERGED_1956 = ("The Social Welfare Surcharge is charged on the reduced BCD (no CEPA-specific text found), and "
+               "anti-dumping and safeguard duties still apply.")   # 23 Oct 19:56 windows caveats[15]
+got, ch = restored("P-IN-DUTY-SCOPE", MERGED_1956)
+check("23 Oct 19:56 merged caveat (SWS 'Inference' dropped, anti-dumping stated plainly by the summary): "
+      "not rewritten, left to the revision", got == MERGED_1956 and ch == [], (got, ch))
+d = with_caveats(("P-IN-DUTY-SCOPE", MERGED_1956))
+check("23 Oct 19:56 merged caveat: hard problem on 'Inference'",
+      any("plain fact" in x and "'Inference'" in x for x in run(d, wn)[0]), run(d, wn)[0])
+
+# The record also says it plainly: supported as written (a caveat copying the whole summary, 16 Oct plastic).
+summary = next(u for k, u in record_sentences(wn)["P-IN-DUTY-SCOPE"] if k == "summary" and "anti-dumping" in u)
+got, ch = restored("P-IN-DUTY-SCOPE", summary)
+check("summary sentence copied (anti-dumping stated plainly there): untouched", got == summary and ch == [], ch)
+check("... and no problem", not any("plain fact" in x for x in run(with_caveats(("P-IN-DUTY-SCOPE", summary)), wn)[0]))
+
+# Procedure steps: checked against the record's summary sentences only (notes belong to caveats).
+STEP_1956 = ("The Ministry of Economy and Tourism requires the factory to be registered before applying for a "
+             "certificate of origin; registration requires the factory to be located outside a free zone, a MoIAT "
+             "industrial licence, and a letter confirming 40% domestic value added.")  # 23 Oct 19:56 procedure[0]
+ok = copy.deepcopy(GOOD_W); ok["procedure"][0] = {"step": STEP_1956, "source_id": "P-MOET-FACTORY-REG"}
+check("factory step sharing words with the free-zone Inference note: no problem",
+      not any("plain fact" in x for x in run(ok, w)[0]), run(ok, w)[0])
+imp = next(u for k, u in record_sentences(w)["P-IN-IMPORTER"] if "reportedly" in u)
+for step, bad in (("Electronic certificates are accepted and uploaded to e-Sanchit.", True),
+                  ("Electronic certificates are reportedly accepted and uploaded to e-Sanchit.", False),
+                  ("The importer uploads electronic certificates to e-Sanchit, which is unconfirmed.", False)):
+    d = copy.deepcopy(GOOD_W); d["procedure"].append({"step": step, "source_id": "P-IN-IMPORTER"})
+    found = any("plain fact" in x and x.startswith(f"procedure[{len(d['procedure']) - 1}]") for x in run(d, w)[0])
+    check(f"step {'drops' if bad else 'keeps'} the qualifier of {imp[:40]!r}...: problem {bad}", found == bad,
+          run(d, w)[0])
+
+# The fixed issuer note is fill_fixed_notes' job: never rewritten here.
+d = with_caveats(("P-UAE-ISSUER", "The Ministry of Foreign Trade issues the certificate."))
+d["caveats"] = [cv for cv in d["caveats"][:-1] if cv["source_id"] != "P-UAE-ISSUER"] + d["caveats"][-1:]
+check("issuer note left to fill_fixed_notes", restore_qualified_notes(d, wn) == [])
+
+# The clean fixtures and GOOD answers are unchanged.
+for name, good, pack in (("windows", GOOD_W, w), ("windows_nodata", GOOD_WN, wn)):
+    d = copy.deepcopy(good)
+    check(f"clean {name}: nothing restored, no problem",
+          restore_qualified_notes(d, pack) == [] and not any("plain fact" in x for x in run(d, pack)[0]))
+for base in ("windows", "chargers", "windows_nodata", "plastic"):
+    fx = json.loads(Path(f"samples/researcher_outputs/{base}.json").read_text(encoding="utf-8"))["output"]
+    intake, folder, _ = DEV_INTAKES[base]
+    pk = build_evidence(intake, folder)
+    d = copy.deepcopy(fx)
+    check(f"fixture {base}: nothing restored, no qualifier problem",
+          restore_qualified_notes(d, pk) == [] and not any("plain fact" in x for x in check_researcher(d, pk)[0]),
+          (restore_qualified_notes(copy.deepcopy(fx), pk), check_researcher(d, pk)[0]))
+
+# run_researcher: the restore runs before the checks, and is recorded.
+d = with_caveats(("P-AGR-3.4-DEMINIMIS", LIVE_DROPS[1][1]))
+res = run_researcher(wi, wn, llm=fake_llm(d))
+check("run_researcher: dropped 'Interpretation:' restored by code, answer passes",
+      res.passed and res.data["caveats"][-1]["note"] == DEMIN
+      and any("qualifier kept (P-AGR-3.4-DEMINIMIS)" in x for x in res.changes), (res.problems, res.changes))
+
+# Replays of the saved answers (git-ignored run folders: skipped if absent).
+for folder, name, want in (("20261018-051708_windows_nodata", "researcher_1.json", {8: DEMIN}),
+                           ("20261018-165049_windows_nodata", "researcher_1.json", {8: DEMIN}),
+                           ("20261018-165049_windows_nodata", "researcher_2.json", {8: DEMIN}),
+                           ("20261024-155849_windows", "researcher_1.json", {7: SWS, 8: AD})):
+    f = RUNS / folder / name
+    if not f.exists():
+        print(f"  SKIP  replay {folder}/{name} (run folder not on this machine)")
+        continue
+    intake = json.loads((RUNS / folder / "intake.json").read_text())["output"]
+    pack = build_evidence(intake, None)
+    pack = dataclasses.replace(pack, text=(RUNS / folder / "evidence.txt").read_text())
+    d = copy.deepcopy(json.loads(f.read_text())["output"])
+    ch = restore_qualified_notes(d, pack)
+    check(f"replay {folder}/{name}: the dropped qualifier(s) restored",
+          all(d["caveats"][i]["note"] == t for i, t in want.items()) and len(ch) == len(want), ch)
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

@@ -99,6 +99,7 @@ class Case:
     seed: object = None        # function that plants the mistake (None = clean)
     fields: tuple = ()         # correction fields that count as a catch (a ".step"/".note" suffix is fine)
     note: str = ""
+    code_catches: bool = False  # Step 7.8: the Researcher's code checks stop it; no QA call
 
 
 CASES = [
@@ -114,7 +115,7 @@ CASES = [
     Case("irrelevant_caveat", "chargers", irrelevant_caveat, ("caveats", "caveats[6]"), "G12"),
     Case("useless_gap", "chargers", useless_gap, ("gaps", "gaps[0]"), "17 Oct live run"),
     Case("nodata_dropped_qualifier", "windows_nodata", nodata_dropped_qualifier,
-         ("caveats[11]", "caveats"), "problem 6, split review"),
+         ("caveats[11]", "caveats"), "problem 6, split review; code since 7.8", code_catches=True),
     Case("nodata_merged_step", "windows_nodata", nodata_merged_step,
          ("procedure[4]", "procedure"), "G8, split review"),
 ]
@@ -146,7 +147,7 @@ def judge(case: Case, q) -> str:
     return "CAUGHT" if hit else "WRONG FIELD"
 
 
-GOOD = {"CAUGHT", "APPROVED"}
+GOOD = {"CAUGHT", "CAUGHT BY CODE", "APPROVED"}
 
 
 def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RUNS_ROOT) -> int:
@@ -179,13 +180,24 @@ def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RU
     rows = []
     for case in cases:
         intake, pack, research = prepare(case)
+        if case.code_catches:      # Step 7.8: the Researcher's code checks stop it; no QA call
+            result = "CAUGHT BY CODE" if research.problems else "SETUP ERROR"
+            rows.append((case, 1, result, None, 0.0))
+            (out / f"{case.name}_1.json").write_text(json.dumps({
+                "case": case.name, "base": case.base, "note": case.note, "result": result,
+                "expected_fields": list(case.fields), "code_problems": research.problems},
+                indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"  {result:<16} {case.name:<22} (no QA call)")
+            for pr in research.problems:
+                print(f"      - {pr[:160]}")
+            continue
         if research.problems:      # a seed must get past the code checks, or it tests code, not QA
             print(f"  SETUP ERROR {case.name}: code checks catch it: {research.problems}")
             rows.append((case, 0, "SETUP ERROR", None, 0.0))
             continue
         chars = sum(len(m["content"]) for m in build_messages(intake, pack, research.data, research.warnings))
         for n in range(1, args.repeat + 1):
-            if args.pause and any(r[2] != "SETUP ERROR" for r in rows):
+            if args.pause and any(r[2] not in ("SETUP ERROR", "CAUGHT BY CODE") for r in rows):
                 _sleep(args.pause)
             t = time.monotonic()
             q = run_qa(intake, pack, research, llm=qa_llm)
@@ -208,7 +220,9 @@ def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = RU
     print("\n================ SUMMARY ================")
     seeded = [r for r in rows if r[0].seed]
     clean = [r for r in rows if not r[0].seed]
-    print(f"seeded caught on the right field: {sum(r[2] == 'CAUGHT' for r in seeded)}/{len(seeded)}")
+    judged = [r for r in seeded if r[2] != "CAUGHT BY CODE"]
+    print(f"seeded caught on the right field: {sum(r[2] == 'CAUGHT' for r in judged)}/{len(judged)}")
+    print(f"seeded stopped by code (no call): {len(seeded) - len(judged)}")
     print(f"clean approved:                   {sum(r[2] == 'APPROVED' for r in clean)}/{len(clean)}")
     print(f"errors (not reviewed):            {sum(r[2] in ('ERROR', 'SETUP ERROR') for r in rows)}")
     times = sorted(r[4] for r in rows if r[2] not in ("ERROR", "SETUP ERROR"))
