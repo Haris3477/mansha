@@ -17,14 +17,14 @@ _How to run things and where the code is. Moved verbatim from progress.md (20 Oc
   `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
   (`usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected: tests check that bad arguments are refused and that the runner reports a mismatch. Replays of saved runs in `test_researcher`/`test_kb_shield` print SKIP when the git-ignored `runs/` folders are absent. `test_llm_retry` passes only on the Mac: Claude's scratch copy uses a stand-in `openai` package.)
 - Branches: `git switch -c <name>`, `git switch <name>`, `git push -u origin <name>`; merge with `git switch main && git merge --ff-only <name> && git push`.
-- **Commit by file name, check `git status` first** (untracked `.archify/` and `docs/architecture*` would slip into a `git add -A`). No AI attribution lines in commits.
+- **Commit by file name, check `git status` first** (an unexpected untracked file would slip into a `git add -A`). No AI attribution lines in commits.
 - **A repo file that refuses writes ("Permission denied") is read-only on the Mac** (`prompts/researcher.md` 23 Oct, `mansha/llm_client.py` 24 Oct): Claude saves the tested file as `<name>.new` with its hash; then `chmod 644 <file> && mv <file>.new <file>` and check the hash.
 - End of a step: `git add <files>`, `git commit -m "…"`, `git push`, `git status`.
 - Preview a report: `code <path>/report.md`, then ⌘⇧V.
 
 ## Repo: ~/Projects/mansha
 ```
-.env, .env.example, .gitignore (runs/, graphify-out/, .wheels-linux/, .venv-linux/ ignored), requirements.txt
+.env, .env.example, .gitignore (runs/, graphify-out/, .wheels-linux/, .venv-linux/, .archify/, docs/architecture* ignored), requirements.txt
 data/india/          # sources, tariff_lines, psr_rules, passages (.json)
 samples/             # windows_qualifies/, chargers_repacked/, researcher_outputs/, builder_outputs/ (7.6), qa_replays/ (7.6g), eval/ (12 synthetic BOM folders, evaluation set)
 mansha/
@@ -48,10 +48,16 @@ scripts/
   pipeline_cases.py, run_pipeline.py, try_chain.py, eval_qa.py, eval_prose_qa.py, check_reports.py
   eval_cases.py (25 cases + answer key), eval_set.py (dry run, budget guard, live runner, summary), eval_grade.py (grading, anchors)
 runs/                # git-ignored
-graphify-out/        # git-ignored code map (built at 85ba0e2, before 7.6c; regenerate before the next big change)
+graphify-out/        # git-ignored code map, rebuilt by git hooks after every commit (see "Code map" below)
 docs/                # step7_qa.md, runbook.md, lessons.md, pre_demo_retest.md, archive/ (history)
 ```
-Untracked, not ours: `.archify/`, `docs/architecture*.{html,json}` (architecture-diagram tool, 20 Oct; Haris decides whether to commit `docs/architecture.html` or ignore both).
+Archify output (`.archify/`, `docs/architecture*.{html,json}`, an architecture diagram drawn 19 Oct at d651902) is git-ignored since f47dbce (Haris, 25 Oct, option A): kept locally, never committed; regenerate a current diagram before the pitch and commit only that HTML, deliberately.
+
+### Code map (Graphify, since 25 Oct)
+- **Auto-refresh:** `graphify hook install` put post-commit, post-checkout, post-merge and post-rewrite hooks in `.git/hooks`; each rebuilds the **code layer** in the background (no LLM, no quota), log `~/.cache/graphify-rebuild.log`. Verified live 25 Oct: commit f47dbce → graph rebuilt at f47dbce (953 nodes, 2,295 links). Hooks live in `.git/` and are not pushed: a fresh clone needs `graphify hook install` again.
+- **Session start:** `./scripts/graph_status.sh` (read-only): FRESH/STALE (graph commit vs HEAD), uncommitted files the graph doesn't reflect (read those directly), last rebuild line. Exit 0 fresh, 1 stale, 2 no graph. STALE → `tail -20 ~/.cache/graphify-rebuild.log`, then `GRAPHIFY_BACKEND=none graphify update .`.
+- **Querying (offline, no LLM):** `graphify explain "run_pipeline"` (a node + its links, ~2K characters vs ~79K for orchestrator.py + researcher.py), `graphify path "run_pipeline" "tariff_lookup"`, `graphify query "…"` (keyword BFS; broad and noisy, prefer explain/path). Claude's Mac-side shell (Linux VM) has no graphify: install with `python3 -m venv ~/work/gvenv && ~/work/gvenv/bin/pip install graphifyy==0.9.95` (same version as the Mac), then run it from the repo with `GRAPHIFY_BACKEND=none`.
+- **Limits:** the hooks refresh code only. The 25 doc nodes from `prompts/*.md` come from an LLM pass and are kept but not refreshed; after a prompt edit, `/graphify --update` in an assistant (uses LLM quota) or read the prompt file itself. ~12% of links are INFERRED: verify in the code. Prompt↔code links by ID string (e.g. "TOOL:tariff_lookup") are not drawn: use grep. The graph reflects the last commit only. `graphify-out/2026-10-25/` holds the 951-node graph of 25 Oct, not the older 633-node one.
 
 Git (24 Oct, 17:45): `main` at **17612d6** (7.9), in sync with `origin/main`; no other branches. Step 7 commits: fc03c35 (7.2), 811fea5 (7.3), 248c5d0 (7.4), a697f5b + 784ff16 (plan B), 1d51e30 (7.6), 85ba0e2 (7.6b), d651902 (.gitignore), 6b63537 (7.6c–e), c97de08 (docs), bbbf77c (7.6f), c1151c7 (7.6g), 584afa5 (7.6h–j), 7140e2c (7.6k), 17d9d0b (7.8), 17612d6 (7.9). Identity Haris3477 with his existing commit email, no AI attribution (Claude commits with `git -c user.name=… -c user.email=…`, after asking). `gh` signed in on the Mac.
 
