@@ -347,7 +347,11 @@ def attempts(run: Run):
 
 
 def review_problems(run: Run, prefix: str, allowed: set[str]) -> list[str]:
-    """Every QA (or prose QA) phase reviewed: allowed statuses only, nothing NOT reviewed, no router refusal."""
+    """Every QA (or prose QA) phase reviewed: allowed statuses only, nothing NOT reviewed.
+
+    A router refusal (HTTP 429) that the client's retry got past is not a failure: the review
+    happened. It is counted in cost()["refusals"] and the summary (Haris, 24 Oct 19:21, E3 changed).
+    A refusal the retry did not get past leaves the part NOT reviewed, which fails here."""
     out = []
     phases = phase_list(run, prefix)
     if not phases:
@@ -357,10 +361,6 @@ def review_problems(run: Run, prefix: str, allowed: set[str]) -> list[str]:
             out.append(f"{p['name']} {p['status']}")
         if "NOT reviewed" in json.dumps(p, ensure_ascii=False):
             out.append(f"{p['name']}: NOT reviewed")
-    refused = [p["name"] for p, a in attempts(run)
-               if p["name"].startswith(prefix) and not a.get("ok") and a.get("http_status") == 429]
-    if refused:
-        out.append(f"router refused {len(refused)} call(s) ({', '.join(sorted(set(refused)))})")
     return out
 
 

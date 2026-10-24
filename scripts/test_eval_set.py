@@ -156,8 +156,11 @@ def refusal(d: Path) -> None:
 
 
 f = planted(C1, "refusal", refusal)
-check("a router refusal -> QA fails (E3 as approved)", failed_names(f) == {"QA"}, str(failed_names(f)))
-check("the refusal is counted", grade(BY_ID["C1"], load_run(f)).cost["refusals"] == 1)
+check("a router refusal the retry got past -> no failure (E3, 24 Oct 19:21)", not failed_names(f), str(failed_names(f)))
+check("... but it is counted", grade(BY_ID["C1"], load_run(f)).cost["refusals"] == 1)
+f = planted(f, "refusal_unreviewed", lambda d: edit_json(d / "phase_log.json", lambda x: [
+    p.update(summary=p["summary"] + " | part 2/2 NOT reviewed") for p in x["phases"] if p["name"].startswith("QA")]))
+check("a refusal that left a part NOT reviewed -> QA fails", failed_names(f) == {"QA"}, str(failed_names(f)))
 f = planted(C1, "not_reviewed", lambda d: edit_json(d / "phase_log.json", lambda x: [
     p.update(summary=p["summary"] + " | NOT reviewed") for p in x["phases"] if p["name"].startswith("Prose QA")]))
 check("prose NOT reviewed -> prose QA fails", failed_names(f) == {"prose QA"}, str(failed_names(f)))
