@@ -40,6 +40,11 @@ When Haris pastes a **⬅️ BACK TO CLOUD** block, first extract runs from `run
 ## Handoff back
 At the end of a task, write `docs/cloud/handoff_<YYYY-MM-DD>_<task>.md`: decisions Haris made (with his reasons), results, new or changed problems/gaps, commits, and what's next. Haris's chat uses it for "save progress" in the Project. Keep it factual: what Haris said vs what Claude recommended.
 
+At the end of each task, or when context passes ~40%, write/update the handoff file, commit it (after Haris's yes), and end the reply with a block headed **🔄 START A NEW SESSION** containing the exact `claude --cloud "…"` command for the next task: the quoted text tells the new session to read CLAUDE.md, then the named `docs/cloud/` handoff or brief, names the branch to work on and the step to do. If a **➡️ MOVE TO MAC CHAT** block is also due, it comes first and the new-session block last. Example:
+```
+claude --cloud "Read CLAUDE.md, then docs/cloud/handoff_2026-10-25_g17.md and docs/cloud/<next>_brief.md. Work on branch <branch>. Do its step 1 only."
+```
+
 ## What we're building
 Mansha (Arabic منشأ, "origin") tells a UAE exporter whether a product qualifies for reduced or zero customs duty under a UAE CEPA, proves it with the agreement's own rules, and lists the steps to claim it. First corridor: UAE → India. Targets: the Create AI Agents Championship (Best Business AI Agent, Dubai Chamber of Digital Economy) and a December 2026 hackathon.
 
