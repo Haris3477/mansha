@@ -101,6 +101,7 @@ Synthetic BOMs (suppliers "X (synthetic)"); FOB price 100,000 AED unless noted. 
 - **E4** Problems 88–91 are not live cases (they have offline replays); 92–95 are covered by E2.
 - **E5** N14 runs once in the baseline as an expected failure (G34), then stays out of the repeats until G34 is built.
 - **E6 Order:** build → dry run → baseline (every case once, over as many sittings as the budget allows) → **then the G17 `long` decision (B vs C) using the baseline's numbers** → repeats ×3 on the repeat group (C1–C4, N2, N3, N10).
+  - **Update 25 Oct (Haris):** G17 decided A now, A′ once the OpenRouter credit is bought (not B or C; see `docs/cloud/handoff_2026-10-25_g17.md`). **N7 joins the repeat group** (it was already flagged `repeat=True` in `scripts/eval_cases.py` since 0d5b41a; this text had left it out): it is the group's only value-added-only origin failure, and repeating it measures slip 86's rate before problem 86 is fixed. Repeat group = C1–C4, N2, N3, N7, N10 → 24 runs.
 - **D2 = A** case anchors only where a pattern is safe: N1 (an AED amount for a USD shipment), N2 (duty removed), N3 (a saving from 15%), N4 (45% applied / 40% present), S3 (the MoFT CEPA list link), and no claim checklist for NOT_ELIGIBLE / NO_PREFERENCE / gap verdicts. The rest stays reading only.
 
 **As built (commits 0d5b41a, 9625f1e, 379de15, c056b30):**
