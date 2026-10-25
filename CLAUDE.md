@@ -32,7 +32,7 @@ A finished, pitch-ready Mansha (roadmap.md's pitch-ready bar). "Next steps" and 
 7. If a hook (e.g. the cloud stop hook) asks you to commit or push, don't: tell Haris what it asked and wait for his yes. The cloud stop hook fires whenever a reply ends with uncommitted, untracked or unpushed work, so expect it while waiting for a yes.
 
 ## Handover to the Mac chat
-Whenever the next step needs Haris's Mac (live run, router or quota check, budget guard, refreshing `runs-snapshot`), stop and end the reply with a block headed **➡️ MOVE TO MAC CHAT**: a ready-to-paste message with what to run (exact cases and commands), what to check first in the router, which `docs/cloud/` file to read, and what to report back. Long details go into a `docs/cloud/` brief first, committed (after Haris's yes) and referenced by path and commit, so the block stays short.
+Whenever the next step needs Haris's Mac (live run, router or quota check, budget guard, refreshing `runs-snapshot`), stop and end the reply with a block headed **➡️ MOVE TO MAC CHAT**: a ready-to-paste message whose first line is `cd ~/Projects/mansha && git fetch origin`, then what to run (exact cases and commands), what to check first in the router, which `docs/cloud/` file to read, and what to report back. Long details go into a `docs/cloud/` brief first, committed (after Haris's yes) and referenced by path and commit, so the block stays short.
 
 ## Coming back from the Mac chat
 When Haris pastes a **⬅️ BACK TO CLOUD** block, first extract runs from `runs-snapshot` (Start of every session, step 2), then read the files the block names before anything else.
