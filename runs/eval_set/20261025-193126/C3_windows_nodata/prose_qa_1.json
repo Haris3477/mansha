@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "notes[1].text: The note says \"Since India's form governs entry into the product, box 9 should be used.\" which misstates the context; the notes refer to entry into India, not the product. Fix: Since India's form governs entry into India, box 9 should be used. (see N6)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.11,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2530,
+            "completion": 1490
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.11,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

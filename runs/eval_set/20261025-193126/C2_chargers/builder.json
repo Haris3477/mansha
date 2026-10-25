@@ -1,0 +1,93 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 68.92,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1918,
+            "completion": 6315
+          },
+          "finish_reason": "stop",
+          "latency_s": 68.92,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. The main failed check is that final manufacture did not take place in the UAE.",
+    "classification": "The product is classified under tariff line 85044030, Battery chargers, with high confidence. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "The India-UAE CEPA provides a normal (MFN) rate of 20% and a CEPA rate of 0%. Because the product does not qualify, no saving applies.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH) and at least 40% value addition (VA) on an FOB basis. The final manufacture check did not pass because the last manufacturing step did not take place in the UAE. The minimal operations check did not pass as the work was limited to packaging and labelling, which are minimal operations that never confer origin. The CTH test is not satisfied because a non-originating input in the same heading 8504 accounts for 88.0% of the price, exceeding the 10% de minimis threshold, which is the small share of non-originating inputs that the tariff-shift test is allowed to ignore, and the value addition is only 12.0%, below the required 40%.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The agreement does not clarify whether the build-down and build-up methods use the same threshold, apart from a 5-point Ex-Works adjustment.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    }
+  ]
+}
