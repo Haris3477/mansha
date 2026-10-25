@@ -128,12 +128,33 @@ def value_pattern(v: float) -> re.Pattern:
     return re.compile(rf"(?<![\d.,])(?:{alt})(?:\.0+)?(?![\d,]|\.\d)")
 
 
-def value_leaks(case: EvalCase, text: str, message: str) -> list[str]:
-    """Individual bill-of-materials amounts (1,000 or more, not stated in the message) in a text."""
+TOOL_FIGURES_RE = re.compile(r"^\[TOOL:(?:duty:[^\]\n]+|coo_fee)\]\n(.*?)(?=^\[|^===|\Z)", re.M | re.S)
+AMOUNT_RE = re.compile(r"(?<![\d.,])\d[\d,]*(?:\.\d+)?")
+
+
+def tool_figures(evidence: str) -> set[float]:
+    """Amounts the duty and certificate-fee tools printed. Both work only from the tariff line and the
+    shipment value the user gave (never the bill of materials), so these figures are not input costs
+    (25 Oct: N5's saving 10000.00 AED equals the synthetic 'Paint additives' value, AED 10,000)."""
+    out = set()
+    for block in TOOL_FIGURES_RE.findall(evidence or ""):
+        for line in block.splitlines():
+            if line.startswith(("notes:", "- ")):
+                continue
+            out |= {float(x.replace(",", "")) for x in AMOUNT_RE.findall(line)}
+    return out
+
+
+def value_leaks(case: EvalCase, text: str, message: str, allowed: set[float] = frozenset()) -> list[str]:
+    """Individual bill-of-materials amounts (1,000 or more, not stated in the message) in a text.
+    An amount equal to a duty/fee tool figure (`allowed`) is skipped: the grader can't tell the two
+    apart, so a real leak of exactly that value would be missed (recorded limit, 25 Oct)."""
     out = []
     for r in bom_rows(case):
         v = _f(r.get("value"))
         if v is None or v < 1000 or not float(v).is_integer():
+            continue
+        if float(v) in allowed:
             continue
         pat = value_pattern(v)
         if pat.search(message):
@@ -261,6 +282,13 @@ CASE_ANCHORS: dict[str, list[tuple[str, str, re.Pattern]]] = {
            # problem 97 (Haris option ii, 25 Oct): the free-zone doubt must reach the summary, not only a note
            ("the free-zone caution in the summary", "must",
             re.compile(r"^## (?:Summary|الملخص)[^\S\n]*\n(?:(?!## )[^\n]*\n)*?(?!## )[^\n]*free[- ]zone", re.I | re.M))],
+    # problem 97 (25 Oct, same class as N2): the verdict depends on the Indian resin counting as
+    # originating, so the proof condition must reach the summary, not only a note
+    "N5": [("the Indian-origin proof condition in the summary", "must",
+            re.compile(r"^## (?:Summary|الملخص)[^\S\n]*\n(?:(?!## )[^\n]*\n)*?(?!## )[^\n]*"
+                       r"(?:\bproof\b|\bcumulat\w*|\bIndian[- ](?:input|resin|material|origin)|"
+                       r"\b(?:resin|inputs?|materials?) (?:bought|sourced|made|purchased) (?:in|from) India|"
+                       r"\boriginat\w* in India)", re.I | re.M))],
     "N3": [("a saving from the 15% tariff rate", "not", re.compile(r"(?<![\d,])15,?000(?:\.00)?(?![\d,])"))],
     "N4": [("45% applied as the threshold", "not",
             re.compile(r"against (?:a |the )?(?:threshold of |minimum of )?45\s?%|45\s?% threshold (?:applied|used)", re.I)),
@@ -431,7 +459,8 @@ def grade(case: EvalCase, run: Run) -> Grade:
     for pat in SAVED_TEXTS:
         texts += [p.read_text(encoding="utf-8") for p in run.folder.glob(pat)]
     llm_side = run.evidence + json.dumps(run.research or {}, ensure_ascii=False) + run.output
-    g.add("privacy", supplier_leaks(case, "\n".join(texts)) + value_leaks(case, llm_side, run.message))
+    g.add("privacy", supplier_leaks(case, "\n".join(texts)) + value_leaks(case, llm_side, run.message,
+                                                                                  tool_figures(run.evidence)))
     g.add("anchors", case_anchor_problems(case, run))
     g.slips = slips(run)
     g.cost = cost(run)

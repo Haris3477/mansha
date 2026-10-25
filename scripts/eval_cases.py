@@ -194,7 +194,9 @@ CASES: list[EvalCase] = [
              "va_build_down": 65.0, "duty_status": "ESTIMATED", "saving": 10000, "currency": "AED",
              "origin_notes_contain": ["Indian inputs count as originating only with proof"]},
         saving_status="ESTIMATED",
-        must_say=["Indian inputs count as originating only with proof of their origin"],
+        must_say=["Indian inputs count as originating only with proof of their origin",
+                  "the summary says the result depends on proof that the Indian resin is originating "
+                  "(problem 97; case anchor)"],
         must_not_say=["that Indian inputs count automatically"]),
     EvalCase(
         "N7", "wire_rods", "new",

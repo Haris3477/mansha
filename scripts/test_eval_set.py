@@ -168,6 +168,20 @@ f = planted(C1, "supplier", lambda d: append(d / "report.md", "\nSupplier A Trad
 check("a supplier name in the report -> privacy fails", "privacy" in failed_names(f))
 f = planted(C1, "amount", lambda d: append(d / "evidence.txt", "\nprofiles cost 38,000 AED\n"))
 check("an input amount in the evidence -> privacy fails", failed_names(f) == {"privacy"}, str(failed_names(f)))
+# 25 Oct: an amount the duty/fee tools printed is no leak (N5: saving 10000.00 AED = an input's value)
+from scripts.eval_grade import tool_figures, value_leaks
+EV = ("[TOOL:coo_fee]\nstatus: ESTIMATED\ncertificate fee: AED 50 (band: invoice value up to AED 100000)\n"
+      "invoice value used: 100000.00 AED\nnotes:\n- Fee bands 208/2025.\n\n"
+      "[TOOL:duty:32091010]\nshipment value: 100000.00 AED\n"
+      "duty without CEPA: 10000.00 AED; duty with CEPA: 0.00 AED; saving: 10000.00 AED\nnotes:\n- x\n\n"
+      "[TOOL:origin:32091010]\nnon-originating inputs are 35% of the price\n")
+figs = tool_figures(EV)
+check("tool figures: saving, value and fee read", {10000.0, 100000.0, 50.0} <= figs, str(figs))
+check("tool figures: notes and other records not read", 208.0 not in figs and 35.0 not in figs, str(figs))
+check("N5: the saving that equals an input value is no leak",
+      not value_leaks(BY_ID["N5"], "saving: 10000.00 AED", "", figs))
+check("... but without the tool figure it would be flagged", value_leaks(BY_ID["N5"], "saving: 10000.00 AED", ""))
+check("... and another input amount still is", value_leaks(BY_ID["N5"], "Titanium dioxide 25,000 AED", "", figs))
 f = planted(C1, "arabic", lambda d: append(d / "report.md", "\nملاحظة\n"))
 check("Arabic letters in an English report -> language fails", "language" in failed_names(f))
 
@@ -234,6 +248,16 @@ check("N2: free zone only in the notes is caught (problem 97)",
       "must say the free-zone caution in the summary" in case_anchor_problems(BY_ID["N2"], run))
 run.output = "## الملخص\n\nالمصنع في منطقة حرة (free zone)\n"
 check("N2: the Arabic summary heading is read too", not case_anchor_problems(BY_ID["N2"], run))
+# problem 97 in N5 (25 Oct): the Indian-origin proof condition must be in the summary
+for w in ("It meets the rule only if you can prove that the resin bought in India is originating.",
+          "The result relies on bilateral cumulation for the Indian resin.",
+          "This holds if the Indian resin has proof of originating status."):
+    run.output = "## Summary\n\n" + w + "\n\n## Product classification\n\nx\n"
+    check(f"N5 ok: {w[:40]}...", not case_anchor_problems(BY_ID["N5"], run), str(case_anchor_problems(BY_ID["N5"], run)))
+run.output = ("## Summary\n\nThe product meets the rule of origin, so the CEPA rate can be claimed.\n\n"
+              "## Important notes\n\n- Indian inputs count as originating only with proof of their originating status.\n")
+check("N5: proof only in the notes is caught (problem 97)",
+      "must say the Indian-origin proof condition in the summary" in case_anchor_problems(BY_ID["N5"], run))
 run.output = "Value added 43% against a threshold of 40% (45% minus 5 points on an Ex-Works basis)."
 check("N4: the Ex-Works threshold is fine", not case_anchor_problems(BY_ID["N4"], run))
 run.output = "Value added 43% against 45%."
@@ -332,6 +356,10 @@ else:
         got = slips_of(name)
         if got is not None:
             check(f"{name[:15]}: no 72/96 (decision C wording / clean steps)", not {"72", "96"} & set(got), str(got))
+    n5 = Path("runs/eval_set/20261025-151048/N5_paint_indian_resin")
+    if n5.is_dir():
+        got5 = failed_names(n5, "N5")
+        check("saved N5 (25 Oct): privacy passes, the problem-97 anchor fails", got5 == {"anchors"}, str(got5))
     after_79 = [p for p in saved.iterdir() if p.name >= "20261024-1741" and (p / "phase_log.json").exists()]
     check("no problem-92 slip after 7.9 was built", all("92" not in slips(load_run(p)) for p in after_79))
 
