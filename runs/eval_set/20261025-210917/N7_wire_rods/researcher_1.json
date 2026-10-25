@@ -1,0 +1,77 @@
+{
+  "served_by": "google/gemini-3.6-flash",
+  "latency_s": 16.32,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "google/gemini-3.6-flash",
+      "usage": {
+        "prompt": 9320,
+        "completion": 887
+      },
+      "finish_reason": "stop",
+      "latency_s": 16.32,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'India charges duty on the assessable (CIF) value at import, so actual duty amounts will differ.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Classification: Selected candidate 76041010 (Aluminium wire rods) as the best description match for aluminium wire rods.",
+      "Preference: Tariff line 76041010 is marked PREFERENTIAL under the India-UAE CEPA.",
+      "Tariff: Recorded the effective MFN rate of 7.5% and 2026 CEPA rate of 3.75% from the tariff record.",
+      "Origin: Evaluated rule PSR-IN-R118 (CTSH + VA 45%). The product failed origin because build-down value addition was 30.0% against the required 45%.",
+      "Saving: Set estimated saving status to NOT_APPLICABLE with null amount and currency because origin status is DOES_NOT_QUALIFY.",
+      "Procedure: Set procedure to an empty list because the product does not qualify for preferential treatment.",
+      "Caveats: Included caveats regarding rule syntax interpretation, reliance on exporter declaration, duty scope, and CIF valuation."
+    ],
+    "classification": {
+      "tariff_line": "76041010",
+      "description": "Aluminium wire rods",
+      "confidence": "high",
+      "source_id": "TL-IN-76041010"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "7.5%",
+      "preferential_rate": "3.75%",
+      "source_id": "TL-IN-76041010"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture occurred in the UAE and declared manufacturing goes beyond minimal operations. The tariff shift requirement (CTSH) passed because all non-originating inputs are classified outside subheading 760410. However, the value addition requirement failed: build-down value addition is 30.0% against the required threshold of 45% on an FOB basis, with non-originating inputs accounting for 70% of the price.",
+      "source_id": "TOOL:origin:76041010"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76041010"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The '+' symbol in a rule is interpreted as requiring both tariff shift and value addition tests to pass. The agreement does not explicitly define '+'.",
+        "source_id": "TOOL:origin:76041010"
+      },
+      {
+        "note": "Operations and final manufacture rely on the exporter's own declaration.",
+        "source_id": "TOOL:origin:76041010"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "notes[1].text: Adds fact about record retention that is not stated in note N3 Fix: The CEPA's 5‑year period governs CEPA claims, which is longer than the UAE's 3‑year minimum. (see N3)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.23,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2216,
+            "completion": 1690
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.23,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}
