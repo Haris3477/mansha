@@ -1,0 +1,71 @@
+{
+  "case": "clean_windows",
+  "base": "windows",
+  "note": "ELIGIBLE, 7 steps",
+  "result": "FALSE REJECTION",
+  "expected_fields": [],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "caveats[4].note: The note attributes the interpretation to \"Mansha\" instead of the name used in the record. Fix: Replace \"Mansha's\" with \"Mansua's\" in the note. (see TOOL:rule_lookup:76101000)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 67.3,
+  "prompt_chars": 22856,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4981,
+        "completion": 1412
+      },
+      "finish_reason": "stop",
+      "latency_s": 3.74,
+      "ok": true
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'a7afbba3-bc6b-46b3-b6e5-925eece8868b'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '5e742b27-6952-4fd6-9a5a-5f708057c782'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 3694,
+        "completion": 1323
+      },
+      "finish_reason": "stop",
+      "latency_s": 3.51,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts"
+}

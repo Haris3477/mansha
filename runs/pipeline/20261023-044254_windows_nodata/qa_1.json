@@ -1,0 +1,110 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 0,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "gaps[2]: Incorrect claim that no official source confirms the issuing ministry. Fix: Official source P-MOET-COO-INDIA confirms the Ministry of Foreign Trade issues the CEPA certificate for India. (see P-MOET-COO-INDIA)",
+    "follow_up_questions[3]: Question about which UAE ministry issues the CEPA certificate does not affect origin qualification. Fix: Remove this question as it does not impact the origin determination."
+  ],
+  "note": "REJECTED | factuality 0, completeness 0, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/2: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 0,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.3,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/2: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.91,
+      "scope": [
+        "procedure[5]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]",
+        "caveats[11]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4838,
+            "completion": 1549
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.3,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.91,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4771,
+            "completion": 1511
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.91,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

@@ -1,0 +1,60 @@
+{
+  "status": "NEEDS_INPUT",
+  "verdict": null,
+  "language": "en",
+  "seconds": 0.84,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 0.84,
+      "summary": "product=None | destination=None | role=None | value=None | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 0.84,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 672,
+                "completion": 208
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.84,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "product_description",
+          "hs_code_given",
+          "destination_country",
+          "exporter_role",
+          "uae_processing",
+          "shipment_value"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "STOP",
+      "seconds": 0.0,
+      "summary": "missing: product_description, destination_country: ask the user",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

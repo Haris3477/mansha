@@ -1,0 +1,155 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 35.02,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 9879,
+        "completion": 3694
+      },
+      "finish_reason": "stop",
+      "latency_s": 35.02,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats[5]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified the product as aluminium window frames under tariff line 76101000 based on description match; confidence high.",
+      "The line is preferential under India-UAE CEPA, so preference applies.",
+      "MFN rate is 10% effective 10%, CEPA rate 0%.",
+      "Origin rule is PSR-IN-R118 'CTSH + VA 45%'; origin check status is INSUFFICIENT_DATA, so origin result is NEEDS_MORE_DATA.",
+      "Duty calculation needs shipment value; estimated saving status is NEEDS_VALUE.",
+      "Procedure steps include factory registration, certificate application, fee payment, validity, importer actions, and record keeping.",
+      "Caveats include interpretation of '+', undefined costs, issuing authority uncertainty, and factory registration requirement."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10% (effective 10%)",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": "No checks performed; missing a bill of materials and declaration.",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "NEEDS_VALUE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "Register the factory through the Ministry of Economy and Tourism's Factory Registration service; the factory must be located outside a free zone, hold a MoIAT industrial licence, and provide a MoIAT letter confirming 40% domestic value added. Processing takes about 3 working days.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "Log in to the ministry e-services portal, choose the Certificate of Origin for India service, fill in the application form, upload proof of factory registration, the commercial invoice, and (for a trading exporter) the factory's purchase invoice, pay the fee online, and submit the application. Processing takes about one working day and the service runs 24/7.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Pay the certificate fee; the fee ranges from AED 10 to AED 200 depending on the invoice value in AED.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The certificate is valid for 12 months from issue, covers one import, and should be issued before, at, or within 5 working days of export. It can be issued retrospectively up to 12 months from shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry, holds origin information under CAROTAR 2020 including which origin criterion is claimed, keeps supporting documents for at least 5 years from filing, and must answer a customs request within 10 working days.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "Keep origin records, including the cost breakdown, for at least 5 years starting from the end of the calendar year of issue.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "Mansha interprets '+' in the rule as 'and', meaning both the tariff shift and value addition tests must pass; the agreement does not define '+'.",
+        "source_id": "TOOL:rule_lookup:76101000"
+      },
+      {
+        "note": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "Direct labour cost and direct overhead cost are not defined in the agreement, so the build-up value addition method is uncertain.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources.",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "The agreement says box 8 for remarks, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "source_id": "P-AGR-COO-RULES"
+      },
+      {
+        "note": "UAE law sets a shorter 3-year record-keeping minimum; the CEPA's 5 years governs CEPA claims.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating, but the last production process must still go beyond minimal operations.",
+        "source_id": "P-AGR-3.7-CUMULATION"
+      },
+      {
+        "note": "The de minimis tolerance helps only the tariff-shift part of a rule, not the value addition percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      }
+    ],
+    "follow_up_questions": [
+      "Provide a bill of materials with each input's description, 6-digit HS code, origin country, value and currency, and a declaration stating the product price, whether it is FOB or Ex-Works, that the final manufacture occurred in the UAE, and the operations done in the UAE.",
+      "Provide the shipment value in AED (or convert to AED).",
+      "Confirm that the factory is located outside a free zone and is registered with the Ministry of Economy and Tourism (Factory Registration)."
+    ],
+    "gaps": [
+      "The agreement does not define 'direct labour cost' and 'direct overhead cost' needed for the build-up value addition method.",
+      "The agreement does not state whether the build-down and build-up methods use the same threshold for value addition.",
+      "The factory registration requires a 40% domestic value added letter, but the CEPA product-specific rule requires 45% value addition; the relationship is unclear."
+    ],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}

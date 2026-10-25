@@ -1,0 +1,151 @@
+{
+  "status": "REPORT",
+  "verdict": "ELIGIBLE",
+  "language": "en",
+  "seconds": 111.97,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 7.94,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 7.9,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 686,
+                "completion": 123
+              },
+              "finish_reason": "stop",
+              "latency_s": 7.9,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: given | evidence 24069 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "MEETS",
+          "TOOL:duty:76101000": "ESTIMATED",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "MEETS",
+          "TOOL:duty:76041010": "ESTIMATED",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "MEETS",
+          "TOOL:duty:76151030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 59.7,
+      "summary": "line 76101000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 59.69,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8709,
+                "completion": 5508
+              },
+              "finish_reason": "stop",
+              "latency_s": 59.69,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "summary": "QA Evaluator not built yet (Step 7): output NOT reviewed by QA",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 44.33,
+      "summary": "LLM prose passed the checks | notes: 7 in (5 mandatory, verbatim) -> 6 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 44.32,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1820,
+                "completion": 3426
+              },
+              "finish_reason": "stop",
+              "latency_s": 44.32,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

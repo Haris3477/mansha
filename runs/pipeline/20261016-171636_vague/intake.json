@@ -1,0 +1,21 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": null,
+    "uae_processing": null,
+    "destination_country": null,
+    "hs_code_given": null,
+    "exporter_role": null,
+    "shipment_value": null,
+    "language": "en",
+    "missing_fields": [
+      "product_description",
+      "hs_code_given",
+      "destination_country",
+      "exporter_role",
+      "uae_processing",
+      "shipment_value"
+    ]
+  }
+}

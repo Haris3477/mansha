@@ -1,0 +1,117 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 8.42,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1805,
+            "completion": 358
+          },
+          "finish_reason": "stop",
+          "latency_s": 8.42,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 4.71,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 2262,
+            "completion": 359
+          },
+          "finish_reason": "stop",
+          "latency_s": 4.71,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "REJECTED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your steel building structures qualify for preferential customs duty under the India-UAE CEPA because the product meets the required rule of origin. By claiming the CEPA rate, you can reduce the basic customs duty in India to 0%, resulting in an estimated saving of 10000.00 AED. Please refer to the claim checklist below for the next steps.",
+    "classification": "The product is classified under tariff line 73089090 for 'Other structures of iron or steel', with high confidence. You should confirm this tariff code with Indian customs or a customs broker prior to shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this tariff line is an effective rate of 10% (tariff rate 15%), whereas the CEPA rate is 0%. Claiming this trade agreement preference offers an estimated duty saving of 10000.00 AED on your shipment.",
+    "origin": "To qualify, the product must meet a rule of origin requiring a Change in Tariff Subheading (CTSH, meaning each non-originating material comes from a different 6-digit tariff subheading than the finished good) and a regional Value Addition (VA) of at least 40%. The product satisfies these criteria because final manufacture occurs in the UAE, the work completed goes beyond minimal operations, all 2 non-originating inputs satisfy the CTSH requirement outside subheading 730890, and the value addition reaches 45.0% on an FOB basis (the price loaded on board at the UAE port).",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The tariff schedule prints 15%, but an exemption notification lowers the duty actually charged to 10%; the effective rate is used.",
+      "source_id": "TOOL:duty:73089090",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:73089090",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:73089090",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:73089090",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:73089090",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:73089090",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    }
+  ]
+}

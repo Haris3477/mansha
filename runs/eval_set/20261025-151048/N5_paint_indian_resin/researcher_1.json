@@ -1,0 +1,188 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 92.04,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7393,
+        "completion": 9223
+      },
+      "finish_reason": "stop",
+      "latency_s": 92.04,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [
+    "caveats[0]: number(s) ['40'] not found in TOOL:rule_lookup:32091010"
+  ],
+  "normalized_by_code": [
+    "caveats[10]: note written from the KB, qualifier kept (P-AGR-3.4-DEMINIMIS)",
+    "caveats[7]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified 'acrylic paint (resin)' as matching TL-IN-32091010 'Acrylic emulsion (paint)' with high confidence; no HS code was given and no conflict was noted.",
+      "CEPA status is PREFERENTIAL, so the product is not excluded from preference.",
+      "MFN rate is 10% (tariff and effective); 2026 CEPA rate is 0% under the India-UAE CEPA.",
+      "Rule PSR-IN-R045 'CTSH + VA 40%' applies; origin tool returned MEETS, so the product QUALIFIES.",
+      "Duty tool returned ESTIMATED: saving of 10000.00 AED (MFN 10% vs CEPA 0% on 100000.00 AED).",
+      "Procedure steps compiled from P-MOET-FACTORY-REG, P-MOET-COO-INDIA, TOOL:coo_fee, P-AGR-COO-RULES, P-IN-IMPORTER, and P-AGR-RECORDS-VERIFICATION.",
+      "Caveats compiled from tool notes and passage notes covering interpretation, data limitations, and service uncertainties."
+    ],
+    "classification": {
+      "tariff_line": "32091010",
+      "description": "Acrylic emulsion (paint)",
+      "confidence": "high",
+      "source_id": "TL-IN-32091010"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%, effective 10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-32091010"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 40%",
+      "source_id": "PSR-IN-R045"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture in the UAE: PASS. Minimal operations: PASS. CTSH: PASS — all 2 non-originating inputs are classified outside subheading 320910. VA: PASS — build-down 65.0% against a threshold of 40%, FOB basis.",
+      "source_id": "TOOL:origin:32091010"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "10000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:32091010"
+    },
+    "procedure": [
+      {
+        "step": "Register the factory through the Ministry of Economy and Tourism's Factory Registration service.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "Log in to the ministry e-services portal.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Choose the Certificate of Origin for India service.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Fill in the application form.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Upload the required documents.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Submit the application.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Receive approval, or a return with comments to correct.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Print the approved certificate.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Certificate fee: AED 50 for this shipment (band: invoice value up to AED 100000).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the certificate before, at, or within 5 working days of export; it is valid for 12 months from issue and covers one import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "Keep origin records, including the cost breakdown, for at least 5 years.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The '+' in the rule 'CTSH + VA 40%' is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:rule_lookup:32091010"
+      },
+      {
+        "note": "Indian inputs count as originating only with proof of their originating status under bilateral cumulation.",
+        "source_id": "TOOL:origin:32091010"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:32091010"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.",
+        "source_id": "TOOL:duty:32091010"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:32091010"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is confirmed only through secondary sources.",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      },
+      {
+        "note": "The certificate fee assumes the invoice value equals the shipment value given.",
+        "source_id": "TOOL:coo_fee"
+      },
+      {
+        "note": "Preference is given only to originating goods shipped directly from the UAE to India; transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar.",
+        "source_id": "P-AGR-3.12-DIRECT"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:32091010"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

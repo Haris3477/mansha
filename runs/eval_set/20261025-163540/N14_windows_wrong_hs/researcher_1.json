@@ -1,0 +1,88 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 34.0,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 6944,
+        "completion": 3541
+      },
+      "finish_reason": "stop",
+      "latency_s": 34.0,
+      "ok": true
+    }
+  ],
+  "problems": [
+    "caveats[0].note contains 'TL-IN-76101000,': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+    "gaps[0].text contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+  ],
+  "warnings": [
+    "caveats[0]: number(s) ['3923'] not found in TOOL:tariff_lookup"
+  ],
+  "normalized_by_code": [
+    "follow_up_questions: dropped for verdict NO_PREFERENCE (the result does not depend on more information from the user): 'The HS code 39239090 corresponds to plastic articles for packing, not aluminium window frames. Please confirm whether the product description or the HS code is correct.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (TOOL:duty:39239090): 'India charges duty on the assessable (CIF) value at import, so actual duty amounts will differ from the estimate based on the shipment value given.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (P-IN-DUTY-SCOPE): 'The CEPA rate reduces Basic Customs Duty (and the Agriculture Infrastructure and Development Cess only for lines in Table II). IGST, GST compensation cess, the Social Welfare Surcharge, and any anti-dumping, countervailing or safeguard duties still apply.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: The only candidate returned is TL-IN-39239090, described as 'Other (heading 3923: plastic articles for packing)'. This does not match 'aluminium window frames'. The tariff lookup notes a conflict between the HS code and the description, and that the description best matches TL-IN-76101000 (not in the candidate list). Confidence set to low; follow-up question added.",
+      "Step 2: TL-IN-39239090 has CEPA status EXCLUDED, so no preferential rate is available regardless of origin.",
+      "Step 3: The tariff record gives agreement India-UAE CEPA, MFN rate tariff 15% / effective 15%, and preferential rate EXCLUDED.",
+      "Step 4: Because the line is excluded from CEPA, the origin analysis is not applicable. No origin rule or origin result is needed.",
+      "Step 5: The duty tool returns status NO_PREFERENCE for this line, so the saving is not applicable with null amount and currency.",
+      "Step 6: Procedure is empty because the origin status is NOT_APPLICABLE (only QUALIFIES or NEEDS_MORE_DATA trigger procedure steps).",
+      "Step 7: Caveats compiled from the tariff lookup conflict note, the exclusion note on the tariff line, the CIF-value caveat from the duty tool, and the scope-of-duties note from the Indian duty passage."
+    ],
+    "classification": {
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "confidence": "low",
+      "source_id": "TL-IN-39239090"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 15%, effective 15%",
+      "preferential_rate": "EXCLUDED",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_rule": {
+      "rule": "NOT_APPLICABLE",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_result": {
+      "status": "NOT_APPLICABLE",
+      "basis": "Tariff line 39239090 is excluded from CEPA preference (CEPA status: EXCLUDED), so the normal MFN rate applies regardless of whether the product meets the rule of origin. No origin analysis is performed.",
+      "source_id": "TL-IN-39239090"
+    },
+    "estimated_saving": {
+      "status": "NO_PREFERENCE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:39239090"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The HS code 39239090 corresponds to plastic articles for packing (heading 3923), not aluminium window frames. The tariff lookup notes that the description best matches TL-IN-76101000, which was not returned as a candidate. Confirm the correct HS code or product description.",
+        "source_id": "TOOL:tariff_lookup"
+      },
+      {
+        "note": "This tariff line is excluded from India's CEPA concessions: no preferential rate is available, and the normal MFN duty applies regardless of origin.",
+        "source_id": "TL-IN-39239090"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [
+      {
+        "text": "The tariff lookup identified TL-IN-76101000 as the best description match for 'aluminium window frames', but this candidate was not returned in the evidence. The correct classification for aluminium window frames cannot be determined from the available data.",
+        "source_id": "TOOL:tariff_lookup"
+      }
+    ],
+    "verdict": "NO_PREFERENCE"
+  }
+}

@@ -1,0 +1,304 @@
+{
+  "status": "CHECKS_FAILED",
+  "verdict": null,
+  "language": "en",
+  "seconds": 151.34,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 0.8,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=None | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 0.8,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 682,
+                "completion": 259
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.8,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given",
+          "shipment_value"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: not given | evidence 22267 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "INSUFFICIENT_DATA",
+          "TOOL:duty:76101000": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "INSUFFICIENT_DATA",
+          "TOOL:duty:76041010": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "INSUFFICIENT_DATA",
+          "TOOL:duty:76151030": "NEEDS_VALUE",
+          "TOOL:coo_fee": "NEEDS_VALUE"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 65.96,
+      "summary": "line 76101000 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 65.95,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8081,
+                "completion": 5987
+              },
+              "finish_reason": "stop",
+              "latency_s": 65.95,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "caveats[4]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 6.32,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.74,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4862,
+                "completion": 2000
+              },
+              "finish_reason": "length",
+              "latency_s": 1.93,
+              "ok": false,
+              "problem": "truncated (finish_reason=length)"
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4862,
+                "completion": 2575
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.74,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.31,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4050,
+                "completion": 2000
+              },
+              "finish_reason": "length",
+              "latency_s": 1.32,
+              "ok": false,
+              "problem": "truncated (finish_reason=length)"
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4050,
+                "completion": 2184
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.31,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "gaps[0]: The claim about the agreement not defining 'direct labour cost' and 'direct overhead cost' is not supported by any cited record. Fix: The cited records do not provide information on whether the agreement defines 'direct labour cost' and 'direct overhead cost' for the build‑up value addition method.",
+        "gaps[1]: The statement contradicts the cited record that identifies the Ministry of Foreign Trade as the issuing authority. Fix: The Ministry of Foreign Trade is identified as the issuing authority for the India CEPA Certificate of Origin in the cited records. (see P-MOET-COO-INDIA)",
+        "gaps[3]: The claim contradicts the cited record which confirms that free‑zone factories cannot obtain registration. Fix: According to the cited record, factory registration requires the factory to be located outside a free zone, confirming that free‑zone factories cannot obtain registration. (see P-MOET-FACTORY-REG)",
+        "caveats[3].note: The note adds that value addition percentages are on an FOB basis, which is not stated in the cited record. Fix: The value addition threshold is 5 percentage points lower when the Ex-Works price is used as the basis. (see PSR-GEN-EXW)"
+      ],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/2: findings + steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.74,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]",
+              "procedure[6]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/2: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.31,
+            "scope": [
+              "procedure[7]",
+              "procedure[8]",
+              "procedure[9]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "FAILED",
+      "seconds": 78.26,
+      "summary": "line 76101000 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 2 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 78.26,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 10133,
+                "completion": 8227
+              },
+              "finish_reason": "stop",
+              "latency_s": 78.26,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "gaps[1] contains 'P-MOET-COO-INDIA)': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+        "gaps[3] contains 'P-MOET-FACTORY-REG)': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+      ],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "QA: gaps[0]: The claim about the agreement not defining 'direct labour cost' and 'direct overhead cost' is not supported by any cited record. Fix: The cited records do not provide information on whether the agreement defines 'direct labour cost' and 'direct overhead cost' for the build‑up value addition method.",
+          "QA: gaps[1]: The statement contradicts the cited record that identifies the Ministry of Foreign Trade as the issuing authority. Fix: The Ministry of Foreign Trade is identified as the issuing authority for the India CEPA Certificate of Origin in the cited records. (see P-MOET-COO-INDIA)",
+          "QA: gaps[3]: The claim contradicts the cited record which confirms that free‑zone factories cannot obtain registration. Fix: According to the cited record, factory registration requires the factory to be located outside a free zone, confirming that free‑zone factories cannot obtain registration. (see P-MOET-FACTORY-REG)",
+          "QA: caveats[3].note: The note adds that value addition percentages are on an FOB basis, which is not stated in the cited record. Fix: The value addition threshold is 5 percentage points lower when the Ex-Works price is used as the basis. (see PSR-GEN-EXW)"
+        ],
+        "normalized_by_code": [
+          "caveats[4]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "summary": "not run: code checks still fail",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

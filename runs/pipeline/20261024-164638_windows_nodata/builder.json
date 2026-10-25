@@ -1,0 +1,93 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 108.58,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1871,
+            "completion": 4551
+          },
+          "finish_reason": "stop",
+          "latency_s": 108.58,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the aluminium window frames meet the rule of origin for the CEPA rate because required information is missing. The missing items are a detailed bill of materials, an exporter declaration, and the total shipment value. Without these, the duty saving cannot be estimated.",
+    "classification": "The product is classified under HS code 76101000, Doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but you should confirm it with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. The CEPA rate applies only to Basic Customs Duty; other import charges such as IGST remain payable. The estimated saving cannot be determined without the total shipment value.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the product, and value addition (VA) of at least 45%, meaning at least 45% of the product's price must come from UAE-originating materials. Because the required information is missing, the product cannot be checked yet. Mansha needs a detailed bill of materials and an exporter declaration to verify the rule.",
+    "notes": [
+      {
+        "text": "A product that only undergoes minimal operations, such as simple assembly or simple cutting, does not originate, even if it meets its product-specific rule.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "UAE law requires a minimum 3-year record retention, but CEPA claims must be supported by records kept for 5 years.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "A product that only undergoes minimal operations (such as simple assembly or simple cutting) does not originate, even if it meets its product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M4",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years govern CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    }
+  ]
+}

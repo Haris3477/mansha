@@ -1,0 +1,224 @@
+{
+  "status": "REPORT",
+  "verdict": "NOT_ELIGIBLE",
+  "language": "en",
+  "seconds": 203.19,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 5.46,
+      "summary": "product='battery chargers' | destination='India' | role=trader | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 5.43,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 687,
+                "completion": 121
+              },
+              "finish_reason": "stop",
+              "latency_s": 5.43,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-85044030 | bill of materials: given | evidence 20225 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:85044030": "RULE_FOUND",
+          "TOOL:origin:85044030": "FAILS",
+          "TOOL:duty:85044030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 130.31,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 130.3,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7415,
+                "completion": 7481
+              },
+              "finish_reason": "stop",
+              "latency_s": 130.3,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): \"Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-DUTY-SCOPE): 'The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-DUTY-SCOPE): 'SWS is charged on the reduced BCD (no CEPA-specific text found).'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-DUTY-SCOPE): 'anti-dumping and safeguard duties still apply (no exemption found).'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'Inference: a producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.\"",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-AGR-COO-RULES): \"The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.\"",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-AGR-RECORDS-VERIFICATION): \"UAE law sets a shorter 3-year minimum; the CEPA's 5 years governs CEPA claims.\"",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-COO-INDIA): 'Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:coo_fee): 'Fee bands are those of the certificate service (UAE e-service: Certificate of Origin for India; Ministry service pages; Cabinet Resolution 208/2025 fee schedule), charged on the invoice value in AED.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:coo_fee): \"Assumes the certificate's invoice value equals the shipment value given.\""
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "OK",
+      "seconds": 3.01,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.01,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 4258,
+                "completion": 985
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.01,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 60.95,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 7 in (2 mandatory, verbatim) -> 6 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 60.93,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1990,
+                "completion": 5897
+              },
+              "finish_reason": "stop",
+              "latency_s": 60.93,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 3.46,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.46,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 2489,
+                "completion": 1277
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.46,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

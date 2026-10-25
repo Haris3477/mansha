@@ -1,0 +1,70 @@
+{
+  "researcher_file": "runs/chargers/researcher_1.json",
+  "calls": [
+    {
+      "served_by": "google/gemini-3.7-flash",
+      "latency_s": 15.65,
+      "attempts": 1
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "Your battery chargers do not qualify for the preferential CEPA rate because the product does not meet the rule of origin. Because the goods did not undergo final manufacture in the UAE and only underwent minimal operations, the normal (MFN) rate applies in India.",
+    "classification": "The product is classified under Indian tariff line 85044030 as Battery chargers, with high confidence. You should confirm this tariff code with Indian customs or a licensed customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the preferential CEPA rate is 0%, compared to the normal (MFN) rate of 20%. Because the product does not qualify for trade preference, no duty saving applies.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH), where non-originating inputs must come from a different 4-digit heading, alongside at least 40% value addition (VA) based on the price of the goods loaded on board at the UAE port (FOB). The shipment fails to qualify because final manufacture did not take place in the UAE, the processing consisted entirely of minimal operations, non-originating inputs under heading 8504 made up 88.0% of the price (exceeding the 10% allowance), and value addition was only 12.0% against the required 40%.",
+    "notes": [
+      {
+        "text": "Products that only undergo minimal operations do not obtain originating status, even if they otherwise satisfy the product-specific rule.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "A lower customs rate of 15% applies under notification 45/2025 entry 323 solely for electric vehicle manufacturing, while the general rate remains 20%.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "A product that only undergoes these operations does not originate, even if it meets its product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "45/2025 S.No. 323 gives 15% only for EV manufacture; general rate 20%.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:85044030",
+      "mandatory": true
+    }
+  ]
+}

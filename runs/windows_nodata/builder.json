@@ -1,0 +1,162 @@
+{
+  "researcher_file": "runs/windows_nodata/researcher_1.json",
+  "calls": [],
+  "used_fallback": true,
+  "problems_left": [
+    "LLM call failed: [document_builder] failed after 2 model attempt(s) and 0 cooldown wait(s). Last problem: HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '364fda77-e50f-41be-8f5d-ea1ab908057d'}"
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet, because information is missing.",
+    "classification": "Tariff line 76101000: Doors, windows and their frames and thresholds for doors (aluminium) (Mansha's confidence: high). Confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Agreement: India-UAE CEPA. Estimated saving: cannot be estimated without the shipment value.",
+    "origin": "Rule of origin: CTSH + VA 45%. Result: the product cannot be checked yet, because information is missing. The origin calculator requires a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the UAE, operations done in the UAE). No checks were performed due to missing data.",
+    "notes": [
+      {
+        "text": "The CEPA rate reduces BCD and the Agriculture Infrastructure and Development Cess only for lines in Table II; IGST, GST compensation cess, SWS, and anti-dumping/countervailing/safeguard duties still apply. A lower BCD also lowers the IGST amount because IGST is levied on a base that includes BCD.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The '+' in the product-specific rule is interpreted as 'and' (both the tariff shift and the value-addition test must pass); this is Mansha's interpretation as the agreement does not define '+'.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "Value addition may be calculated by build-down or build-up; 'direct labour cost' and 'direct overhead cost' are not defined in the agreement. Whether the two methods share one threshold is not stated beyond the 5-percentage-point Ex-Works reduction.",
+        "from": [
+          "N3"
+        ]
+      },
+      {
+        "text": "Non-originating materials are valued at their customs (CIF) value at import; if unknown, at the first ascertainable price paid in the UAE or India.",
+        "from": [
+          "N4"
+        ]
+      },
+      {
+        "text": "Minimal operations listed in Article 3.5 (e.g., simple cutting, simple assembly, repacking, labelling) never confer origin, even if the product-specific rule is met.",
+        "from": [
+          "N5"
+        ]
+      },
+      {
+        "text": "De minimis tolerance allows up to 10% of the FOB value or Ex-Works price to be non-originating material; for wholly obtained products the limit is 1%.",
+        "from": [
+          "N6"
+        ]
+      },
+      {
+        "text": "Cumulation is bilateral only: originating materials from India used in UAE production may count as originating, but the last production process in the UAE must go beyond minimal operations.",
+        "from": [
+          "N7"
+        ]
+      },
+      {
+        "text": "A certificate of origin may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form. Minor typing errors are tolerated; discrepancies in signature or seal are not.",
+        "from": [
+          "N8"
+        ]
+      },
+      {
+        "text": "Certificate fee bands are in AED and apply to the invoice value in AED; no currency conversion is performed by Mansha.",
+        "from": [
+          "N9"
+        ]
+      },
+      {
+        "text": "Factory Registration requires the factory to be outside a free zone; free-zone producers are likely not eligible for CEPA certificates (inference, confirm with Ministry of Economy and Tourism).",
+        "from": [
+          "N10"
+        ]
+      },
+      {
+        "text": "The Indian importer must hold origin information under CAROTAR 2020, including the origin criterion claimed, keep supporting documents for at least 5 years, and respond to customs requests within 10 working days. Electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed, seen only in secondary sources).",
+        "from": [
+          "N11"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping, countervailing, or safeguard duties still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The CEPA rate reduces BCD and the Agriculture Infrastructure and Development Cess only for lines in Table II; IGST, GST compensation cess, SWS, and anti-dumping/countervailing/safeguard duties still apply. A lower BCD also lowers the IGST amount because IGST is levied on a base that includes BCD.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "The '+' in the product-specific rule is interpreted as 'and' (both the tariff shift and the value-addition test must pass); this is Mansha's interpretation as the agreement does not define '+'.",
+      "source_id": "TOOL:rule_lookup:76101000",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "Value addition may be calculated by build-down or build-up; 'direct labour cost' and 'direct overhead cost' are not defined in the agreement. Whether the two methods share one threshold is not stated beyond the 5-percentage-point Ex-Works reduction.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Non-originating materials are valued at their customs (CIF) value at import; if unknown, at the first ascertainable price paid in the UAE or India.",
+      "source_id": "P-AGR-3.1-NOM",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "Minimal operations listed in Article 3.5 (e.g., simple cutting, simple assembly, repacking, labelling) never confer origin, even if the product-specific rule is met.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "De minimis tolerance allows up to 10% of the FOB value or Ex-Works price to be non-originating material; for wholly obtained products the limit is 1%.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": false
+    },
+    {
+      "nid": "N7",
+      "text": "Cumulation is bilateral only: originating materials from India used in UAE production may count as originating, but the last production process in the UAE must go beyond minimal operations.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N8",
+      "text": "A certificate of origin may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form. Minor typing errors are tolerated; discrepancies in signature or seal are not.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N9",
+      "text": "Certificate fee bands are in AED and apply to the invoice value in AED; no currency conversion is performed by Mansha.",
+      "source_id": "P-MOET-COO-INDIA",
+      "mandatory": false
+    },
+    {
+      "nid": "N10",
+      "text": "Factory Registration requires the factory to be outside a free zone; free-zone producers are likely not eligible for CEPA certificates (inference, confirm with Ministry of Economy and Tourism).",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "N11",
+      "text": "The Indian importer must hold origin information under CAROTAR 2020, including the origin criterion claimed, keep supporting documents for at least 5 years, and respond to customs requests within 10 working days. Electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed, seen only in secondary sources).",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "No official page names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; its service page covers preferential certificates in general, and the India-specific page remains on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    }
+  ]
+}

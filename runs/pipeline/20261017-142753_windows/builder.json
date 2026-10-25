@@ -1,0 +1,78 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 60.84,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1847,
+            "completion": 5499
+          },
+          "finish_reason": "stop",
+          "latency_s": 60.84,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The product meets the rule of origin, so the CEPA rate can be claimed. This results in an estimated saving of 10000.00 AED. See the checklist below for the required steps.",
+    "classification": "The tariff line is 76101000, described as Doors, windows and their frames and thresholds for doors (aluminium). Mansha’s confidence in this classification is high, but the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India‑UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. The estimated saving is 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) for each non‑originating input and a value addition (VA) of at least 45%. The final manufacture check is passed because the last manufacturing step takes place in the UAE, and the minimal operations check is passed because the work goes beyond the simple operations that never give origin on their own. All three non‑originating inputs satisfy the CTSH requirement, and the VA is 49.0% on a build‑down FOB basis, exceeding the 45% threshold, so the product meets the rule of origin.",
+    "notes": [
+      {
+        "text": "The manufacturing unit must be located outside a free zone to complete factory registration; producers based in free zones may not be eligible to register or obtain the certificate for India.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Acceptance of electronic certificates uploaded to India’s e‑Sanchit system is based on secondary reports of CBIC Instruction 28/2022, not on confirmed official text.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The duty saving is an estimate based on the provided shipment value. India assesses duty on the CIF value at import, so actual figures will vary. The CEPA preference reduces Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge (SWS), and trade remedy duties still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Origin qualification relies on the exporter's declaration regarding UAE manufacturing activities and processes exceeding minimal operations. In the rule 'CTSH + VA 45%', the '+' is interpreted as requiring both tests to pass.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Factory Registration requires the manufacturing unit to be located outside a free zone. Producers based in free zones may not be eligible to complete registration or obtain the certificate for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Acceptance of electronic certificates uploaded to India's e-Sanchit system is derived from secondary reports of CBIC Instruction 28/2022 rather than confirmed official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    }
+  ]
+}

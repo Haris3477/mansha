@@ -1,0 +1,189 @@
+{
+  "status": "REPORT",
+  "verdict": "ELIGIBLE",
+  "language": "en",
+  "seconds": 95.51,
+  "warnings": [
+    "QA round 1: QA call failed: output NOT reviewed by QA"
+  ],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 5.0,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 4.95,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 685,
+                "completion": 124
+              },
+              "finish_reason": "stop",
+              "latency_s": 4.95,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.02,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: given | evidence 24172 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "MEETS",
+          "TOOL:duty:76101000": "ESTIMATED",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "MEETS",
+          "TOOL:duty:76041010": "ESTIMATED",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "MEETS",
+          "TOOL:duty:76151030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 17.67,
+      "summary": "line 76101000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 17.67,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 9170,
+                "completion": 1568
+              },
+              "finish_reason": "stop",
+              "latency_s": 17.67,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "FAILED",
+      "seconds": 0.21,
+      "summary": "QA call failed: output NOT reviewed by QA",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "LLM call failed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.14,
+              "ok": false,
+              "http_status": 413,
+              "problem": "HTTP 413: Error code: 413 - {'error': {'message': \"The request is too large for every routed candidate: all 1 attempt(s) were rejected as over the model's context/size limit. Retrying will not help — reduce the prompt/history size or enable a larger-context model. Attempt trail: groq/openai/gpt-oss-120b key1: context_too_large. Last error: Groq API error 413: Request too large for model `openai/gpt-oss-120b` in organization `org_01m4s0bhgbehx9yez7cepjne88` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 8779, please reduce your message size and t...\", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}, 'execution_id': '8df9696b-8511-41f6-b6f0-22b8c063853e'}"
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.07,
+              "ok": false,
+              "http_status": 413,
+              "problem": "HTTP 413: Error code: 413 - {'error': {'message': \"The request is too large for every routed candidate: all 1 attempt(s) were rejected as over the model's context/size limit. Retrying will not help — reduce the prompt/history size or enable a larger-context model. Attempt trail: groq/openai/gpt-oss-120b key1: context_too_large. Last error: Groq API error 413: Request too large for model `openai/gpt-oss-120b` in organization `org_01m4s0bhgbehx9yez7cepjne88` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 8779, please reduce your message size and t...\", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}, 'execution_id': '43b71e76-604c-4ac9-910f-de5f37b1e761'}"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 72.61,
+      "summary": "LLM prose passed the checks | notes: 6 in (5 mandatory, verbatim) -> 6 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 72.61,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1818,
+                "completion": 6288
+              },
+              "finish_reason": "stop",
+              "latency_s": 72.61,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

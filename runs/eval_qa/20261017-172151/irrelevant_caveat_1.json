@@ -1,0 +1,41 @@
+{
+  "case": "irrelevant_caveat",
+  "base": "chargers",
+  "note": "G12",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "caveats",
+    "caveats[6]"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 0,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "caveats[6].note: The note about HS 71 does not apply to battery chargers (HS 85). Fix: Remove this note as it is not relevant to the product. (see PSR-GEN-HS71)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 5.0,
+  "prompt_chars": 16175,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4312,
+        "completion": 2084
+      },
+      "finish_reason": "stop",
+      "latency_s": 5.02,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 1, completeness 0, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

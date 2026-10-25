@@ -1,0 +1,291 @@
+{
+  "status": "REPORT",
+  "verdict": "NEEDS_MORE_DATA",
+  "language": "en",
+  "seconds": 186.27,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.15,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=None | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.15,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 682,
+                "completion": 259
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.15,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given",
+          "shipment_value"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: not given | evidence 22267 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "INSUFFICIENT_DATA",
+          "TOOL:duty:76101000": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "INSUFFICIENT_DATA",
+          "TOOL:duty:76041010": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "INSUFFICIENT_DATA",
+          "TOOL:duty:76151030": "NEEDS_VALUE",
+          "TOOL:coo_fee": "NEEDS_VALUE"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 14.54,
+      "summary": "line 76101000 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.6-flash",
+          "latency_s": 14.53,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "google/gemini-3.6-flash",
+              "usage": {
+                "prompt": 8557,
+                "completion": 1518
+              },
+              "finish_reason": "stop",
+              "latency_s": 14.53,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "OK",
+      "seconds": 61.08,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.07,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "paced_wait_s": 28.9,
+              "latency_s": 0.04,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'b04b2807-bfc4-452c-a5ac-11f6a56a2f09'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 5030,
+                "completion": 1146
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.07,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.09,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4014,
+                "completion": 848
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.09,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/2: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.07,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/2: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.09,
+            "scope": [
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 108.59,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 6 in (4 mandatory, verbatim) -> 6 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 108.58,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1871,
+                "completion": 4551
+              },
+              "finish_reason": "stop",
+              "latency_s": 108.58,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 0.91,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.91,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2270,
+                "completion": 1004
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.91,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

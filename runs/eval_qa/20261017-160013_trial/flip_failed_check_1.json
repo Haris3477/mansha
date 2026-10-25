@@ -1,0 +1,61 @@
+{
+  "case": "flip_failed_check",
+  "base": "chargers",
+  "note": "problem 30",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "origin_result",
+    "origin_result.basis"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "origin_result.basis: Incorrectly states that final manufacture took place in the UAE, contradicting the origin tool record which shows it did NOT. Fix: Final manufacture did NOT take place in the UAE. The declared operations (repacking and relabeling) are minimal operations that never confer origin. One non-originating input falls in the same heading 8504 as the finished battery chargers and accounts for 88.0% of the FOB price, above the 10% de minimis tolerance. Value addition calculated by build-down is 12.0% against a required threshold of 40% on an FOB basis. (see TOOL:origin:85044030)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 64.1,
+  "prompt_chars": 15442,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'a4988802-6a05-4ac7-b157-e4a72b0d2e1c'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'eb32b86a-9512-444c-82c5-31c30e6ecdf1'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4135,
+        "completion": 882
+      },
+      "finish_reason": "stop",
+      "latency_s": 4.08,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

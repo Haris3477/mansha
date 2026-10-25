@@ -1,0 +1,154 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 123.76,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7375,
+        "completion": 13112
+      },
+      "finish_reason": "stop",
+      "latency_s": 123.76,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "origin_result.basis: check names written in plain words",
+    "caveats[6]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified sweet biscuits to TL-IN-19053100 (Sweet biscuits) as the only candidate with a perfect description match; no HS code was given, so confidence is high.",
+      "The line has CEPA status PREFERENTIAL with a 2026 rate of 0%, so the product qualifies for preferential duty.",
+      "MFN rate is 30% (tariff and effective both 30%); the 2026 CEPA rate is 0%.",
+      "Origin rule is PSR-IN-R028 (CTH + VA 40%); the origin tool reports MEETS with all four checks passing.",
+      "Duty tool estimates a saving of 8100.00 USD (MFN 30% vs CEPA 0% on 27000.00 USD shipment value).",
+      "Procedure covers factory registration, certificate application, fee payment, issuance timing, Indian importer claim, and record keeping.",
+      "Caveats include the unchecked MFN footnote, the '+' interpretation, the exporter's own declaration, the CIF-value basis, the BCD-only scope, the issuer ambiguity, the unconfirmed electronic certificate, the free-zone ineligibility, the undefined labour/overhead terms, the AED fee bands, and the box 8/9 discrepancy."
+    ],
+    "classification": {
+      "tariff_line": "19053100",
+      "description": "Sweet biscuits",
+      "confidence": "high",
+      "source_id": "TL-IN-19053100"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "30% (tariff 30%, effective 30%)",
+      "preferential_rate": "0% (2026 CEPA rate)",
+      "source_id": "TL-IN-19053100"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R028"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "The checks are: final manufacture check - PASS (declared); minimal operations check - PASS (declared); CTH - PASS (all 3 non-originating inputs are classified outside heading 1905); VA - PASS (build-down 55.0% against a threshold of 40%, FOB basis). Totals: price basis FOB; 4 inputs, of which 3 non-originating; non-originating inputs are 45% of the price.",
+      "source_id": "TOOL:origin:19053100"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "8100.00",
+      "currency": "USD",
+      "source_id": "TOOL:duty:19053100"
+    },
+    "procedure": [
+      {
+        "step": "Register the factory through the Ministry of Economy and Tourism's Factory Registration service before applying for a certificate. The factory must be located outside a free zone, hold a MoIAT industrial licence, and have a MoIAT letter confirming 40% domestic value added. Registration takes about 3 working day.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "Apply for the Certificate of Origin for India by logging into the ministry e-services portal, choosing the Certificate of Origin for India service, filling in the application form, and uploading proof of factory registration, the commercial invoice, and (for a trading exporter) the factory's purchase invoice. Submit the application and await approval or a return with comments to correct, then print the approved certificate. Processing takes about one working day.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Pay the certificate of origin fee, which ranges from AED 10 to AED 200 depending on the invoice value in AED.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Issue the certificate before, at, or within 5 working days of export. The certificate is valid for 12 months from issue and covers one import. It may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 of India's certificate form.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "Claim the CEPA rate when filing the bill of entry and hold origin information under CAROTAR 2020, including which origin criterion is claimed. Keep supporting documents for at least 5 years from filing and answer a customs request within 10 working days.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "Keep origin records, including the cost breakdown, for at least 5 years, starting from the end of the calendar year of the date of the certificate's issue.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "India's tariff schedule marks this 30% rate with a footnote that Mansha has not checked; confirm the normal (MFN) rate with Indian customs or a customs broker.",
+        "source_id": "TL-IN-19053100"
+      },
+      {
+        "note": "The '+' in the rule 'CTH + VA 40%' is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:19053100"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:19053100"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate. The estimate is shown in the shipment's own currency and has not been converted.",
+        "source_id": "TOOL:duty:19053100"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:19053100"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:19053100"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources.",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is needed before applying for the certificate. Confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+        "source_id": "TOOL:coo_fee"
+      },
+      {
+        "note": "The agreement says box 8 for the retrospective mark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "source_id": "P-AGR-COO-RULES"
+      }
+    ],
+    "follow_up_questions": [
+      "Provide the invoice value in AED to determine the exact certificate of origin fee, since the fee bands are in AED and the shipment value is given in USD."
+    ],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

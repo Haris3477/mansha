@@ -1,0 +1,320 @@
+{
+  "status": "REPORT",
+  "verdict": "ELIGIBLE",
+  "language": "en",
+  "seconds": 175.55,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 5.43,
+      "summary": "product='sweet biscuits' | destination='India' | role=manufacturer | value=27000 USD | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 5.43,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 699,
+                "completion": 304
+              },
+              "finish_reason": "stop",
+              "latency_s": 5.43,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-19053100 | bill of materials: given | evidence 19624 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:19053100": "RULE_FOUND",
+          "TOOL:origin:19053100": "MEETS",
+          "TOOL:duty:19053100": "ESTIMATED",
+          "TOOL:coo_fee": "CURRENCY_NOT_AED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 123.77,
+      "summary": "line 19053100 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 123.76,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7375,
+                "completion": 13112
+              },
+              "finish_reason": "stop",
+              "latency_s": 123.76,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "origin_result.basis: check names written in plain words",
+          "caveats[6]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "OK",
+      "seconds": 3.39,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.75,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4900,
+                "completion": 1425
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.75,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.98,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4795,
+                "completion": 1712
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.98,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.64,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2400,
+                "completion": 347
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.64,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.75,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 0.98,
+            "scope": [
+              "procedure[5]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 0.64,
+            "scope": [
+              "caveats[12]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 42.03,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 13 in (10 mandatory, verbatim) -> 12 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 42.02,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1955,
+                "completion": 4289
+              },
+              "finish_reason": "stop",
+              "latency_s": 42.02,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 0.92,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.92,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2332,
+                "completion": 1087
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.92,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

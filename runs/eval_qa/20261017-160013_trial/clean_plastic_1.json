@@ -1,0 +1,56 @@
+{
+  "case": "clean_plastic",
+  "base": "plastic",
+  "note": "NO_PREFERENCE",
+  "result": "APPROVED",
+  "expected_fields": [],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 61.9,
+  "prompt_chars": 10139,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '44d0fef1-2bca-445f-984c-01934f47912c'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '3a55030b-8e04-40ca-865a-adbaba950b4d'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 2744,
+        "completion": 619
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.87,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

@@ -1,0 +1,19 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "battery chargers",
+    "uae_processing": "repacked and relabeled",
+    "destination_country": "India",
+    "hs_code_given": null,
+    "exporter_role": "trader",
+    "shipment_value": {
+      "amount": 50000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given"
+    ]
+  }
+}

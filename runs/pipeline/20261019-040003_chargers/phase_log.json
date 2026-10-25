@@ -1,0 +1,400 @@
+{
+  "status": "REPORT",
+  "verdict": "NOT_ELIGIBLE",
+  "language": "en",
+  "seconds": 361.15,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 3.68,
+      "summary": "product='battery chargers' | destination='India' | role=trader | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.64,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 701,
+                "completion": 254
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.64,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.01,
+      "summary": "candidates: TL-IN-85044030 | bill of materials: given | evidence 20225 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:85044030": "RULE_FOUND",
+          "TOOL:origin:85044030": "FAILS",
+          "TOOL:duty:85044030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 117.64,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 22 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 117.63,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7415,
+                "completion": 10465
+              },
+              "finish_reason": "stop",
+              "latency_s": 117.63,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "classification.source_id '[TL-IN-85044030]' is not an ID in the evidence",
+        "tariff.source_id '[TL-IN-85044030]' is not an ID in the evidence",
+        "origin_rule.source_id '[PSR-IN-R126]' is not an ID in the evidence",
+        "origin_result.source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+        "estimated_saving.source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+        "caveats[0].source_id '[TL-IN-85044030]' is not an ID in the evidence",
+        "caveats[1].source_id '[TL-IN-85044030]' is not an ID in the evidence",
+        "caveats[2].source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+        "caveats[3].source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+        "caveats[4].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+        "caveats[5].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+        "caveats[6].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+        "caveats[7].source_id '[P-UAE-ISSUER]' is not an ID in the evidence",
+        "caveats[8].source_id '[P-IN-IMPORTER]' is not an ID in the evidence",
+        "caveats[9].source_id '[P-MOET-FACTORY-REG]' is not an ID in the evidence",
+        "caveats[10].source_id '[P-AGR-3.2.2-VA]' is not an ID in the evidence",
+        "caveats[11].source_id '[P-AGR-3.2.2-VA]' is not an ID in the evidence",
+        "caveats[12].source_id '[P-AGR-3.4-DEMINIMIS]' is not an ID in the evidence",
+        "caveats[13].source_id '[P-AGR-3.1-NOM]' is not an ID in the evidence",
+        "caveats[14].source_id '[P-AGR-3.7-CUMULATION]' is not an ID in the evidence",
+        "origin_result.source_id must be TOOL:origin:85044030 (the chosen line's result)",
+        "origin_rule.source_id must be the rule record PSR-IN-R126 (TOOL:rule_lookup:85044030 names it, and the rule text is there)"
+      ],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 73.34,
+      "summary": "REJECTED | factuality 0, completeness 0, formatting_safety 1 | code warnings judged: 0 (0 real)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 6.16,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 4394,
+                "completion": 3000
+              },
+              "finish_reason": "length",
+              "latency_s": 7.1,
+              "ok": false,
+              "problem": "truncated (finish_reason=length)"
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '2c212a01-ea07-42e6-8919-07f5dcbf39bc'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.04,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'bd6b85d5-3069-4177-882e-614c7d7c116d'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 4,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 4394,
+                "completion": 2609
+              },
+              "finish_reason": "stop",
+              "latency_s": 6.16,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[7].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "caveats[8].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "caveats[9].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "caveats[10].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "caveats[11].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "caveats[12].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "caveats[13].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "caveats[14].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+        "follow_up_questions[2]: The question asks for a bill of materials that the exporter has already provided. Fix: Remove this question or ask for additional information not already supplied."
+      ],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "OK",
+      "seconds": 58.15,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 58.14,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 9904,
+                "completion": 5341
+              },
+              "finish_reason": "stop",
+              "latency_s": 58.14,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "classification.source_id '[TL-IN-85044030]' is not an ID in the evidence",
+          "tariff.source_id '[TL-IN-85044030]' is not an ID in the evidence",
+          "origin_rule.source_id '[PSR-IN-R126]' is not an ID in the evidence",
+          "origin_result.source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+          "estimated_saving.source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+          "caveats[0].source_id '[TL-IN-85044030]' is not an ID in the evidence",
+          "caveats[1].source_id '[TL-IN-85044030]' is not an ID in the evidence",
+          "caveats[2].source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+          "caveats[3].source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+          "caveats[4].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+          "caveats[5].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+          "caveats[6].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+          "caveats[7].source_id '[P-UAE-ISSUER]' is not an ID in the evidence",
+          "caveats[8].source_id '[P-IN-IMPORTER]' is not an ID in the evidence",
+          "caveats[9].source_id '[P-MOET-FACTORY-REG]' is not an ID in the evidence",
+          "caveats[10].source_id '[P-AGR-3.2.2-VA]' is not an ID in the evidence",
+          "caveats[11].source_id '[P-AGR-3.2.2-VA]' is not an ID in the evidence",
+          "caveats[12].source_id '[P-AGR-3.4-DEMINIMIS]' is not an ID in the evidence",
+          "caveats[13].source_id '[P-AGR-3.1-NOM]' is not an ID in the evidence",
+          "caveats[14].source_id '[P-AGR-3.7-CUMULATION]' is not an ID in the evidence",
+          "origin_result.source_id must be TOOL:origin:85044030 (the chosen line's result)",
+          "origin_rule.source_id must be the rule record PSR-IN-R126 (TOOL:rule_lookup:85044030 names it, and the rule text is there)",
+          "QA: caveats[7].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: caveats[8].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: caveats[9].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: caveats[10].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: caveats[11].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: caveats[12].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: caveats[13].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: caveats[14].note: The note is not supported by any cited record in the evidence. Fix: Remove this note.",
+          "QA: follow_up_questions[2]: The question asks for a bill of materials that the exporter has already provided. Fix: Remove this question or ask for additional information not already supplied."
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "OK",
+      "seconds": 32.56,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 2.53,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '0ffd041b-17aa-42ad-ac7d-bdb0e0b9e813'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 3881,
+                "completion": 904
+              },
+              "finish_reason": "stop",
+              "latency_s": 2.53,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 73.1,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 4 in (2 mandatory, verbatim) -> 4 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 13.01,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 2006,
+                "completion": 496
+              },
+              "finish_reason": "stop",
+              "latency_s": 13.01,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 2.67,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 2.67,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '365bba72-296d-4bcf-b270-db082d6eab92'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.05,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'e34cd29c-f4c7-4fe9-8b51-b8829af97e5a'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 2454,
+                "completion": 1151
+              },
+              "finish_reason": "stop",
+              "latency_s": 2.67,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

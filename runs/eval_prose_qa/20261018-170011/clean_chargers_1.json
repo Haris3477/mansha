@@ -1,0 +1,72 @@
+{
+  "case": "clean_chargers",
+  "base": "chargers",
+  "note": "NOT_ELIGIBLE",
+  "result": "APPROVED",
+  "expected_fields": [],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1
+  },
+  "corrections": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 33.0,
+  "estimated_prompt_tokens": 2746,
+  "prose_reviewed": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. This is because the final manufacture did not take place in the UAE. Consequently, no CEPA saving is available.",
+    "classification": "The product is classified under tariff line 85044030, Battery chargers, with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate, which is the standard import duty when no trade‑agreement preference is claimed, is 20% and the CEPA rate is 0%. Since the product does not qualify, the normal rate applies and no saving is available.",
+    "origin": "The rule of origin requires a change in tariff heading, meaning each non‑originating input must be classified in a different four‑digit heading than the product, and at least 40% value addition, which is the share of the product's price that does not come from non‑originating materials, calculated on an FOB basis, meaning the price of the goods loaded on board at the UAE port. The final manufacture check failed because the last manufacturing step did not take place in the UAE, and the minimal operations check failed because only repacking and relabeling were performed, which are simple operations that never confer origin. The change in tariff heading check failed because one non‑originating input is classified in the same heading as the product and its share exceeds the de minimis threshold, and the value addition check failed because the value addition is only 12.0%, below the required 40%, with the build‑down method used since the build‑up percentage was not available.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025‑Customs (S.No. 323) applies only for electric‑vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Mansha has not checked whether India charges anti‑dumping duty on this product; you should verify with Indian customs or a customs broker.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "answers": [
+    {
+      "corrections": [],
+      "scores": {
+        "factuality": 1,
+        "completeness": 1
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '8a8a63fa-5a26-4bf7-94da-88508d739c05'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 2435,
+        "completion": 1062
+      },
+      "finish_reason": "stop",
+      "latency_s": 2.95,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1"
+}

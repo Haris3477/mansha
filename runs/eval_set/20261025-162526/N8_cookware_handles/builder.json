@@ -1,0 +1,81 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 53.14,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1744,
+            "completion": 5359
+          },
+          "finish_reason": "stop",
+          "latency_s": 53.14,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Aluminium cookware does not qualify for the CEPA rate under the India-UAE CEPA because it does not meet the rule of origin. As a result, the normal (MFN) rate applies to your exports, and no duty saving is available. The primary reason is that non-originating inputs in the same subheading as the product exceeded the permitted de minimis threshold.",
+    "classification": "The product is classified under tariff line 76151030, which covers other table, kitchen or household articles made of aluminium. Mansha has high confidence in this classification, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 20% and the CEPA rate is 0%. Because the product does not qualify for the preference, no duty saving applies. Note that the CEPA rate applies to Basic Customs Duty only, so other import charges (such as IGST) are still paid even if the rate is 0%.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning non-originating materials must be classified in a different 6-digit subheading than the final product, plus value addition (VA) of at least 45%, which is the share of the product's price that does not come from non-originating materials. The CTSH check failed because one non-originating input, cookware handles, was classified in the same subheading (761510) as the final product. This input represented 12.0% of the price, which exceeds the 10% de minimis limit, a small share of non-originating inputs that the tariff-shift test is allowed to ignore. Therefore, the product does not meet the rule of origin.",
+    "notes": [
+      {
+        "text": "The agreement does not specify whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76151030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76151030",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    }
+  ]
+}

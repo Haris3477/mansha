@@ -1,0 +1,91 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 36.23,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 9001,
+        "completion": 3542
+      },
+      "finish_reason": "stop",
+      "latency_s": 36.23,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats[5]: note written from the KB, qualifier kept (P-AGR-3.4-DEMINIMIS)",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76151030): \"Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76151030): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76151030): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Selected tariff line TL-IN-76151030 (Other table, kitchen or household articles (aluminium)) as the best description match for aluminium cookware.",
+      "The line is not excluded and has CEPA status PREFERENTIAL, so preference is available if origin criteria are met.",
+      "MFN rate is 20% (effective 20%) and the 2026 CEPA rate is 0%.",
+      "Origin rule PSR-IN-R118 (CTSH + VA 45%) applies; origin check FAILS because the CTSH test failed: 1 non-originating input (Cookware handles) is in the same subheading 761510 and represents 12.0% of the price, above the 10% de minimis.",
+      "Since the product does not qualify, the estimated saving is NOT_APPLICABLE.",
+      "No procedure steps are listed because the product does not qualify for CEPA preference.",
+      "Caveats include the interpretation of '+' as 'and', reliance on exporter's declaration, duty estimate caveats, de minimis limitation, and undefined cost terms."
+    ],
+    "classification": {
+      "tariff_line": "76151030",
+      "description": "Other table, kitchen or household articles (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76151030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76151030"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "CTSH check failed: 1 non-originating input(s) are in the same subheading 761510 as the product (Cookware handles); together 12.0% of the price, above the 10% de minimis.",
+      "source_id": "TOOL:origin:76151030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76151030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76151030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:76151030"
+      },
+      {
+        "note": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 117.63,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7415,
+        "completion": 10465
+      },
+      "finish_reason": "stop",
+      "latency_s": 117.63,
+      "ok": true
+    }
+  ],
+  "problems": [
+    "classification.source_id '[TL-IN-85044030]' is not an ID in the evidence",
+    "tariff.source_id '[TL-IN-85044030]' is not an ID in the evidence",
+    "origin_rule.source_id '[PSR-IN-R126]' is not an ID in the evidence",
+    "origin_result.source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+    "estimated_saving.source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+    "caveats[0].source_id '[TL-IN-85044030]' is not an ID in the evidence",
+    "caveats[1].source_id '[TL-IN-85044030]' is not an ID in the evidence",
+    "caveats[2].source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+    "caveats[3].source_id '[TOOL:origin:85044030]' is not an ID in the evidence",
+    "caveats[4].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+    "caveats[5].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+    "caveats[6].source_id '[TOOL:duty:85044030]' is not an ID in the evidence",
+    "caveats[7].source_id '[P-UAE-ISSUER]' is not an ID in the evidence",
+    "caveats[8].source_id '[P-IN-IMPORTER]' is not an ID in the evidence",
+    "caveats[9].source_id '[P-MOET-FACTORY-REG]' is not an ID in the evidence",
+    "caveats[10].source_id '[P-AGR-3.2.2-VA]' is not an ID in the evidence",
+    "caveats[11].source_id '[P-AGR-3.2.2-VA]' is not an ID in the evidence",
+    "caveats[12].source_id '[P-AGR-3.4-DEMINIMIS]' is not an ID in the evidence",
+    "caveats[13].source_id '[P-AGR-3.1-NOM]' is not an ID in the evidence",
+    "caveats[14].source_id '[P-AGR-3.7-CUMULATION]' is not an ID in the evidence",
+    "origin_result.source_id must be TOOL:origin:85044030 (the chosen line's result)",
+    "origin_rule.source_id must be the rule record PSR-IN-R126 (TOOL:rule_lookup:85044030 names it, and the rule text is there)"
+  ],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Step 1: Classified battery chargers to TL-IN-85044030 based on exact description match; no HS code was given and no conflict was noted, so confidence is high.",
+      "Step 2: The chosen line has CEPA status PREFERENTIAL, not EXCLUDED, so preference is available subject to origin.",
+      "Step 3: MFN rate is 20% (tariff and effective), CEPA rate is 0% per 2026 staging.",
+      "Step 4: Rule PSR-IN-R126 requires CTH + VA 40%. Origin check FAILS on all four checks: final manufacture not in UAE, minimal operations only, CTH not changed (88% non-originating in same heading), and VA only 12% against 40% threshold.",
+      "Step 5: Duty tool estimates saving of 10000.00 AED, but since origin is DOES_NOT_QUALIFY, the saving is NOT_APPLICABLE.",
+      "Step 6: Procedure is empty because origin does not qualify.",
+      "Step 7: Collected caveats from tariff lookup, origin check, duty estimate, and issuer passages."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "[TL-IN-85044030]"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "[TL-IN-85044030]"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "[PSR-IN-R126]"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in UAE: FAIL - the declared final manufacture did not take place in the UAE. Minimal operations: FAIL - the declared operations (repacking and relabeling) are all minimal operations that never confer origin. CTH: FAIL - 1 non-originating input is in the same heading 8504 as the product, representing 88.0% of the price, above the 10% de minimis threshold. VA: FAIL - build-down value addition is 12.0% against a threshold of 40% on an FOB basis.",
+      "source_id": "[TOOL:origin:85044030]"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "[TOOL:duty:85044030]"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "source_id": "[TL-IN-85044030]"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "[TL-IN-85044030]"
+      },
+      {
+        "note": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "[TOOL:origin:85044030]"
+      },
+      {
+        "note": "The operations and final manufacture are the exporter's own declaration.",
+        "source_id": "[TOOL:origin:85044030]"
+      },
+      {
+        "note": "The estimate is on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "[TOOL:duty:85044030]"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "[TOOL:duty:85044030]"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "[TOOL:duty:85044030]"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "[P-UAE-ISSUER]"
+      },
+      {
+        "note": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from a secondary source (CBIC Instruction 28/2022), which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+        "source_id": "[P-IN-IMPORTER]"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+        "source_id": "[P-MOET-FACTORY-REG]"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "[P-AGR-3.2.2-VA]"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "[P-AGR-3.2.2-VA]"
+      },
+      {
+        "note": "De minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+        "source_id": "[P-AGR-3.4-DEMINIMIS]"
+      },
+      {
+        "note": "Non-originating materials are valued at their customs (CIF) value at import; if that is unknown, at the first ascertainable price paid for them in the UAE or India. Indirect materials (such as fuel, tools and consumables used in production) count as neither originating nor non-originating.",
+        "source_id": "[P-AGR-3.1-NOM]"
+      },
+      {
+        "note": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating. The last production process in the UAE must still go beyond the minimal operations.",
+        "source_id": "[P-AGR-3.7-CUMULATION]"
+      }
+    ],
+    "follow_up_questions": [
+      "What manufacturing operations were performed on these battery chargers in the UAE, beyond repacking and relabeling?",
+      "Where was the final manufacture of these battery chargers completed? The final manufacture before export must occur in the UAE.",
+      "Can you provide a bill of materials showing the origin, HS code and value of each input used in these battery chargers?",
+      "What is the FOB value of this shipment and the customs (CIF) value of any non-originating materials used?"
+    ],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

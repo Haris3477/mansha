@@ -1,0 +1,66 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 47.12,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1684,
+            "completion": 4383
+          },
+          "finish_reason": "stop",
+          "latency_s": 47.12,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "This product does not qualify for the CEPA rate because the tariff line is excluded from India's CEPA concessions, so the normal (MFN) rate applies whatever the product's origin. The normal (MFN) rate is the standard import duty rate charged when no trade-agreement preference is claimed.",
+    "classification": "The product is classified under tariff line 39239090, described as Other plastic articles for packing under heading 3923, with high confidence. You should confirm this tariff code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for tariff line 39239090 is 15%, and the CEPA rate is excluded because this line is not covered by the agreement. The CEPA rate is the reduced rate under the trade agreement, but it does not apply here. No saving applies because the tariff line is excluded from CEPA preference.",
+    "origin": "The rule of origin does not apply to this product because the tariff line is excluded from CEPA preference. Since the line is excluded, the origin of the product is not checked, and the rule of origin is not evaluated. Therefore, no preferential rate can be claimed regardless of whether the product meets the origin criteria.",
+    "notes": [
+      {
+        "text": "This tariff line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The CEPA rate reduces Basic Customs Duty and the Agriculture Infrastructure and Development Cess only for lines in Table II. Other duties like IGST, GST compensation cess, and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin.",
+      "source_id": "TL-IN-39239090",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.",
+      "source_id": "TOOL:duty:39239090",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    }
+  ]
+}

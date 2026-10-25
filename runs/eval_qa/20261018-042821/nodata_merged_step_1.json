@@ -1,0 +1,195 @@
+{
+  "case": "nodata_merged_step",
+  "base": "windows_nodata",
+  "note": "G8, split review",
+  "result": "ERROR",
+  "expected_fields": [
+    "procedure[4]",
+    "procedure"
+  ],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 270.3,
+  "prompt_chars": 32161,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'fafa01aa-fed3-47c7-a777-7ea6b4d81cef'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'c58677d0-df9c-4934-92c6-c26f5f332fdb'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '03c1a4dc-734f-46bc-9369-5cbd184ed888'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 4,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '741d0e88-7474-44d8-8055-5b521661d853'}"
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'b7c934a6-20c3-4931-81bf-4f8319baa43a'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.03,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'cfad61fb-b8ab-4485-b37a-778f8d48bd1a'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.03,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '4860b28d-b149-4e47-9225-9a68479cc642'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 4,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'ba066825-ca19-4ac8-8819-c1e4fab16b9f'}"
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'd22e3bbd-fca9-4098-9e35-3bd547c01b10'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '86e0d750-f586-415e-808a-2cd3c7b66276'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '752b11a4-1ea8-4847-8732-46f0020a65a6'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 4,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'c559e7c8-23f1-4b28-b444-4dba3b5f8caf'}"
+    }
+  ],
+  "qa_note": "QA part 1/3, part 2/3, part 3/3 failed: output NOT reviewed by QA in full (3 parts)",
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "ERROR",
+      "scores": null,
+      "served_by": null,
+      "seconds": 0,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]"
+      ],
+      "warnings": [],
+      "note": "QA call failed: output NOT reviewed by QA"
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "ERROR",
+      "scores": null,
+      "served_by": null,
+      "seconds": 0,
+      "scope": [
+        "procedure[6]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]"
+      ],
+      "warnings": [],
+      "note": "QA call failed: output NOT reviewed by QA"
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "ERROR",
+      "scores": null,
+      "served_by": null,
+      "seconds": 0,
+      "scope": [
+        "caveats[9]",
+        "caveats[10]",
+        "caveats[11]",
+        "caveats[12]"
+      ],
+      "warnings": [],
+      "note": "QA call failed: output NOT reviewed by QA"
+    }
+  ]
+}

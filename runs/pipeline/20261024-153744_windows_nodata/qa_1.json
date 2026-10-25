@@ -1,0 +1,153 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "caveats[5].note: The cited source ID \"P-AGR-3.2-VA\" is not present in the provided evidence, so the claim is unsupported. Fix: The agreement does not define \"direct labour cost\" and \"direct overhead cost\"; no evidence is available on the build-down or build-up method thresholds."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.82,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.97,
+      "scope": [
+        "procedure[5]",
+        "procedure[6]",
+        "procedure[7]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.34,
+      "scope": [
+        "caveats[7]",
+        "caveats[8]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "raw_corrections": [
+    {
+      "field": "caveats[5].note",
+      "problem": "The cited source ID \"P-AGR-3.2-VA\" is not present in the provided evidence, so the claim is unsupported.",
+      "fix": "The agreement does not define \"direct labour cost\" and \"direct overhead cost\"; no evidence is available on the build-down or build-up method thresholds.",
+      "source_id": null
+    }
+  ],
+  "overruled_by_kb": [],
+  "rejudged": false,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.82,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4833,
+            "completion": 898
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.82,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.97,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4890,
+            "completion": 1989
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.97,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.34,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2679,
+            "completion": 557
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.34,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

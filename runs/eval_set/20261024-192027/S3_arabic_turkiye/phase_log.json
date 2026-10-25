@@ -1,0 +1,58 @@
+{
+  "status": "NOT_COVERED",
+  "verdict": null,
+  "language": "ar",
+  "seconds": 1.13,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.13,
+      "summary": "product='polyethylene bags' | destination='Türkiye' | role=manufacturer | value=None | language=ar",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.12,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 686,
+                "completion": 334
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.12,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given",
+          "shipment_value"
+        ],
+        "normalized_by_code": [
+          "destination_country: 'Turkey' -> 'Türkiye' (canonical name; unknown names kept)"
+        ]
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "STOP",
+      "seconds": 0.0,
+      "summary": "destination 'Türkiye' not covered (covered: India)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "case": "irrelevant_caveat",
+  "base": "chargers",
+  "note": "G12",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "caveats",
+    "caveats[6]"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 0,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "caveats[6].note: The note about HS 71 value‑addition does not apply to battery chargers (HS 85) and is therefore irrelevant. Fix: Remove this note from the caveats list."
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 4.6,
+  "prompt_chars": 15688,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4206,
+        "completion": 1553
+      },
+      "finish_reason": "stop",
+      "latency_s": 4.65,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 1, completeness 0, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

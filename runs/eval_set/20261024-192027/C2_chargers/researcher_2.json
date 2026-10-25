@@ -1,0 +1,82 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 25.18,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8629,
+        "completion": 2770
+      },
+      "finish_reason": "stop",
+      "latency_s": 25.18,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Step 1: Selected TL-IN-85044030 (Battery chargers) as the only candidate; the description matches the query exactly, so confidence is high.",
+      "Step 2: CEPA status is PREFERENTIAL, not EXCLUDED, so preference is available if origin is met.",
+      "Step 3: MFN rate is 20% (tariff and effective) and the 2026 CEPA rate is 0% under the India-UAE CEPA.",
+      "Step 4: Origin check under PSR-IN-R126 (CTH + VA 40%) returned FAILS on all four checks: final manufacture not in UAE, minimal operations only, CTH violation with 88% non-originating input, and VA of only 12% against a 40% threshold.",
+      "Step 5: Because origin is DOES_NOT_QUALIFY, the estimated saving is NOT_APPLICABLE.",
+      "Step 6: Procedure is empty because the product does not qualify for CEPA origin.",
+      "Step 7: Caveats captured from tariff, duty, origin, and passage notes including the anti-dumping check, CIF valuation, and the '+' interpretation."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "0% (2026 CEPA rate)",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "final manufacture check: FAIL — final manufacture did not take place in the UAE. minimal operations check: FAIL — declared operations are minimal operations under Art. 3.5.1(b), (k), (l) that never confer origin. CTH: FAIL — 1 non-originating input in heading 8504, representing 88.0% of the FOB price, above the 10% de minimis threshold. VA: FAIL — build-down value addition of 12.0% against a required 40% threshold on an FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; the general 20% rate is used here.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "The '+' in the product-specific rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

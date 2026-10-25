@@ -1,0 +1,61 @@
+{
+  "case": "bom_already_given",
+  "base": "chargers",
+  "note": "problem 55",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "follow_up_questions",
+    "follow_up_questions[0]"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 0,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "follow_up_questions: The question asks for a bill of materials that the user has already provided. Fix: Remove the follow‑up question (set follow_up_questions to an empty list)."
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 63.4,
+  "prompt_chars": 15572,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '9825e40d-d8aa-4047-8904-f6295d24fb7a'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '9ccca80b-5665-4038-84a6-c38ba9d5381f'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4166,
+        "completion": 1300
+      },
+      "finish_reason": "stop",
+      "latency_s": 3.34,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 1, completeness 0, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

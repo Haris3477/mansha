@@ -1,0 +1,71 @@
+{
+  "status": "NOT_COVERED",
+  "verdict": null,
+  "language": "en",
+  "seconds": 1.58,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.58,
+      "summary": "product='Medjool dates' | destination='India' | role=manufacturer | value=None | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.58,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 679,
+                "completion": 410
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.58,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given",
+          "shipment_value"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "STOP",
+      "seconds": 0.0,
+      "summary": "candidates: none | bill of materials: not given | evidence 17090 chars, 21 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "NOT_FOUND",
+          "TOOL:coo_fee": "NEEDS_VALUE"
+        }
+      }
+    }
+  ]
+}

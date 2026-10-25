@@ -1,0 +1,117 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 53.25,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1901,
+            "completion": 4378
+          },
+          "finish_reason": "stop",
+          "latency_s": 53.25,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet, because the bill of materials, declaration and shipment value are missing. If the product qualifies, the saving would be the difference between the normal rate and the CEPA rate.",
+    "classification": "The product is classified under tariff line 76101000, Doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India‑UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. The estimated saving cannot be determined without the shipment value.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non‑originating input must be classified in a different 6‑digit subheading than the product, and a value addition (VA) of at least 45%, meaning at least 45% of the product's price must not come from non‑originating materials. Because the bill of materials and declaration are missing, the tariff shift and value addition checks cannot be run, so the origin result cannot be determined. The final manufacture check also cannot be evaluated without the declaration.",
+    "notes": [
+      {
+        "text": "The 40% value‑added letter required for Factory Registration is a registration condition only; it is not the CEPA product‑specific rule test.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "The fee range is AED 10 to AED 200 because no shipment value was provided.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The agreement does not define '+' in the origin rule; Mansha reads '+' as 'and', meaning both the tariff shift and the value-addition tests must pass.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same value-addition threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, the Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources, not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The 40% value-added letter required for Factory Registration is a registration condition only; it is not the CEPA product-specific rule test.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "No shipment value was provided, so only the tariff rates, not the actual duty saving, are available.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The fee range is AED 10 to AED 200 because no shipment value was provided.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    }
+  ]
+}

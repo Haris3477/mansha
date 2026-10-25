@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "summary: The phrase \"reduce the import duty in India to 0%\" implies that all import duties become zero, which is broader than FACTS (the CEPA rate of 0% applies only to Basic Customs Duty). Fix: Replace the phrase with \"reduce the basic customs duty in India to 0%\" (or \"reduce the import duty (basic customs duty) to 0%\"), clarifying that only the basic customs duty is eliminated. (see FACTS)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.27,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2097,
+            "completion": 1675
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.27,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

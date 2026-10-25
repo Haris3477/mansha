@@ -1,0 +1,220 @@
+{
+  "status": "REPORT",
+  "verdict": "NOT_ELIGIBLE",
+  "language": "en",
+  "seconds": 130.58,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 2.57,
+      "summary": "product='battery chargers' | destination='India' | role=trader | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 2.53,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 701,
+                "completion": 282
+              },
+              "finish_reason": "stop",
+              "latency_s": 2.53,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-85044030 | bill of materials: given | evidence 20225 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:85044030": "RULE_FOUND",
+          "TOOL:origin:85044030": "FAILS",
+          "TOOL:duty:85044030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 57.69,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 57.68,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7415,
+                "completion": 5595
+              },
+              "finish_reason": "stop",
+              "latency_s": 57.68,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Confirm whether the final manufacture of these battery chargers took place in the UAE, as the origin check reports it did not.'",
+          "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Provide a bill of materials showing the origin, HS code and value of each input used in the battery chargers, so the CTH and value-added tests can be recalculated.'",
+          "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Verify whether the operations performed (repacking and relabeling) are the only operations, or whether additional manufacturing steps were taken.'",
+          "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Confirm the HS code for these battery chargers, as none was provided with the query.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific service page is still on moet.gov.ae.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from a secondary source (CBIC Instruction 28/2022 read through LiveLaw and taxmann), not the official text.\"",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for a certificate of origin for India.'"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "OK",
+      "seconds": 3.16,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.16,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 3675,
+                "completion": 1186
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.16,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 64.64,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 4 in (3 mandatory, verbatim) -> 4 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 64.64,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1900,
+                "completion": 5826
+              },
+              "finish_reason": "stop",
+              "latency_s": 64.64,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 2.52,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 2.52,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 2342,
+                "completion": 892
+              },
+              "finish_reason": "stop",
+              "latency_s": 2.52,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

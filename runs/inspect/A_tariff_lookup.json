@@ -1,0 +1,130 @@
+{
+  "tool_id": "TOOL:tariff_lookup",
+  "status": "CANDIDATES",
+  "method": "keywords",
+  "query": {
+    "corridor": "india",
+    "product_description": "aluminium window frames",
+    "hs_code_given": null
+  },
+  "candidates": [
+    {
+      "id": "TL-IN-76101000",
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "mfn": {
+        "tariff_rate_pct": 10,
+        "effective_rate_pct": 10,
+        "source_keys": [
+          "CBIC-TARIFF"
+        ]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 8301,
+        "source_keys": [
+          "N09"
+        ]
+      },
+      "staging": {
+        "category": "TEP over 5 years",
+        "source_keys": [
+          "A2A"
+        ]
+      },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": [],
+      "kind": "tariff_line",
+      "match": "keywords",
+      "score": 3,
+      "sources": {
+        "A2A": "https://leatherindia.org/wp-content/uploads/2026/02/Schedule-of-India.pdf",
+        "CBIC-TARIFF": "https://www.cbic.gov.in/entities/cbic-content-mst/MTcyNDYy",
+        "N09": "https://info.eepcindia.org/files/1775032740.pdf"
+      },
+      "in_excluded_heading": false
+    },
+    {
+      "id": "TL-IN-76041010",
+      "tariff_line": "76041010",
+      "description": "Aluminium wire rods",
+      "mfn": {
+        "tariff_rate_pct": 7.5,
+        "effective_rate_pct": 7.5,
+        "source_keys": [
+          "CBIC-TARIFF"
+        ]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 3.75,
+        "table": "I",
+        "s_no": 8263,
+        "source_keys": [
+          "N09"
+        ]
+      },
+      "staging": {
+        "category": "TEP over 10 years",
+        "source_keys": [
+          "A2A"
+        ]
+      },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": [],
+      "kind": "tariff_line",
+      "match": "keywords",
+      "score": 1,
+      "sources": {
+        "A2A": "https://leatherindia.org/wp-content/uploads/2026/02/Schedule-of-India.pdf",
+        "CBIC-TARIFF": "https://www.cbic.gov.in/entities/cbic-content-mst/MTcyNDYy",
+        "N09": "https://info.eepcindia.org/files/1775032740.pdf"
+      },
+      "in_excluded_heading": false
+    },
+    {
+      "id": "TL-IN-76151030",
+      "tariff_line": "76151030",
+      "description": "Other table, kitchen or household articles (aluminium)",
+      "mfn": {
+        "tariff_rate_pct": 20,
+        "effective_rate_pct": 20,
+        "source_keys": [
+          "CBIC-TARIFF"
+        ]
+      },
+      "cepa": {
+        "status": "PREFERENTIAL",
+        "rate_pct": 0,
+        "table": "I",
+        "s_no": 8334,
+        "source_keys": [
+          "N09"
+        ]
+      },
+      "staging": {
+        "category": "TEP over 5 years",
+        "source_keys": [
+          "A2A"
+        ]
+      },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": [],
+      "kind": "tariff_line",
+      "match": "keywords",
+      "score": 1,
+      "sources": {
+        "A2A": "https://leatherindia.org/wp-content/uploads/2026/02/Schedule-of-India.pdf",
+        "CBIC-TARIFF": "https://www.cbic.gov.in/entities/cbic-content-mst/MTcyNDYy",
+        "N09": "https://info.eepcindia.org/files/1775032740.pdf"
+      },
+      "in_excluded_heading": false
+    }
+  ],
+  "notes": []
+}

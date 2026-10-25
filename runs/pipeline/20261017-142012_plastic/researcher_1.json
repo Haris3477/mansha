@@ -1,0 +1,73 @@
+{
+  "served_by": "google/gemini-3.7-flash",
+  "latency_s": 10.23,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "google/gemini-3.7-flash",
+      "usage": {
+        "prompt": 6981,
+        "completion": 726
+      },
+      "finish_reason": "stop",
+      "latency_s": 10.23,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "output": {
+    "reasoning": [
+      "The product 'plastic packing articles' and the provided HS code 39239090 match tariff line 39239090 ('Other (heading 3923: plastic articles for packing)').",
+      "Tariff line 39239090 is listed as EXCLUDED from India's CEPA tariff concessions, meaning no preferential treatment applies.",
+      "The agreement is India-UAE CEPA, the MFN rate is 15% (both tariff and effective), and the preferential rate is EXCLUDED.",
+      "Because the tariff line is excluded from CEPA concessions, origin rules are not evaluated and the status is NOT_APPLICABLE.",
+      "Duty calculation returns NO_PREFERENCE with zero tariff savings, so the estimated saving status is NO_PREFERENCE.",
+      "Because the origin status is NOT_APPLICABLE, no claim procedure is applicable and the procedure list is empty.",
+      "Relevant caveats regarding the exclusion of this line and India's CIF valuation basis are recorded."
+    ],
+    "classification": {
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "confidence": "high",
+      "source_id": "TL-IN-39239090"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "15%",
+      "preferential_rate": "EXCLUDED",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_rule": {
+      "rule": "NOT_APPLICABLE",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_result": {
+      "status": "NOT_APPLICABLE",
+      "basis": "Tariff line 39239090 is excluded from CEPA preference, so origin rules do not apply.",
+      "source_id": "TL-IN-39239090"
+    },
+    "estimated_saving": {
+      "status": "NO_PREFERENCE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:39239090"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "This line is excluded from India's CEPA concessions: no preferential rate, the normal (MFN) duty applies whatever the origin.",
+        "source_id": "TOOL:duty:39239090"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:39239090"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NO_PREFERENCE"
+  }
+}

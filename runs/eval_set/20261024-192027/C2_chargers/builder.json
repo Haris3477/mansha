@@ -1,0 +1,75 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 37.04,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1922,
+            "completion": 4020
+          },
+          "finish_reason": "stop",
+          "latency_s": 37.04,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. The main reason is that the final manufacture did not take place in the UAE and the work done consists of minimal operations that never confer origin. No CEPA saving applies because the product does not qualify.",
+    "classification": "The tariff line is 85044030 for battery chargers. Mansha's confidence in this classification is high. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "The agreement is the India-UAE CEPA. The normal (MFN) rate is 20%. The CEPA rate is 0%, but it does not apply because the product does not qualify. No saving applies.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH) and value addition (VA) of 40%. CTH means each non-originating input must be classified in a different 4-digit heading than the product, and VA means the share of the product's price that does not come from non-originating materials. The product does not meet the rule of origin because the final manufacture did not take place in the UAE and the work done consists of minimal operations that never confer origin. Additionally, the CTH check failed because one non-originating input in heading 8504 represents 88.0% of the FOB price, which is above the 10% de minimis threshold, and the VA check failed because the value addition is 12.0% against the required 40% on an FOB basis.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture. The general 20% rate is used here because the product is a battery charger.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; the general 20% rate is used here.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The '+' in the product-specific rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    }
+  ]
+}

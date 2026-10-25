@@ -1,0 +1,67 @@
+{
+  "case": "free_zone_cannot",
+  "base": "windows",
+  "note": "problem 57",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "notes[0]"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "notes[0].text: The note states \"cannot obtain\" which removes the qualifier \"likely\" from the original note, making the statement certain. Fix: A producer in a free zone is likely not eligible for Factory Registration, as it requires a factory outside a free zone and is needed before applying for the certificate of origin for India. (see N1)"
+  ],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 2.5,
+  "estimated_prompt_tokens": 2490,
+  "prose_reviewed": {
+    "summary": "The product meets the rule of origin, so the CEPA rate can be claimed. This results in an estimated saving of 10000.00 AED; please follow the checklist below to claim it.",
+    "classification": "The product is classified under tariff line 76101000, Doors, windows and their frames and thresholds for doors (aluminium), and Mansha's confidence in this classification is high. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. This results in an estimated saving of 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non‑originating input must be classified in a different six‑digit subheading than the product, and at least 45% value addition (VA), which is the share of the product's price not coming from non‑originating materials. The final manufacture check passed because the last manufacturing step occurred in the UAE, and the minimal operations check passed because the work goes beyond simple operations. All three non‑originating inputs are classified outside subheading 761010, satisfying CTSH, and the qualifying value addition is 49.0% on an FOB price basis, exceeding the 45% threshold.",
+    "notes": [
+      {
+        "text": "A producer in a free zone cannot obtain Factory Registration, as it requires a factory outside a free zone and is needed before applying for the certificate of origin for India.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "answers": [
+    {
+      "corrections": [
+        {
+          "field": "notes[0].text",
+          "problem": "The note states \"cannot obtain\" which removes the qualifier \"likely\" from the original note, making the statement certain.",
+          "fix": "A producer in a free zone is likely not eligible for Factory Registration, as it requires a factory outside a free zone and is needed before applying for the certificate of origin for India.",
+          "based_on": "N1"
+        }
+      ],
+      "scores": {
+        "factuality": 0,
+        "completeness": 1
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 2197,
+        "completion": 890
+      },
+      "finish_reason": "stop",
+      "latency_s": 2.42,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1"
+}

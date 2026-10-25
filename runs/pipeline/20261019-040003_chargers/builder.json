@@ -1,0 +1,81 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.7-flash",
+      "latency_s": 13.01,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.7-flash",
+          "usage": {
+            "prompt": 2006,
+            "completion": 496
+          },
+          "finish_reason": "stop",
+          "latency_s": 13.01,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The battery chargers do not qualify for preferential tariff treatment under the India-UAE CEPA because the product fails the origin criteria, including the requirement that final manufacture take place in the UAE. Consequently, the normal (MFN) rate applies upon import into India. No preferential duty savings are available for this shipment.",
+    "classification": "The product is classified under tariff line 85044030 for battery chargers, assessed with high confidence. This classification should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 20% and the preferential CEPA rate is 0%. Because the product does not qualify for preferential treatment, no duty saving applies, and imports into India are subject to the standard 20% rate.",
+    "origin": "To qualify, the product must satisfy a change in tariff heading (CTH), where non-originating inputs must be classified in a different 4-digit heading, plus achieve at least 40% value addition (VA) based on the FOB price (the price of the goods loaded on board at the UAE port). The battery chargers fail every origin check: final manufacture did not take place in the UAE, and the declared activities of repacking and relabeling are minimal operations that never confer origin on their own. Furthermore, the product fails the tariff-shift test because 1 non-originating input remains in heading 8504, representing 88.0% of the price (above the 10% de minimis threshold), and the build-down value addition is 12.0% against the required 40% threshold.",
+    "notes": [
+      {
+        "text": "A concessional 15% rate under Notification 45/2025-Customs (S.No. 323) is restricted to electric-vehicle manufacturing, so the standard 20% rate is applied here.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Mansha has not verified whether India levies anti-dumping duty on this item; check this directly with Indian customs or a customs broker.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    }
+  ]
+}

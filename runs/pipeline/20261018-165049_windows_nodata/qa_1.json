@@ -1,0 +1,124 @@
+{
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [],
+  "note": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/2: findings + steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "groq/openai/gpt-oss-120b",
+      "seconds": 3.06,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/2: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "groq/openai/gpt-oss-120b",
+      "seconds": 2.84,
+      "scope": [
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "groq/openai/gpt-oss-120b",
+      "latency_s": 3.06,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "groq/openai/gpt-oss-120b",
+          "usage": {
+            "prompt": 5066,
+            "completion": 1106
+          },
+          "finish_reason": "stop",
+          "latency_s": 3.06,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "groq/openai/gpt-oss-120b",
+      "latency_s": 2.84,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "latency_s": 0.01,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'a80939dd-d282-41a6-85d0-9f674eb71b9e'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "latency_s": 0.01,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '77bdfdc9-dd4d-4acc-8967-13139a8e7a04'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 3,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "groq/openai/gpt-oss-120b",
+          "usage": {
+            "prompt": 4111,
+            "completion": 1019
+          },
+          "finish_reason": "stop",
+          "latency_s": 2.84,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

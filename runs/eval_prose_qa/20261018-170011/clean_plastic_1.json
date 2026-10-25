@@ -1,0 +1,56 @@
+{
+  "case": "clean_plastic",
+  "base": "plastic",
+  "note": "NO_PREFERENCE",
+  "result": "APPROVED",
+  "expected_fields": [],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1
+  },
+  "corrections": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 2.4,
+  "estimated_prompt_tokens": 2079,
+  "prose_reviewed": {
+    "summary": "The tariff line is excluded from CEPA preference, so the normal (MFN) rate applies whatever the product's origin. Consequently, no CEPA rate is available and there is no saving.",
+    "classification": "The product is classified under tariff line 39239090, described as Other plastic articles for packing. Mansha's confidence in this classification is high, but the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 15% and the CEPA rate is excluded for this line. No saving applies because the tariff line is excluded from CEPA preference.",
+    "origin": "The rule of origin does not apply because the tariff line is excluded from CEPA preference. As a result, the product's origin is not checked and no origin result is given.",
+    "notes": [
+      {
+        "text": "This tariff line is excluded from India's CEPA concessions, so the normal MFN rate applies regardless of origin.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "answers": [
+    {
+      "corrections": [],
+      "scores": {
+        "factuality": 1,
+        "completeness": 1
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 1864,
+        "completion": 692
+      },
+      "finish_reason": "stop",
+      "latency_s": 2.35,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1"
+}

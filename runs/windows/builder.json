@@ -1,0 +1,70 @@
+{
+  "researcher_file": "runs/windows/researcher_1.json",
+  "calls": [
+    {
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 54.71,
+      "attempts": 1
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "Your aluminium window frames qualify for the preferential CEPA rate under the India-UAE CEPA. For a shipment valued at 100000 AED, this means an estimated saving of 10000.00 AED in import duties. Please refer to the checklist below to complete the steps required to claim this preferential rate.",
+    "classification": "The product is classified under tariff line 76101000, which covers doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal import duty rate (MFN rate) is 10%, which is charged when no trade-agreement preference is claimed. The reduced rate under the trade agreement (CEPA rate) is 0%. Claiming this CEPA rate for your shipment valued at 100000 AED results in an estimated saving of 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the product, and a value addition (VA) of at least 45%, which is the share of the product's price that does not come from non-originating materials. The final manufacture check passed, meaning the last manufacturing step took place in the UAE, and the minimal operations check passed, meaning the work done in the UAE goes beyond the simple operations that the agreement says never give origin on their own. Additionally, the CTSH check passed because all 3 non-originating inputs were classified outside subheading 761010, and the VA build-down passed at 49.0% against the threshold of 45% on a FOB basis, which is the price of the goods loaded on board at the UAE port. This is based on a price of 100000 AED, 6 total inputs, and 3 non-originating inputs totaling 51000 AED, making the non-originating share 51%.",
+    "notes": [
+      {
+        "text": "In the rule of origin, the '+' symbol is interpreted as 'and', meaning both the CTSH and VA tests must pass. Please note that the agreement does not define '+', so this is Mansha's interpretation.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Free-zone producers are likely not eligible for the Factory Registration required prior to obtaining a certificate of origin.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:76101000",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Free-zone producers are likely not eligible for Factory Registration required prior to obtaining a certificate of origin.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    }
+  ]
+}

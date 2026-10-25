@@ -1,0 +1,104 @@
+{
+  "case": "clean_windows_nodata",
+  "base": "windows_nodata",
+  "note": "NEEDS_MORE_DATA, 13 caveats",
+  "result": "FALSE REJECTION",
+  "expected_fields": [],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "caveats[0].note: Includes 'countervailing' duties which are not mentioned in the cited record. Fix: CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply. (see TOOL:duty:76101000)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 129.7,
+  "prompt_chars": 32110,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4913,
+        "completion": 950
+      },
+      "finish_reason": "stop",
+      "latency_s": 2.76,
+      "ok": true
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'cc3fc2f1-1304-4a2f-be57-1e5122d34179'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'b6c8be51-a95d-43aa-a378-5d9d9a60a9ed'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4832,
+        "completion": 1805
+      },
+      "finish_reason": "stop",
+      "latency_s": 4.45,
+      "ok": true
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '55ba6c07-9894-4539-9509-82841d7888ce'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'be763f19-00d4-4540-8565-edb082c9f038'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 3337,
+        "completion": 833
+      },
+      "finish_reason": "stop",
+      "latency_s": 2.4,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts"
+}

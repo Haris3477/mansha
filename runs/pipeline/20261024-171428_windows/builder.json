@@ -1,0 +1,74 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 11.87,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1831,
+            "completion": 317
+          },
+          "finish_reason": "stop",
+          "latency_s": 11.87,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your aluminium window frames qualify for the reduced tariff rate under the India-UAE CEPA. Claiming this rate can save an estimated 10000.00 AED in import duty on your shipment. Please refer to the checklist below for the required steps to claim this preference.",
+    "classification": "The product is classified under tariff code 76101000 for doors, windows and their frames and thresholds for doors (aluminium), with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate of 10% is reduced to a CEPA rate of 0%. This provides an estimated duty saving of 10000.00 AED on your shipment.",
+    "origin": "The product must meet a Change in Tariff Subheading (CTSH)—where each non-originating material is classified in a different 6-digit subheading than the final product—and achieve a Value Addition (VA) of 45% based on the FOB price at the UAE port. The product qualifies because final manufacture took place in the UAE and operations go beyond minimal operations. All 3 non-originating inputs meet the CTSH requirement by being classified outside subheading 761010, and the build-down value addition reaches 49.0%, exceeding the 45% threshold.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Duty savings are estimated on the shipment value given; India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The '+' in a rule is read as 'and' (both tests must pass), which is Mansha's interpretation as the agreement does not define '+'.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "Operations and final manufacture rely on the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    }
+  ]
+}

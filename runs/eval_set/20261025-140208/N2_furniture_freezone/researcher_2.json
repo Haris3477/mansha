@@ -1,0 +1,159 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 53.73,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 9221,
+        "completion": 6269
+      },
+      "finish_reason": "stop",
+      "latency_s": 53.73,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats[9]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: Only one candidate was returned by the tariff lookup, TL-IN-94036000 ('Other wooden furniture'), which matches the keyword query for 'hardwood bedroom furniture'; no HS code conflict was noted, so confidence is high.",
+      "Step 2: The chosen line's CEPA status is PREFERENTIAL, so preference is available; it is not an excluded heading.",
+      "Step 3: The tariff record gives MFN tariff and effective rates both at 20%, and the 2026 CEPA rate at 12.5%.",
+      "Step 4: The rule lookup names the product-specific rule ('CTH + VA 40%'); the origin tool reports MEETS with all four checks passing (final manufacture, minimal operations, CTH, and VA build-down 52.0% against a 40% threshold).",
+      "Step 5: The duty tool estimates a saving of 7500.00 AED (MFN duty 20000.00 AED minus CEPA duty 12500.00 AED) on the 100000.00 AED shipment.",
+      "Step 6: Origin qualifies, so the procedure steps are populated from the passages: factory registration, certificate application, fee payment, issuance timing, importer claim, and record keeping.",
+      "Step 7: Caveats are copied from the tool and passage notes that affect how the result should be read, including the '+' interpretation, the free-zone eligibility risk, the CIF-value basis of Indian duty, and the unconfirmed CEPA issuer."
+    ],
+    "classification": {
+      "tariff_line": "94036000",
+      "description": "Other wooden furniture",
+      "confidence": "high",
+      "source_id": "TL-IN-94036000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "12.5%",
+      "source_id": "TL-IN-94036000"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R136"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture in UAE: PASS. Minimal operations: PASS. CTH: PASS — all 2 non-originating inputs are classified outside heading 9403. VA: PASS — build-down 52.0% against a threshold of 40%, FOB basis. Totals: price basis FOB; 3 inputs, of which 2 non-originating; non-originating inputs are 48% of the price.",
+      "source_id": "TOOL:origin:94036000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "7500.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:94036000"
+    },
+    "procedure": [
+      {
+        "step": "The Ministry of Economy and Tourism registers the factory (requires location outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added; takes about 3 working days).",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The Ministry of Foreign Trade issues the Certificate of Origin for India through its e-service: log in to the ministry e-services portal, choose the Certificate of Origin for India service, fill in the application form, upload the required documents, pay the fee online, submit the application, and receive approval or a return with comments to correct; processing takes about one working day.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Certificate fee: AED 50 (band: invoice value up to AED 100000).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the certificate prior to, at, or within five working days of the date of exportation; it is valid for twelve months from the date of issue and covers only one import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter keeps origin records, including the cost breakdown, for at least five years starting from the end of the calendar year of the certificate's issue.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The '+' in the product-specific rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:rule_lookup:94036000"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Factory declared in a free zone: likely not eligible for the ministry's factory registration; confirm with the ministry.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "The CEPA lowers the duty on this line but does not remove it.",
+        "source_id": "TL-IN-94036000"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports.",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "Inference: anti-dumping and safeguard duties still apply (no exemption found).",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "source_id": "P-AGR-COO-RULES"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

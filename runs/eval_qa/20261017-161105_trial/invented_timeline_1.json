@@ -1,0 +1,35 @@
+{
+  "case": "invented_timeline",
+  "base": "windows",
+  "note": "code warning",
+  "result": "ERROR",
+  "expected_fields": [
+    "procedure[1]",
+    "procedure"
+  ],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [
+    "procedure[1]: number(s) ['14'] not found in P-MOET-COO-INDIA"
+  ],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 0.0,
+  "prompt_chars": 22417,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.0,
+      "ok": false,
+      "http_status": 429,
+      "cooldown": true,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 2 routes checked (2 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~9m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792239910322}, 'execution_id': '6a217be4-67de-40d5-b2bf-83a4d5c811f2'}",
+      "retry_skipped": "router busy for ~569s (> 90s cap)"
+    }
+  ],
+  "qa_note": "QA call failed: output NOT reviewed by QA"
+}

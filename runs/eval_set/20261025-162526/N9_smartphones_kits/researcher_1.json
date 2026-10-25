@@ -1,0 +1,87 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 49.66,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7550,
+        "completion": 4870
+      },
+      "finish_reason": "stop",
+      "latency_s": 49.66,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats[6]: note written from the KB, qualifier kept (P-AGR-3.4-DEMINIMIS)",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85171300): \"The duty estimate is based on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85171300): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85171300): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: The candidate TL-IN-85171300 has description 'Smartphones' which exactly matches the product description; the given HS code 85171211 matches the HS 2017 code listed for that line, so classification is high confidence.",
+      "Step 2: The CEPA status of the chosen line is PREFERENTIAL, not EXCLUDED, so preferential duty is available if origin is met.",
+      "Step 3: The MFN rate is 20% (tariff and effective both 20%) and the 2026 CEPA rate is 0%, as stated in TL-IN-85171300.",
+      "Step 4: The product-specific rule is PSR-IN-R126 'CTH + VA 40%'. The origin check fails on three mandatory tests: minimal operations, CTH, and value addition.",
+      "Step 5: Because the origin result is DOES_NOT_QUALIFY, the duty saving is not applicable, even though the duty tool estimated a saving of 18000.00 AED.",
+      "Step 6: Procedure steps are not provided because the origin status is neither QUALIFIES nor NEEDS_MORE_DATA.",
+      "Step 7: Caveats are drawn from the duty tool, origin tool, and relevant agreement passages that explain the failure and the limitations of the estimate."
+    ],
+    "classification": {
+      "tariff_line": "85171300",
+      "description": "Smartphones",
+      "confidence": "high",
+      "source_id": "TL-IN-85171300"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85171300"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Minimal operations fail: the declared operations are simple assembly (n), simple packaging (k), and affixing marks (l), which never confer origin. CTH fail: 1 non-originating input (Smartphone assembly kits) in the same heading 8517, representing 88.89% of the price, exceeds the 10% de minimis threshold. VA fail: build-down value addition is 11.11%, below the required 40% on an FOB basis.",
+      "source_id": "TOOL:origin:85171300"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85171300"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85171300"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85171300"
+      },
+      {
+        "note": "Simple assembly of parts (n), simple packaging (k), and affixing marks (l) are minimal operations that never confer origin, regardless of the product-specific rule.",
+        "source_id": "P-AGR-3.5-MINIMAL"
+      },
+      {
+        "note": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

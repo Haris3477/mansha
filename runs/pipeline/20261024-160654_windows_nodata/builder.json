@@ -1,0 +1,62 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 11.09,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1823,
+            "completion": 318
+          },
+          "finish_reason": "stop",
+          "latency_s": 11.09,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether aluminium window frames qualify for preferential tariff treatment under the India-UAE CEPA because required product information is missing. A complete bill of materials and an origin declaration are needed to determine eligibility. The potential duty saving cannot be estimated without the shipment value.",
+    "classification": "The product is classified under tariff line 76101000, which covers doors, windows and their frames and thresholds for doors made of aluminium, with high confidence. Exporters should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate of 10% is reduced to a CEPA rate of 0%. The normal (MFN) rate is charged when no preference is claimed, while the CEPA rate applies to Basic Customs Duty. The duty saving cannot be estimated without the shipment value.",
+    "origin": "The rule of origin requires CTSH (change in tariff subheading, meaning non-originating inputs must be classified under a different 6-digit subheading than the product) together with VA 45% (value addition, meaning the share of the product's price not from non-originating materials must be at least 45%). The product cannot be checked yet because the required bill of materials and origin declaration confirming the product price basis (FOB) and UAE manufacturing details are missing. Providing these details will enable a complete origin assessment.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "CEPA preferential rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and safeguard or anti-dumping duties still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Mansha interprets '+' in origin rules as requiring both tests (change in tariff sub-heading and value addition) to pass, as the agreement does not explicitly define '+'.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    }
+  ]
+}

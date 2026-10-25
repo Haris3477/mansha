@@ -1,0 +1,127 @@
+{
+  "served_by": "google/gemini-3.5-flash",
+  "latency_s": 21.09,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "google/gemini-3.5-flash",
+      "usage": {
+        "prompt": 8557,
+        "completion": 1430
+      },
+      "finish_reason": "stop",
+      "latency_s": 21.09,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Identified candidate tariff line 76101000 for aluminium window frames based on description match.",
+      "Confirmed tariff line 76101000 receives preferential tariff treatment under the India-UAE CEPA.",
+      "Retrieved MFN effective rate of 10% and 2026 CEPA preferential rate of 0% for line 76101000.",
+      "Identified applicable rule CTSH + VA 45% and set origin status to NEEDS_MORE_DATA due to missing cost and input details.",
+      "Set estimated saving status to NEEDS_VALUE because no shipment value was provided.",
+      "Outlined the steps to claim preference citing the relevant ministry services and treaty articles.",
+      "Compiled applicable caveats regarding duty scope, rule interpretation, issuer status, and factory registration requirements."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": " exact calculation requires a bill of materials and manufacturer declaration to verify compliance with the tariff shift (CTSH) and 45% value addition requirements.",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "NEEDS_VALUE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "The Ministry of Economy and Tourism requires the factory to be registered through its Factory Registration service prior to applying for a certificate of origin, taking about 3 working days.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The Ministry of Foreign Trade provides the Certificate of Origin for India e-service on the ministry portal for registered local manufacturers and exporters to submit applications with required documents.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The issuing authority requires the application to include the HS code, description, quantity, and value for each product item separately, and may request detailed cost sheets or conduct factory visits.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "The Ministry of Foreign Trade charges a certificate fee ranging from AED 10 to AED 200 depending on invoice value.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the Certificate of Origin prior to, at, or within 5 working days of exportation, valid for 12 months for a single import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The exporter must ensure goods are shipped directly from the UAE to India and indicate third-party invoicing on the claim if applicable.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The exporter must maintain origin records, including cost breakdowns, for at least 5 years from the end of the year of certificate issuance.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims the preferential tariff rate when filing the bill of entry, maintains origin information under CAROTAR 2020 for at least 5 years, and reportedly uploads electronic certificates to e-Sanchit (unconfirmed).",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "Inference: a producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      }
+    ],
+    "follow_up_questions": [
+      "Please provide a detailed bill of materials containing each input's description, 6-digit HS code, country of origin, value, and currency.",
+      "Please provide a manufacturer declaration detailing the product price, FOB or Ex-Works valuation basis, confirmation of final UAE manufacture, and processing operations conducted in the UAE.",
+      "Please provide the total shipment value and currency to calculate the estimated duty savings and exact certificate fee."
+    ],
+    "gaps": [],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}

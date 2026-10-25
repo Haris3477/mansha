@@ -1,0 +1,102 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 77.48,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1958,
+            "completion": 6614
+          },
+          "finish_reason": "stop",
+          "latency_s": 77.48,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet, because information is missing. To proceed, you need to provide a bill of materials, a declaration, the shipment value in AED, and confirm the HS code. If the product qualifies, the duty saving would be the difference between the normal import duty rate (MFN rate) and the reduced rate under the trade agreement (CEPA rate), but the amount cannot be estimated without the shipment value.",
+    "classification": "The product is classified under HS code 76101000, which covers doors, windows and their frames and thresholds for doors (aluminium). Mansha’s confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10% and the CEPA rate is 0%. The saving would be the difference between these rates, but the exact amount cannot be estimated without the shipment value in AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non‑originating input must be classified in a different 6‑digit subheading than the finished product, and a value addition (VA) of at least 45%, meaning at least 45% of the product’s price must come from UAE‑originating materials. Because the necessary information is missing, no checks have been run and the origin cannot be confirmed yet. To apply the rule, you must provide a bill of materials and a declaration.",
+    "notes": [
+      {
+        "text": "A producer located in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "The certificate fee ranges from AED 10 to AED 200, with the exact amount depending on the invoice value in AED.",
+        "from": [
+          "N5"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "No usable shipment value was provided, so only rates are given; the actual saving depends on the shipment value.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The terms 'direct labour cost' and 'direct overhead cost' are not defined in the agreement, and it is unclear whether the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "M4",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific certificate page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources, not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "The certificate fee range is AED 10 to AED 200; the exact fee depends on the invoice value in AED.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    }
+  ]
+}

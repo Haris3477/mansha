@@ -1,0 +1,42 @@
+{
+  "case": "flip_failed_check",
+  "base": "chargers",
+  "note": "problem 30",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "origin_result",
+    "origin_result.basis"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "origin_result.basis: Incorrectly states that final manufacture took place in the UAE, whereas the origin tool indicates it did not. Fix: Final manufacture did NOT take place in the UAE; the declared final manufacture failed the origin test. (see TOOL:origin:85044030)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 1.3,
+  "prompt_chars": 15929,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 4241,
+        "completion": 1545
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.28,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+  "parts": []
+}

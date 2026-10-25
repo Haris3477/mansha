@@ -1,0 +1,205 @@
+{
+  "status": "CHECKS_FAILED",
+  "verdict": null,
+  "language": "en",
+  "seconds": 78.3,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 11.23,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 11.23,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 703,
+                "completion": 281
+              },
+              "finish_reason": "stop",
+              "latency_s": 11.23,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-39239090 | bill of materials: given | evidence 18305 chars, 23 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:duty:39239090": "NO_PREFERENCE",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 34.0,
+      "summary": "line 39239090 (low) | origin NOT_APPLICABLE | verdict NO_PREFERENCE | problems 2 | warnings 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 34.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 6944,
+                "completion": 3541
+              },
+              "finish_reason": "stop",
+              "latency_s": 34.0,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[0].note contains 'TL-IN-76101000,': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+        "gaps[0].text contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+      ],
+      "warnings": [
+        "caveats[0]: number(s) ['3923'] not found in TOOL:tariff_lookup"
+      ],
+      "details": {
+        "normalized_by_code": [
+          "follow_up_questions: dropped for verdict NO_PREFERENCE (the result does not depend on more information from the user): 'The HS code 39239090 corresponds to plastic articles for packing, not aluminium window frames. Please confirm whether the product description or the HS code is correct.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (TOOL:duty:39239090): 'India charges duty on the assessable (CIF) value at import, so actual duty amounts will differ from the estimate based on the shipment value given.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (P-IN-DUTY-SCOPE): 'The CEPA rate reduces Basic Customs Duty (and the Agriculture Infrastructure and Development Cess only for lines in Table II). IGST, GST compensation cess, the Social Welfare Surcharge, and any anti-dumping, countervailing or safeguard duties still apply.'"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 1.35,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 1 (0 real)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.35,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 3149,
+                "completion": 1613
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.35,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "classification: The classification lists tariff line 39239090, which does not match the product description of aluminium window frames. Fix: No suitable tariff line identified for aluminium window frames; classification fields should be null or omitted. Keep this field's source_id as it is."
+      ],
+      "warnings": [],
+      "details": {
+        "warning_judgements": [
+          {
+            "id": "W1",
+            "warning": "caveats[0]: number(s) ['3923'] not found in TOOL:tariff_lookup",
+            "judgement": "NOISE",
+            "reason": "Number 3923 is present in the tariff line description."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "FAILED",
+      "seconds": 31.71,
+      "summary": "line None (None) | origin NOT_APPLICABLE | verdict NO_PREFERENCE | problems 2 | warnings 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 31.7,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7932,
+                "completion": 3410
+              },
+              "finish_reason": "stop",
+              "latency_s": 31.7,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "classification.confidence must be one of high, medium, low (got None): judge it from how well the description matches",
+        "classification.tariff_line None does not match its source TL-IN-39239090 (line 39239090)"
+      ],
+      "warnings": [
+        "caveats[0]: number(s) ['3923'] not found in TOOL:tariff_lookup"
+      ],
+      "details": {
+        "corrections_sent": [
+          "caveats[0].note contains 'TL-IN-76101000,': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+          "gaps[0].text contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+          "QA: classification: The classification lists tariff line 39239090, which does not match the product description of aluminium window frames. Fix: No suitable tariff line identified for aluminium window frames; classification fields should be null or omitted. Keep this field's source_id as it is."
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "summary": "not run: code checks still fail",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

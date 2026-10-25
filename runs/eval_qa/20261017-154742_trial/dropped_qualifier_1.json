@@ -1,0 +1,33 @@
+{
+  "case": "dropped_qualifier",
+  "base": "windows",
+  "note": "problem 6",
+  "result": "ERROR",
+  "expected_fields": [
+    "procedure[5]",
+    "procedure"
+  ],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 0.0,
+  "prompt_chars": 21698,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.0,
+      "ok": false,
+      "http_status": 429,
+      "cooldown": true,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~2m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792237753326}, 'execution_id': 'e64f07a8-323f-4c82-b551-25886416ea06'}",
+      "retry_skipped": "router busy for ~91s (> 90s cap)"
+    }
+  ],
+  "qa_note": "QA call failed: output NOT reviewed by QA"
+}

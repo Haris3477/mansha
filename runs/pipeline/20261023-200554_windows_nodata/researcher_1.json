@@ -1,0 +1,124 @@
+{
+  "served_by": "google/gemini-3.6-flash",
+  "latency_s": 20.91,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "google/gemini-3.6-flash",
+      "usage": {
+        "prompt": 8514,
+        "completion": 1420
+      },
+      "finish_reason": "stop",
+      "latency_s": 20.91,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Selected tariff line 76101000 ('Doors, windows and their frames and thresholds for doors') as the closest match for aluminium window frames with high confidence.",
+      "Tariff line 76101000 is eligible for preferential tariff treatment under India-UAE CEPA.",
+      "The effective MFN duty rate is 10% and the 2026 CEPA preferential duty rate is 0%.",
+      "The origin rule is CTSH + VA 45% under PSR-IN-R118; origin status is NEEDS_MORE_DATA as input details and declarations are missing.",
+      "Duty saving status is NEEDS_VALUE because the user did not provide a shipment value.",
+      "Outlined procedural steps for claiming preference including factory registration, COO application, fee range, authority issuance, importer claim, and record retention.",
+      "Included applicable caveats regarding duty scope, rule interpretation, issuer details, free zone restrictions, and minimal operations."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": "The origin status cannot be determined because complete bill of materials data and manufacturer origin declaration details are missing.",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "NEEDS_VALUE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "The factory must complete Factory Registration through the Ministry of Economy and Tourism prior to applying for a preferential certificate of origin.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The exporter or local manufacturer applies for the Certificate of Origin for India via the Ministry of Foreign Trade e-services portal by uploading the required commercial and factory documents.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The Ministry of Foreign Trade charges a certificate fee ranging from AED 10 to AED 200 depending on the invoice value.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the Certificate of Origin prior to, at, or within 5 working days of export; the certificate remains valid for 12 months for a single import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry, holds origin documentation under CAROTAR 2020, and responds to customs inquiries within 10 working days; electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed).",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter must maintain all origin documentation and detailed cost sheets for at least 5 years from the end of the calendar year of certificate issuance.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "A product that only undergoes minimal operations (such as simple cutting or simple assembly) does not originate, even if it meets its product-specific rule.",
+        "source_id": "P-AGR-3.5-MINIMAL"
+      }
+    ],
+    "follow_up_questions": [
+      "Please provide a bill of materials detailing each input material's description, 6-digit HS code, origin country, value, and currency, along with a declaration specifying the product price (FOB or Ex-Works basis) and confirming processing in the UAE.",
+      "Please provide the total shipment value and currency to compute the estimated duty savings and specific certificate of origin fee."
+    ],
+    "gaps": [],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}

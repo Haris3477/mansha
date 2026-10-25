@@ -1,0 +1,17 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "polyethylene shopping bags",
+    "uae_processing": "manufactured in UAE",
+    "destination_country": "Brazil",
+    "hs_code_given": null,
+    "exporter_role": "manufacturer",
+    "shipment_value": null,
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given",
+      "shipment_value"
+    ]
+  }
+}

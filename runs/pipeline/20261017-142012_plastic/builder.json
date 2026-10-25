@@ -1,0 +1,34 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.7-flash",
+      "latency_s": 16.0,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.7-flash",
+          "usage": {
+            "prompt": 1594,
+            "completion": 230
+          },
+          "finish_reason": "stop",
+          "latency_s": 16.0,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "This tariff line is excluded from India's CEPA concessions, so the normal (MFN) rate applies whatever the product's origin. Consequently, preferential customs treatment cannot be claimed for this shipment of plastic packing articles.",
+    "classification": "The product is classified under tariff line 39239090, Other (heading 3923: plastic articles for packing), with high confidence. This code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate—the normal import duty rate, charged when no trade-agreement preference is claimed—is 15%, and the line is excluded from the CEPA rate (the reduced rate under the trade agreement). Because the line is excluded, no duty saving applies.",
+    "origin": "A rule of origin does not apply because this tariff line is excluded from CEPA preference. Origin status was not checked because the rule of origin does not matter for this line.",
+    "notes": []
+  },
+  "notes": []
+}

@@ -1,0 +1,45 @@
+{
+  "status": "LLM_ERROR",
+  "verdict": null,
+  "language": "en",
+  "seconds": 0.09,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "FAILED",
+      "seconds": 0.09,
+      "summary": "LLM call failed",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "[intake] failed after 2 model attempt(s) and 0 cooldown wait(s). Last problem: connection error: Connection error.. Is the router running? (cd ~/Projects/freellmapi && npm run dev)",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "latency_s": 0.05,
+              "ok": false,
+              "problem": "connection error: Connection error.. Is the router running? (cd ~/Projects/freellmapi && npm run dev)"
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "latency_s": 0.0,
+              "ok": false,
+              "problem": "connection error: Connection error.. Is the router running? (cd ~/Projects/freellmapi && npm run dev)"
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "[intake] failed after 2 model attempt(s) and 0 cooldown wait(s). Last problem: connection error: Connection error.. Is the router running? (cd ~/Projects/freellmapi && npm run dev)"
+      ],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

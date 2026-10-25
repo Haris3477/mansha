@@ -1,0 +1,71 @@
+{
+  "tool_id": "TOOL:rule_lookup:76101000",
+  "status": "RULE_FOUND",
+  "tariff_line": "76101000",
+  "level": "chapter",
+  "rules": [
+    {
+      "id": "PSR-IN-R118",
+      "row": 118,
+      "scope": {
+        "type": "chapter",
+        "chapter": "76"
+      },
+      "rule_text": "CTSH + VA 45%",
+      "alternatives": [
+        [
+          {
+            "test": "CTSH"
+          },
+          {
+            "test": "VA",
+            "min_pct": 45
+          }
+        ]
+      ],
+      "source_key": "R39-G",
+      "notes": []
+    }
+  ],
+  "general_rules": [
+    {
+      "id": "PSR-GEN-FOB",
+      "text": "The percentages are on an FOB basis.",
+      "quote_status": "V",
+      "source_key": "R39-G",
+      "provision": "Annexure-B Rule 1(f)",
+      "applies_to_this_line": true
+    },
+    {
+      "id": "PSR-GEN-EXW",
+      "text": "However, in the case that Ex Works price is the basis, the value addition shall be 5 percentage points lower.",
+      "quote_status": "V",
+      "source_key": "R39-G",
+      "provision": "Annexure-B Rule 1(f)",
+      "params": {
+        "exworks_reduction_pts": 5
+      },
+      "applies_to_this_line": true
+    },
+    {
+      "id": "PSR-GEN-HS71",
+      "text": "Notwithstanding the above, in the case of products under HS 71, the value addition must be on the basis of FOB value;",
+      "quote_status": "V",
+      "source_key": "R39-G",
+      "provision": "Annexure-B Rule 1(f)",
+      "params": {
+        "fob_only_chapters": [
+          "71"
+        ]
+      },
+      "applies_to_this_line": false
+    }
+  ],
+  "interpretations": [
+    "'+' in a rule is read as 'and' (both tests must pass). The text does not define '+'; this is an interpretation and must be labelled as such."
+  ],
+  "sources": {
+    "R39-G": "https://taxguru.in/wp-content/uploads/2022/05/Customs-Tariff-Determination-of-Origin-of-Goods-under-the-Comprehensive-Economic-Partnership-Agreement-between-India-and-the-United-Arab-Emirates-Rules-2022-Annexure.pdf"
+  },
+  "notes": []
+}

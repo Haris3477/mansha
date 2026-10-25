@@ -1,0 +1,95 @@
+{
+  "served_by": "google/gemini-3.6-flash",
+  "latency_s": 21.18,
+  "attempts": 2,
+  "problems": [],
+  "warnings": [
+    "procedure[1]: number(s) ['5'] not found in P-MOET-COO-INDIA"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: Classified product 'aluminium window frames' under tariff line 76101000 ('Doors, windows and their frames and thresholds for doors (aluminium)') based on exact match of product description.",
+      "Step 2: Tariff line 76101000 is PREFERENTIAL under India-UAE CEPA with a 2026 CEPA rate of 0%.",
+      "Step 3: MFN effective rate is 10%, 2026 CEPA rate is 0%, agreement is India-UAE CEPA.",
+      "Step 4: Origin rule for 76101000 is PSR-IN-R118 'CTSH + VA 45%'. Evaluation meets origin: final manufacture in UAE passes, minimal operations pass, CTSH passes (all 3 non-originating inputs classified outside 761010), VA build-down is 49.0% against 45% threshold on FOB basis.",
+      "Step 5: Estimated duty saving is 10000.00 AED on a shipment value of 100000.00 AED (10% MFN vs 0% CEPA).",
+      "Step 6: Outlined procedural steps to claim CEPA preference from factory registration to certificate application and import filing.",
+      "Step 7: Captured caveats regarding CIF valuation, additional duties (IGST/SWS), free-zone factory constraints, and rule interpretations."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Declared final manufacture took place in the UAE; manufacturing goes beyond minimal operations; CTSH is met as all 3 non-originating inputs are classified outside subheading 761010; VA build-down is 49.0% against a threshold of 45% on an FOB basis (shipment price: 100000 AED, non-originating total: 51000 AED, non-originating share: 51%).",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "10000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "Register factory with the ministry prior to applying for a Certificate of Origin. Factory must be located outside a free zone, hold a MoIAT industrial licence, and obtain a MoIAT letter confirming 40% domestic value added.",
+        "authority": "Ministry of Economy",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "step": "Apply for 'Certificate of Origin for India' through the ministry portal (eservices.moec.gov.ae) or smart app prior to, at, or within 5 working days of export. Submit commercial invoice and proof of factory registration, and pay the fee (AED 50 for AED 100,000 invoice).",
+        "authority": "Ministry of Economy",
+        "source_id": "P-MOET-COO-INDIA"
+      },
+      {
+        "step": "Receive the approved Certificate of Origin, valid for 12 months from issue for a single import shipment into India.",
+        "authority": "Ministry of Economy",
+        "source_id": "P-AGR-COO-RULES"
+      },
+      {
+        "step": "Indian importer claims CEPA preferential rate upon filing the bill of entry, maintains origin documents under CAROTAR 2020, and uploads the certificate to e-Sanchit.",
+        "authority": "Indian Customs",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "step": "Retain all origin records and detailed cost breakdowns for at least 5 years from the end of the year of certificate issuance.",
+        "authority": "REGULATORY_GAP_DETECTED",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The symbol '+' in the product-specific rule is read as 'and', requiring both CTSH and VA 45% checks to pass.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "Origin qualification relies on the exporter's declaration regarding UAE final manufacture and non-minimal operations.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "Duty savings are estimated on Basic Customs Duty (BCD) using the declared shipment value. India charges duty on assessable (CIF) import value. IGST, GST compensation cess, Social Welfare Surcharge, and anti-dumping duties still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "Factory registration requires the facility to be located outside a free zone; free-zone factories are likely not eligible.",
+        "source_id": "P-MOET-FACTORY-REG"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

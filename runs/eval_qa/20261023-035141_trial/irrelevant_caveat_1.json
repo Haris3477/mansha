@@ -1,0 +1,53 @@
+{
+  "case": "irrelevant_caveat",
+  "base": "chargers",
+  "note": "G12",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "caveats",
+    "caveats[6]"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 0,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "caveats[6].note: The note adds an unsupported example \"such as gold jewellery\" not present in the cited record. Fix: For products under HS 71, value addition must be on the basis of FOB value. (see PSR-GEN-HS71)",
+    "caveats[6]: This caveat does not apply to battery chargers, which are not covered by HS 71. Fix: Remove this caveat entry."
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 31.4,
+  "prompt_chars": 16175,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.03,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'bdb3d998-0012-431b-8c9c-16708b29f31f'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 4312,
+        "completion": 1992
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.39,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 0, formatting_safety 1 | code warnings judged: 0 (0 real)",
+  "parts": []
+}

@@ -1,0 +1,143 @@
+{
+  "calls": [
+    {
+      "ok": false,
+      "served_by": null,
+      "error": "LLM call failed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "latency_s": 61.29,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 2 routed attempt(s) failed with upstream provider errors (timeout ×1, upstream_error ×1) (stopped early: retry time budget 45s exceeded — one failover hop is always allowed, and past that the budget stops starting further retries and cancels an attempt still waiting on its first byte; raise FALLBACK_TIME_BUDGET_MS or the fallback_time_budget_ms setting to allow a longer failover chain). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: openrouter/dots-studio/dots-3-note-preview:free key1: timeout; google/gemini-3.6-flash key2: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '92f524f0-5422-47c3-bce9-58ef08e8c95b'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "latency_s": 1.22,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '54042371-608c-4ca6-9bbc-c169175323fa'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 3,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "latency_s": 0.02,
+          "ok": false,
+          "http_status": 429,
+          "cooldown": true,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~27s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792160826681}, 'execution_id': '47d9ed82-96c8-443e-b78a-2f3bfdc445af'}",
+          "waited_before_retry_s": 28.5
+        },
+        {
+          "attempt": 4,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "latency_s": 15.69,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (empty_completion ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: openrouter/dots-studio/dots-3-note-preview:free key1: empty_completion. Last error: empty completion from Dots3 Note Preview (free)', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '7c63f233-2d9c-4b5c-978b-0728d63ee671'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 5,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "latency_s": 0.02,
+          "ok": false,
+          "http_status": 429,
+          "cooldown": true,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~60s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792160933376}, 'execution_id': '8f6dd1a5-1007-4c18-9ca3-2d728ab61907'}",
+          "retry_skipped": "call budget: 197s used of 240s"
+        }
+      ]
+    }
+  ],
+  "used_fallback": true,
+  "problems_left": [
+    "LLM call failed: [document_builder] gave up after 197s (3 model attempt(s)): the call budget is 240s. Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~60s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792160933376}, 'execution_id': '8f6dd1a5-1007-4c18-9ca3-2d728ab61907'}"
+  ],
+  "prose": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. The checks that failed are listed under the rule of origin below.",
+    "classification": "Tariff line 85044030: Battery chargers (Mansha's confidence: high). Confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Agreement: India-UAE CEPA. Estimated saving: none, because the product does not qualify.",
+    "origin": "Rule of origin: CTH + VA 40%. Result: the product does not meet the rule of origin. Final manufacture did not take place in the UAE. The operations performed are all minimal operations under Article 3.5.1 (changes of packaging, simple packaging, affixing marks). One non-originating input is in the same heading 8504 as the product, representing 88.0% of the price, above the 10% de minimis. Value addition is only 12.0% against a required 40% on an FOB basis.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India.",
+        "from": [
+          "N3"
+        ]
+      },
+      {
+        "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is unconfirmed.",
+        "from": [
+          "N4"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule is interpreted as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is unconfirmed.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    }
+  ]
+}

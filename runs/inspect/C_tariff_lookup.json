@@ -1,0 +1,55 @@
+{
+  "tool_id": "TOOL:tariff_lookup",
+  "status": "CANDIDATES",
+  "method": "hs_code",
+  "query": {
+    "corridor": "india",
+    "product_description": "plastic packing articles",
+    "hs_code_given": "39239090"
+  },
+  "candidates": [
+    {
+      "id": "TL-IN-39239090",
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "mfn": {
+        "tariff_rate_pct": 15,
+        "effective_rate_pct": 15,
+        "source_keys": [
+          "CBIC-TARIFF"
+        ]
+      },
+      "cepa": {
+        "status": "EXCLUDED",
+        "rate_pct": null,
+        "table": null,
+        "s_no": null,
+        "source_keys": [
+          "N09",
+          "A2A"
+        ]
+      },
+      "staging": {
+        "category": "EXC",
+        "source_keys": [
+          "A2A"
+        ]
+      },
+      "hs2017_code": null,
+      "confidence": "high",
+      "notes": [
+        "Excluded: MFN applies even if the origin rule is met.",
+        "Description to verify word for word against CBIC chapter 39."
+      ],
+      "kind": "tariff_line",
+      "match": "hs_exact_8",
+      "sources": {
+        "A2A": "https://leatherindia.org/wp-content/uploads/2026/02/Schedule-of-India.pdf",
+        "CBIC-TARIFF": "https://www.cbic.gov.in/entities/cbic-content-mst/MTcyNDYy",
+        "N09": "https://info.eepcindia.org/files/1775032740.pdf"
+      },
+      "in_excluded_heading": true
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,163 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 95.38,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8955,
+        "completion": 9770
+      },
+      "finish_reason": "stop",
+      "latency_s": 95.38,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats[7]: note written from the KB, qualifier kept (P-AGR-3.4-DEMINIMIS)",
+    "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Please confirm the HS code for aluminium window frames is 76101000.'",
+    "caveats[10]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified aluminium window frames as matching tariff line 76101000 (doors, windows and frames of aluminium); confidence medium because no HS code was provided.",
+      "The chosen line is not excluded and has CEPA status PREFERENTIAL, so preferential rate applies.",
+      "MFN rate is 10% and CEPA rate is 0%.",
+      "Origin rule is CTSH + VA 45%; origin check MEETS all criteria (final manufacture, minimal operations, CTSH, VA 49% ≥ 45%).",
+      "Estimated saving is 10000.00 AED based on duty calculation.",
+      "Procedure steps compiled from agreement and ministry service pages cover factory registration, application content, e-service submission, fee, issuance, direct shipment, importer claim, and record keeping.",
+      "Caveats include duty estimation assumptions, rule interpretation, undefined costs, free-zone eligibility, and electronic certificate uncertainty; follow-up asks to confirm HS code."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "medium",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture in UAE: PASS. Minimal operations: PASS. CTSH: PASS - all 3 non-originating inputs classified outside subheading 761010. VA: PASS - build-down 49.0% against threshold 45%, FOB basis. Totals: FOB price basis; 6 inputs, 3 non-originating (51% of price).",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "10000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "Register the factory through the Ministry of Economy and Tourism's Factory Registration service; the factory must be located outside a free zone, hold a MoIAT industrial licence, and provide a MoIAT letter confirming 40% domestic value added. Processing takes about 3 working days.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The certificate application must include the HS code, description, quantity and value of the exported product; each item must qualify separately. The issuing authority may request detailed cost sheets and conduct a factory visit.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "Apply via the 'Certificate of Origin for India' e-service: log in to the ministry e-services portal, choose the service, fill in the form, upload proof of factory registration, the commercial invoice, and for a trading exporter the factory's purchase invoice, pay the fee online, submit, and print the approved certificate.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Pay the certificate fee: AED 50 for an invoice value up to AED 100000 (fee range AED 10 to AED 200).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The certificate must be issued prior to, at, or within five working days of export, is valid for twelve months from issue, covers one import, and must bear the authorised signature and official seal of the competent authority.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "Ship the goods directly from the UAE to India; transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar. If a third-party invoice is used, the exporter must indicate 'third-party invoicing'.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry, holds origin information under CAROTAR 2020 including which origin criterion is claimed, keeps supporting documents for at least five years from filing, and must answer a customs request within ten working days.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "Keep origin records, including the cost breakdown, for at least five years starting from the end of the calendar year of the certificate's issue; refusing a verification visit is grounds for denying preferential benefits.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so the actual duty amounts will differ from the estimate shown.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duties still apply. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+        "source_id": "TOOL:rule_lookup:76101000"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      },
+      {
+        "note": "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "source_id": "P-AGR-COO-RULES"
+      },
+      {
+        "note": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources, not the official text.",
+        "source_id": "P-IN-IMPORTER"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

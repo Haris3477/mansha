@@ -1,0 +1,84 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 44.32,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1820,
+            "completion": 3426
+          },
+          "finish_reason": "stop",
+          "latency_s": 44.32,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The aluminium window frames meet the rule of origin under the India-UAE CEPA, so the CEPA rate of 0% can be claimed. This results in an estimated saving of 10000.00 AED for this shipment. Please refer to the checklist below for the steps to claim this preference.",
+    "classification": "The tariff line is 76101000, which covers aluminium window frames. Mansha has high confidence in this classification, but it should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10%, but the CEPA rate is 0%. The estimated saving for this shipment is 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the product, and value addition (VA) of at least 45% based on the FOB price. The product passes the final manufacture check, meaning the last manufacturing step took place in the UAE, and the minimal operations check, meaning the work goes beyond simple operations. CTSH is met as all non-originating inputs are classified outside subheading 761010, and VA is 49.0% against the 45% threshold.",
+    "notes": [
+      {
+        "text": "If the producer is in a free zone, they may not be eligible for origin because factory registration requires a facility outside a free zone. Confirm with the Ministry of Economy and Tourism.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule PSR-IN-R118 is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Final manufacture in the UAE and operations beyond minimal operations are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Free-zone producers are likely not eligible because Factory Registration requires a factory outside a free zone; confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "Electronic certificates are reportedly accepted and uploaded to e-Sanchit, but this rests on a secondary source (CBIC Instruction 28/2022 read via LiveLaw/taxmann).",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    }
+  ]
+}

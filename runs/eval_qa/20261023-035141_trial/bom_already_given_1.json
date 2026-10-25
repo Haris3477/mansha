@@ -1,0 +1,42 @@
+{
+  "case": "bom_already_given",
+  "base": "chargers",
+  "note": "problem 55",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "follow_up_questions",
+    "follow_up_questions[0]"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 0,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "follow_up_questions[0]: The question asks for a bill of materials that the user has already provided. Fix: No follow‑up question needed regarding the bill of materials."
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 1.1,
+  "prompt_chars": 16059,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 4272,
+        "completion": 1500
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.07,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 1, completeness 0, formatting_safety 1 | code warnings judged: 0 (0 real)",
+  "parts": []
+}

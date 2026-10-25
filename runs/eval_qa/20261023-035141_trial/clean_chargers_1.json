@@ -1,0 +1,37 @@
+{
+  "case": "clean_chargers",
+  "base": "chargers",
+  "note": "NOT_ELIGIBLE",
+  "result": "APPROVED",
+  "expected_fields": [],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 1.0,
+  "prompt_chars": 15937,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 4243,
+        "completion": 1236
+      },
+      "finish_reason": "stop",
+      "latency_s": 0.99,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+  "parts": []
+}

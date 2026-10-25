@@ -1,0 +1,37 @@
+{
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "note": "QA call failed: output NOT reviewed by QA",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "served_by": null,
+  "calls": [
+    {
+      "ok": false,
+      "served_by": null,
+      "error": "LLM call failed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "latency_s": 0.14,
+          "ok": false,
+          "http_status": 413,
+          "problem": "HTTP 413: Error code: 413 - {'error': {'message': \"The request is too large for every routed candidate: all 1 attempt(s) were rejected as over the model's context/size limit. Retrying will not help — reduce the prompt/history size or enable a larger-context model. Attempt trail: groq/openai/gpt-oss-120b key1: context_too_large. Last error: Groq API error 413: Request too large for model `openai/gpt-oss-120b` in organization `org_01m4s0bhgbehx9yez7cepjne88` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 8779, please reduce your message size and t...\", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}, 'execution_id': '8df9696b-8511-41f6-b6f0-22b8c063853e'}"
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "latency_s": 0.07,
+          "ok": false,
+          "http_status": 413,
+          "problem": "HTTP 413: Error code: 413 - {'error': {'message': \"The request is too large for every routed candidate: all 1 attempt(s) were rejected as over the model's context/size limit. Retrying will not help — reduce the prompt/history size or enable a larger-context model. Attempt trail: groq/openai/gpt-oss-120b key1: context_too_large. Last error: Groq API error 413: Request too large for model `openai/gpt-oss-120b` in organization `org_01m4s0bhgbehx9yez7cepjne88` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 8779, please reduce your message size and t...\", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}, 'execution_id': '43b71e76-604c-4ac9-910f-de5f37b1e761'}"
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

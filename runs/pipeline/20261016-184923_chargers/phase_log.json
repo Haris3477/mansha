@@ -1,0 +1,149 @@
+{
+  "status": "REPORT",
+  "verdict": "NOT_ELIGIBLE",
+  "language": "en",
+  "seconds": 113.96,
+  "warnings": [
+    "Researcher round 1: 1 code warning(s) not reviewed (QA not built yet)"
+  ],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.53,
+      "summary": "product='battery chargers' | destination='India' | role=trader | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.53,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 701,
+                "completion": 263
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.53,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.01,
+      "summary": "candidates: TL-IN-85044030 | bill of materials: given | evidence 20225 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:85044030": "RULE_FOUND",
+          "TOOL:origin:85044030": "FAILS",
+          "TOOL:duty:85044030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 38.58,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 0 | warnings 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 38.58,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7373,
+                "completion": 2982
+              },
+              "finish_reason": "stop",
+              "latency_s": 38.58,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [
+        "caveats[2]: number(s) ['40'] not found in TOOL:rule_lookup:85044030"
+      ],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "summary": "QA Evaluator not built yet (Step 7): output NOT reviewed by QA",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 73.85,
+      "summary": "LLM prose passed the checks | notes: 4 in (1 mandatory, verbatim) -> 4 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 73.84,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1903,
+                "completion": 6421
+              },
+              "finish_reason": "stop",
+              "latency_s": 73.84,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

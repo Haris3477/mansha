@@ -1,0 +1,108 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 64.39,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1984,
+            "completion": 4897
+          },
+          "finish_reason": "stop",
+          "latency_s": 64.39,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet because information is missing. The exporter must provide the shipment value in AED, a bill of materials, and a declaration. If the product qualifies, the duty would drop from the normal 10% to the CEPA rate of 0%, but the exact saving depends on the shipment value.",
+    "classification": "The product is classified under HS code 76101000 as doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. The exact saving cannot be estimated without the shipment value.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the final product, and a value addition (VA) of at least 45%, meaning at least 45% of the product's price must not come from non-originating materials. Because the exporter has not provided a bill of materials and a declaration, the CTSH and VA checks cannot be performed. Therefore the origin result is still pending.",
+    "notes": [
+      {
+        "text": "The CEPA rate applies only to Basic Customs Duty; other charges such as IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties remain.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "Producers in a free zone may not be eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+        "from": [
+          "N3"
+        ]
+      },
+      {
+        "text": "The certificate is valid for 12 months from issue and covers one import; it should be issued before, at, or within 5 working days of export. It can be issued retrospectively up to 12 months after shipment, marked 'ISSUED RETROSPECTIVELY' in box 9.",
+        "from": [
+          "N6"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Direct labour cost and direct overhead cost are not defined in the agreement, and it is unclear whether the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "The certificate of origin must be presented for the CEPA rate to apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources (CBIC Instruction 28/2022 via LiveLaw, taxmann).",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "The agreement says box 8 for remarks, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "The Ministry of Foreign Trade offers the e-service that issues preferential and non-preferential certificates of origin for locally made products, but no official page read names it as the issuer of the India CEPA certificate specifically; the India-specific page is still on the Ministry of Economy and Tourism website.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N6",
+      "text": "The certificate is valid for 12 months from issue and covers one import; it should be issued before, at, or within 5 working days of export. A certificate may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 62.83,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1878,
+            "completion": 5871
+          },
+          "finish_reason": "stop",
+          "latency_s": 62.83,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. The main failed check is that final manufacture did not take place in the UAE.",
+    "classification": "The tariff line is 85044030, described as Battery chargers, and Mansha's confidence in this classification is high. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "The India-UAE CEPA is the relevant agreement. The normal (MFN) rate is 20% and the CEPA rate is 0%. No saving applies because the product does not qualify.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH) and at least 40% value addition (VA). The final manufacture check failed because the last manufacturing step did not take place in the UAE. The operations performed are considered minimal, so the minimal operations check also failed. The value addition is 12% below the required 40% threshold, and a non-originating input in heading 8504 accounts for 88% of the price, which is above the 10% de minimis limit.",
+    "notes": [
+      {
+        "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    }
+  ]
+}

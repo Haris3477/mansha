@@ -1,0 +1,19 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "cosmetic skin creams",
+    "uae_processing": "manufactured in Dubai",
+    "destination_country": "India",
+    "hs_code_given": null,
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 60000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given"
+    ]
+  }
+}

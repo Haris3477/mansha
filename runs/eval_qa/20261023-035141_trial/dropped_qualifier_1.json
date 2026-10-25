@@ -1,0 +1,108 @@
+{
+  "case": "dropped_qualifier",
+  "base": "windows",
+  "note": "problem 6",
+  "result": "MISSED",
+  "expected_fields": [
+    "procedure[5]",
+    "procedure"
+  ],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 32.3,
+  "prompt_chars": 22845,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '719b9525-c598-4430-9759-0db22387037d'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 4980,
+        "completion": 1548
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.12,
+      "ok": true
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 3694,
+        "completion": 963
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.14,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+  "parts": [
+    {
+      "label": "part 1/2: findings + steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.12,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/2: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.14,
+      "scope": [
+        "procedure[6]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ]
+}

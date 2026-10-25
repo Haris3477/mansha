@@ -1,0 +1,42 @@
+{
+  "case": "flip_failed_check",
+  "base": "chargers",
+  "note": "problem 30",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "origin_result",
+    "origin_result.basis"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "origin_result.basis: Incorrect claim that final manufacture took place in the UAE, while the origin tool indicates it did NOT. Fix: Final manufacture did NOT take place in the UAE. The declared operations (repacking and relabeling) are minimal operations that never confer origin. One non-originating input falls in the same heading 8504 as the finished battery chargers and accounts for 88.0% of the FOB price, above the 10% de minimis tolerance. Value addition calculated by build-down is 12.0% against a required threshold of 40% on an FOB basis. (see TOOL:origin:85044030)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 3.3,
+  "prompt_chars": 15929,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4241,
+        "completion": 1276
+      },
+      "finish_reason": "stop",
+      "latency_s": 3.28,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+  "parts": []
+}

@@ -1,0 +1,87 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 31.46,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1808,
+            "completion": 3382
+          },
+          "finish_reason": "stop",
+          "latency_s": 31.46,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "ERROR",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "ERROR"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether your aluminium window frames qualify for the preferential duty rate yet, because information is missing. To complete the check, Mansha needs a bill of materials, a declaration, and the shipment value. If the product qualifies, the CEPA rate of 0% would apply instead of the normal rate, but the exact saving cannot be estimated without the shipment value.",
+    "classification": "The product falls under tariff line 76101000, which covers doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10%, while the CEPA rate is 0%. Because the shipment value is not provided, the estimated saving cannot be calculated yet. Once the shipment value is known, the saving can be determined based on the difference between the two rates.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), where each non-originating input must be classified in a different 6-digit subheading than the product, and a value addition (VA) of 45%, which is the share of the product's price not coming from non-originating materials. The origin result cannot be determined yet because the necessary information is missing. No checks were run because the tool reported insufficient data, missing a bill of materials and a declaration. You need to provide a bill of materials with each input's description, 6-digit HS code, origin country, value and currency, and a declaration with the product price, FOB or Ex-Works basis, confirmation of final manufacture in the UAE, and description of operations done in the UAE.",
+    "notes": [
+      {
+        "text": "Operations listed in the agreement as minimal, such as simple packaging, labelling, simple assembly, or simple testing, alone or combined, never confer origin regardless of the product-specific rule.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Operations listed in the agreement as minimal (simple packaging, labelling, simple assembly, simple testing, etc.), alone or combined, never confer origin regardless of the product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+{
+  "status": "REPORT",
+  "verdict": "NOT_ELIGIBLE",
+  "language": "en",
+  "seconds": 345.15,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.11,
+      "summary": "product='battery chargers' | destination='India' | role=trader | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.11,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 701,
+                "completion": 259
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.11,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-85044030 | bill of materials: given | evidence 20225 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:85044030": "RULE_FOUND",
+          "TOOL:origin:85044030": "FAILS",
+          "TOOL:duty:85044030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 147.29,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 58.52,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 1.12,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.6-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '168a0114-143b-4d9a-b4b2-9c41795e8efd'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 1.65,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '2c66c13c-8124-4d62-a452-61aa7349021e'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~25s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792160617135}, 'execution_id': '81c7386f-d236-401b-b158-e3f9fe73b4ff'}",
+              "waited_before_retry_s": 26.0
+            },
+            {
+              "attempt": 4,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7373,
+                "completion": 4949
+              },
+              "finish_reason": "stop",
+              "latency_s": 58.52,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "summary": "QA Evaluator not built yet (Step 7): output NOT reviewed by QA",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "FALLBACK",
+      "seconds": 196.75,
+      "summary": "code-only report (fallback) | notes: 7 in (3 mandatory, verbatim) -> 7 in the report",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "LLM call failed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 61.29,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 2 routed attempt(s) failed with upstream provider errors (timeout ×1, upstream_error ×1) (stopped early: retry time budget 45s exceeded — one failover hop is always allowed, and past that the budget stops starting further retries and cancels an attempt still waiting on its first byte; raise FALLBACK_TIME_BUDGET_MS or the fallback_time_budget_ms setting to allow a longer failover chain). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: openrouter/dots-studio/dots-3-note-preview:free key1: timeout; google/gemini-3.6-flash key2: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '92f524f0-5422-47c3-bce9-58ef08e8c95b'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 1.22,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '54042371-608c-4ca6-9bbc-c169175323fa'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~27s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792160826681}, 'execution_id': '47d9ed82-96c8-443e-b78a-2f3bfdc445af'}",
+              "waited_before_retry_s": 28.5
+            },
+            {
+              "attempt": 4,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 15.69,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (empty_completion ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: openrouter/dots-studio/dots-3-note-preview:free key1: empty_completion. Last error: empty completion from Dots3 Note Preview (free)', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '7c63f233-2d9c-4b5c-978b-0728d63ee671'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 5,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~60s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792160933376}, 'execution_id': '8f6dd1a5-1007-4c18-9ca3-2d728ab61907'}",
+              "retry_skipped": "call budget: 197s used of 240s"
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "LLM call failed: [document_builder] gave up after 197s (3 model attempt(s)): the call budget is 240s. Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~60s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792160933376}, 'execution_id': '8f6dd1a5-1007-4c18-9ca3-2d728ab61907'}"
+      ],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

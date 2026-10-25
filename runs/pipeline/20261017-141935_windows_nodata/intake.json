@@ -1,0 +1,17 @@
+{
+  "served_by": "google/gemini-3.7-flash",
+  "changes": [],
+  "output": {
+    "product_description": "aluminium window frames",
+    "uae_processing": "manufactured from imported aluminium profiles",
+    "destination_country": "India",
+    "hs_code_given": null,
+    "exporter_role": "manufacturer",
+    "shipment_value": null,
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given",
+      "shipment_value"
+    ]
+  }
+}

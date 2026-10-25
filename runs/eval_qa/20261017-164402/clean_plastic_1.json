@@ -1,0 +1,37 @@
+{
+  "case": "clean_plastic",
+  "base": "plastic",
+  "note": "NO_PREFERENCE",
+  "result": "ERROR",
+  "expected_fields": [],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 0.1,
+  "prompt_chars": 10139,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 3000,
+      "latency_s": 0.05,
+      "ok": false,
+      "http_status": 400,
+      "problem": "HTTP 400: Error code: 400 - {'error': {'message': \"Profile 'judge' not found. Use 'auto' for the default profile, or call /v1/models for available options.\", 'type': 'Error'}}"
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:judge",
+      "max_tokens": 3000,
+      "latency_s": 0.0,
+      "ok": false,
+      "http_status": 400,
+      "problem": "HTTP 400: Error code: 400 - {'error': {'message': \"Profile 'judge' not found. Use 'auto' for the default profile, or call /v1/models for available options.\", 'type': 'Error'}}"
+    }
+  ],
+  "qa_note": "QA call failed: output NOT reviewed by QA"
+}

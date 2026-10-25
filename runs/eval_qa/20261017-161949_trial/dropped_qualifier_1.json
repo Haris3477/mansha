@@ -1,0 +1,41 @@
+{
+  "case": "dropped_qualifier",
+  "base": "windows",
+  "note": "problem 6",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "procedure[5]",
+    "procedure"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "procedure[5].step: The step states the importer uploads electronic certificates to e‑Sanchit as a definite fact, but the source says this is reported and unconfirmed. Fix: The Indian importer claims the preferential tariff treatment when filing the bill of entry and maintains CAROTAR 2020 origin details; electronic certificates are reportedly accepted and uploaded to e‑Sanchit (unconfirmed). (see P-IN-IMPORTER)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 4.2,
+  "prompt_chars": 22312,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 5674,
+        "completion": 1543
+      },
+      "finish_reason": "stop",
+      "latency_s": 4.2,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

@@ -1,0 +1,23 @@
+{
+  "tool_id": "TOOL:duty:76101000",
+  "tariff_line": "76101000",
+  "status": "ESTIMATED",
+  "line_id": "TL-IN-76101000",
+  "mfn_rate_pct": 10.0,
+  "cepa_rate_pct": 0.0,
+  "rate_difference_pts": 10.0,
+  "currency": "AED",
+  "shipment_value": "100000.00",
+  "duty_without_cepa": "10000.00",
+  "duty_with_cepa": "0.00",
+  "saving": "10000.00",
+  "notes": [
+    "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+    "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+    "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented."
+  ],
+  "sources": {
+    "CBIC-TARIFF": "https://www.cbic.gov.in/entities/cbic-content-mst/MTcyNDYy",
+    "N09": "https://info.eepcindia.org/files/1775032740.pdf"
+  }
+}

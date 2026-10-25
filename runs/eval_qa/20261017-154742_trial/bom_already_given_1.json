@@ -1,0 +1,33 @@
+{
+  "case": "bom_already_given",
+  "base": "chargers",
+  "note": "problem 55",
+  "result": "ERROR",
+  "expected_fields": [
+    "follow_up_questions",
+    "follow_up_questions[0]"
+  ],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 0.0,
+  "prompt_chars": 14989,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.0,
+      "ok": false,
+      "http_status": 429,
+      "cooldown": true,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~2m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792237753326}, 'execution_id': '00f4f4ef-2ab9-49fe-9776-e5ac204d6e44'}",
+      "retry_skipped": "router busy for ~91s (> 90s cap)"
+    }
+  ],
+  "qa_note": "QA call failed: output NOT reviewed by QA"
+}

@@ -1,0 +1,19 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "sweet biscuits",
+    "uae_processing": "baked from imported flour, sugar and butter",
+    "destination_country": "India",
+    "hs_code_given": null,
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 27000,
+      "currency": "USD"
+    },
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given"
+    ]
+  }
+}

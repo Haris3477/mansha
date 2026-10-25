@@ -1,0 +1,68 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 12.3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1833,
+            "completion": 321
+          },
+          "finish_reason": "stop",
+          "latency_s": 12.3,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether aluminium window frames qualify for the reduced tariff rate under the India-UAE CEPA because key manufacturing information is missing. The estimated duty savings cannot be calculated without the total shipment value. Please check the checklist below to see the details needed to complete this check.",
+    "classification": "The product is classified under tariff code 76101000, covering doors, windows and their frames and thresholds for doors of aluminium, with high confidence. This tariff code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate—the normal import duty rate charged when no trade preference is claimed—is 10%, while the CEPA rate is 0%. The duty savings cannot be estimated without the total shipment value. Other import charges, such as IGST, are still paid even when the CEPA rate is 0%.",
+    "origin": "To qualify, the product must meet a rule of origin requiring CTSH (change in tariff subheading, meaning each non-originating input must be in a different 6-digit subheading than the finished product) and VA 45% (value addition, meaning at least 45% of the product price does not come from non-originating materials). The origin status cannot be determined yet because critical details are missing. Mansha needs a detailed bill of materials and a manufacturer declaration to check these rules.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    }
+  ]
+}

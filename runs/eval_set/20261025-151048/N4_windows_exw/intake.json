@@ -1,0 +1,17 @@
+{
+  "served_by": "google/gemini-3.7-flash",
+  "changes": [],
+  "output": {
+    "product_description": "aluminium windows",
+    "uae_processing": "manufactured from imported aluminium profiles",
+    "destination_country": "India",
+    "hs_code_given": "76101090",
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 100000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": []
+  }
+}

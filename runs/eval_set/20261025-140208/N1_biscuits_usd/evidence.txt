@@ -1,0 +1,273 @@
+=== TARIFF LOOKUP ===
+
+[TOOL:tariff_lookup]
+status: CANDIDATES (method: keywords)
+query: product "sweet biscuits", HS code given: none
+candidates (best match first): TL-IN-19053100
+notes: none
+
+=== CANDIDATE TARIFF LINES (classify from these descriptions first) ===
+
+[TL-IN-19053100]
+agreement: India-UAE CEPA
+tariff line: 19053100 (1905 31 00)
+description: Sweet biscuits
+MFN rate: tariff 30%, effective 30%
+CEPA status: PREFERENTIAL; 2026 CEPA rate 0% (table I, S.No. 1185)
+staging: TEP over 5 years
+data checked: 2026-10-14
+how it matched the query: keywords
+notes:
+- India's tariff schedule marks this 30% rate with a footnote that Mansha has not checked; confirm the normal (MFN) rate with Indian customs or a customs broker.
+
+=== TOOL RESULTS PER CANDIDATE ===
+
+[TOOL:rule_lookup:19053100]
+tariff line: 19053100
+status: RULE_FOUND (level: chapter)
+product-specific rule: PSR-IN-R028
+general rules applying to this line: PSR-GEN-FOB, PSR-GEN-EXW
+interpretations:
+- '+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.
+notes: none
+
+[TOOL:origin:19053100]
+tariff line: 19053100
+status: MEETS
+rule: PSR-IN-R028 "CTH + VA 40%"
+checks:
+- final_manufacture_in_uae: PASS - Declared: final manufacture took place in the UAE. (see P-AGR-3.2-ORIGIN)
+- minimal_operations: PASS - Declared manufacturing goes beyond the minimal operations of Art. 3.5.1. (see P-AGR-3.5-MINIMAL)
+- CTH: PASS - All 3 non-originating input(s) are classified outside heading 1905.
+- VA: PASS - build-down 55.0% against a threshold of 40%, FOB basis. [build_down_pct: 55; build_up_pct: not available; threshold_pct: 40] (see P-AGR-3.2.2-VA)
+totals: price basis FOB; 4 input(s), of which 3 non-originating; non-originating inputs are 45% of the price
+missing: none
+notes:
+- '+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.
+- Operations and final manufacture are the exporter's own declaration.
+
+[TOOL:duty:19053100]
+tariff line: 19053100
+status: ESTIMATED
+rates: MFN effective 30%, CEPA 0%; difference 30 percentage points
+shipment value: 27000.00 USD
+duty without CEPA: 8100.00 USD; duty with CEPA: 0.00 USD; saving: 8100.00 USD
+notes:
+- Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.
+- CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.
+- The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.
+
+=== CERTIFICATE FEE ===
+
+[TOOL:coo_fee]
+status: CURRENCY_NOT_AED
+actor: the Ministry of Foreign Trade
+fee range of the service: AED 10 to AED 200
+notes:
+- Fee bands are those of the certificate service (UAE e-service: Certificate of Origin for India; Ministry service pages; Cabinet Resolution 208/2025 fee schedule), charged on the invoice value in AED.
+- The shipment value is in USD; fee bands are in AED and Mansha never converts currencies, so only the fee range AED 10 to AED 200 is given.
+
+=== RULES OF ORIGIN ===
+
+[PSR-IN-R028]
+row 28 of the product-specific rules table
+applies to: chapter 19
+rule: "CTH + VA 40%"
+notes: none
+
+[PSR-GEN-FOB]
+text: "The percentages are on an FOB basis."
+provision: Annexure-B Rule 1(f)
+
+[PSR-GEN-EXW]
+text: "However, in the case that Ex Works price is the basis, the value addition shall be 5 percentage points lower."
+provision: Annexure-B Rule 1(f)
+parameters:
+- exworks_reduction_pts: 5
+
+[PSR-GEN-HS71]
+text: "Notwithstanding the above, in the case of products under HS 71, the value addition must be on the basis of FOB value;"
+provision: Annexure-B Rule 1(f)
+parameters:
+- fob_only_chapters: 71
+
+=== PASSAGES ===
+
+[P-AGR-3.2-ORIGIN]
+title: Origin criteria: wholly obtained or product-specific rule
+provision: AGR Art. 3.2.1 and 3.2.3; R39 Rule 3
+quotes:
+- "is wholly obtained or produced in the territory of the Party as per Article 3.3"
+- "has undergone sufficient working or production as per the Product Specific Rules (PSR) in Annex 3B."
+- "Notwithstanding paragraph 1 above, the final manufacture before export must have occurred in the Party of export."
+summary: A product originates in the UAE, and can receive the CEPA rate, if it is either (a) wholly obtained or produced in the UAE, or (b) meets its product-specific rule in Annex 3B (in India: Annexure-B of Notification 39/2022). The two routes are alternatives. The final manufacture before export must take place in the UAE. No default rule was found for a product without a product-specific rule.
+notes: none
+
+[P-AGR-3.2.2-VA]
+title: Value-addition formulas (build-down and build-up)
+provision: AGR Art. 3.2.2; R39 Rule 3(2); Annexure-B Rule 1(f)
+quotes:
+- "The producer or manufacturer has the option to use either of the following two methods"
+- "(FOB value or Ex Works price) − (Value of NOM) / FOB value or Ex Works price"
+- "Cost of originating material + direct labour cost + direct overhead cost / FOB value or Ex Works price"
+summary: Value addition may be calculated either by build-down, (FOB value or Ex-Works price minus the value of non-originating materials) divided by the same price, or by build-up, (originating materials plus direct labour plus direct overhead) divided by the same price. Product-specific rule percentages are on an FOB basis; on an Ex-Works basis the threshold is 5 percentage points lower, except for HS 71, which must use FOB.
+notes:
+- 'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.
+- The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.
+
+[P-AGR-3.1-NOM]
+title: Valuing non-originating materials
+provision: AGR Art. 3.1 and 3.10; R39 Rules 2(t), 2(zb) and 11
+quotes:
+- "the customs value at the time of importation of the non-originating materials used, i.e., the CIF value"
+- "the first ascertainable price paid for the materials in the territory of a Party."
+summary: Non-originating materials are materials whose country of origin is neither the UAE nor India. They are valued at their customs (CIF) value at import; if that is unknown, at the first ascertainable price paid for them in the UAE or India. Indirect materials (such as fuel, tools and consumables used in production) count as neither originating nor non-originating.
+notes: none
+
+[P-AGR-3.5-MINIMAL]
+title: Minimal operations that never confer origin
+provision: AGR Art. 3.5; R39 Rule 6
+quotes:
+- "a product shall not be considered originating in a Party by merely undergoing any of the following operations"
+- "“simple” describes an activity which needs neither special skills / nor machines, apparatus or equipment especially produced or installed to carry out the activity."
+items:
+- (a) operations to ensure the preservation of products in good condition during transport, and storage / (such as drying, freezing or thawing, keeping in brine …)
+- (b) changes of packaging and breaking up and assembly of packages;
+- (c) washing, cleaning, removal of dust, oxide, oil, paint or other coverings;
+- (d) for textiles: attaching accessory articles such as straps, bands, beads, cords, rings and eyelets; / ironing or pressing of textiles;
+- (e) simple painting and polishing;
+- (f) husking, partial or total bleaching, polishing, and glazing of cereals and rice;
+- (g) operations to colour sugar or form sugar lumps;
+- (h) peeling and removal of stones and shells from fruits, nuts and vegetables;
+- (i) sharpening, simple grinding or simple cutting;
+- (j) simple operations such as removal of dust, sifting, screening, sorting, classifying, grading, matching;
+- (k) simple placing in bottles, cans, flasks, bags, cases, boxes, fixing on cards or boards / and all other simple packaging operations;
+- (l) affixing or printing marks, labels, logos and other like distinguishing signs on products or their packaging;
+- (m) simple mixing of products, whether or not of different kinds;
+- (n) simple assembly of parts of articles to constitute a complete article or disassembly of products into parts;
+- (o) slaughter of animals;
+- (p) simple testing, calibration, inspection or certification; or
+- (q) any combination of two or more operations in subparagraphs (a) to (p) above.
+summary: The operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says. 'Simple' means the activity needs no special skills and no machines or equipment specially made or installed for it. Items most relevant to traders and re-exporters: repacking (b), simple packaging (k), labelling (l), simple assembly (n) and simple testing (p).
+notes:
+- A product that only undergoes these operations does not originate, even if it meets its product-specific rule.
+
+[P-AGR-3.4-DEMINIMIS]
+title: De minimis tolerance
+provision: AGR Art. 3.4; R39 Rule 5
+quotes:
+- "their total value does not exceed ten percent (10%) of the FOB value or Ex Works price of the exported product; or"
+- "is less than seven percent (7%) of the total weight of the materials used in the production of the exported"
+- "In the case of a wholly obtained product, a de minimis value not exceeding one percent (1%)"
+summary: A small amount of non-originating material is tolerated: up to 10% of the FOB value or Ex-Works price; for textiles in HS chapters 50 to 63, less than 7% of the total weight of materials; for wholly obtained products, up to 1%.
+parameters:
+- value_pct: 10
+- textile_weight_pct: 7
+- textile_chapters: 50, 63
+- wholly_obtained_pct: 1
+notes:
+- Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.
+
+[P-AGR-3.7-CUMULATION]
+title: Bilateral cumulation
+provision: AGR Art. 3.7; R39 Rule 8
+summary: Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating. The last production process in the UAE must still go beyond the minimal operations.
+notes: none
+
+[P-AGR-3.12-DIRECT]
+title: Direct consignment and third-party invoicing
+provision: AGR Art. 3.12 and 3.15; R39 Rule 13
+actor: the exporter
+quotes:
+- "An importing Party shall not deny a claim for preferential tariff treatment for the sole reason that an invoice"
+summary: Preference is given only to originating goods shipped directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations other than unloading, reloading, storage or similar. An invoice issued by a third party does not by itself cause the claim to be denied; the exporter must indicate 'third-party invoicing'.
+notes: none
+
+[P-AGR-COO-RULES]
+title: Certificate of origin: validity, timing and form
+provision: AGR Art. 3.13-3.14; R39 Rules 14-15 and Annexure-E
+actor: the competent authority
+quotes:
+- "A Certificate of Origin shall be valid for twelve (12) months from the date of issue in the exporting Party."
+- "The Certificate of Origin shall be valid for only one import and shall include one or more products."
+- "shall be issued prior to, at or within five (5) working days of the date of exportation."
+- "It shall bear the authorised signature and official seal of the competent authority."
+summary: A certificate of origin is valid for 12 months from issue and covers one import (it may list several products). It should be issued before, at, or within 5 working days of export. A certificate may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form. Minor typing or formatting errors are tolerated; discrepancies in signature or seal are not. A lost certificate can be replaced by a certified true copy.
+notes:
+- The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.
+
+[P-AGR-3.17-APPLICATION]
+title: What the certificate application must contain
+provision: AGR Art. 3.17
+actor: the issuing authority
+quotes:
+- "each item must qualify separately in its own right."
+- "detailed cost sheets, and conducting a factory visit."
+summary: The application, which can be submitted electronically, must include the HS code, description, quantity and value of the exported product. Each item on the certificate must qualify separately. The issuing authority may apply risk management, including asking for detailed cost sheets and visiting the factory.
+notes: none
+
+[P-AGR-RECORDS-VERIFICATION]
+title: Record keeping and verification
+provision: AGR Art. 3.19-3.22; R39 Rules 20-23
+actor: the exporter
+quotes:
+- "no less than five (5) years, starting from the end of the year of the date of its issue."
+- "Any failure to consent to a verification visit shall be grounds for a denial of preferential benefits"
+summary: The exporter must keep origin records, including the cost breakdown, for at least 5 years; counting from the end of the calendar year of issue satisfies both of the agreement's clocks. India may ask the UAE authority to verify a certificate; the authority answers an origin verification request within 90 days, extendable by 60. Refusing a verification visit is grounds for denying the preference.
+notes:
+- UAE law sets a shorter 3-year minimum; the CEPA's 5 years govern CEPA claims.
+
+[P-UAE-ISSUER]
+title: Who issues the preferential certificate in the UAE
+provision: Ministry of Foreign Trade service page; Cabinet Resolution 208/2025; R39 Annexure-D; CR 43/2022 Art. 7 and 9
+actor: the Ministry of Foreign Trade
+quotes:
+- "The service allows the issuance of a preferential and non-preferential Certificate of Origin for exporting locally made products."
+- "(b) for UAE, to the Ministry of Economy or any other agency notified from time to time;"
+summary: The Ministry of Foreign Trade offers the e-service that issues preferential and non-preferential certificates of origin for locally made products (trade.gov.ae, 'Issue a Certificate Of Origin'), and certificate-of-origin fees are set in its fee resolution (Cabinet Resolution 208/2025). Its service page does not name India or the CEPA. The India-specific service page ('Certificate of Origin for India') is still published on the Ministry of Economy and Tourism website (moet.gov.ae). India's origin rules list the UAE issuing authority as the 'Ministry of Economy or any other agency notified from time to time'; the Ministry of Economy was renamed the Ministry of Economy and Tourism in June 2025, and no Indian update to that list was found. Chambers of commerce issue non-preferential certificates only. Ministry of Foreign Trade contact line: 171.
+notes:
+- No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.
+
+[P-MOET-COO-INDIA]
+title: UAE e-service: Certificate of Origin for India
+provision: Ministry service pages; Cabinet Resolution 208/2025 fee schedule
+actor: the Ministry of Foreign Trade
+summary: Preferential certificates for India are requested through the 'Certificate of Origin for India' e-service; its service page is on moet.gov.ae and links to eservices.moec.gov.ae (or the smart app). The Ministry of Foreign Trade's 'Issue a Certificate Of Origin' service (trade.gov.ae) lists the same fee bands and the same one working day. Applicants are local manufacturers and exporters whose factory is registered through Factory Registration. Documents: proof of factory registration, the commercial invoice, and, for a trading exporter, the factory's purchase invoice. Processing takes about one working day and the service runs 24/7. Fees depend on invoice value, from AED 10 to AED 200, under the Ministry of Foreign Trade fee resolution (Cabinet Resolution 208/2025). Contact listed on the India service page: 800 1222, info@moet.gov.ae.
+parameters:
+- steps: Log in to the ministry e-services portal → Choose the Certificate of Origin for India service → Fill in the application form → Upload the required documents → Pay the fee online → Submit the application → Receive approval, or a return with comments to correct → Print the approved certificate
+notes:
+- Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.
+
+[P-MOET-FACTORY-REG]
+title: Prerequisite: Factory Registration
+provision: Ministry of Economy and Tourism Factory Registration service page
+actor: the Ministry of Economy and Tourism
+summary: Before applying for a certificate, the factory must be registered through the Ministry of Economy and Tourism's Factory Registration service (moet.gov.ae). Registration requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added. It takes about 3 working days. Traders can apply only for goods bought from a registered factory. The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.
+notes:
+- Inference: a producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.
+
+[P-MOET-AMEND-COO]
+title: Amending a certificate of origin
+provision: Ministry of Foreign Trade and Ministry of Economy and Tourism Amend Certificate of Origin service pages
+actor: the Ministry of Foreign Trade
+summary: An issued certificate can be amended once, for a fee of AED 20; the invoice amount and the destination cannot be changed. Both the Ministry of Foreign Trade and the Ministry of Economy and Tourism publish this service page with the same terms.
+parameters:
+- fee_aed: 20
+- max_amendments: 1
+notes: none
+
+[P-IN-DUTY-SCOPE]
+title: Which Indian duties the CEPA reduces
+provision: N22 preamble and Table II; Customs Tariff Act s.3(7)-(9)
+summary: The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.
+notes:
+- Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).
+- Inference: anti-dumping and safeguard duties still apply (no exemption found).
+
+[P-IN-IMPORTER]
+title: What the Indian importer must do
+provision: CAROTAR 2020 Rules 4-6 (official summary); CBIC Instruction 28/2022 (secondary source)
+actor: the Indian importer
+summary: The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days. The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details. Electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed: seen only in secondary sources).
+notes:
+- That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.

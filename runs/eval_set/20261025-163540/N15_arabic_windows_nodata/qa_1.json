@@ -1,0 +1,191 @@
+{
+  "status": "OVERRULED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [],
+  "note": "OVERRULED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 correction(s) overruled by the KB, after a re-judge | 3 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.84,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]",
+        "procedure[6]",
+        "procedure[7]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "OVERRULED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 3.27,
+      "scope": [
+        "procedure[8]",
+        "procedure[9]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]",
+        "caveats[11]",
+        "caveats[12]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.65,
+      "scope": [
+        "caveats[13]",
+        "caveats[14]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "raw_corrections": [],
+  "overruled_by_kb": [
+    {
+      "field": "caveats[7].note",
+      "problem": "The note drops the qualifier \"reportedly\" present in the source record.",
+      "fix": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "record": "P-IN-IMPORTER",
+      "kb_note": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "why": "verbatim"
+    },
+    {
+      "field": "caveats[7].note",
+      "problem": "The note drops the qualifier \"reportedly\" present in the source record.",
+      "fix": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "record": "P-IN-IMPORTER",
+      "kb_note": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "why": "verbatim"
+    }
+  ],
+  "rejudged": true,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.84,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 5034,
+            "completion": 911
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.84,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.86,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4971,
+            "completion": 2440
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.86,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.41,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 5235,
+            "completion": 2657
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.41,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.65,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2992,
+            "completion": 591
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.65,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

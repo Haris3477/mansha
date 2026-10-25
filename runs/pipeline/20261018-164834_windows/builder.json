@@ -1,0 +1,77 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 48.97,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1774,
+            "completion": 4317
+          },
+          "finish_reason": "stop",
+          "latency_s": 48.97,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The aluminium window frames meet the rule of origin under the India-UAE CEPA, so the CEPA rate of 0% can be claimed, resulting in an estimated saving of 10000.00 AED. Follow the checklist below to complete the claim.",
+    "classification": "The product is classified under tariff line 76101000, Doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal MFN rate is 10% and the CEPA rate is 0%, giving an estimated saving of 10000.00 AED. The CEPA rate applies only to Basic Customs Duty, so other import charges such as IGST remain payable.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) for each non-originating input, meaning each such input must be classified in a different six‑digit subheading than the product, and a value addition (VA) of at least 45%, which is the share of the product's price that does not come from non‑originating materials. The final manufacture took place in the UAE, and the manufacturing operations go beyond the minimal operations that would not confer origin on their own. The CTSH requirement is met because all three non‑originating inputs are classified outside subheading 761010, and the value addition requirement is met with a build‑down calculation of 49.0% on an FOB basis, above the 45% threshold.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are based on the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    }
+  ]
+}

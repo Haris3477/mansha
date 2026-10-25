@@ -1,0 +1,30 @@
+{
+  "case": "clean_windows",
+  "base": "windows",
+  "note": "ELIGIBLE, 7 steps",
+  "result": "ERROR",
+  "expected_fields": [],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 1.1,
+  "prompt_chars": 21709,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 1.05,
+      "ok": false,
+      "http_status": 429,
+      "cooldown": true,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models rate-limited after 1 attempt. Soonest cooldown reset ~2m. Attempt trail: openrouter/google/gemma-4-31b-it:free key1: rate_limited. Last error: OpenRouter API error 429: Provider returned error', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792237753326}, 'execution_id': 'f805510a-be1a-49a5-81ff-d764270e4c73'}",
+      "retry_skipped": "router busy for ~91s (> 90s cap)"
+    }
+  ],
+  "qa_note": "QA call failed: output NOT reviewed by QA"
+}

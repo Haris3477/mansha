@@ -1,0 +1,32 @@
+{
+  "id": "P-AGR-3.2-ORIGIN",
+  "title": "Origin criteria: wholly obtained or product-specific rule",
+  "kind": "origin_rule",
+  "tags": [
+    "origin",
+    "wholly_obtained",
+    "psr",
+    "final_manufacture"
+  ],
+  "source_keys": [
+    "AGR",
+    "R39"
+  ],
+  "provision": "AGR Art. 3.2.1 and 3.2.3; R39 Rule 3",
+  "quotes": [
+    {
+      "text": "is wholly obtained or produced in the territory of the Party as per Article 3.3",
+      "status": "V"
+    },
+    {
+      "text": "has undergone sufficient working or production as per the Product Specific Rules (PSR) in Annex 3B.",
+      "status": "V"
+    },
+    {
+      "text": "Notwithstanding paragraph 1 above, the final manufacture before export must have occurred in the Party of export.",
+      "status": "V"
+    }
+  ],
+  "summary": "A product originates in the UAE, and can receive the CEPA rate, if it is either (a) wholly obtained or produced in the UAE, or (b) meets its product-specific rule in Annex 3B (in India: Annexure-B of Notification 39/2022). The two routes are alternatives. The final manufacture before export must take place in the UAE. No default rule was found for a product without a product-specific rule.",
+  "notes": []
+}

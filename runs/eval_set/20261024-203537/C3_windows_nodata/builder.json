@@ -1,0 +1,147 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 49.25,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2046,
+            "completion": 5144
+          },
+          "finish_reason": "stop",
+          "latency_s": 49.25,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet because information is missing. If the product qualifies, the saving cannot be estimated without the shipment value. To complete the check, please provide a bill of materials listing each input's description, 6-digit HS code, origin country, value and currency, a declaration stating the product price, whether FOB or Ex-Works, and confirming final manufacture and operations in the UAE, and the shipment value in AED.",
+    "classification": "The product is classified under tariff line 76101000, which covers doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "The agreement is the India-UAE CEPA. The normal import duty rate (MFN rate) is 10%, and the reduced CEPA rate is 0%. The CEPA rate applies to Basic Customs Duty only, so other import charges such as IGST are still paid even when the CEPA rate is 0%. The estimated saving cannot be determined without the shipment value.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the product, and value addition (VA) of at least 45%, which is the share of the product's price that does not come from non-originating materials. Currently, the origin cannot be checked because no checks were performed; the necessary information, including a bill of materials and a declaration, is missing. Once you provide the bill of materials listing each input's description, 6-digit HS code, origin country, value and currency, and a declaration confirming the product price, whether FOB or Ex-Works, and final manufacture in the UAE, Mansha can assess if the rule is met.",
+    "notes": [
+      {
+        "text": "Be aware that the CEPA agreement refers to box 8 on the certificate, but India's origin rules and certificate form specify box 9. Since India's form governs entry into the country, you must use box 9 on your certificate.",
+        "from": [
+          "N5"
+        ]
+      },
+      {
+        "text": "The issuing authority may apply risk management measures, which could include requesting detailed cost sheets or conducting a factory visit to verify your claim.",
+        "from": [
+          "N6"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The agreement does not define '+' in the product-specific rule; Mansha interprets it as 'and', meaning both the tariff shift and the value-addition tests must pass.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, the Social Welfare Surcharge and any anti-dumping or safeguard duties still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not state whether the build-down and build-up value-addition methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Minimal operations listed in the agreement (e.g. simple assembly, packaging, labelling, testing) never confer origin, even if the product-specific rule is met.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M4",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "Cumulation is bilateral only; originating materials from India used in production in the UAE may be counted as originating, but the last production process in the UAE must still go beyond minimal operations.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "An invoice issued by a third party does not by itself cause the claim to be denied; the exporter must indicate 'third-party invoicing'.",
+      "source_id": "P-AGR-3.12-DIRECT",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "The agreement refers to box 8 on the certificate, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "The issuing authority may apply risk management, including asking for detailed cost sheets and conducting a factory visit.",
+      "source_id": "P-AGR-3.17-APPLICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N7",
+      "text": "UAE law sets a 3-year record-keeping minimum, but the CEPA's 5-year requirement governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N8",
+      "text": "Certificate fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+      "source_id": "P-MOET-COO-INDIA",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is a prerequisite for the certificate; confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources and is unconfirmed.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    }
+  ]
+}

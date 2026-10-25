@@ -1,0 +1,111 @@
+{
+  "status": "LLM_ERROR",
+  "verdict": null,
+  "language": "en",
+  "seconds": 1.25,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.24,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=None | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.24,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 682,
+                "completion": 286
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.24,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given",
+          "shipment_value"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: not given | evidence 22267 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "INSUFFICIENT_DATA",
+          "TOOL:duty:76101000": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "INSUFFICIENT_DATA",
+          "TOOL:duty:76041010": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "INSUFFICIENT_DATA",
+          "TOOL:duty:76151030": "NEEDS_VALUE",
+          "TOOL:coo_fee": "NEEDS_VALUE"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 0.01,
+      "summary": "LLM call failed",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "[researcher] gave up: router busy for ~371s (longer than the 90s cap). Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~6m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792855887111}, 'execution_id': '0b6dffad-fc70-4cd1-a7e6-0053d5366686'}",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~6m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792855887111}, 'execution_id': '0b6dffad-fc70-4cd1-a7e6-0053d5366686'}",
+              "retry_skipped": "router busy for ~371s (> 90s cap)"
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "[researcher] gave up: router busy for ~371s (longer than the 90s cap). Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~6m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792855887111}, 'execution_id': '0b6dffad-fc70-4cd1-a7e6-0053d5366686'}"
+      ],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

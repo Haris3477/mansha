@@ -1,0 +1,121 @@
+{
+  "status": "LLM_ERROR",
+  "verdict": null,
+  "language": "en",
+  "seconds": 93.88,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 2.09,
+      "summary": "product='plastic packing articles' | destination='India' | role=manufacturer | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 2.09,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 693,
+                "completion": 262
+              },
+              "finish_reason": "stop",
+              "latency_s": 2.09,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-39239090 | bill of materials: not given | evidence 18174 chars, 23 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:duty:39239090": "NO_PREFERENCE",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 91.79,
+      "summary": "LLM call failed",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "[researcher] gave up: router busy for ~446s (longer than the 90s cap). Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models rate-limited after 2 attempts. Soonest cooldown reset ~7m. Attempt trail: google/gemini-3.5-flash key1: daily_quota_exhausted; google/gemini-3.6-flash key1: daily_quota_exhausted. Last error: Google API error 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: [redacted-url] To monitor your current usage, head to: [redacted-url] * Quota exceeded for me...', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792161595505}, 'execution_id': '5298e90f-96dd-42be-917e-3bb0b7de2f69'}",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 0.0,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~58s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792161117027}, 'execution_id': '2d26f152-fad1-4ceb-ad45-a21f4b58bccb'}",
+              "waited_before_retry_s": 58.9
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 1.56,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.7-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': 'a630f8c3-7353-41a0-877b-9da876a5e2fd'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:long",
+              "max_tokens": 8000,
+              "latency_s": 1.33,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models rate-limited after 2 attempts. Soonest cooldown reset ~7m. Attempt trail: google/gemini-3.5-flash key1: daily_quota_exhausted; google/gemini-3.6-flash key1: daily_quota_exhausted. Last error: Google API error 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: [redacted-url] To monitor your current usage, head to: [redacted-url] * Quota exceeded for me...', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792161595505}, 'execution_id': '5298e90f-96dd-42be-917e-3bb0b7de2f69'}",
+              "retry_skipped": "router busy for ~446s (> 90s cap)"
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "[researcher] gave up: router busy for ~446s (longer than the 90s cap). Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models rate-limited after 2 attempts. Soonest cooldown reset ~7m. Attempt trail: google/gemini-3.5-flash key1: daily_quota_exhausted; google/gemini-3.6-flash key1: daily_quota_exhausted. Last error: Google API error 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: [redacted-url] To monitor your current usage, head to: [redacted-url] * Quota exceeded for me...', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792161595505}, 'execution_id': '5298e90f-96dd-42be-917e-3bb0b7de2f69'}"
+      ],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

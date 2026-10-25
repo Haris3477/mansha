@@ -1,0 +1,10 @@
+{
+  "status": "SKIPPED",
+  "scores": null,
+  "corrections": [],
+  "note": "QA Evaluator not built yet (Step 7): output NOT reviewed by QA",
+  "served_by": null,
+  "code_warnings_given": [
+    "origin_result: number(s) ['3', '4'] not found in TOOL:origin:85044030"
+  ]
+}

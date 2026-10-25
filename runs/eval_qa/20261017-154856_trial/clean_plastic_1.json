@@ -1,0 +1,37 @@
+{
+  "case": "clean_plastic",
+  "base": "plastic",
+  "note": "NO_PREFERENCE",
+  "result": "ERROR",
+  "expected_fields": [],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 0.0,
+  "prompt_chars": 9761,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.0,
+      "ok": false,
+      "http_status": 413,
+      "problem": "HTTP 413: Error code: 413 - {'error': {'message': \"The request is too large for every available candidate's context/token window. Reduce the prompt/history size or enable a larger-context model. All models exhausted: 1 route checked (1 prompt too large for the model). Add more API keys or wait for rate limits to reset. Soonest reset ~16s.\", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}, 'execution_id': '5011630f-b299-4cbd-974a-b15c367abb59'}"
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.0,
+      "ok": false,
+      "http_status": 413,
+      "problem": "HTTP 413: Error code: 413 - {'error': {'message': \"The request is too large for every available candidate's context/token window. Reduce the prompt/history size or enable a larger-context model. All models exhausted: 1 route checked (1 prompt too large for the model). Add more API keys or wait for rate limits to reset. Soonest reset ~16s.\", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}, 'execution_id': 'd6acf48e-3daa-467d-b25c-3fb738d11ec4'}"
+    }
+  ],
+  "qa_note": "QA call failed: output NOT reviewed by QA"
+}

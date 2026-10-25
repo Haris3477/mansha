@@ -1,0 +1,165 @@
+{
+  "status": "REPORT",
+  "verdict": "NO_PREFERENCE",
+  "language": "en",
+  "seconds": 39.92,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 13.68,
+      "summary": "product='plastic packing articles' | destination='India' | role=manufacturer | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 4.17,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 684,
+                "completion": 40
+              },
+              "finish_reason": "length",
+              "latency_s": 9.51,
+              "ok": false,
+              "problem": "truncated (finish_reason=length)"
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 684,
+                "completion": 117
+              },
+              "finish_reason": "stop",
+              "latency_s": 4.17,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-39239090 | bill of materials: not given | evidence 18174 chars, 23 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:duty:39239090": "NO_PREFERENCE",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 10.23,
+      "summary": "line 39239090 (high) | origin NOT_APPLICABLE | verdict NO_PREFERENCE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 10.23,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 6981,
+                "completion": 726
+              },
+              "finish_reason": "stop",
+              "latency_s": 10.23,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "summary": "QA Evaluator not built yet (Step 7): output NOT reviewed by QA",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 16.01,
+      "summary": "LLM prose passed the checks | notes: 0 in (0 mandatory, verbatim) -> 0 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.7-flash",
+          "latency_s": 16.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "google/gemini-3.7-flash",
+              "usage": {
+                "prompt": 1594,
+                "completion": 230
+              },
+              "finish_reason": "stop",
+              "latency_s": 16.0,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

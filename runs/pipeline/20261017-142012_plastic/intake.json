@@ -1,0 +1,17 @@
+{
+  "served_by": "google/gemini-3.7-flash",
+  "changes": [],
+  "output": {
+    "product_description": "plastic packing articles",
+    "uae_processing": "manufactured in Ajman",
+    "destination_country": "India",
+    "hs_code_given": "39239090",
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 50000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": []
+  }
+}

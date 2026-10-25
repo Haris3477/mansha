@@ -1,0 +1,98 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 58.14,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 9904,
+        "completion": 5341
+      },
+      "finish_reason": "stop",
+      "latency_s": 58.14,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Step 1: Classified battery chargers to tariff line 85044030 based on exact description match; no HS code was given and no conflict was noted, so confidence is high.",
+      "Step 2: The chosen line has CEPA status PREFERENTIAL, not EXCLUDED, so preference is available subject to origin.",
+      "Step 3: MFN rate is 20% (tariff and effective), CEPA rate is 0% per 2026 staging.",
+      "Step 4: Rule PSR-IN-R126 requires CTH + VA 40%. Origin check FAILS on all four checks: final manufacture not in UAE, minimal operations only, CTH not changed (88% non-originating in same heading), and VA only 12% against 40% threshold.",
+      "Step 5: Duty tool estimates saving of 10000.00 AED, but since origin is DOES_NOT_QUALIFY, the saving is NOT_APPLICABLE.",
+      "Step 6: Procedure is empty because origin does not qualify.",
+      "Step 7: Collected caveats from tool notes that apply to this result; some passage notes were removed per QA corrections."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in UAE: FAIL - the declared final manufacture did not take place in the UAE. Minimal operations: FAIL - the declared operations (repacking and relabeling) are all minimal operations that never confer origin. CTH: FAIL - 1 non-originating input is in the same heading 8504 as the product, representing 88.0% of the price, above the 10% de minimis threshold. VA: FAIL - build-down value addition is 12.0% against a threshold of 40% on an FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:85044030"
+      }
+    ],
+    "follow_up_questions": [
+      "What manufacturing operations were performed on these battery chargers in the UAE, beyond repacking and relabeling?",
+      "Where was the final manufacture of these battery chargers completed? The final manufacture before export must occur in the UAE.",
+      "What is the FOB value of this shipment and the customs (CIF) value of any non-originating materials used?"
+    ],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

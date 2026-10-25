@@ -1,0 +1,92 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 59.83,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8959,
+        "completion": 5770
+      },
+      "finish_reason": "stop",
+      "latency_s": 59.83,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this comes from secondary sources (CBIC Instruction 28/2022 read through LiveLaw and taxmann), not the official text.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-AGR-COO-RULES): \"India's certificate form uses box 9 for retrospective issuance remarks, while the agreement says box 8; India's form governs entry into India.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-AGR-RECORDS-VERIFICATION): \"UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'The 40% value-added letter is a Factory Registration condition only; it is NOT the CEPA product-specific rule test.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified 'aluminium wire rods' as TL-IN-76041010 (exact description match); no HS code given, no conflict, confidence high.",
+      "TL-IN-76041010 has CEPA status PREFERENTIAL (not excluded), so preference is available if origin qualifies.",
+      "Tariff: MFN 7.5% (tariff and effective), 2026 CEPA rate 3.75%, from TL-IN-76041010.",
+      "Origin rule PSR-IN-R118 'CTSH + VA 45%'; origin check FAILS on VA (build-down 30.0% vs 45% threshold); status DOES_NOT_QUALIFY.",
+      "Duty tool shows ESTIMATED saving of 3750.00 AED, but origin DOES_NOT_QUALIFY, so saving status is NOT_APPLICABLE.",
+      "Procedure is empty: origin does not qualify, so no steps to claim CEPA rate.",
+      "Collected 13 caveats from tool results and passages that affect how this result should be read."
+    ],
+    "classification": {
+      "tariff_line": "76041010",
+      "description": "Aluminium wire rods",
+      "confidence": "high",
+      "source_id": "TL-IN-76041010"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 7.5%, effective 7.5%",
+      "preferential_rate": "3.75% (2026 CEPA rate)",
+      "source_id": "TL-IN-76041010"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in UAE: PASS. Minimal operations: PASS. CTSH: PASS - all 1 non-originating input(s) classified outside subheading 760410. VA: FAIL - build-down 30.0% against threshold of 45%, FOB basis. Non-originating inputs are 70% of the price.",
+      "source_id": "TOOL:origin:76041010"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76041010"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76041010"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:76041010"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

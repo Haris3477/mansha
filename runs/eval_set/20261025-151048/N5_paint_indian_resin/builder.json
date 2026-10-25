@@ -1,0 +1,141 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 46.48,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1875,
+            "completion": 4660
+          },
+          "finish_reason": "stop",
+          "latency_s": 46.48,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product meets the rule of origin, so the CEPA rate can be claimed. This results in an estimated saving of 10000.00 AED on the shipment of acrylic paint (resin) to India. Please refer to the checklist below to complete the claim process.",
+    "classification": "The product is classified under tariff line 32091010, Acrylic emulsion (paint), with high confidence from Mansha. You should still confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10%, while the CEPA rate is 0%. This results in an estimated saving of 10000.00 AED. Please note that the CEPA rate applies only to Basic Customs Duty; other import charges such as IGST are still payable.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and a value addition (VA) of at least 40%. CTSH means that each non-originating input must be classified in a different 6-digit subheading than the final product, while VA represents the share of the product's price that does not come from non-originating materials, calculated on a FOB basis. The product meets this rule because the final manufacturing step took place in the UAE, and the work done goes beyond minimal operations. Additionally, all 2 non-originating inputs are classified outside subheading 320910, and the value addition reached 65.0% on a FOB basis, which is above the required 40% threshold.",
+    "notes": [
+      {
+        "text": "The certificate fee assumes the invoice value equals the shipment value given.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "Preference is given only to originating goods shipped directly from the UAE to India; transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 40%' is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Indian inputs count as originating only with proof of their originating status under bilateral cumulation.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is confirmed only through secondary sources.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M10",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The certificate fee assumes the invoice value equals the shipment value given.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "Preference is given only to originating goods shipped directly from the UAE to India; transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar.",
+      "source_id": "P-AGR-3.12-DIRECT",
+      "mandatory": false
+    },
+    {
+      "nid": "M11",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    }
+  ]
+}

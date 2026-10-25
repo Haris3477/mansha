@@ -1,0 +1,75 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 32.24,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1841,
+            "completion": 2930
+          },
+          "finish_reason": "stop",
+          "latency_s": 32.24,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. The value addition check failed.",
+    "classification": "The product is classified under tariff line 76041010, Aluminium wire rods. Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "The India-UAE CEPA sets a normal (MFN) duty of 7.5% and a CEPA rate of 3.75%. Because the product does not qualify, no saving applies.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and at least 45% value addition (VA). The final manufacture in the UAE passed and the minimal operations check passed, meaning the work goes beyond simple operations. The CTSH check passed because the non-originating inputs are classified outside subheading 760410, but the VA check failed because the value addition is only 30%, below the required 45%. Consequently, the product does not meet the rule of origin.",
+    "notes": [
+      {
+        "text": "The agreement does not specify whether the build-down and build-up methods use the same threshold, except for a 5-point Ex-Works adjustment.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76041010",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76041010",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "case": "clean_chargers",
+  "base": "chargers",
+  "note": "NOT_ELIGIBLE",
+  "result": "FALSE REJECTION",
+  "expected_fields": [],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "estimated_saving: Status set to NOT_APPLICABLE and amount/currency omitted, which is not supported by the cited duty tool record. Fix: status: \"ESTIMATED\", amount: 10000.00, currency: \"AED\" (see TOOL:duty:85044030)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 3.9,
+  "prompt_chars": 14867,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4023,
+        "completion": 1550
+      },
+      "finish_reason": "stop",
+      "latency_s": 3.83,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

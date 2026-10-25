@@ -1,0 +1,95 @@
+{
+  "chain": "auto:trial",
+  "researcher_file": "runs/windows/researcher_1.json",
+  "calls": [
+    {
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 56.14,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:trial",
+          "max_tokens": 8000,
+          "latency_s": 0.01,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~60s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792151498303}, 'execution_id': '23744cf1-8671-4491-a344-4f0a558d91ff'}",
+          "waited_before_retry_s": 61.0
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:trial",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1715,
+            "completion": 4249
+          },
+          "finish_reason": "stop",
+          "latency_s": 56.14,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The product meets the rule of origin, so the CEPA rate can be claimed. The estimated saving is 10000.00 AED. See the checklist below for the required steps.",
+    "classification": "The product is classified under tariff line 76101000, described as Doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, and the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal MFN rate is 10% and the CEPA rate is 0%. The estimated saving is 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and a value addition (VA) of at least 45%. CTSH means each non‑originating input must be classified in a different six‑digit subheading than the product, and VA is the share of the product's price that does not come from non‑originating materials, calculated on a FOB basis. The product satisfies both tests: all three non‑originating inputs are classified outside subheading 761010, and the value addition is 49.0%, which exceeds the 45% threshold.",
+    "notes": [
+      {
+        "text": "The '+' symbol in the rule is read as 'and', so both the CTSH and VA tests must be satisfied. This is Mansha's interpretation because the agreement does not define '+'.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Free‑zone producers are likely not eligible for the Factory Registration required before obtaining a certificate of origin.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:76101000",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Free-zone producers are likely not eligible for Factory Registration required prior to obtaining a certificate of origin.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.5-flash",
+      "latency_s": 9.89,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.5-flash",
+          "usage": {
+            "prompt": 1790,
+            "completion": 347
+          },
+          "finish_reason": "stop",
+          "latency_s": 9.89,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether aluminium window frames qualify for the India-UAE CEPA preferential rate yet because necessary production and shipment details are missing. If the product qualifies, it can benefit from a 0% rate instead of the normal (MFN) rate of 10%, but the estimated saving cannot be calculated without the shipment value.",
+    "classification": "The product is classified under tariff line 76101000 for doors, windows and their frames and thresholds for doors (aluminium), with high confidence. This tariff code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the tariff line is eligible for a 0% CEPA rate compared to the normal (MFN) rate of 10%. The exact estimated saving cannot be calculated without knowing the total shipment value.",
+    "origin": "The rule of origin requires a CTSH (change in tariff subheading, meaning each non-originating input must be classified in a different 6-digit subheading than the product) and at least 45% VA (value addition, which is the share of the product's price that does not come from non-originating materials). The product cannot be checked yet because the necessary input origin details, production costs, and price declarations were not provided.",
+    "notes": [
+      {
+        "text": "Operations that consist strictly of minimal processes, such as simple assembly or simple cutting, never confer originating status regardless of rule threshold results.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the origin rule is interpreted as requiring both tariff shift (CTSH) and value addition (45%) criteria to be met.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Operations consisting strictly of minimal processes (such as simple assembly or simple cutting) never confer originating status regardless of PSR threshold results.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    }
+  ]
+}

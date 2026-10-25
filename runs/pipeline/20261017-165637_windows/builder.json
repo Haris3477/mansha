@@ -1,0 +1,78 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 72.61,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1818,
+            "completion": 6288
+          },
+          "finish_reason": "stop",
+          "latency_s": 72.61,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The product meets the rule of origin, so the CEPA rate can be claimed. This results in an estimated saving of 10000.00 AED; please follow the checklist below to claim it.",
+    "classification": "The product is classified under tariff line 76101000, Doors, windows and their frames and thresholds for doors (aluminium), and Mansha's confidence in this classification is high. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. This results in an estimated saving of 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non‑originating input must be classified in a different six‑digit subheading than the product, and at least 45% value addition (VA), which is the share of the product's price not coming from non‑originating materials. The final manufacture check passed because the last manufacturing step occurred in the UAE, and the minimal operations check passed because the work goes beyond simple operations. All three non‑originating inputs are classified outside subheading 761010, satisfying CTSH, and the qualifying value addition is 49.0% on an FOB price basis, exceeding the 45% threshold.",
+    "notes": [
+      {
+        "text": "A producer in a free zone cannot obtain Factory Registration, as it requires a factory outside a free zone and is needed before applying for the certificate of origin for India.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Duty is estimated on the shipment value given, but India charges customs duty on the assessable CIF value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, Social Welfare Surcharge (SWS), and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Verification of operations and final manufacture relies on the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    }
+  ]
+}

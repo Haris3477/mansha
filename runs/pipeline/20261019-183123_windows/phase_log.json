@@ -1,0 +1,552 @@
+{
+  "status": "CHECKS_FAILED",
+  "verdict": null,
+  "language": "en",
+  "seconds": 440.21,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 2.14,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 2.09,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 699,
+                "completion": 245
+              },
+              "finish_reason": "stop",
+              "latency_s": 2.09,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.01,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: given | evidence 24172 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "MEETS",
+          "TOOL:duty:76101000": "ESTIMATED",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "MEETS",
+          "TOOL:duty:76041010": "ESTIMATED",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "MEETS",
+          "TOOL:duty:76151030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 92.77,
+      "summary": "line 76101000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 2",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 92.77,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8814,
+                "completion": 9238
+              },
+              "finish_reason": "stop",
+              "latency_s": 92.77,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [
+        "procedure[1]: number(s) ['45'] not found in P-AGR-3.2-ORIGIN",
+        "caveats[0]: number(s) ['45'] not found in TOOL:rule_lookup:76101000"
+      ],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 131.87,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 2 (2 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.74,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 5000,
+                "completion": 1258
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.74,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 4.54,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'd1c78001-b4ae-42d2-95c2-80c8469d0248'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '2d655341-be2e-4df8-8249-afe21e03de19'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 4967,
+                "completion": 1849
+              },
+              "finish_reason": "stop",
+              "latency_s": 4.54,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.48,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '6c4bfb35-abfe-43ad-aa99-c6d0c9dcd7fb'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.03,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'fc00ebbe-66bd-43dc-95d9-1e243b49378e'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 4071,
+                "completion": 1319
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.48,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "procedure[1].step: Mentions specific rule details (CTSH + VA 45%) not found in the cited record. Fix: Ensure the product meets the origin criteria: it must either be wholly obtained or meet the applicable product-specific rule, and final manufacture must have occurred in the UAE. (see P-AGR-3.2-ORIGIN)",
+        "caveats[0].note: Includes the percentage '45%' which is not found in the cited TOOL:rule_lookup record. Fix: The '+' in the rule 'CTSH + VA' is interpreted by Mansha as 'and', meaning both tests must pass. The agreement does not define '+'. (see TOOL:rule_lookup:76101000)",
+        "caveats[13].note: The note mentions the website \"doit.gov.ae\", which is not supported by the cited record. Fix: No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae. (see P-UAE-ISSUER)"
+      ],
+      "warnings": [],
+      "details": {
+        "warning_judgements": [
+          {
+            "id": "W1",
+            "warning": "procedure[1]: number(s) ['45'] not found in P-AGR-3.2-ORIGIN",
+            "judgement": "REAL",
+            "reason": "Number 45 not present in P-AGR-3.2-ORIGIN"
+          },
+          {
+            "id": "W2",
+            "warning": "caveats[0]: number(s) ['45'] not found in TOOL:rule_lookup:76101000",
+            "judgement": "REAL",
+            "reason": "The note cites the number 45, which is not present in the cited rule_lookup record."
+          }
+        ],
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "groq/openai/gpt-oss-120b",
+            "seconds": 3.74,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]"
+            ],
+            "warnings": [
+              "W1"
+            ],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "groq/openai/gpt-oss-120b",
+            "seconds": 4.54,
+            "scope": [
+              "procedure[6]",
+              "procedure[7]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]"
+            ],
+            "warnings": [
+              "W2"
+            ],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "groq/openai/gpt-oss-120b",
+            "seconds": 3.48,
+            "scope": [
+              "caveats[8]",
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]",
+              "caveats[12]",
+              "caveats[13]",
+              "caveats[14]",
+              "caveats[15]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "OK",
+      "seconds": 51.99,
+      "summary": "line 76101000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 51.99,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 11082,
+                "completion": 5836
+              },
+              "finish_reason": "stop",
+              "latency_s": 51.99,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "QA: procedure[1].step: Mentions specific rule details (CTSH + VA 45%) not found in the cited record. Fix: Ensure the product meets the origin criteria: it must either be wholly obtained or meet the applicable product-specific rule, and final manufacture must have occurred in the UAE. (see P-AGR-3.2-ORIGIN)",
+          "QA: caveats[0].note: Includes the percentage '45%' which is not found in the cited TOOL:rule_lookup record. Fix: The '+' in the rule 'CTSH + VA' is interpreted by Mansha as 'and', meaning both tests must pass. The agreement does not define '+'. (see TOOL:rule_lookup:76101000)",
+          "QA: caveats[13].note: The note mentions the website \"doit.gov.ae\", which is not supported by the cited record. Fix: No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae. (see P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "REJECTED",
+      "seconds": 161.43,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.67,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '048a9746-c213-4a0e-bdeb-048f27acb6e0'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 4969,
+                "completion": 1373
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.67,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 3.45,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '4f2ea08f-5cee-4c64-9571-f79b648c9b90'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '11400c8c-836c-4f2f-b68b-d516b0bbfb1e'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 5091,
+                "completion": 1294
+              },
+              "finish_reason": "stop",
+              "latency_s": 3.45,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 4.18,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'c0674135-0db0-442f-84fe-10cfbfc2541f'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.04,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '375ff449-44bd-47dc-b77f-376541ccbcaa'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 3921,
+                "completion": 1168
+              },
+              "finish_reason": "stop",
+              "latency_s": 4.18,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[13].note: The note cites the wrong website domain for the India-specific page. Fix: No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae. (see P-UAE-ISSUER)"
+      ],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "groq/openai/gpt-oss-120b",
+            "seconds": 3.67,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "groq/openai/gpt-oss-120b",
+            "seconds": 3.45,
+            "scope": [
+              "procedure[6]",
+              "procedure[7]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "groq/openai/gpt-oss-120b",
+            "seconds": 4.18,
+            "scope": [
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]",
+              "caveats[12]",
+              "caveats[13]",
+              "caveats[14]",
+              "caveats[15]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    }
+  ]
+}

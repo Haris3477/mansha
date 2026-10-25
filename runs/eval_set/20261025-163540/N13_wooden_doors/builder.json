@@ -1,0 +1,141 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 36.19,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1993,
+            "completion": 3348
+          },
+          "finish_reason": "stop",
+          "latency_s": 36.19,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the wooden doors qualify for the CEPA rate because required information is missing. The duty saving cannot be estimated without the shipment value.",
+    "classification": "The product is classified under tariff line 94036000, Other wooden furniture, with medium confidence. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 20% and the CEPA rate is 12.5%. The saving cannot be estimated without the shipment value.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH) and value addition of at least 40% (VA). Mansha cannot verify this rule because the necessary information is missing. Specifically, a bill of materials and a declaration are needed.",
+    "notes": [
+      {
+        "text": "The CEPA reduces the duty but does not eliminate it.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The agreement mentions box 8, but India's origin rules and certificate form require box 9, and the Indian form governs entry into India.",
+        "from": [
+          "N6"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "The CEPA lowers the duty on this line but does not remove it.",
+      "source_id": "TL-IN-94036000",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "UAE law sets a shorter 3-year minimum; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "M8",
+      "text": "No usable shipment value (positive amount and currency), so only rates are given.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    }
+  ]
+}

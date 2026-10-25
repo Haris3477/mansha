@@ -1,0 +1,78 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 9.27,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "latency_s": 60.05,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (timeout ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.7-flash key1: timeout. Last error: The operation was aborted (google, chat, 60s)', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '30ea6480-e3a3-4bed-9902-21f22e393e8b'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1766,
+            "completion": 307
+          },
+          "finish_reason": "stop",
+          "latency_s": 9.27,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether your aluminium window frames qualify for preferential duty under the India-UAE CEPA because required product information is missing. If the product qualifies, it could enter India at a reduced duty rate, but estimated savings cannot be determined without the shipment value.",
+    "classification": "Your product is mapped to tariff code 76101000, covering doors, windows and their frames and thresholds for doors of aluminium, with high confidence. You should confirm this tariff code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate of basic customs duty is 10%, while the preferential CEPA rate is 0%. The exact duty saving cannot be estimated without the shipment value. The CEPA rate applies only to Basic Customs Duty, so other import charges such as IGST are still payable.",
+    "origin": "To qualify, the product must satisfy a change in tariff subheading (CTSH) together with a value addition (VA) of 45%. CTSH requires each non-originating input to be classified in a different 6-digit subheading than the finished product, while VA requires at least 45% of the product's price to represent local value. Origin cannot be checked yet because a detailed bill of materials and a manufacturer declaration are required to verify both criteria.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Inference: a producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    }
+  ]
+}

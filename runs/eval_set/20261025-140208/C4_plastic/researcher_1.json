@@ -1,0 +1,76 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 27.97,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 6905,
+        "completion": 2783
+      },
+      "finish_reason": "stop",
+      "latency_s": 27.97,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats[4]: note written from the KB, qualifier kept (P-IN-DUTY-SCOPE)",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (TOOL:duty:39239090): 'No preferential rate; the normal (MFN) duty applies whatever the origin.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (TOOL:duty:39239090): \"Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (P-IN-DUTY-SCOPE): 'The CEPA rate reduces Basic Customs Duty (BCD) and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (P-IN-DUTY-SCOPE): 'Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).'"
+  ],
+  "output": {
+    "reasoning": [
+      "Only one candidate exists (TL-IN-39239090); its description matches the product and the HS code is exact, so confidence is high.",
+      "The CEPA status of the chosen line is EXCLUDED, so no preferential rate applies regardless of origin.",
+      "The MFN rate is 15% (tariff and effective); the preferential rate is EXCLUDED.",
+      "Because the line is excluded from CEPA, the origin rule is NOT_APPLICABLE and no origin check is performed.",
+      "The duty tool returns NO_PREFERENCE; therefore no saving can be estimated.",
+      "Procedure steps are not required because the product does not qualify for CEPA preference.",
+      "Caveats are drawn from the tariff line notes, the duty tool notes, and the passage on the scope of Indian duties."
+    ],
+    "classification": {
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "confidence": "high",
+      "source_id": "TL-IN-39239090"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 15%, effective 15%",
+      "preferential_rate": "EXCLUDED",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_rule": {
+      "rule": "NOT_APPLICABLE",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_result": {
+      "status": "NOT_APPLICABLE",
+      "basis": "The tariff line is excluded from CEPA preference, so the origin rule does not apply.",
+      "source_id": "TL-IN-39239090"
+    },
+    "estimated_saving": {
+      "status": "NO_PREFERENCE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:39239090"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin.",
+        "source_id": "TL-IN-39239090"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NO_PREFERENCE"
+  }
+}

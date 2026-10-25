@@ -1,0 +1,71 @@
+{
+  "chain": "auto:trial",
+  "researcher_file": "runs/plastic/researcher_1.json",
+  "calls": [
+    {
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 39.67,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:trial",
+          "max_tokens": 8000,
+          "latency_s": 0.01,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~60s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792151206727}, 'execution_id': 'e70b96b8-c736-4e81-b868-ecdf5558de00'}",
+          "waited_before_retry_s": 61.0
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:trial",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1562,
+            "completion": 3060
+          },
+          "finish_reason": "stop",
+          "latency_s": 39.67,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The tariff line for plastic packing articles is excluded from India's CEPA concessions, so the normal (MFN) rate applies whatever the product's origin. No CEPA rate or saving is available for this shipment.",
+    "classification": "The tariff line is 39239090, Other (heading 3923: plastic articles for packing), and Mansha's confidence in this classification is high. You should still confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "The agreement is the India-UAE CEPA, under which the normal (MFN) rate is 15% and the CEPA rate is excluded for this line. No saving applies because the tariff line is excluded from CEPA preference.",
+    "origin": "The rule of origin does not matter for this line because it is excluded from CEPA preference. The normal (MFN) duty applies whatever the product's origin, so the product's origin is not checked. This is because the line is excluded from India's CEPA concessions.",
+    "notes": [
+      {
+        "text": "The tariff line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the origin rule.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "Excluded: MFN applies even if the origin rule is met.",
+      "source_id": "TL-IN-39239090",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:39239090",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:39239090",
+      "mandatory": true
+    }
+  ]
+}

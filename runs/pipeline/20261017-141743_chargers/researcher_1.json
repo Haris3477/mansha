@@ -1,0 +1,110 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 46.01,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7373,
+        "completion": 4386
+      },
+      "finish_reason": "stop",
+      "latency_s": 46.01,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "output": {
+    "reasoning": [
+      "Selected tariff line 85044030 (Battery chargers) as the best match; no HS code conflict; confidence high.",
+      "The line is not excluded and has CEPA status PREFERENTIAL, so preferential rate applies if origin qualifies.",
+      "Agreement India-UAE CEPA; MFN rate tariff 20% effective 20%; 2026 CEPA rate 0%.",
+      "Rule PSR-IN-R126 CTH + VA 40%; origin check FAILS on final manufacture, minimal operations, CTH (1 non-originating input 88% > 10%), VA (12% < 40%).",
+      "Origin does not qualify, so saving not applicable; duty estimate would be 10000 AED without CEPA.",
+      "Procedure not applicable because origin does not qualify.",
+      "Included caveats about rule interpretation, exporter declaration, anti-dumping check, free-zone factory, electronic certificate, issuer ambiguity."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture did not take place in the UAE. Operations are minimal: changes of packaging, simple packaging, affixing marks. One non-originating input in heading 8504, 88% of price, above 10% de minimis. Value addition build-down 12% below 40% threshold.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The '+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to e-Sanchit, but this is unconfirmed (seen only in secondary sources).",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific service page is still on the Ministry of Economy and Tourism website.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "Certificate fee estimated at AED 50 based on invoice value 50000 AED; fee range AED 10 to AED 200.",
+        "source_id": "TOOL:coo_fee"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [
+      "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "A producer in a free zone is likely not eligible for Factory Registration, which is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific service page is still on the Ministry of Economy and Tourism website.",
+      "Electronic certificates are reportedly accepted and uploaded to e-Sanchit, but this is unconfirmed (seen only in secondary sources)."
+    ],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

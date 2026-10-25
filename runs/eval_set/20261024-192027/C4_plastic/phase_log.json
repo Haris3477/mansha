@@ -1,0 +1,100 @@
+{
+  "status": "LLM_ERROR",
+  "verdict": null,
+  "language": "en",
+  "seconds": 1.02,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.01,
+      "summary": "product='plastic packing articles' | destination='India' | role=manufacturer | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.01,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 693,
+                "completion": 291
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.01,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-39239090 | bill of materials: not given | evidence 18174 chars, 23 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:duty:39239090": "NO_PREFERENCE",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 0.01,
+      "summary": "LLM call failed",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "[researcher] gave up: router busy for ~370s (longer than the 90s cap). Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~6m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792855887111}, 'execution_id': '94062df8-0d9f-4549-94a2-c65a984756d2'}",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~6m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792855887111}, 'execution_id': '94062df8-0d9f-4549-94a2-c65a984756d2'}",
+              "retry_skipped": "router busy for ~370s (> 90s cap)"
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "[researcher] gave up: router busy for ~370s (longer than the 90s cap). Last problem: HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 4 routes checked (4 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~6m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792855887111}, 'execution_id': '94062df8-0d9f-4549-94a2-c65a984756d2'}"
+      ],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "tool_id": "TOOL:duty:39239090",
+  "tariff_line": "39239090",
+  "status": "NO_PREFERENCE",
+  "line_id": "TL-IN-39239090",
+  "mfn_rate_pct": 15.0,
+  "cepa_rate_pct": null,
+  "rate_difference_pts": 0.0,
+  "currency": "AED",
+  "shipment_value": "50000.00",
+  "duty_without_cepa": "7500.00",
+  "duty_with_cepa": "7500.00",
+  "saving": "0.00",
+  "notes": [
+    "This line is excluded from India's CEPA concessions: no preferential rate, the normal (MFN) duty applies whatever the origin.",
+    "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+    "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply."
+  ],
+  "sources": {
+    "A2A": "https://leatherindia.org/wp-content/uploads/2026/02/Schedule-of-India.pdf",
+    "CBIC-TARIFF": "https://www.cbic.gov.in/entities/cbic-content-mst/MTcyNDYy",
+    "N09": "https://info.eepcindia.org/files/1775032740.pdf"
+  }
+}

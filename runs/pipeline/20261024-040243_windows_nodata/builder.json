@@ -1,0 +1,159 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 61.23,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2005,
+            "completion": 3931
+          },
+          "finish_reason": "stop",
+          "latency_s": 61.23,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the aluminium window frames qualify for the CEPA rate because the required information is missing. The estimated saving cannot be determined without the shipment value. Please provide the shipment value, a bill of materials, a declaration, and confirm the HS code.",
+    "classification": "The product is classified under HS code 76101000, described as doors, windows and their frames and thresholds for doors (aluminium). Mansha’s confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India‑UAE CEPA, the normal (MFN) duty rate is 10% and the CEPA rate is 0%. The CEPA rate applies only to Basic Customs Duty; other import charges such as IGST are still payable. Because the shipment value is not provided, the saving cannot be estimated.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and at least 45% value addition (VA). Without a bill of materials or declaration, Mansha could not perform the CTSH check or calculate the value addition. Therefore the origin result is still pending.",
+    "notes": [
+      {
+        "text": "When completing the certificate of origin, use box 9 for remarks, as India's form governs entry into India.",
+        "from": [
+          "N5"
+        ]
+      },
+      {
+        "text": "The issuing authority may apply risk management, which could include requesting detailed cost sheets and visiting the factory.",
+        "from": [
+          "N6"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "A product that only undergoes the minimal operations listed in Art. 3.5.1 does not originate, even if it meets its product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "De minimis helps only the tariff-shift part of a rule, not the value-addition percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Cumulation is bilateral only; the last production process in the UAE must still go beyond minimal operations.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "The agreement says box 8 for remarks, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "The issuing authority may apply risk management, including asking for detailed cost sheets and visiting the factory.",
+      "source_id": "P-AGR-3.17-APPLICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N7",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N8",
+      "text": "Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+      "source_id": "P-MOET-COO-INDIA",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources, not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "N9",
+      "text": "The Social Welfare Surcharge is charged on the reduced BCD (no CEPA-specific text found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "N10",
+      "text": "Anti-dumping and safeguard duties still apply (no exemption found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    }
+  ]
+}

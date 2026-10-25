@@ -1,0 +1,62 @@
+{
+  "case": "clean_plastic",
+  "base": "plastic",
+  "note": "NO_PREFERENCE",
+  "result": "FALSE REJECTION",
+  "expected_fields": [],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "origin_rule.rule: The rule value is not stated in the cited record; the evidence only says the line is excluded. Fix: Set the rule to null or omit the field, as the evidence does not specify a rule. (see TL-IN-39239090)",
+    "origin_result.status: The status is incorrectly given as NOT_APPLICABLE; the tool result shows NO_PREFERENCE. Fix: Change the status to \"NO_PREFERENCE\". (see TOOL:duty:39239090)",
+    "estimated_saving.amount: Amount is null, but the tool result reports a saving of 0.00 AED. Fix: Set amount to 0.00. (see TOOL:duty:39239090)",
+    "estimated_saving.currency: Currency is null, but the tool result reports the saving in AED. Fix: Set currency to \"AED\". (see TOOL:duty:39239090)",
+    "caveats[2].note: The note about CEPA rates reducing only BCD and other taxes is not supported by any cited record. Fix: Remove this note or replace it with a supported statement from the evidence."
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 63.8,
+  "prompt_chars": 9761,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'bdc718bc-6b82-465d-a585-f9e3b86327eb'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'ae16d8ce-a5dd-4497-8a4b-4cbce6f51d2d'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 2685,
+        "completion": 1510
+      },
+      "finish_reason": "stop",
+      "latency_s": 3.74,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

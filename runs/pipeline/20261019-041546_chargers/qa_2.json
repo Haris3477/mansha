@@ -1,0 +1,138 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "caveats[11].note: The note cites the wrong website (doit.gov.ae) which is not supported by the evidence. Fix: No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific service page is still on moet.gov.ae. (see P-UAE-ISSUER)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/2: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "groq/openai/gpt-oss-120b",
+      "seconds": 4.45,
+      "scope": [
+        "findings",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]",
+        "caveats[11]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/2: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "groq/openai/gpt-oss-120b",
+      "seconds": 2.22,
+      "scope": [
+        "caveats[12]",
+        "caveats[13]",
+        "caveats[14]",
+        "caveats[15]",
+        "caveats[16]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "groq/openai/gpt-oss-120b",
+      "latency_s": 4.45,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "latency_s": 0.02,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '3baca015-0cf3-4962-a28d-8e2db9c5c667'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "groq/openai/gpt-oss-120b",
+          "usage": {
+            "prompt": 5274,
+            "completion": 1864
+          },
+          "finish_reason": "stop",
+          "latency_s": 4.45,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "groq/openai/gpt-oss-120b",
+      "latency_s": 2.22,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "latency_s": 0.01,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': 'b1062fc8-8d7c-4ecc-9b31-591cfb4bd8ae'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "latency_s": 0.02,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '0f44d2fe-f836-4390-8989-4343ae59db1e'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 3,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "groq/openai/gpt-oss-120b",
+          "usage": {
+            "prompt": 3120,
+            "completion": 754
+          },
+          "finish_reason": "stop",
+          "latency_s": 2.22,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

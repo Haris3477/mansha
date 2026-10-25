@@ -1,0 +1,67 @@
+{
+  "case": "missing_failed_checks",
+  "base": "chargers",
+  "note": "completeness",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "origin"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 0
+  },
+  "corrections": [
+    "origin: The origin section does not name every check that BASIS says failed; it omits the CTH and VA failures. Fix: Add that the CTH check failed because a non‑originating input in the same heading 8504 represents 88.0% of the price, exceeding the 10% de minimis threshold, and that the VA check failed because the build‑down value addition is only 12.0%, below the required 40% threshold. (see FACTS)"
+  ],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 1.0,
+  "estimated_prompt_tokens": 2558,
+  "prose_reviewed": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. This is because the final manufacture did not take place in the UAE. Consequently, no CEPA saving is available.",
+    "classification": "The product is classified under tariff line 85044030, Battery chargers, with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate, which is the standard import duty when no trade‑agreement preference is claimed, is 20% and the CEPA rate is 0%. Since the product does not qualify, the normal rate applies and no saving is available.",
+    "origin": "The rule of origin requires a change in tariff heading, meaning each non‑originating input must be classified in a different four‑digit heading than the product, and at least 40% value addition, which is the share of the product's price that does not come from non‑originating materials, calculated on an FOB basis, meaning the price of the goods loaded on board at the UAE port. The final manufacture check failed because the last manufacturing step did not take place in the UAE, and the minimal operations check failed because only repacking and relabeling were performed, which are simple operations that never confer origin.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025‑Customs (S.No. 323) applies only for electric‑vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "answers": [
+    {
+      "corrections": [
+        {
+          "field": "origin",
+          "problem": "The origin section does not name every check that BASIS says failed; it omits the CTH and VA failures.",
+          "fix": "Add that the CTH check failed because a non‑originating input in the same heading 8504 represents 88.0% of the price, exceeding the 10% de minimis threshold, and that the VA check failed because the build‑down value addition is only 12.0%, below the required 40% threshold.",
+          "based_on": "FACTS"
+        }
+      ],
+      "scores": {
+        "factuality": 1,
+        "completeness": 0
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 2284,
+        "completion": 1324
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.02,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 1, completeness 0"
+}

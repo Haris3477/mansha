@@ -1,0 +1,553 @@
+{
+  "status": "REPORT",
+  "verdict": "NEEDS_MORE_DATA",
+  "language": "en",
+  "seconds": 195.81,
+  "warnings": [
+    "QA round 2: QA part 3/3 failed: output NOT reviewed by QA in full (3 parts)"
+  ],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.14,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=None | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.14,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 682,
+                "completion": 287
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.14,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given",
+          "shipment_value"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: not given | evidence 22267 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "INSUFFICIENT_DATA",
+          "TOOL:duty:76101000": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "INSUFFICIENT_DATA",
+          "TOOL:duty:76041010": "NEEDS_VALUE",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "INSUFFICIENT_DATA",
+          "TOOL:duty:76151030": "NEEDS_VALUE",
+          "TOOL:coo_fee": "NEEDS_VALUE"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 111.4,
+      "summary": "line 76101000 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 1 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 111.39,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8222,
+                "completion": 11910
+              },
+              "finish_reason": "stop",
+              "latency_s": 111.39,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[5].source_id 'P-AGR-3.2-VA' is not an ID in the evidence"
+      ],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 4.14,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.82,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4833,
+                "completion": 898
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.82,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.97,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4890,
+                "completion": 1989
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.97,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.34,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2679,
+                "completion": 557
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.34,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[5].note: The cited source ID \"P-AGR-3.2-VA\" is not present in the provided evidence, so the claim is unsupported. Fix: The agreement does not define \"direct labour cost\" and \"direct overhead cost\"; no evidence is available on the build-down or build-up method thresholds."
+      ],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 0.82,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.97,
+            "scope": [
+              "procedure[5]",
+              "procedure[6]",
+              "procedure[7]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.34,
+            "scope": [
+              "caveats[7]",
+              "caveats[8]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "OK",
+      "seconds": 29.89,
+      "summary": "line 76101000 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 29.88,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 10270,
+                "completion": 3533
+              },
+              "finish_reason": "stop",
+              "latency_s": 29.88,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "caveats[5].source_id 'P-AGR-3.2-VA' is not an ID in the evidence",
+          "QA: caveats[5].note: The cited source ID \"P-AGR-3.2-VA\" is not present in the provided evidence, so the claim is unsupported. Fix: The agreement does not define \"direct labour cost\" and \"direct overhead cost\"; no evidence is available on the build-down or build-up method thresholds."
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "FAILED",
+      "seconds": 2.12,
+      "summary": "QA part 3/3 failed: output NOT reviewed by QA in full (3 parts)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.85,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4808,
+                "completion": 939
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.85,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.24,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4492,
+                "completion": 1904
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.24,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "LLM call failed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~5m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792842319959}, 'execution_id': '08a7250c-fe4b-48a9-820e-af515178999d'}",
+              "retry_skipped": "router busy for ~308s (> 90s cap)"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 0.85,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.24,
+            "scope": [
+              "procedure[5]",
+              "procedure[6]",
+              "procedure[7]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "ERROR",
+            "scores": null,
+            "served_by": null,
+            "seconds": 0,
+            "scope": [
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]"
+            ],
+            "warnings": [],
+            "note": "QA call failed: output NOT reviewed by QA"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 45.23,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 2 | notes: 9 in (5 mandatory, verbatim) -> 7 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 35.63,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1984,
+                "completion": 3731
+              },
+              "finish_reason": "stop",
+              "latency_s": 35.63,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 9.59,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 2475,
+                "completion": 895
+              },
+              "finish_reason": "stop",
+              "latency_s": 9.59,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "`summary`: 'difference between the normal rate' explains how the saving is worked out, which FACTS does not say; never explain how the saving is worked out; say only what FACTS says about the saving (the amount, or that it cannot be estimated without the shipment value)"
+        ],
+        "code_problems_by_round": {
+          "1": [
+            "`summary`: 'difference between the normal rate' explains how the saving is worked out, which FACTS does not say; never explain how the saving is worked out; say only what FACTS says about the saving (the amount, or that it cannot be estimated without the shipment value)"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 0.91,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.91,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2411,
+                "completion": 1256
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.91,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 2)",
+      "status": "OK",
+      "seconds": 0.98,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.98,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2390,
+                "completion": 1084
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.98,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

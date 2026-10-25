@@ -1,0 +1,141 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 52.5,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2037,
+            "completion": 4009
+          },
+          "finish_reason": "stop",
+          "latency_s": 52.5,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the aluminium window frames qualify for the CEPA rate because the required information is missing. If the product qualifies, the duty would be reduced from the normal 10% to 0%, but the exact saving cannot be estimated without the shipment value. Please see the checklist below for the data needed.",
+    "classification": "The product is classified under tariff line 76101000, described as Doors, windows and their frames and thresholds for doors (aluminium). Mansha’s confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "The India-UAE CEPA provides a normal (MFN) rate of 10% and a CEPA rate of 0%. The saving cannot be estimated without the shipment value.",
+    "origin": "The rule of origin is CTSH plus VA 45%, meaning both a change in tariff subheading and at least 45% value addition are required. CTSH requires each non‑originating input to be classified in a different 6‑digit subheading than the product, and VA is the share of the product’s price that does not come from non‑originating materials. Because the required data is missing, the origin could not be checked and the product cannot yet be confirmed as originating.",
+    "notes": [
+      {
+        "text": "Since the IGST base includes the basic customs duty, a lower BCD reduces the IGST amount as well.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "You must keep origin records, including the cost breakdown, for at least five years, and refusing a verification visit can lead to loss of preferential benefits.",
+        "from": [
+          "N6"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 45%' is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The CEPA rate reduces Basic Customs Duty only. IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Minimal operations such as simple assembly, labelling, repacking, simple testing, etc., never confer origin, even if the product-specific rule is met.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "De minimis tolerance helps only the tariff-shift part of a rule, not the value-addition percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "Value addition may be calculated by build-down or build-up; 'direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "Non-originating materials are valued at their CIF value at import, or at the first ascertainable price paid in the UAE or India if CIF is unknown. Indirect materials count as neither originating nor non-originating.",
+      "source_id": "P-AGR-3.1-NOM",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "Cumulation is bilateral: originating materials from India used in production in the UAE may be counted as originating, but the last production process must still go beyond minimal operations.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "The exporter must keep origin records, including the cost breakdown, for at least five years; refusing a verification visit is grounds for denying preferential benefits.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M4",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources, not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N7",
+      "text": "The certificate can be amended once for a fee of AED 20; the invoice amount and the destination cannot be changed.",
+      "source_id": "P-MOET-AMEND-COO",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "No usable shipment value was provided, so the duty saving could not be calculated.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    }
+  ]
+}

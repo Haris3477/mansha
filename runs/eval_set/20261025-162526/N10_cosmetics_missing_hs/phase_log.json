@@ -1,0 +1,439 @@
+{
+  "status": "REPORT",
+  "verdict": "NEEDS_MORE_DATA",
+  "language": "en",
+  "seconds": 138.74,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 4.51,
+      "summary": "product='cosmetic skin creams' | destination='India' | role=manufacturer | value=60000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 4.51,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 694,
+                "completion": 340
+              },
+              "finish_reason": "stop",
+              "latency_s": 4.51,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-33049990 | bill of materials: given | evidence 18964 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:33049990": "RULE_FOUND",
+          "TOOL:origin:33049990": "INSUFFICIENT_DATA",
+          "TOOL:duty:33049990": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 68.07,
+      "summary": "line 33049990 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 0 | warnings 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 68.06,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7184,
+                "completion": 6794
+              },
+              "finish_reason": "stop",
+              "latency_s": 68.06,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [
+        "procedure[6]: names 'Ministry of Foreign Trade', which P-AGR-COO-RULES does not; cite the record that states it, or split the step"
+      ],
+      "details": {
+        "normalized_by_code": [
+          "caveats[4]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 2.47,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 1 (1 real) | 2 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.32,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 5041,
+                "completion": 1808
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.32,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.13,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4594,
+                "completion": 1552
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.13,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "procedure[6].step: Claims the certificate of origin is issued by the Ministry of Foreign Trade, which is not supported by the cited record. Fix: The certificate of origin should be issued before, at, or within 5 working days of export; it is valid for 12 months and covers one import. Cite P-AGR-COO-RULES in source_id, not in the text."
+      ],
+      "warnings": [],
+      "details": {
+        "warning_judgements": [
+          {
+            "id": "W1",
+            "warning": "procedure[6]: names 'Ministry of Foreign Trade', which P-AGR-COO-RULES does not; cite the record that states it, or split the step",
+            "judgement": "REAL",
+            "reason": "The step attributes issuance to the Ministry of Foreign Trade, which the cited record does not mention."
+          }
+        ],
+        "qa_parts": [
+          {
+            "label": "part 1/2: findings + steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.32,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]",
+              "procedure[6]",
+              "procedure[7]",
+              "procedure[8]"
+            ],
+            "warnings": [
+              "W1"
+            ],
+            "note": ""
+          },
+          {
+            "label": "part 2/2: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.13,
+            "scope": [
+              "procedure[9]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "OK",
+      "seconds": 25.22,
+      "summary": "line 33049990 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 25.2,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8721,
+                "completion": 2668
+              },
+              "finish_reason": "stop",
+              "latency_s": 25.2,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "QA: procedure[6].step: Claims the certificate of origin is issued by the Ministry of Foreign Trade, which is not supported by the cited record. Fix: The certificate of origin should be issued before, at, or within 5 working days of export; it is valid for 12 months and covers one import. Cite P-AGR-COO-RULES in source_id, not in the text."
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "OK",
+      "seconds": 2.46,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.45,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4994,
+                "completion": 1459
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.45,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.99,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4594,
+                "completion": 1552
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.99,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/2: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.45,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]",
+              "procedure[6]",
+              "procedure[7]",
+              "procedure[8]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/2: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 0.99,
+            "scope": [
+              "procedure[9]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 35.13,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 10 in (7 mandatory, verbatim) -> 9 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 35.12,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1779,
+                "completion": 3198
+              },
+              "finish_reason": "stop",
+              "latency_s": 35.12,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 0.89,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.89,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2158,
+                "completion": 1013
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.89,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

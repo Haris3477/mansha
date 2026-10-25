@@ -1,0 +1,135 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 42.02,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1955,
+            "completion": 4289
+          },
+          "finish_reason": "stop",
+          "latency_s": 42.02,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Sweet biscuits meet the rule of origin under the India-UAE CEPA, so the CEPA rate can be claimed. The estimated saving for this shipment is 8100.00 USD. Please follow the checklist below to complete the claim process.",
+    "classification": "The product is classified under tariff line 19053100 for sweet biscuits. Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this product is 30%, and the CEPA rate is 0%. The estimated saving on this shipment is 8100.00 USD.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH), meaning each non-originating input must be classified in a different 4-digit heading than the product, and value addition (VA) of at least 40%, where VA is the share of the product's price that does not come from non-originating materials. The product meets the rule because the final manufacture took place in the UAE, the work done goes beyond minimal operations, all non-originating inputs are classified outside heading 1905, and the value addition is 55.0% on an FOB basis.",
+    "notes": [
+      {
+        "text": "Certificate of origin fee bands are in AED and apply to the invoice value in AED. Mansha does not perform currency conversion, so you must provide the invoice value in AED to determine the exact fee.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "For the retrospective mark, use box 9 on the certificate as per India's form, which governs entry into India, rather than box 8 mentioned in the agreement.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "India's tariff schedule marks this 30% rate with a footnote that Mansha has not checked; confirm the normal (MFN) rate with Indian customs or a customs broker.",
+      "source_id": "TL-IN-19053100",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The '+' in the rule 'CTH + VA 40%' is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:19053100",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:19053100",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate. The estimate is shown in the shipment's own currency and has not been converted.",
+      "source_id": "TOOL:duty:19053100",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:19053100",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:19053100",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is needed before applying for the certificate. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M10",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "The agreement says box 8 for the retrospective mark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    }
+  ]
+}

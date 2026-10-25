@@ -1,0 +1,62 @@
+{
+  "case": "clean_windows_nodata",
+  "base": "windows_nodata",
+  "note": "NEEDS_MORE_DATA, 9 optional notes, 2 items",
+  "result": "APPROVED",
+  "expected_fields": [],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1
+  },
+  "corrections": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 1.2,
+  "estimated_prompt_tokens": 3042,
+  "prose_reviewed": {
+    "summary": "Mansha cannot confirm whether the aluminium window frames qualify for the preferential duty rate under the India-UAE CEPA because the required information is missing. If the product qualifies, the saving cannot be estimated without the shipment value. To proceed, the exporter needs to provide a bill of materials, a declaration, and the shipment value in AED.",
+    "classification": "The product is classified under tariff line 76101000, which covers doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but the exporter should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. The estimated saving cannot be estimated without the shipment value. The CEPA rate applies to Basic Customs Duty only, so other import charges (such as IGST) are still paid even when the CEPA rate is 0%.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the product, and a value addition (VA) of 45%, which is the share of the product's price that does not come from non-originating materials. The product cannot be checked yet because the origin check returned insufficient data. To complete the check, the exporter must provide a bill of materials with each input's description, 6-digit HS code, origin country, value and currency, as well as a declaration stating the product price, whether it is on a FOB or Ex-Works basis, that the final manufacture occurred in the UAE, and the operations done in the UAE.",
+    "notes": [
+      {
+        "text": "Minimal operations listed in Article 3.5.1 (a) to (q) never confer origin, whatever the product-specific rule says.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "Preference is given only to originating goods shipped directly from the UAE to India. Transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar. An invoice issued by a third party does not by itself cause the claim to be denied, but the exporter must indicate 'third-party invoicing'.",
+        "from": [
+          "N5"
+        ]
+      }
+    ]
+  },
+  "answers": [
+    {
+      "corrections": [],
+      "scores": {
+        "factuality": 1,
+        "completeness": 1
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 2626,
+        "completion": 1288
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.16,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1"
+}

@@ -1,0 +1,78 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.7-flash",
+      "latency_s": 17.18,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.7-flash",
+          "usage": {
+            "prompt": 1806,
+            "completion": 405
+          },
+          "finish_reason": "stop",
+          "latency_s": 17.18,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "Your aluminium window frames meet the rule of origin under the India-UAE CEPA, so the preferential CEPA rate, which is the reduced rate under the trade agreement, can be claimed. This eliminates your customs duty in India, resulting in an estimated saving of 10000.00 AED. Please consult the checklist below to complete the necessary steps to claim this preference.",
+    "classification": "The product is classified under tariff line 76101000, covering doors, windows and their frames and thresholds for doors (aluminium), with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the duty is reduced from the normal (MFN) rate of 10% to a CEPA rate of 0%. Based on your shipment value, this gives an estimated saving of 10000.00 AED.",
+    "origin": "The product must satisfy a change in tariff subheading (CTSH), meaning each non-originating input is classified in a different 6-digit subheading than the product, along with a value addition (VA) of at least 45% on an FOB basis, which is the price of the goods loaded on board at the UAE port. The product qualifies because the last manufacturing step occurred in the UAE, and the work performed goes beyond minimal operations. Additionally, all 3 non-originating inputs are classified outside subheading 761010, and the calculated value addition is 49.0% against the 45% threshold.",
+    "notes": [
+      {
+        "text": "Producers located in free zones may not be eligible for the mandatory Factory Registration prerequisite, so you should confirm requirements with the Ministry of Economy and Tourism.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The '+' symbol in the origin rule is interpreted as requiring both CTSH and value addition tests to pass, as the agreement does not formally define the symbol.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Manufacturing operations and final UAE manufacture criteria rely on the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Duty savings are estimated based on the declared shipment value; Indian customs calculates duty on assessable CIF value, meaning actual amounts will vary.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA tariff preference reduces Basic Customs Duty (BCD) only; other import levies such as IGST, GST compensation cess, Social Welfare Surcharge, and trade defence duties still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Producers located in free zones may not be eligible for the mandatory Factory Registration prerequisite; confirm requirements with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    }
+  ]
+}

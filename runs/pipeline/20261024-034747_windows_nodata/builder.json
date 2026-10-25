@@ -1,0 +1,99 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 32.66,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1827,
+            "completion": 3513
+          },
+          "finish_reason": "stop",
+          "latency_s": 32.66,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the aluminium window frames qualify for the CEPA rate because required information is missing. The potential saving cannot be estimated until the shipment value is provided.",
+    "classification": "The product is classified under HS code 76101000, described as doors, windows and their frames and thresholds for doors (aluminium). Mansha’s confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "The India‑UAE CEPA applies to this product. The normal (MFN) duty rate is 10%, and the CEPA rate is 0%. The saving cannot be estimated without the shipment value.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non‑originating input must be classified in a different 6‑digit subheading than the finished product, and a value addition (VA) of at least 45%, which is the share of the product’s price that does not come from non‑originating materials. No checks have been performed because the required bill of materials and declaration are missing. Therefore the origin cannot be confirmed at this time.",
+    "notes": [
+      {
+        "text": "When completing the certificate of origin, use box 9 for remarks, not box 8 as the agreement states.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "Direct labour cost and direct overhead cost are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "Electronic certificates are reportedly accepted and uploaded to e-Sanchit, but this is seen only in secondary sources.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "India's certificate form uses box 9 for remarks, not box 8 as the agreement says.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    }
+  ]
+}

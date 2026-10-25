@@ -1,0 +1,95 @@
+{
+  "case": "clean_windows",
+  "base": "windows",
+  "note": "ELIGIBLE, 7 steps",
+  "result": "APPROVED",
+  "expected_fields": [],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 2.0,
+  "prompt_chars": 22856,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 4981,
+        "completion": 1595
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.17,
+      "ok": true
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 3694,
+        "completion": 963
+      },
+      "finish_reason": "stop",
+      "latency_s": 0.72,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+  "parts": [
+    {
+      "label": "part 1/2: findings + steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.17,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/2: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.72,
+      "scope": [
+        "procedure[6]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ]
+}

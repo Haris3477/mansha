@@ -1,0 +1,111 @@
+{
+  "case": "invented_timeline",
+  "base": "windows",
+  "note": "code warning",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "procedure[1]",
+    "procedure"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "procedure[1].step: Incorrect processing time; the source states processing takes about one working day Fix: The exporter applies for the certificate through the 'Certificate of Origin for India' e-service on moet.gov.ae by uploading the commercial invoice and proof of factory registration. Processing takes about one working day. (see P-MOET-COO-INDIA)"
+  ],
+  "warning_judgements": [
+    {
+      "id": "W1",
+      "warning": "procedure[1]: number(s) ['14'] not found in P-MOET-COO-INDIA",
+      "judgement": "REAL",
+      "reason": "The processing time of 14 working days is not found in the cited record"
+    }
+  ],
+  "code_warnings": [
+    "procedure[1]: number(s) ['14'] not found in P-MOET-COO-INDIA"
+  ],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 3.5,
+  "prompt_chars": 22950,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 5013,
+        "completion": 1608
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.89,
+      "ok": true
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 3694,
+        "completion": 963
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.59,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 1 (1 real) | 2 parts",
+  "parts": [
+    {
+      "label": "part 1/2: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.89,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]"
+      ],
+      "warnings": [
+        "W1"
+      ],
+      "note": ""
+    },
+    {
+      "label": "part 2/2: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.59,
+      "scope": [
+        "procedure[6]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ]
+}

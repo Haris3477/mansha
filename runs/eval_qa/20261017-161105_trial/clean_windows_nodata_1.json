@@ -1,0 +1,51 @@
+{
+  "case": "clean_windows_nodata",
+  "base": "windows_nodata",
+  "note": "NEEDS_MORE_DATA, 13 caveats",
+  "result": "ERROR",
+  "expected_fields": [],
+  "status": "ERROR",
+  "scores": null,
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": null,
+  "seconds": 178.0,
+  "prompt_chars": 31623,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.01,
+      "ok": false,
+      "http_status": 429,
+      "cooldown": true,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 2 routes checked (1 rate-limited or on cooldown, 1 prompt too large for the model). Add more API keys or wait for rate limits to reset. Soonest reset ~87s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792239249284}, 'execution_id': '19229588-35f2-446a-a151-41e16ff38155'}",
+      "waited_before_retry_s": 87.9
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 60.08,
+      "ok": false,
+      "http_status": 502,
+      "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (timeout ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemma-4-31b-it key1: timeout. Last error: The operation was aborted (google, chat, 60s)', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '3b4579db-2e7a-4e97-ba51-f1f1bc223c92'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 3,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "latency_s": 0.02,
+      "ok": false,
+      "http_status": 429,
+      "cooldown": true,
+      "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 2 routes checked (1 rate-limited or on cooldown, 1 prompt too large for the model). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792239910322}, 'execution_id': '48088ba1-8c20-46a3-8ca0-85e42718ae17'}",
+      "retry_skipped": "router busy for ~571s (> 90s cap)"
+    }
+  ],
+  "qa_note": "QA call failed: output NOT reviewed by QA"
+}

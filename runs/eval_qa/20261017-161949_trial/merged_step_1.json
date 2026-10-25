@@ -1,0 +1,41 @@
+{
+  "case": "merged_step",
+  "base": "windows",
+  "note": "G8",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "procedure[0]",
+    "procedure"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "procedure[0].step: The step includes issuance timing information not supported by the cited record P-MOET-FACTORY-REG. Fix: The Ministry of Economy and Tourism requires factory registration prior to application, which mandates the factory to be located outside a free zone and hold a MoIAT industrial licence with a MoIAT letter confirming 40% domestic value added. (see P-MOET-FACTORY-REG)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 4.9,
+  "prompt_chars": 22390,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 5687,
+        "completion": 1971
+      },
+      "finish_reason": "stop",
+      "latency_s": 4.92,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)"
+}

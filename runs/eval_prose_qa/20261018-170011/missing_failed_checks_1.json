@@ -1,0 +1,73 @@
+{
+  "case": "missing_failed_checks",
+  "base": "chargers",
+  "note": "completeness",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "origin"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 0
+  },
+  "corrections": [
+    "origin: The origin description omits the CTH and VA checks that failed according to the BASIS. Fix: The rule of origin requires a change in tariff heading (CTH) and at least 40% value addition (VA). The CTH check failed because one non‑originating input in heading 8504 represents 88.0% of the price, exceeding the 10% de minimis threshold. The VA check failed because the build‑down value addition is 12.0%, below the required 40% on an FOB basis. Additionally, the final manufacture check failed because the last manufacturing step did not take place in the UAE, and the minimal operations check failed because only repacking and relabeling were performed, which are simple operations that never confer origin. (see FACTS)"
+  ],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 4.4,
+  "estimated_prompt_tokens": 2647,
+  "prose_reviewed": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. This is because the final manufacture did not take place in the UAE. Consequently, no CEPA saving is available.",
+    "classification": "The product is classified under tariff line 85044030, Battery chargers, with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate, which is the standard import duty when no trade‑agreement preference is claimed, is 20% and the CEPA rate is 0%. Since the product does not qualify, the normal rate applies and no saving is available.",
+    "origin": "The rule of origin requires a change in tariff heading, meaning each non‑originating input must be classified in a different four‑digit heading than the product, and at least 40% value addition, which is the share of the product's price that does not come from non‑originating materials, calculated on an FOB basis, meaning the price of the goods loaded on board at the UAE port. The final manufacture check failed because the last manufacturing step did not take place in the UAE, and the minimal operations check failed because only repacking and relabeling were performed, which are simple operations that never confer origin.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025‑Customs (S.No. 323) applies only for electric‑vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Mansha has not checked whether India charges anti‑dumping duty on this product; you should verify with Indian customs or a customs broker.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "answers": [
+    {
+      "corrections": [
+        {
+          "field": "origin",
+          "problem": "The origin description omits the CTH and VA checks that failed according to the BASIS.",
+          "fix": "The rule of origin requires a change in tariff heading (CTH) and at least 40% value addition (VA). The CTH check failed because one non‑originating input in heading 8504 represents 88.0% of the price, exceeding the 10% de minimis threshold. The VA check failed because the build‑down value addition is 12.0%, below the required 40% on an FOB basis. Additionally, the final manufacture check failed because the last manufacturing step did not take place in the UAE, and the minimal operations check failed because only repacking and relabeling were performed, which are simple operations that never confer origin.",
+          "based_on": "FACTS"
+        }
+      ],
+      "scores": {
+        "factuality": 1,
+        "completeness": 0
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 2000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 2362,
+        "completion": 1451
+      },
+      "finish_reason": "stop",
+      "latency_s": 4.4,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 1, completeness 0"
+}

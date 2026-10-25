@@ -1,0 +1,138 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 35.63,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1984,
+            "completion": 3731
+          },
+          "finish_reason": "stop",
+          "latency_s": 35.63,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 9.59,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2475,
+            "completion": 895
+          },
+          "finish_reason": "stop",
+          "latency_s": 9.59,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [
+        "`summary`: 'difference between the normal rate' explains how the saving is worked out, which FACTS does not say; never explain how the saving is worked out; say only what FACTS says about the saving (the amount, or that it cannot be estimated without the shipment value)"
+      ],
+      "prose_qa": "APPROVED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet, because information is missing. The estimated saving cannot be estimated without the shipment value. Please provide the missing information in the checklist below.",
+    "classification": "The product is classified under tariff line 76101000, which covers doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "The agreement is the India-UAE CEPA. The normal (MFN) rate is 10%, and the CEPA rate is 0%. The saving cannot be estimated without the shipment value.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the product, and value addition (VA) of 45%, meaning at least 45% of the product's price must not come from non-originating materials. The product cannot be checked yet because information is missing, so no checks have been performed. To complete the check, you need to provide a bill of materials and a declaration as described in the checklist below.",
+    "notes": [
+      {
+        "text": "The CEPA rate reduces the Basic Customs Duty, and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess, and SWS still apply. Because the IGST base includes the Basic Customs Duty, a lower duty also lowers the IGST amount.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The agreement mentions box 8 for the retrospective issue remark, but India's origin rules and certificate form require box 9. Since India's form governs entry into the country, you must use box 9.",
+        "from": [
+          "N4"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 45%' is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The CEPA rate reduces BCD, and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and SWS still apply. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not define \"direct labour cost\" and \"direct overhead cost\"; no evidence is available on the build-down or build-up method thresholds.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "The operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says. 'Simple' means the activity needs no special skills and no machines or equipment specially made or installed for it.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "The agreement says box 8 for the retrospective issue remark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    }
+  ]
+}

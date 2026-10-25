@@ -1,0 +1,123 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 32.1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2093,
+            "completion": 2973
+          },
+          "finish_reason": "stop",
+          "latency_s": 32.1,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the aluminium window frames qualify for the preferential duty rate under the India‑UAE CEPA because required information is missing. To estimate the duty saving, the shipment value and a complete bill of materials plus a declaration are needed.",
+    "classification": "The product is classified under tariff line 76101000, described as doors, windows and their frames and thresholds for doors (aluminium). Mansha’s confidence in this classification is high, but you should verify it with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India‑UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0% for Basic Customs Duty. Because the shipment value is not provided, the saving cannot be estimated.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and at least 45% value addition (VA). CTSH means each non‑originating input must be classified in a different 6‑digit subheading than the product, and VA measures the share of the product’s price that does not come from non‑originating materials. No origin checks could be performed because the necessary data, including a bill of materials and a declaration, are missing. Therefore the product cannot yet be assessed for origin.",
+    "notes": [
+      {
+        "text": "The CEPA rate reduces only Basic Customs Duty; IGST, GST compensation cess, Social Welfare Surcharge and any anti‑dumping or safeguard duty still apply. Because IGST is calculated on the sum of BCD and other charges, a lower BCD also reduces the IGST amount.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Activities listed in Article 3.5.1 (a) to (q), alone or combined, never make a product originating, regardless of the product‑specific rule. 'Simple' means the activity requires no special skills and no specially made or installed machines or equipment.",
+        "from": [
+          "N5"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule is interpreted as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "No usable shipment value (positive amount and currency) was provided, so only rates and percentage-point differences are given; the actual duty saving cannot be computed.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M4",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports, not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "The de minimis tolerance helps only the tariff-shift part of a rule, not the value-addition percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "Operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says. 'Simple' means the activity needs no special skills and no machines or equipment specially made or installed for it.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    }
+  ]
+}

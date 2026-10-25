@@ -1,0 +1,96 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 76.15,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7415,
+        "completion": 7040
+      },
+      "finish_reason": "stop",
+      "latency_s": 76.15,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Classification: 'battery chargers' matches TL-IN-85044030 'Battery chargers' exactly; no HS code was given, so no conflict; confidence is high.",
+      "Preference: CEPA status is PREFERENTIAL (not EXCLUDED), so the product is eligible for preference subject to origin.",
+      "Tariff: MFN rate is 20% (tariff and effective both 20%), CEPA rate is 0%, from TL-IN-85044030.",
+      "Origin: Rule PSR-IN-R126 'CTH + VA 40%' applies; origin check FAILS on all four checks (final manufacture, minimal operations, CTH, VA); status is DOES_NOT_QUALIFY.",
+      "Saving: Since origin is DOES_NOT_QUALIFY, the estimated saving is NOT_APPLICABLE with null amount and currency.",
+      "Procedure: Empty because origin status is DOES_NOT_QUALIFY (only QUALIFIES or NEEDS_MORE_DATA trigger procedure steps).",
+      "Caveats: Compiled relevant notes from tariff line, duty tool, and origin tool that affect how the result should be read."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in UAE: FAIL - declared final manufacture did not take place in the UAE. Minimal operations: FAIL - declared operations (repacking and relabeling) are minimal operations under Art. 3.5.1 (b), (k), (l) which never confer origin. CTH: FAIL - 1 non-originating input in the same heading 8504, representing 88.0% of the price, above the 10% de minimis threshold. VA: FAIL - build-down value addition of 12.0% against a required threshold of 40% on an FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [
+      "The build-up value addition percentage is not available, so the value-addition test could only be assessed using the build-down method."
+    ],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

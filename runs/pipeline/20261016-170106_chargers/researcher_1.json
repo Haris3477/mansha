@@ -1,0 +1,101 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 50.78,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 8000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7184,
+        "completion": 4941
+      },
+      "finish_reason": "stop",
+      "latency_s": 50.78,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "output": {
+    "reasoning": [
+      "Step 1: TL-IN-85044030 ('Battery chargers') is the only candidate and matches the product description exactly. No HS code was given, so no conflict. Confidence: high.",
+      "Step 2: CEPA status is PREFERENTIAL, so the product is not excluded from preference.",
+      "Step 3: MFN tariff and effective rate are both 20%; 2026 CEPA rate is 0% (Table I, S.No. 9745, staging TEI).",
+      "Step 4: Rule PSR-IN-R126 is 'CTH + VA 40%'. Origin check FAILS on all four checks: final manufacture not in UAE, minimal operations only, CTH fail with 88% non-originating share above 10% de minimis, and VA build-down only 12% against 40% threshold.",
+      "Step 5: Duty saving is ESTIMATED at 10,000 AED, but origin DOES_NOT_QUALIFY makes the saving NOT_APPLICABLE.",
+      "Step 6: Origin status is DOES_NOT_QUALIFY, so no procedure steps apply.",
+      "Step 7: Caveats compiled from tool notes and passage notes."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture did not take place in the UAE (FAIL). Declared operations ['b', 'k', 'l'] are all minimal operations under Art. 3.5.1, which never confer origin (FAIL). CTH: 1 non-originating input in heading 8504, together 88.0% of the price, above the 10% de minimis (FAIL). VA: build-down 12.0% against a threshold of 40%, FOB basis (FAIL). Totals: price_basis FOB, inputs_count 2, non_originating_inputs_count 1, non_originating_share_pct 88.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:rule_lookup:85044030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "45/2025 S.No. 323 gives 15% only for EV manufacture; general rate 20%.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Anti-dumping duty not checked.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "e-Sanchit upload rests on CBIC Instruction 28/2022, read only via LiveLaw/taxmann.",
+        "source_id": "P-IN-IMPORTER"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

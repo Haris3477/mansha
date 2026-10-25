@@ -1,0 +1,40 @@
+{
+  "case": "useless_gap",
+  "base": "chargers",
+  "note": "17 Oct live run",
+  "result": "MISSED",
+  "expected_fields": [
+    "gaps",
+    "gaps[0]"
+  ],
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "groq/openai/gpt-oss-120b",
+  "seconds": 3.7,
+  "prompt_chars": 16079,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:judge",
+      "max_tokens": 3000,
+      "routed_via": "groq/openai/gpt-oss-120b",
+      "usage": {
+        "prompt": 4272,
+        "completion": 1325
+      },
+      "finish_reason": "stop",
+      "latency_s": 3.7,
+      "ok": true
+    }
+  ],
+  "qa_note": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+  "parts": []
+}

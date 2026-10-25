@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "notes[1].text: The phrase \"may still apply\" adds uncertainty not present in the source note. Fix: Replace \"may still apply\" with \"still apply\" to match N5. (see N5)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.33,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2495,
+            "completion": 1894
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.33,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

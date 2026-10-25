@@ -1,0 +1,46 @@
+{
+  "researcher_file": "runs/plastic/researcher_1.json",
+  "calls": [
+    {
+      "served_by": "google/gemini-3.7-flash",
+      "latency_s": 10.8,
+      "attempts": 1
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "This tariff line is excluded from India's CEPA concessions, so the reduced rate under the trade agreement (CEPA rate) cannot be claimed. As a result, the normal import duty rate, charged when no trade-agreement preference is claimed (MFN rate), applies regardless of the product's origin. No duty savings apply to this shipment.",
+    "classification": "The product is classified under tariff code 39239090, covering other plastic articles for packing under heading 3923, with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 15%, and there is no preferential CEPA rate because this line is excluded. Consequently, no duty saving applies.",
+    "origin": "This tariff line is excluded from India's CEPA concessions. Because the line is excluded, the rule of origin does not matter for this product and was not checked. The normal customs duty applies regardless of origin.",
+    "notes": [
+      {
+        "text": "The normal import duty rate applies to this product even if it meets origin rules, because this tariff line is excluded from preferential treatment.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "Excluded: MFN applies even if the origin rule is met.",
+      "source_id": "TL-IN-39239090",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:39239090",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:39239090",
+      "mandatory": true
+    }
+  ]
+}

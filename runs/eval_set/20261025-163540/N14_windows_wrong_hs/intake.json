@@ -1,0 +1,17 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "aluminium window frames",
+    "uae_processing": "cut and assembled",
+    "destination_country": "India",
+    "hs_code_given": "39239090",
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 100000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": []
+  }
+}

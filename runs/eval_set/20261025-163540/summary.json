@@ -1,0 +1,51 @@
+{
+  "runs": 3,
+  "passed": 0,
+  "scored": 2,
+  "verdict_correct": 0,
+  "verdict_cases": 2,
+  "expected_failures": [
+    "N14: still fails"
+  ],
+  "checks_failed": 2,
+  "llm_error": 0,
+  "qa_rejections": 2,
+  "qa_overruled": 1,
+  "router_refusals": 1,
+  "paced_wait_s": 54.0,
+  "median_seconds_reports": 203.9,
+  "slips": {
+    "72": 1
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 3,
+      "prompt": 2091,
+      "completion": 911
+    },
+    "auto:long": {
+      "requests": 6,
+      "prompt": 43541,
+      "completion": 35768
+    },
+    "auto:judge": {
+      "requests": 14,
+      "prompt": 54122,
+      "completion": 18986
+    }
+  },
+  "failed_checks": {
+    "N13": [
+      "verdict: NEEDS_MORE_DATA, expected REGULATORY_GAP_DETECTED",
+      "anchors: a claim checklist in a report whose verdict allows no claim"
+    ],
+    "N14": [
+      "status: CHECKS_FAILED, expected REPORT",
+      "verdict: None, expected ELIGIBLE"
+    ],
+    "N15": [
+      "status: CHECKS_FAILED, expected REPORT",
+      "verdict: None, expected NEEDS_MORE_DATA"
+    ]
+  }
+}

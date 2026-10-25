@@ -1,0 +1,41 @@
+{
+  "runs": 3,
+  "passed": 2,
+  "scored": 3,
+  "verdict_correct": 3,
+  "verdict_cases": 3,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 0,
+  "qa_rejections": 1,
+  "qa_overruled": 0,
+  "router_refusals": 0,
+  "paced_wait_s": 27.3,
+  "median_seconds_reports": 202.7,
+  "slips": {
+    "72": 1,
+    "86": 1
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 3,
+      "prompt": 2090,
+      "completion": 831
+    },
+    "auto:long": {
+      "requests": 7,
+      "prompt": 38540,
+      "completion": 42575
+    },
+    "auto:judge": {
+      "requests": 12,
+      "prompt": 45970,
+      "completion": 13035
+    }
+  },
+  "failed_checks": {
+    "N5": [
+      "privacy: input amount 10000.00 (Paint additives) appears"
+    ]
+  }
+}

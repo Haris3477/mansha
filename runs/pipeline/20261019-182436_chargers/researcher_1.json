@@ -1,0 +1,93 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 57.68,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7415,
+        "completion": 5595
+      },
+      "finish_reason": "stop",
+      "latency_s": 57.68,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Confirm whether the final manufacture of these battery chargers took place in the UAE, as the origin check reports it did not.'",
+    "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Provide a bill of materials showing the origin, HS code and value of each input used in the battery chargers, so the CTH and value-added tests can be recalculated.'",
+    "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Verify whether the operations performed (repacking and relabeling) are the only operations, or whether additional manufacturing steps were taken.'",
+    "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'Confirm the HS code for these battery chargers, as none was provided with the query.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific service page is still on moet.gov.ae.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from a secondary source (CBIC Instruction 28/2022 read through LiveLaw and taxmann), not the official text.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for a certificate of origin for India.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified battery chargers to TL-IN-85044030 by description match (high confidence, no HS code conflict in the tariff lookup notes).",
+      "CEPA status is PREFERENTIAL, so the product is not excluded from preference.",
+      "MFN rate is 20% (tariff and effective); 2026 CEPA rate is 0%.",
+      "Origin check under PSR-IN-R126 (CTH + VA 40%) FAILS on all four checks: final manufacture not in UAE, minimal operations only, CTH shift not met (88% non-originating input in same heading), and VA only 12% against 40% threshold.",
+      "Since origin DOES_NOT_QUALIFY, the duty saving is NOT_APPLICABLE.",
+      "Procedure is empty because the product does not qualify for preferential origin.",
+      "Collected caveats on MFN rate scope, anti-dumping uncertainty, CIF valuation, BCD-only scope, '+' interpretation, exporter's own declaration, issuer uncertainty, and free-zone factory registration risk."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture did not take place in the UAE (Art. 3.2.3). All declared operations are minimal operations under Art. 3.5.1 (changes of packaging and breaking up and assembly of packages; simple placing in bottles, cans, flasks, bags, cases, boxes; affixing or printing marks, labels, logos). 1 non-originating input is in the same heading 8504 as the product (Battery chargers (finished)); together 88.0% of the price, above the 10% de minimis. Value addition build-down is 12.0% against a threshold of 40%, FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "'+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "The origin check's findings (operations and final manufacture) are the exporter's own declaration; Mansha has not independently verified them.",
+        "source_id": "TOOL:origin:85044030"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

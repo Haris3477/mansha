@@ -1,0 +1,73 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 39.02,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 6892,
+        "completion": 3837
+      },
+      "finish_reason": "stop",
+      "latency_s": 39.02,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (TOOL:duty:33030090): 'India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate based on the shipment value given.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (P-IN-DUTY-SCOPE): 'IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: The only candidate TL-IN-33030090 'Other perfumes and toilet waters' matches the product description 'perfume' — selected with high confidence.",
+      "Step 2: CEPA status is EXCLUDED, so no preferential rate applies regardless of origin.",
+      "Step 3: MFN rate is tariff 20%, effective 20%; preferential rate is EXCLUDED.",
+      "Step 4: Origin check is not applicable because the line is excluded from CEPA preference.",
+      "Step 5: Duty tool returns NO_PREFERENCE — duty is 20,000 AED with or without CEPA, saving 0.00 AED.",
+      "Step 6: Procedure is empty because origin is not applicable.",
+      "Step 7: Caveats compiled from the exclusion note, CIF valuation note, and additional Indian duties note."
+    ],
+    "classification": {
+      "tariff_line": "33030090",
+      "description": "Other perfumes and toilet waters",
+      "confidence": "high",
+      "source_id": "TL-IN-33030090"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "EXCLUDED",
+      "source_id": "TL-IN-33030090"
+    },
+    "origin_rule": {
+      "rule": "NOT_APPLICABLE",
+      "source_id": "TL-IN-33030090"
+    },
+    "origin_result": {
+      "status": "NOT_APPLICABLE",
+      "basis": "Not applicable — tariff line 33030090 is excluded from CEPA preference, so the origin check is not needed; the normal MFN rate applies regardless of origin.",
+      "source_id": "TL-IN-33030090"
+    },
+    "estimated_saving": {
+      "status": "NO_PREFERENCE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:33030090"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin.",
+        "source_id": "TL-IN-33030090"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NO_PREFERENCE"
+  }
+}

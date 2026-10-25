@@ -1,0 +1,153 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 75.98,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8081,
+        "completion": 7290
+      },
+      "finish_reason": "stop",
+      "latency_s": 75.98,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Step 1: Classification – TL-IN-76101000 ('Doors, windows and their frames and thresholds for doors (aluminium)') is the best description match for 'aluminium window frames'; no conflict with an HS code was noted, so confidence is high.",
+      "Step 2: Preference – The chosen line has CEPA status PREFERENTIAL, so it is not excluded from preference.",
+      "Step 3: Tariff – The MFN rate is 10% and the 2026 CEPA rate is 0%.",
+      "Step 4: Origin – The applicable product-specific rule is PSR-IN-R118 ('CTSH + VA 45%'). The origin tool returned INSUFFICIENT_DATA because no bill of materials or declaration was provided.",
+      "Step 5: Saving – The duty tool returned NEEDS_VALUE because no shipment value was given; the saving cannot be estimated.",
+      "Step 6: Procedure – Because the origin status is NEEDS_MORE_DATA, the steps to claim the CEPA rate are listed, drawn from the agreement and ministry service passages.",
+      "Step 7: Caveats and follow-ups – Relevant notes from the tools and passages are compiled, and the missing information required to complete the check is listed."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": "No checks run; missing a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the UAE, operations done in the UAE).",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "NEEDS_VALUE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "The Ministry of Economy and Tourism requires the factory to be registered outside a free zone, with a MoIAT industrial licence and a letter confirming 40% domestic value added, before applying for a certificate.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The issuing authority requires the application to include the HS code, description, quantity and value of the exported product, and each item must qualify separately.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "The Ministry of Foreign Trade's e-service requires the applicant to log in to the ministry e-services portal, choose the Certificate of Origin for India service, fill in the application form, upload proof of factory registration and the commercial invoice (and for a trading exporter, the factory's purchase invoice), and pay the fee online.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The Ministry of Foreign Trade charges a certificate fee of AED 10 to AED 200 depending on invoice value.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The Ministry of Foreign Trade's e-service requires the applicant to submit the application and print the approved certificate after approval, or correct the return with comments.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the certificate prior to, at, or within five working days of export; it is valid for twelve months from issue and covers only one import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The exporter must ship goods directly from the UAE to India; transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar. Third-party invoicing is allowed if the exporter indicates it.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter must keep origin records, including the cost breakdown, for at least five years from the end of the calendar year of issue.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "No usable shipment value was provided, so only rates are given; the actual saving depends on the shipment value.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "The terms 'direct labour cost' and 'direct overhead cost' are not defined in the agreement, and it is unclear whether the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific certificate page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources, not the official text.",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "The certificate fee range is AED 10 to AED 200; the exact fee depends on the invoice value in AED.",
+        "source_id": "TOOL:coo_fee"
+      }
+    ],
+    "follow_up_questions": [
+      "Provide a bill of materials with each input's description, 6-digit HS code, origin country, value and currency.",
+      "Provide a declaration with the product price, FOB or Ex-Works basis, confirmation of final manufacture in the UAE, and operations done in the UAE.",
+      "Provide the shipment value in AED to estimate the duty saving.",
+      "Confirm the HS code for aluminium window frames is 76101000."
+    ],
+    "gaps": [],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}

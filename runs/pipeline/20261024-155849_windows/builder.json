@@ -1,0 +1,135 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 96.25,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1882,
+            "completion": 3746
+          },
+          "finish_reason": "stop",
+          "latency_s": 96.25,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your product, aluminium window frames, meets the rule of origin under the India-UAE CEPA, so you can claim the preferential CEPA rate of 0% instead of the normal rate. This results in an estimated saving of 10000.00 AED for this shipment. Please refer to the claim checklist below to complete the necessary steps for claiming this preference.",
+    "classification": "The product is classified under tariff line 76101000, which covers doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10%, while the preferential CEPA rate is 0%. Since the product qualifies, you can claim the CEPA rate of 0%, which results in an estimated saving of 10000.00 AED for this shipment. Note that the CEPA rate applies to Basic Customs Duty only, so other import charges such as IGST are still payable.",
+    "origin": "To qualify for the CEPA rate, the product must meet the rule of origin, which requires a change in tariff subheading (CTSH) and at least 45% value addition (VA). CTSH means each non-originating input must be classified in a different 6-digit subheading than the product, and VA is the share of the product's price that does not come from non-originating materials. The product meets this rule because the final manufacture check passed, meaning the last manufacturing step took place in the UAE, and the minimal operations check passed, meaning the UAE work goes beyond simple operations that do not grant origin on their own. Additionally, the CTSH check passed as all 3 non-originating inputs are classified outside subheading 761010, and the VA check passed with a 49.0% value addition against the 45% threshold, calculated on an FOB basis (the price of the goods loaded on board at the UAE port).",
+    "notes": [
+      {
+        "text": "The trade agreement does not clearly state whether the build-down and build-up methods use the same value addition threshold, except for a 5-point Ex-Works adjustment.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "While the agreement refers to box 8, India's origin rules and certificate form require box 9, and India's form governs entry into the country.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "Inference: Anti-dumping and safeguard duties still apply (no exemption found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is unconfirmed and seen only in secondary sources.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "M10",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M11",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    }
+  ]
+}

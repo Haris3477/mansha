@@ -1,0 +1,49 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "origin_result.basis: Includes parenthetical detail \"(repacking and relabeling)\" that is not present in the cited origin tool record. Fix: final manufacture check: FAIL — final manufacture did not take place in the UAE. minimal operations check: FAIL — declared operations are minimal operations under Art. 3.5.1(b), (k), (l) that never confer origin. CTH: FAIL — 1 non-originating input in heading 8504, representing 88.0% of the FOB price, above the 10% de minimis threshold. VA: FAIL — build-down value addition of 12.0% against a required 40% threshold on an FOB basis. Keep this field's source_id as it is."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [],
+  "raw_corrections": [
+    {
+      "field": "origin_result.basis",
+      "problem": "Includes parenthetical detail \"(repacking and relabeling)\" that is not present in the cited origin tool record.",
+      "fix": "final manufacture check: FAIL — final manufacture did not take place in the UAE. minimal operations check: FAIL — declared operations are minimal operations under Art. 3.5.1(b), (k), (l) that never confer origin. CTH: FAIL — 1 non-originating input in heading 8504, representing 88.0% of the FOB price, above the 10% de minimis threshold. VA: FAIL — build-down value addition of 12.0% against a required 40% threshold on an FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    }
+  ],
+  "overruled_by_kb": [],
+  "rejudged": false,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.52,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 3735,
+            "completion": 1828
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.52,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

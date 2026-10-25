@@ -1,0 +1,99 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 38.58,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 8000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7373,
+        "completion": 2982
+      },
+      "finish_reason": "stop",
+      "latency_s": 38.58,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [
+    "caveats[2]: number(s) ['40'] not found in TOOL:rule_lookup:85044030"
+  ],
+  "output": {
+    "reasoning": [
+      "Only one candidate exists, TL-IN-85044030 'Battery chargers', which matches the product description exactly; no HS code was given and no conflict was noted, so confidence is high.",
+      "The CEPA status of the chosen line is PREFERENTIAL, not EXCLUDED, so preference is potentially available subject to origin.",
+      "The tariff record gives MFN tariff and effective rate of 20% and a 2026 CEPA rate of 0%.",
+      "The applicable rule is PSR-IN-R126 'CTH + VA 40%'; the origin check reports FAILS on final manufacture in the UAE, minimal operations, CTH (88.0% non-originating input in heading 8504, above the 10% de minimis) and value addition (12.0% build-down against a 40% threshold).",
+      "Because origin status is DOES_NOT_QUALIFY, the estimated saving is NOT_APPLICABLE with no amount.",
+      "Procedure steps are omitted because the product does not qualify for the CEPA rate.",
+      "Caveats were copied from the tariff, duty, origin and passage notes that affect how the result should be read."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "0% (2026 CEPA rate)",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture did not take place in the UAE. The declared operations (repacking and relabeling) are minimal operations that never confer origin. One non-originating input falls in the same heading 8504 as the finished battery chargers and accounts for 88.0% of the FOB price, above the 10% de minimis tolerance. Value addition calculated by build-down is 12.0% against a required threshold of 40% on an FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under India's Notification 45/2025-Customs applies only for electric-vehicle manufacture; the general 20% rate was used.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Whether India charges anti-dumping duty on battery chargers has not been checked; confirm with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "The '+' in the rule 'CTH + VA 40%' is read as 'and' so both tests must pass; the agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:rule_lookup:85044030"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value, so actual duty amounts will differ from the estimate shown.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, the Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "The operations and final manufacture results are based on the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "A producer located in a free zone is likely not eligible for Factory Registration, which is a prerequisite for applying for the certificate of origin for India.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Reports that electronic certificates are accepted and uploaded to India's e-Sanchit system come from secondary sources only; the official text has not been read.",
+        "source_id": "P-IN-IMPORTER"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

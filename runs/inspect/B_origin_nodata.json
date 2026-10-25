@@ -1,0 +1,18 @@
+{
+  "tool_id": "TOOL:origin:76101000",
+  "tariff_line": "76101000",
+  "status": "INSUFFICIENT_DATA",
+  "rule_id": "PSR-IN-R118",
+  "rule_text": "CTSH + VA 45%",
+  "checks": [],
+  "totals": {},
+  "missing": [
+    "a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the UAE, operations done in the UAE)"
+  ],
+  "notes": [
+    "'+' in a rule is read as 'and' (both tests must pass). The text does not define '+'; this is an interpretation and must be labelled as such."
+  ],
+  "sources": {
+    "R39-G": "https://taxguru.in/wp-content/uploads/2022/05/Customs-Tariff-Determination-of-Origin-of-Goods-under-the-Comprehensive-Economic-Partnership-Agreement-between-India-and-the-United-Arab-Emirates-Rules-2022-Annexure.pdf"
+  }
+}

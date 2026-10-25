@@ -1,0 +1,290 @@
+{
+  "status": "REPORT",
+  "verdict": "NOT_ELIGIBLE",
+  "language": "en",
+  "seconds": 106.17,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.0,
+      "summary": "product='battery chargers' | destination='India' | role=trader | value=50000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 701,
+                "completion": 257
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.0,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-85044030 | bill of materials: given | evidence 20225 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:85044030": "RULE_FOUND",
+          "TOOL:origin:85044030": "FAILS",
+          "TOOL:duty:85044030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 38.81,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 1 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 38.8,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7556,
+                "completion": 3650
+              },
+              "finish_reason": "stop",
+              "latency_s": 38.8,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[2].note contains 'PSR-IN-R126': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+      ],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "origin_result.basis: check names written in plain words",
+          "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Confirm the HS code for battery chargers (it was not provided in the intake; the classification relied on the description alone).'",
+          "caveats[7]: note written from the KB (P-UAE-ISSUER)",
+          "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'If the product is intended for the Indian market, verify whether any anti-dumping or safeguard duty applies to battery chargers under Indian customs law.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'",
+          "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.\""
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 1.53,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.52,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 3735,
+                "completion": 1828
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.52,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "origin_result.basis: Includes parenthetical detail \"(repacking and relabeling)\" that is not present in the cited origin tool record. Fix: final manufacture check: FAIL — final manufacture did not take place in the UAE. minimal operations check: FAIL — declared operations are minimal operations under Art. 3.5.1(b), (k), (l) that never confer origin. CTH: FAIL — 1 non-originating input in heading 8504, representing 88.0% of the FOB price, above the 10% de minimis threshold. VA: FAIL — build-down value addition of 12.0% against a required 40% threshold on an FOB basis. Keep this field's source_id as it is."
+      ],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "OK",
+      "seconds": 25.19,
+      "summary": "line 85044030 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 25.18,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8629,
+                "completion": 2770
+              },
+              "finish_reason": "stop",
+              "latency_s": 25.18,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "caveats[2].note contains 'PSR-IN-R126': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+          "QA: origin_result.basis: Includes parenthetical detail \"(repacking and relabeling)\" that is not present in the cited origin tool record. Fix: final manufacture check: FAIL — final manufacture did not take place in the UAE. minimal operations check: FAIL — declared operations are minimal operations under Art. 3.5.1(b), (k), (l) that never confer origin. CTH: FAIL — 1 non-originating input in heading 8504, representing 88.0% of the FOB price, above the 10% de minimis threshold. VA: FAIL — build-down value addition of 12.0% against a required 40% threshold on an FOB basis. Keep this field's source_id as it is."
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "OK",
+      "seconds": 0.84,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.84,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 3724,
+                "completion": 841
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.84,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 37.04,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 4 in (3 mandatory, verbatim) -> 4 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 37.04,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1922,
+                "completion": 4020
+              },
+              "finish_reason": "stop",
+              "latency_s": 37.04,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 1.74,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.74,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2311,
+                "completion": 1361
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.74,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

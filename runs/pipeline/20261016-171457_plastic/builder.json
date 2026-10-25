@@ -1,0 +1,78 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 49.35,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1761,
+            "completion": 4258
+          },
+          "finish_reason": "stop",
+          "latency_s": 49.35,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "This tariff line is excluded from India's CEPA concessions, so the normal (MFN) rate applies whatever the product's origin. No saving applies.",
+    "classification": "The tariff line is 39239090, described as Other (heading 3923: plastic articles for packing). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 15% and the CEPA rate is excluded for this line. No saving applies because the tariff line is excluded from CEPA preference.",
+    "origin": "The rule of origin does not apply because tariff line 39239090 is excluded from India-UAE CEPA preference. The product's origin is not checked, and no preferential rate is available regardless of origin.",
+    "notes": [
+      {
+        "text": "Even if the origin rule is met, the normal (MFN) rate applies because this tariff line is excluded from CEPA preference.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Verify the description 'Other (heading 3923: plastic articles for packing)' word for word against CBIC chapter 39 to confirm that 39239090 is the correct tariff line for these plastic packing articles.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "The CEPA rate reduces Basic Customs Duty (BCD) and the Agriculture Infrastructure and Development Cess only for lines in Table II, while IGST, GST compensation cess, the Social Welfare Surcharge, and any anti-dumping, countervailing or safeguard duties still apply. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "Excluded: MFN applies even if the origin rule is met.",
+      "source_id": "TL-IN-39239090",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Description to verify word for word against CBIC chapter 39.",
+      "source_id": "TL-IN-39239090",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:39239090",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    }
+  ]
+}

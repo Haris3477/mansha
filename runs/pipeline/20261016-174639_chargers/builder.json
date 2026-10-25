@@ -1,0 +1,102 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 51.42,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1868,
+            "completion": 3918
+          },
+          "finish_reason": "stop",
+          "latency_s": 51.42,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The product does not qualify for the CEPA rate under the India-UAE CEPA because it does not meet the rule of origin. Consequently, the normal (MFN) rate of 20% applies, and no saving is available. The main reason is that final manufacture did not take place in the UAE and the value addition build-down of 12% is below the required 40% threshold.",
+    "classification": "The product is classified under the tariff line for battery chargers, and Mansha's confidence in this classification is high. You should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for battery chargers is 20%, while the CEPA rate is 0%. Since the product does not qualify for the CEPA rate, no saving applies for this shipment.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH), meaning non-originating inputs must be in a different 4-digit heading, and a value addition (VA) of at least 40%, which is the share of the price not from non-originating materials. The product fails this rule because final manufacture did not take place in the UAE, and the work done (repacking and relabeling) constitutes minimal operations that never confer origin. Additionally, the value addition build-down is only 12%, falling short of the 40% threshold, and the non-originating input share of 88% exceeds the 10% de minimis tolerance.",
+    "notes": [
+      {
+        "text": "Repacking and relabeling are considered minimal operations that never confer origin under the rules, regardless of the product-specific rule.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The general normal (MFN) rate of 20% applies to battery chargers, as a lower 15% rate is reserved for electric-vehicle manufacture.",
+        "from": [
+          "N4"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The origin result relies on the exporter's own declaration of operations and final manufacture.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The '+' in the rule is interpreted as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Repacking and relabeling are minimal operations that never confer origin, regardless of the product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "The de minimis tolerance applies only to the tariff-shift part of a rule, not to the value-addition percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "The duty estimate is on Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "India charges duty on the assessable (CIF) value, so actual duty amounts will differ from the estimate.",
+      "source_id": "TOOL:duty:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture; the general 20% rate is used.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "Factory registration is a prerequisite for the certificate of origin; factories in free zones are likely not eligible.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    }
+  ]
+}

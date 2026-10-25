@@ -1,0 +1,212 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "origin_result.basis: Adds an unsupported definition of CTSH as \"change in tariff heading\" without qualifier. Fix: The product-specific rule requires CTSH and at least 45% value addition. No checks have been performed because the necessary data is missing: a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration stating the product price, whether it is FOB or Ex-Works, that the final manufacture occurred in the UAE, and the operations done in the UAE. Keep this field's source_id as it is."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 correction(s) overruled by the KB, after a re-judge | 3 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.32,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]",
+        "procedure[6]",
+        "procedure[7]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "OVERRULED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 2.72,
+      "scope": [
+        "procedure[8]",
+        "procedure[9]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]",
+        "caveats[11]",
+        "caveats[12]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.68,
+      "scope": [
+        "caveats[13]",
+        "caveats[14]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "raw_corrections": [
+    {
+      "field": "origin_result.basis",
+      "problem": "Adds an unsupported definition of CTSH as \"change in tariff heading\" without qualifier.",
+      "fix": "The product-specific rule requires CTSH and at least 45% value addition. No checks have been performed because the necessary data is missing: a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration stating the product price, whether it is FOB or Ex-Works, that the final manufacture occurred in the UAE, and the operations done in the UAE.",
+      "source_id": "TOOL:origin:76101000"
+    }
+  ],
+  "overruled_by_kb": [
+    {
+      "field": "caveats[7].note",
+      "problem": "The note cites CBIC Instruction 28/2022, which is not mentioned in the cited record.",
+      "fix": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system (unconfirmed: seen only in secondary sources).",
+      "source_id": "P-IN-IMPORTER",
+      "record": "P-IN-IMPORTER",
+      "kb_note": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "why": "verbatim"
+    },
+    {
+      "field": "caveats[7].note",
+      "problem": "The note adds source information (CBIC Instruction 28/2022) not present in the cited record.",
+      "fix": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system (unconfirmed: seen only in secondary sources).",
+      "source_id": "P-IN-IMPORTER",
+      "record": "P-IN-IMPORTER",
+      "kb_note": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "why": "verbatim"
+    }
+  ],
+  "rejudged": true,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.32,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "paced_wait_s": 27.1,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 5051,
+            "completion": 1718
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.32,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.25,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "latency_s": 0.02,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '3929e84d-1bd4-4bc4-b94e-ccdaddc0c375'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4988,
+            "completion": 1975
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.25,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.47,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 5237,
+            "completion": 1735
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.47,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.68,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "paced_wait_s": 26.9,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 3009,
+            "completion": 594
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.68,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

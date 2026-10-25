@@ -1,0 +1,77 @@
+# Mansha run: REPORT (NOT_ELIGIBLE)
+
+- **Message:** We melt imported aluminium ingots, cast them and roll them into aluminium wire rods in Abu Dhabi, for export to India. The shipment is worth AED 100,000.
+- **Total time:** 155.14 s | **language:** en
+
+| # | Phase | Status | Time (s) | Model | Result |
+|---|---|---|---|---|---|
+| 1 | Intake | OK | 61.18 | groq/openai/gpt-oss-120b | product='aluminium wire rods'; destination='India'; role=manufacturer; value=100000 AED; language=en |
+| 2 | Coverage check | OK | 0.0 | - | India -> corridor 'india' |
+| 3 | Tools + evidence | OK | 0.0 | - | candidates: TL-IN-76041010, TL-IN-76101000, TL-IN-76151030; bill of materials: given; evidence 24168 chars, 34 IDs |
+| 4 | Researcher (round 1) | OK | 59.85 | openrouter/dots-studio/dots-3-note-preview:free | line 76041010 (high); origin DOES_NOT_QUALIFY; verdict NOT_ELIGIBLE; problems 0; warnings 0 |
+| 5 | QA (round 1) | OK | 1.03 | cerebras/gpt-oss-120b | APPROVED; factuality 1, completeness 1, formatting_safety 1; code warnings judged: 0 (0 real) |
+| 6 | Document Builder | OK | 32.24 | openrouter/dots-studio/dots-3-note-preview:free | LLM prose passed the code checks; prose QA approved; rounds: 1; notes: 4 in (3 mandatory, verbatim) -> 4 in the report |
+| 7 | Prose QA (round 1) | OK | 0.84 | cerebras/gpt-oss-120b | APPROVED; factuality 1, completeness 1 |
+| 8 | Report check | OK | 0.0 | - | 0 problem(s), 0 warning(s) |
+
+## Phase details
+
+### 1. Intake: OK
+
+product='aluminium wire rods' | destination='India' | role=manufacturer | value=100000 AED | language=en
+
+LLM calls:
+- served by groq/openai/gpt-oss-120b (61.17 s)
+
+### 2. Coverage check: OK
+
+India -> corridor 'india'
+
+### 3. Tools + evidence: OK
+
+candidates: TL-IN-76041010, TL-IN-76101000, TL-IN-76151030 | bill of materials: given | evidence 24168 chars, 34 IDs
+
+Tool results: TOOL:tariff_lookup CANDIDATES; TOOL:rule_lookup:76041010 RULE_FOUND; TOOL:origin:76041010 FAILS; TOOL:duty:76041010 ESTIMATED; TOOL:rule_lookup:76101000 RULE_FOUND; TOOL:origin:76101000 FAILS; TOOL:duty:76101000 ESTIMATED; TOOL:rule_lookup:76151030 RULE_FOUND; TOOL:origin:76151030 FAILS; TOOL:duty:76151030 ESTIMATED; TOOL:coo_fee ESTIMATED
+
+### 4. Researcher (round 1): OK
+
+line 76041010 (high) | origin DOES_NOT_QUALIFY | verdict NOT_ELIGIBLE | problems 0 | warnings 0
+
+LLM calls:
+- served by openrouter/dots-studio/dots-3-note-preview:free (59.83 s)
+
+Normalized by code:
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.'
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this comes from secondary sources (CBIC Instruction 28/2022 read through LiveLaw and taxmann), not the official text."
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-AGR-COO-RULES): "India's certificate form uses box 9 for retrospective issuance remarks, while the agreement says box 8; India's form governs entry into India."
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-AGR-RECORDS-VERIFICATION): "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims."
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'The 40% value-added letter is a Factory Registration condition only; it is NOT the CEPA product-specific rule test.'
+- caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India.'
+
+### 5. QA (round 1): OK
+
+APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real)
+
+LLM calls:
+- served by cerebras/gpt-oss-120b (1.03 s)
+
+### 6. Document Builder: OK
+
+LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 4 in (3 mandatory, verbatim) -> 4 in the report
+
+LLM calls:
+- served by openrouter/dots-studio/dots-3-note-preview:free (32.24 s)
+
+### 7. Prose QA (round 1): OK
+
+APPROVED | factuality 1, completeness 1
+
+LLM calls:
+- served by cerebras/gpt-oss-120b (0.84 s)
+
+### 8. Report check: OK
+
+0 problem(s), 0 warning(s)

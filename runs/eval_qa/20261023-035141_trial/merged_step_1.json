@@ -1,0 +1,100 @@
+{
+  "case": "merged_step",
+  "base": "windows",
+  "note": "G8",
+  "result": "CAUGHT",
+  "expected_fields": [
+    "procedure[0]",
+    "procedure"
+  ],
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "procedure[0].step: Includes statement about certificate issuance timeline not supported by the cited record. Fix: The Ministry of Economy and Tourism requires factory registration prior to application, which mandates the factory to be located outside a free zone and hold a MoIAT industrial licence with a MoIAT letter confirming 40% domestic value added. (see P-MOET-FACTORY-REG)"
+  ],
+  "warning_judgements": [],
+  "code_warnings": [],
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "seconds": 2.1,
+  "prompt_chars": 22923,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 4993,
+        "completion": 1729
+      },
+      "finish_reason": "stop",
+      "latency_s": 1.27,
+      "ok": true
+    },
+    {
+      "attempt": 1,
+      "chain": "auto:trial",
+      "max_tokens": 2000,
+      "routed_via": "cerebras/gpt-oss-120b",
+      "usage": {
+        "prompt": 3694,
+        "completion": 963
+      },
+      "finish_reason": "stop",
+      "latency_s": 0.81,
+      "ok": true
+    }
+  ],
+  "qa_note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+  "parts": [
+    {
+      "label": "part 1/2: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.27,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/2: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.81,
+      "scope": [
+        "procedure[6]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ]
+}

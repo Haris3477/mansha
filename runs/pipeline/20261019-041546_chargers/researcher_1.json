@@ -1,0 +1,134 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 135.24,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7415,
+        "completion": 7364
+      },
+      "finish_reason": "stop",
+      "latency_s": 135.24,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Classified battery chargers to TL-IN-85044030 based on description; no HS code given, no conflict, confidence high.",
+      "CEPA status is PREFERENTIAL, so preference is available if origin qualifies.",
+      "Tariff: MFN effective 20%, CEPA rate 0%.",
+      "Origin rule PSR-IN-R126 requires CTH + VA 40%; origin check FAILS on all four checks: final manufacture not in UAE, minimal operations, CTH fail with 88% non-originating input, VA build-down 12% below 40% threshold.",
+      "Saving: origin does not qualify, so duty saving not applicable.",
+      "Procedure: not applicable because origin does not qualify.",
+      "Caveats collected from tool and passage notes."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20% (effective 20%)",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "The product-specific rule requires both a tariff change (CTH) and 40% value addition. The final manufacture did not take place in the UAE. The operations performed (repackaging, relabeling) are minimal operations that never confer origin. One non-originating input is in the same heading 8504, representing 88% of the price, exceeding the 10% de minimis limit. The value addition build-down is 12%, below the 40% threshold. All four checks failed.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The duty estimate is based on the shipment value given; India charges duty on the assessable (CIF) value, so actual amounts will differ.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge and any anti-dumping or safeguard duties still apply.",
+        "source_id": "TOOL:duty:85044030"
+      },
+      {
+        "note": "The result relies on the exporter's own declaration of operations and final manufacture.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "The '+' in the rule is interpreted as 'and' (both tests must pass); the agreement does not define '+'.",
+        "source_id": "TOOL:rule_lookup:85044030"
+      },
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture; the general 20% rate is used here.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "The de minimis tolerance helps only the tariff-shift part of a rule, not the value-addition percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      },
+      {
+        "note": "The non-originating input is 88% of the price, above the 10% de minimis limit.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "The value addition build-down is 12%, below the 40% threshold.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "The operations declared (changes of packaging, simple packaging, affixing labels) are minimal operations that never confer origin.",
+        "source_id": "P-AGR-3.5-MINIMAL"
+      },
+      {
+        "note": "The certificate fee for this shipment value is AED 50.",
+        "source_id": "TOOL:coo_fee"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically; the India-specific service page is still on doit.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "Factory registration is a prerequisite for the certificate; free-zone factories are likely not eligible.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "The agreement does not define 'direct labour cost' and 'direct overhead cost' used in value-addition formulas.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The exporter must keep origin records for at least five years.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "The Indian importer must claim the CEPA rate when filing the bill of entry and keep supporting documents for at least five years.",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is unconfirmed.",
+        "source_id": "P-IN-IMPORTER"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

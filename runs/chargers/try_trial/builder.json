@@ -1,0 +1,106 @@
+{
+  "chain": "auto:trial",
+  "researcher_file": "runs/chargers/researcher_1.json",
+  "calls": [
+    {
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 47.21,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:trial",
+          "max_tokens": 8000,
+          "latency_s": 60.05,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (timeout ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: openrouter/dots-studio/dots-3-note-preview:free key1: timeout. Last error: This operation was aborted', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': 'c8ed1398-092a-4760-92c8-3fff6df5dcbf'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:trial",
+          "max_tokens": 8000,
+          "latency_s": 0.01,
+          "ok": false,
+          "http_status": 429,
+          "cooldown": true,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~60s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1792152577287}, 'execution_id': '81661095-6c10-4d06-9ab0-815ecc77304c'}",
+          "waited_before_retry_s": 61.0
+        },
+        {
+          "attempt": 3,
+          "chain": "auto:trial",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1751,
+            "completion": 3992
+          },
+          "finish_reason": "stop",
+          "latency_s": 47.21,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "The product does not qualify for the preferential CEPA rate under the India-UAE CEPA because it does not meet the rule of origin, specifically because final manufacture did not take place in the UAE and the operations performed were minimal. Consequently, the normal (MFN) rate of 20% applies to imports of this product into India, and no duty saving is available.",
+    "classification": "The product is classified under tariff line 85044030, which covers battery chargers, with a high level of confidence from Mansha. However, you should confirm this tariff code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA agreement, the normal (MFN) rate for battery chargers is 20%, while the CEPA rate is 0%. Since the product does not qualify for the CEPA rate, no saving applies, and the normal (MFN) rate of 20% will be charged.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH), where each non-originating input must be classified in a different 4-digit heading than the product, and value addition (VA) of at least 40%, which is the share of the product's price that does not come from non-originating materials. The product does not meet this rule because final manufacture did not take place in the UAE, the declared operations are minimal operations that never confer origin, there is a non-originating input in the same heading 8504 representing 88.0% of the price (failing CTH), and the value addition is only 12.0% on a FOB basis, which is the price of the goods loaded on board at the UAE port, below the 40% threshold (failing VA).",
+    "notes": [
+      {
+        "text": "If the only operations performed on a product are minimal operations, the product does not originate, even if it meets its product-specific rule.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The general normal (MFN) rate for this tariff line is 20%, as the 15% rate under notification 45/2025 S.No. 323 applies only to EV manufacture.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "A product that only undergoes these operations does not originate, even if it meets its product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "45/2025 S.No. 323 gives 15% only for EV manufacture; general rate 20%.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:85044030",
+      "mandatory": true
+    }
+  ]
+}

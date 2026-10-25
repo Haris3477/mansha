@@ -1,0 +1,75 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 65.03,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1857,
+            "completion": 7055
+          },
+          "finish_reason": "stop",
+          "latency_s": 65.03,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The smartphones do not qualify for the CEPA rate because they do not meet the rule of origin under the India-UAE CEPA. Consequently, the normal (MFN) rate applies to the shipment. The product failed the origin checks mainly because the operations performed in the UAE were classified as minimal operations that do not confer origin.",
+    "classification": "The product is classified under tariff line 85171300 for smartphones, with high confidence in this classification. However, the exporter must confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate (the normal import duty rate charged when no trade-agreement preference is claimed) is 20%, and the CEPA rate (the reduced rate under the trade agreement) is 0%. Since the smartphones do not qualify for the CEPA rate, no saving applies, and the normal rate must be paid.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH), meaning each non-originating input must be classified in a different 4-digit heading than the smartphones, plus value addition (VA) of at least 40%, which is the share of the product's price that does not come from non-originating materials. The product failed all three origin checks: the minimal operations check failed because the work done in the UAE was limited to simple assembly, simple packaging, and affixing marks, which are operations that never confer origin on their own; the CTH check failed because one non-originating input, smartphone assembly kits, was in the same heading and represented 88.89% of the price, exceeding the 10% de minimis threshold, which is the small share of non-originating inputs that the tariff-shift test is allowed to ignore; and the VA check failed because the value addition was only 11.11% on an FOB basis, which is the price of the goods loaded on board at the UAE port, below the required 40%.",
+    "notes": [
+      {
+        "text": "Simple assembly of parts, simple packaging, and affixing marks are minimal operations that never confer origin under the agreement, regardless of the product-specific rule.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85171300",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85171300",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Simple assembly of parts (n), simple packaging (k), and affixing marks (l) are minimal operations that never confer origin, regardless of the product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    }
+  ]
+}

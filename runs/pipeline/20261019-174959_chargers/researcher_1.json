@@ -1,0 +1,87 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 46.06,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7415,
+        "completion": 3975
+      },
+      "finish_reason": "stop",
+      "latency_s": 46.06,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): \"The duty estimate is on the shipment value given; India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Amounts are shown in the shipment's own currency and are not converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented at import.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'Factory Registration (a prerequisite for the certificate of origin) requires the factory to be outside a free zone; a producer in a free zone is likely not eligible. Confirm with the Ministry of Economy and Tourism.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: The only candidate, TL-IN-85044030, describes 'Battery chargers', matching the query exactly; no HS code was given and no conflict was noted, so confidence is high.",
+      "Step 2: TL-IN-85044030 has CEPA status PREFERENTIAL with a 2026 CEPA rate of 0%, so the product is not excluded from preference.",
+      "Step 3: The tariff record gives MFN tariff and effective rate both at 20% and a CEPA rate of 0% under India-UAE CEPA staging TEI.",
+      "Step 4: The applicable origin rule is PSR-IN-R126 'CTH + VA 40%', and the origin check returns FAILS on all four checks (final manufacture, minimal operations, CTH, VA), so the product does not qualify.",
+      "Step 5: Because the origin result is DOES_NOT_QUALIFY, the duty saving is not applicable, regardless of the estimated 10000.00 AED MFN duty.",
+      "Step 6: Procedure is empty because the origin status is DOES_NOT_QUALIFY, not QUALIFIES or NEEDS_MORE_DATA.",
+      "Step 7: Caveats are drawn from the tariff, duty and origin records plus the factory-registration and electronic-certification passages that remain relevant to this trader's situation."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "All four checks failed. (1) final_manufacture_in_uae: final manufacture did not take place in the UAE. (2) minimal_operations: the declared operations (changes of packaging, simple placing in bottles/cans/boxes, affixing or printing marks and labels) are minimal operations under Art. 3.5.1(b)(k)(l) that never confer origin. (3) CTH: 1 non-originating input falls in the same heading 8504 as the finished battery chargers, representing 88.0% of the FOB price, above the 10% de minimis. (4) VA: value-addition build-down is 12.0% against a required threshold of 40% on an FOB basis.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; the general 20% MFN rate is used here.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on battery chargers; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "The operations and final manufacture results are based on the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "The '+' in the rule 'CTH + VA 40%' is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

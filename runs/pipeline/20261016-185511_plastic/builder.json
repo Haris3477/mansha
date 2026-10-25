@@ -1,0 +1,48 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 41.12,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 8000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1597,
+            "completion": 3827
+          },
+          "finish_reason": "stop",
+          "latency_s": 41.12,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "problems_left": [],
+  "prose": {
+    "summary": "This tariff line is excluded from India's CEPA concessions, so the normal (MFN) rate applies whatever the product's origin. The normal (MFN) rate is the standard import duty rate charged when no trade-agreement preference is claimed. No CEPA rate or saving is available for this product.",
+    "classification": "The product is classified under tariff line 39239090, which is described as Other plastic articles for packing under heading 3923. Mansha has high confidence in this classification, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this tariff line is 15%, and the CEPA rate is excluded. The CEPA rate is the reduced rate under the trade agreement, but no CEPA rate is available for this line. No saving applies because the tariff line is excluded from CEPA preference.",
+    "origin": "The rule of origin does not apply to this tariff line because it is excluded from CEPA preference. As a result, the product's origin is not checked, and the rule of origin does not matter for this line. The normal (MFN) rate applies regardless of where the product was made.",
+    "notes": [
+      {
+        "text": "This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin.",
+      "source_id": "TL-IN-39239090",
+      "mandatory": false
+    }
+  ]
+}

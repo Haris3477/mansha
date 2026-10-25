@@ -1,0 +1,45 @@
+{
+  "runs": 7,
+  "passed": 5,
+  "scored": 7,
+  "verdict_correct": 2,
+  "verdict_cases": 4,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 2,
+  "qa_rejections": 2,
+  "qa_overruled": 0,
+  "router_refusals": 2,
+  "paced_wait_s": 0.0,
+  "median_seconds_reports": 144.6,
+  "slips": {
+    "72": 1
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 7,
+      "prompt": 4812,
+      "completion": 2054
+    },
+    "auto:long": {
+      "requests": 8,
+      "prompt": 39838,
+      "completion": 21388
+    },
+    "auto:judge": {
+      "requests": 8,
+      "prompt": 28999,
+      "completion": 9746
+    }
+  },
+  "failed_checks": {
+    "C3": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected NEEDS_MORE_DATA"
+    ],
+    "C4": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected NO_PREFERENCE"
+    ]
+  }
+}

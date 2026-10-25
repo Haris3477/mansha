@@ -1,0 +1,147 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 64.18,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1968,
+            "completion": 6679
+          },
+          "finish_reason": "stop",
+          "latency_s": 64.18,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your hardwood bedroom furniture meets the rule of origin, so the CEPA rate can be claimed under the India-UAE CEPA. Claiming this preference reduces the normal duty on this shipment, giving you an estimated saving of 7500.00 AED. Please follow the claim checklist below to ensure your documentation is complete for Indian customs.",
+    "classification": "The product is classified under tariff line 94036000, which covers other wooden furniture. Mansha's confidence in this classification is high, but you should still confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this tariff line is 20%, and the reduced CEPA rate is 12.5%. Because your product meets the rule of origin, you can claim the CEPA rate of 12.5% to get an estimated saving of 7500.00 AED on this shipment.",
+    "origin": "The rule of origin for this product requires a change in tariff heading (CTH) and at least 40% value addition (VA). CTH means that every non-originating input must be classified in a different 4-digit heading than the final product, while VA is the share of the product's price that does not come from non-originating materials, calculated on an FOB basis, which is the price of the goods loaded on board at the UAE port. Your product meets the rule of origin because the final manufacturing step took place in the UAE and the work goes beyond minimal operations. The CTH check passed because both non-originating inputs are classified outside heading 9403, and the VA check passed with a build-down of 52.0%, which exceeds the 40% threshold.",
+    "notes": [
+      {
+        "text": "The CEPA lowers the import duty on this product but does not remove it entirely.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "While the agreement text mentions box 8, India's certificate form requires box 9 to be completed for entry into India.",
+        "from": [
+          "N5"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the product-specific rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Factory declared in a free zone: likely not eligible for the ministry's factory registration; confirm with the ministry.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The CEPA lowers the duty on this line but does not remove it.",
+      "source_id": "TL-IN-94036000",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M8",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "M9",
+      "text": "Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "M10",
+      "text": "Inference: anti-dumping and safeguard duties still apply (no exemption found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "N5",
+      "text": "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "tool_id": "TOOL:origin:76101000",
+  "tariff_line": "76101000",
+  "status": "MEETS",
+  "rule_id": "PSR-IN-R118",
+  "rule_text": "CTSH + VA 45%",
+  "checks": [
+    {
+      "check": "final_manufacture_in_uae",
+      "result": "PASS",
+      "source_id": "P-AGR-3.2-ORIGIN",
+      "basis": "Declared: final manufacture took place in the UAE."
+    },
+    {
+      "check": "minimal_operations",
+      "result": "PASS",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "basis": "Declared manufacturing goes beyond the minimal operations of Art. 3.5.1."
+    },
+    {
+      "check": "CTSH",
+      "source_id": null,
+      "result": "PASS",
+      "basis": "All 3 non-originating input(s) are classified outside subheading 761010.",
+      "alternative": 0
+    },
+    {
+      "check": "VA",
+      "source_id": "P-AGR-3.2.2-VA",
+      "result": "PASS",
+      "basis": "build-down 49.0% against a threshold of 45%, FOB basis.",
+      "values": {
+        "build_down_pct": 49.0,
+        "build_up_pct": null,
+        "threshold_pct": 45
+      },
+      "alternative": 0
+    }
+  ],
+  "totals": {
+    "price_basis": "FOB",
+    "price": 100000.0,
+    "currency": "AED",
+    "inputs_count": 6,
+    "non_originating_inputs_count": 3,
+    "non_originating_total": 51000.0,
+    "originating_total": 5000.0,
+    "non_originating_share_pct": 51.0,
+    "nom_valuation_source_id": "P-AGR-3.1-NOM"
+  },
+  "missing": [],
+  "notes": [
+    "'+' in a rule is read as 'and' (both tests must pass). The text does not define '+'; this is an interpretation and must be labelled as such.",
+    "Operations and final manufacture are the exporter's own declaration."
+  ],
+  "sources": {
+    "R39-G": "https://taxguru.in/wp-content/uploads/2022/05/Customs-Tariff-Determination-of-Origin-of-Goods-under-the-Comprehensive-Economic-Partnership-Agreement-between-India-and-the-United-Arab-Emirates-Rules-2022-Annexure.pdf"
+  }
+}
