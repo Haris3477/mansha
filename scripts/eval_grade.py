@@ -181,8 +181,12 @@ def load_run(folder: str | Path) -> Run:
 # ---------- anchors ----------
 
 GLOBAL_ANCHORS = {  # open problem -> pattern on the report (counted as slips, D1 = A)
-    "72": re.compile(r"Ministry of Foreign Trade (?:provides|offers|runs|operates)[^.\n]{0,40}"
-                     r"Certificate of Origin for India", re.I),
+    # 72: MoFT named as the provider of the 'Certificate of Origin for India' e-service (that page is
+    # MoET's), in either order within one sentence. The service name is case-sensitive: "MoFT issues
+    # the certificate of origin for India" is decision C, not problem 72. Widened 25 Oct: 33 of 63 saved
+    # reports, 0 false alarms, 1 known miss (a claim spread over two sentences, left to reading).
+    "72": re.compile(r"Ministry of Foreign Trade(?:'s)?\b[^.\n]{0,160}?'?Certificate of Origin for India"
+                     r"|Certificate of Origin for India'?[^.\n]{0,60}?\b(?:via|through|on|at) the Ministry of Foreign Trade"),
     "86": re.compile(r"\bCEPA (?:provides|sets|gives|has|specifies) (?:a|the) normal", re.I),
     "93": re.compile(r"exchange rate|(?:in|into) (?:a different|another|a second) currency|"
                      r"\bconvert(?:ed|ing)? (?:the |your )?(?:value|amount|shipment|price)", re.I),
@@ -190,6 +194,11 @@ GLOBAL_ANCHORS = {  # open problem -> pattern on the report (counted as slips, D
                      r"\*Authority: Not in Mansha's sources", re.I | re.M),
     "95": re.compile(r"checklist below|bill of materials[^.\n]{0,60}needed to estimate the (?:duty )?saving", re.I),
     "G12": re.compile(r"\bAIDC\b|Agricultur\w* Infrastructure", re.I),
+    # 96: the box-8/9 KB note turned into an instruction to the exporter (added 25 Oct: 10 of 63 saved
+    # reports, 0 false alarms). The KB's own "India's form say/use box 9" and the descriptive "require
+    # box 9" stay unflagged (reading).
+    "96": re.compile(r"\byou (?:must|should|need to) use box 9\b|(?<!form )(?<!forms )\buse box 9\b|"
+                     r"\bbox 9 (?:to be completed|must be used|should be used)\b", re.I),
 }
 NEEDS_MORE_DATA_ONLY = {"95"}      # "checklist below" is right in an ELIGIBLE report
 CHECKLIST_RE = re.compile(r"^## .*(?:checklist|قائمة)", re.I | re.M)
@@ -248,7 +257,10 @@ CASE_ANCHORS: dict[str, list[tuple[str, str, re.Pattern]]] = {
     "N1": [("an AED amount for the shipment or saving", "not",
             re.compile(r"\d[\d,.]*\s?AED\b|\bAED\s?(?:\d{4,}|\d{1,3},\d{3})"))],  # the fee range "AED 10 to AED 200" is fine
     "N2": [("duty removed wording", "not",
-            re.compile(r"duty[- ]free|\beliminat\w*|\bno (?:customs |import )?duty\b|\bcannot claim\b", re.I))],
+            re.compile(r"duty[- ]free|\beliminat\w*|\bno (?:customs |import )?duty\b|\bcannot claim\b", re.I)),
+           # problem 97 (Haris option ii, 25 Oct): the free-zone doubt must reach the summary, not only a note
+           ("the free-zone caution in the summary", "must",
+            re.compile(r"^## (?:Summary|الملخص)[^\S\n]*\n(?:(?!## )[^\n]*\n)*?(?!## )[^\n]*free[- ]zone", re.I | re.M))],
     "N3": [("a saving from the 15% tariff rate", "not", re.compile(r"(?<![\d,])15,?000(?:\.00)?(?![\d,])"))],
     "N4": [("45% applied as the threshold", "not",
             re.compile(r"against (?:a |the )?(?:threshold of |minimum of )?45\s?%|45\s?% threshold (?:applied|used)", re.I)),

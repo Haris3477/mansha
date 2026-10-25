@@ -155,7 +155,9 @@ CASES: list[EvalCase] = [
         saving_status="ESTIMATED", repeat=True,
         must_say=["duty reduced (20% to 12.5%), not removed",
                   "likely not eligible for factory registration; confirm with the Ministry of Economy "
-                  "and Tourism (problem 57)"],
+                  "and Tourism (problem 57)",
+                  "the summary says the free-zone factory may not be able to register, so the claim is in "
+                  "doubt (problem 97; case anchor)"],
         must_not_say=["duty-free", "eliminates", "no duty", "that the free zone factory cannot claim"]),
     EvalCase(
         "N3", "steel_structures", "new",

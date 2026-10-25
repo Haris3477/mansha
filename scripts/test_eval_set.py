@@ -177,6 +177,30 @@ f = planted(C1, "slip72", lambda d: append(d / "report.md",
 g = grade(BY_ID["C1"], load_run(f))
 check("problem 72 counted", "72" in g.slips)
 check("... and the case still passes", g.passed, str(g.failed))
+# 72 widened (25 Oct): live wordings the old anchor missed, and decision C's wording, which is no slip
+run = load_run(C1)
+for w in ("The Ministry of Foreign Trade issues the Certificate of Origin for India through its e-service.",
+          "The Ministry of Foreign Trade receives applications through the Certificate of Origin for India e-service portal.",
+          "The Ministry of Foreign Trade requires the applicant to log in to the e-services portal and choose the Certificate of Origin for India service.",
+          "The exporter applies for the Certificate of Origin for India via the Ministry of Foreign Trade e-services portal."):
+    run.output = w
+    check(f"72: {w[29:70]}...", "72" in slips(run), str(slips(run)))
+for w in ("The Ministry of Foreign Trade issues the certificate of origin for India.",
+          "Apply via the 'Certificate of Origin for India' e-service: log in to the ministry e-services portal.",
+          "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically."):
+    run.output = w
+    check(f"no 72: {w[:45]}...", "72" not in slips(run), str(slips(run)))
+# 96 (25 Oct): the box note as an instruction is a slip; the KB's own wording is not
+for w in ("Since India's form governs entry into the country, you must use box 9 on your certificate.",
+          "For the retrospective mark, use box 9 on the certificate as per India's form.",
+          "India's certificate form requires box 9 to be completed for entry into India."):
+    run.output = w
+    check(f"96: {w[:45]}...", "96" in slips(run), str(slips(run)))
+for w in ("The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+          "The agreement refers to box 8, but India's origin rules and certificate form use box 9.",
+          "It may be issued retrospectively, marked 'ISSUED RETROSPECTIVELY' in box 9 of India's certificate form."):
+    run.output = w
+    check(f"no 96: {w[:45]}...", "96" not in slips(run), str(slips(run)))
 f = planted(clean["C3"], "slip95", lambda d: append(d / "report.md", "\nSee the checklist below.\n"))
 check("problem 95 counted in NEEDS_MORE_DATA", "95" in grade(BY_ID["C3"], load_run(f)).slips)
 f = planted(C1, "no95", lambda d: append(d / "report.md", "\nFollow the claim checklist below.\n"))
@@ -198,6 +222,18 @@ run.output = "Saving: 8100.00 USD. Certificate fee: AED 10 to AED 200."
 check("N1: USD amounts and the AED fee range are fine", not case_anchor_problems(BY_ID["N1"], run))
 run.output = "The CEPA rate makes these goods duty-free."
 check("N2: duty-free is caught", case_anchor_problems(BY_ID["N2"], run))
+# problem 97 (Haris option ii, 25 Oct): the free-zone caution must be in the summary paragraph
+SUM_OK = ("## Summary\n\nYour furniture meets the rule of origin, but your factory is in a free zone and is likely "
+          "not eligible for factory registration, so confirm with the ministry.\n\n## Product classification\n\nx\n")
+SUM_BAD = ("## Summary\n\nYour furniture meets the rule of origin, so the CEPA rate can be claimed.\n\n"
+           "## Important notes\n\n- Factory declared in a free zone: likely not eligible.\n")
+run.output = SUM_OK
+check("N2: free-zone caution in the summary passes", not case_anchor_problems(BY_ID["N2"], run), str(case_anchor_problems(BY_ID["N2"], run)))
+run.output = SUM_BAD
+check("N2: free zone only in the notes is caught (problem 97)",
+      "must say the free-zone caution in the summary" in case_anchor_problems(BY_ID["N2"], run))
+run.output = "## الملخص\n\nالمصنع في منطقة حرة (free zone)\n"
+check("N2: the Arabic summary heading is read too", not case_anchor_problems(BY_ID["N2"], run))
 run.output = "Value added 43% against a threshold of 40% (45% minus 5 points on an Ex-Works basis)."
 check("N4: the Ex-Works threshold is fine", not case_anchor_problems(BY_ID["N4"], run))
 run.output = "Value added 43% against 45%."
@@ -286,6 +322,16 @@ else:
         got = slips_of(name)
         if got is not None:
             check(f"{name[:15]}: problem {pid} found", pid in got, str(got))
+    # widened 72 and new 96 (25 Oct), one live wording each
+    for name, pid in {"20261023-200806_windows_nodata": "72", "20261024-164944_windows_nodata": "72",
+                      "20261024-035156_windows_nodata": "96", "20261024-153744_windows_nodata": "96"}.items():
+        got = slips_of(name)
+        if got is not None:
+            check(f"{name[:15]}: problem {pid} found (25 Oct anchors)", pid in got, str(got))
+    for name in ("20261024-152756_windows", "20261018-165049_windows_nodata"):
+        got = slips_of(name)
+        if got is not None:
+            check(f"{name[:15]}: no 72/96 (decision C wording / clean steps)", not {"72", "96"} & set(got), str(got))
     after_79 = [p for p in saved.iterdir() if p.name >= "20261024-1741" and (p / "phase_log.json").exists()]
     check("no problem-92 slip after 7.9 was built", all("92" not in slips(load_run(p)) for p in after_79))
 
