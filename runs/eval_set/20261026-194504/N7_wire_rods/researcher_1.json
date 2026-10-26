@@ -1,0 +1,82 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 57.67,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8959,
+        "completion": 5444
+      },
+      "finish_reason": "stop",
+      "latency_s": 57.67,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Please confirm that the HS code 76041010 (aluminium wire rods) is correct for this shipment.'",
+    "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'The value addition is 30.0% on a build-down basis but the rule requires 45%. Can you provide a build-up calculation (originating materials plus direct labour plus direct overhead) or additional data on the origin of the aluminium ingots?'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): \"Duty estimates are on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.\""
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: TL-IN-76041010 'Aluminium wire rods' is the exact description match; no HS code was given so there is no conflict; confidence is high.",
+      "Step 2: TL-IN-76041010 has CEPA status PREFERENTIAL and is not an excluded line; preference is available in principle subject to origin.",
+      "Step 3: MFN tariff and effective rate are both 7.5%; the 2026 CEPA preferential rate is 3.75%, both taken from TL-IN-76041010.",
+      "Step 4: The applicable product-specific rule is PSR-IN-R118 'CTSH + VA 45%'; the origin tool returns FAILS because the VA check fails — build-down 30.0% against a threshold of 45% on an FOB basis.",
+      "Step 5: The duty tool returns ESTIMATED, but because origin is DOES_NOT_QUALIFY, the estimated saving is NOT_APPLICABLE with null amount and currency.",
+      "Step 6: Procedure is empty because the origin status is DOES_NOT_QUALIFY; no steps to claim the CEPA rate can be listed.",
+      "Step 7: Caveats capture the '+' interpretation caveat, the exporter's own declaration caveat, the duty scope limitations (CIF basis, BCD only, other duties still apply), the certificate issuer uncertainty, and the electronic certificate secondary-source caveat."
+    ],
+    "classification": {
+      "tariff_line": "76041010",
+      "description": "Aluminium wire rods",
+      "confidence": "high",
+      "source_id": "TL-IN-76041010"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "7.5%",
+      "preferential_rate": "3.75%",
+      "source_id": "TL-IN-76041010"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in the UAE: passed. Minimal operations test: passed. CTSH test: passed — all 1 non-originating input(s) are classified outside subheading 760410. VA test: failed — build-down 30.0% against a threshold of 45%, FOB basis. Totals: price basis FOB; 2 input(s), of which 1 non-originating; non-originating inputs are 70% of the price.",
+      "source_id": "TOOL:origin:76041010"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76041010"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The '+' in the rule 'CTSH + VA 45%' is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76041010"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:76041010"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

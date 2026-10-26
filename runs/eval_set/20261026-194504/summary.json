@@ -1,0 +1,40 @@
+{
+  "runs": 4,
+  "passed": 3,
+  "scored": 4,
+  "verdict_correct": 4,
+  "verdict_cases": 4,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 0,
+  "qa_rejections": 2,
+  "qa_overruled": 0,
+  "router_refusals": 1,
+  "paced_wait_s": 14.7,
+  "median_seconds_reports": 161.2,
+  "slips": {
+    "72": 1
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 4,
+      "prompt": 2784,
+      "completion": 1319
+    },
+    "auto:long": {
+      "requests": 10,
+      "prompt": 56863,
+      "completion": 52317
+    },
+    "auto:judge": {
+      "requests": 16,
+      "prompt": 61434,
+      "completion": 22283
+    }
+  },
+  "failed_checks": {
+    "N2": [
+      "anchors: must say the free-zone caution in the summary"
+    ]
+  }
+}

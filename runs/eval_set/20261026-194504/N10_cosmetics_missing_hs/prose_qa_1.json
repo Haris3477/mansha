@@ -1,0 +1,44 @@
+{
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1
+  },
+  "corrections": [],
+  "note": "APPROVED | factuality 1, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 2.08,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "paced_wait_s": 14.7,
+          "latency_s": 0.02,
+          "ok": false,
+          "http_status": 429,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '59ab7ed8-eb3b-4ced-96ad-ab8b909ab263'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2208,
+            "completion": 1445
+          },
+          "finish_reason": "stop",
+          "latency_s": 2.08,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}
