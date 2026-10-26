@@ -7,6 +7,7 @@ with one failure planted at a time. The global anchors are also replayed over th
 live runs in runs/pipeline/ (git-ignored; skipped when absent).
 """
 
+import calendar
 import copy
 import json
 import re
@@ -312,6 +313,9 @@ CREATE TABLE models (id INTEGER, platform TEXT, model_id TEXT, rpd_limit INTEGER
 CREATE TABLE model_overrides (platform TEXT, model_id TEXT, overrides_json TEXT);
 CREATE TABLE rate_limit_usage (platform TEXT, model_id TEXT, kind TEXT, created_at_ms INTEGER);
 CREATE TABLE rate_limit_cooldowns (platform TEXT, model_id TEXT, key_id INTEGER, expires_at_ms INTEGER, source TEXT);
+CREATE TABLE requests (id INTEGER PRIMARY KEY, platform TEXT, model_id TEXT, status TEXT, created_at TEXT);
+CREATE TABLE request_attempts (id INTEGER PRIMARY KEY, request_id INTEGER, ordinal INTEGER, platform TEXT,
+                               model_id TEXT, outcome TEXT);
 INSERT INTO profiles VALUES (3, 'long'), (4, 'qa'), (6, 'judge');
 INSERT INTO models VALUES (1, 'google', 'g', 20, 1), (2, 'openrouter', 'd', 50, 1), (3, 'groq', 'q', 1000, 1),
                           (4, 'cerebras', 'j', 2400, 1), (5, 'google', 'off', 20, 0);
@@ -350,6 +354,72 @@ g2 = next(m for m in eval_set.chain_capacity(db, now)["long"] if m["model"] == "
 check("a provider's daily-quota bench holds its other models too", g2["benched_min"] == 900.0, str(g2))
 ok, lines = eval_set.budget_check(core[:3], 1, cap)
 check("3 report cases no longer fit once Google is benched", not ok and "BENCHED" in "\n".join(lines), "\n".join(lines))
+
+# Fix round 1b (26 Oct 21:59): OpenRouter counts every attempt per UTC day; upstream-error warning (B)
+def attempts(con, platform, model, outcomes, created_ms):
+    for o in outcomes:
+        rid = con.execute("INSERT INTO requests (platform, model_id, status, created_at) VALUES (?, ?, ?, ?)",
+                          (platform, model, "success" if o == "ok" else "error",
+                           eval_set.utc_text(created_ms))).lastrowid
+        con.execute("INSERT INTO request_attempts (request_id, ordinal, platform, model_id, outcome) "
+                    "VALUES (?, 0, ?, ?, ?)", (rid, platform, model, o))
+
+
+now2 = calendar.timegm(time.strptime("2026-10-26 22:00:00", "%Y-%m-%d %H:%M:%S")) * 1000   # UTC
+check("utc_text is UTC (the format of requests.created_at)", eval_set.utc_text(now2) == "2026-10-26 22:00:00",
+      eval_set.utc_text(now2))
+db2 = TMP / "router2.db"
+con = sqlite3.connect(db2)
+con.executescript("""
+CREATE TABLE profiles (id INTEGER, name TEXT);
+CREATE TABLE profile_models (profile_id INTEGER, model_db_id INTEGER, enabled INTEGER);
+CREATE TABLE models (id INTEGER, platform TEXT, model_id TEXT, rpd_limit INTEGER, enabled INTEGER);
+CREATE TABLE model_overrides (platform TEXT, model_id TEXT, overrides_json TEXT);
+CREATE TABLE rate_limit_usage (platform TEXT, model_id TEXT, kind TEXT, created_at_ms INTEGER);
+CREATE TABLE rate_limit_cooldowns (platform TEXT, model_id TEXT, key_id INTEGER, expires_at_ms INTEGER, source TEXT);
+CREATE TABLE requests (id INTEGER PRIMARY KEY, platform TEXT, model_id TEXT, status TEXT, created_at TEXT);
+CREATE TABLE request_attempts (id INTEGER PRIMARY KEY, request_id INTEGER, ordinal INTEGER, platform TEXT,
+                               model_id TEXT, outcome TEXT);
+INSERT INTO profiles VALUES (3, 'long'), (4, 'qa'), (6, 'judge');
+INSERT INTO models VALUES (1, 'openrouter', 'dots:free', 50, 1), (2, 'google', 'g36', 20, 1),
+                          (3, 'groq', 'q', 1000, 1), (4, 'cerebras', 'j', 2400, 1), (5, 'openrouter', 'paid', 50, 1);
+INSERT INTO profile_models VALUES (3, 1, 1), (3, 2, 1), (3, 5, 1), (4, 3, 1), (6, 4, 1);
+""")
+H = 3600e3
+con.executemany("INSERT INTO rate_limit_usage VALUES ('openrouter', 'dots:free', 'request', ?)", [(now2 - 5 * H,)] * 47)
+# tonight, rebuilt: 47 ok + 1 error + 2 timeout + 1 daily_quota_exhausted since 00:00 UTC (04:00 Dubai)
+attempts(con, "openrouter", "dots:free", ["ok"] * 47 + ["error"] + ["timeout"] * 2 + ["daily_quota_exhausted"], now2 - 5 * H)
+attempts(con, "openrouter", "dots:free", ["ok"] * 9, now2 - 23 * H)     # 25 Oct 23:00 UTC: yesterday at OpenRouter
+attempts(con, "openrouter", "paid", ["ok"] * 30 + ["error"] * 10, now2 - 5 * H)   # not :free: old rule
+attempts(con, "google", "g36", ["upstream_error"] * 4, now2 - 10 * 60e3)  # 503 "high demand", 10 min ago
+attempts(con, "groq", "q", ["ok"] * 3 + ["upstream_error"], now2 - 10 * 60e3)  # 1 of 4: no warning
+attempts(con, "cerebras", "j", ["upstream_error"] * 4, now2 - 2 * H)     # two hours ago: no warning
+con.commit(); con.close()
+cap2 = eval_set.chain_capacity(db2, now2)
+m2 = {m["model"]: m for ch in cap2.values() for m in ch}
+d = m2["openrouter/dots:free"]
+check("tonight rebuilt: Dots3 used 51 of 50 (all outcomes since 00:00 UTC), 0 left",
+      d["used"] == 51 and d["day_attempts"] == 51 and d["router_used"] == 47 and eval_set.left([d]) == 0, str(d))
+check("attempts before 00:00 UTC are not counted (yesterday at OpenRouter)", d["day_attempts"] == 51)
+check("printout shows both counts", "51/50 (OpenRouter UTC day: 51 attempts; router 24 h: 47)" in eval_set.model_text(d),
+      eval_set.model_text(d))
+check("not :free: attempts ignored, the router's count as before",
+      m2["openrouter/paid"]["day_attempts"] is None and m2["openrouter/paid"]["used"] == 0)
+con = sqlite3.connect(db2)
+con.executemany("INSERT INTO rate_limit_usage VALUES ('openrouter', 'dots:free', 'request', ?)", [(now2 - 23 * H,)] * 9)
+con.commit(); con.close()
+d = next(m for m in eval_set.chain_capacity(db2, now2)["long"] if m["model"] == "openrouter/dots:free")
+check("used = the larger of the two counts (router 56 in 24 h > 51 today)", d["used"] == 56 and d["router_used"] == 56, str(d))
+ok2, lines2 = eval_set.budget_check([BY_ID["N5"]], 1, cap2)
+text2 = "\n".join(lines2)
+check("B: 4 of 4 upstream errors in the last hour -> one warning", text2.count("WARNING") == 1
+      and "WARNING google/g36: upstream error on 4 of 4 attempts in the last hour" in text2, text2)
+check("B: 1 of 4, or errors two hours ago -> no warning", "groq/q" not in text2.split("WARNING", 1)[1]
+      and "cerebras/j: upstream" not in text2, text2)
+cap_ok = {ch: [dict(m, upstream_errors=(0, 0)) for m in ms] for ch, ms in cap2.items()}
+check("B: the warning never changes ok", ok2 == eval_set.budget_check([BY_ID["N5"]], 1, cap_ok)[0])
+check("B: no error text from the provider is printed", "high demand" not in text2)
+
 eval_set.ROUTER_DB = db
 check("a live run that may not fit refuses to start (exit 2)", eval_set.main(["--group", "core"]) == 2)
 eval_set.ROUTER_DB = TMP / "missing.db"

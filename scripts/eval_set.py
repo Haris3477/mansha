@@ -9,7 +9,7 @@
 The dry run runs the plain-Python tools on each case's expected Intake JSON and compares them
 with the answer key (scripts/eval_cases.py); a live run refuses to start unless it is clean.
 The budget guard (E1) reads the router's own sliding-24 h request counts (rate_limit_usage,
-read-only) and stops if the worst case doesn't fit, unless --force (D3 = A). Each case then
+read-only; for OpenRouter :free models also every attempt since 00:00 UTC, request_attempts) and stops if the worst case doesn't fit, unless --force (D3 = A). Each case then
 runs through the real pipeline in this one process (so the judge pacing covers the gaps
 between cases) and is graded in code (scripts/eval_grade.py). Results go to
 runs/eval_set/<time>/: one folder per run, summary.md / summary.json, and reading.md (the
@@ -73,11 +73,30 @@ CHAINS = ("long", "qa", "judge")
 WORST = {"REPORT": {"long": 5, "qa": 2, "judge": 14}, "STOP": {"long": 0, "qa": 2, "judge": 0}}
 TYPICAL = {"REPORT": {"long": 3, "qa": 1, "judge": 4}, "STOP": {"long": 0, "qa": 1, "judge": 0}}
 DAY_MS = 24 * 3600 * 1000
+# Fix round 1b (26 Oct 21:59, N5 LLM_ERROR): OpenRouter counts EVERY request that reaches it (ok, error,
+# timeout) per UTC day (resets 00:00 UTC = 04:00 Dubai), while rate_limit_usage holds the router's
+# successes over a sliding 24 h. The guard showed Dots3 47/50 "3 left" when OpenRouter's count was 50.
+# For OpenRouter :free models, used = max(router's sliding count, attempts since 00:00 UTC), read from
+# request_attempts joined to requests (requests.created_at is SQLite datetime('now'), UTC text). Every
+# outcome counts; a route the router skipped for a cooldown has no row, so it is never counted.
+WARN_WINDOW_MS = 3600 * 1000
+WARN_MIN_ATTEMPTS = 2
+
+
+def utc_text(ms: float) -> str:
+    """Epoch ms -> 'YYYY-MM-DD HH:MM:SS' in UTC, the format of requests.created_at."""
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(ms / 1000))
+
+
+def counts_attempts(platform: str, model_id: str) -> bool:
+    return platform == "openrouter" and model_id.endswith(":free")
 
 
 def chain_capacity(db: Path | None = None, now_ms: float | None = None) -> dict[str, list[dict]]:
     """Each chain's enabled models with their daily cap and the router's own sliding-24 h count
-    (rate_limit_usage, the table the router enforces from). Read-only; selected columns only."""
+    (rate_limit_usage, the table the router enforces from); for OpenRouter :free models, also every
+    attempt since 00:00 UTC (OpenRouter's own daily count), and each model's upstream errors in the
+    last hour (a warning only). Read-only; selected columns only."""
     db, now_ms = db or ROUTER_DB, now_ms or time.time() * 1000
     if not Path(db).exists():
         raise sqlite3.OperationalError(f"no such file: {db}")
@@ -97,6 +116,14 @@ def chain_capacity(db: Path | None = None, now_ms: float | None = None) -> dict[
         benched = {(pl, mid): (exp, src) for pl, mid, exp, src in con.execute(
             "SELECT platform, model_id, MAX(expires_at_ms), source FROM rate_limit_cooldowns "
             "WHERE expires_at_ms > ? GROUP BY platform, model_id", (now_ms,))}
+        day_start = utc_text(now_ms)[:10] + " 00:00:00"
+        day_attempts = {(pl, mid): n for pl, mid, n in con.execute(
+            "SELECT a.platform, a.model_id, COUNT(*) FROM request_attempts a JOIN requests r "
+            "ON r.id = a.request_id WHERE r.created_at >= ? GROUP BY a.platform, a.model_id", (day_start,))}
+        recent = {(pl, mid): (n, bad) for pl, mid, n, bad in con.execute(
+            "SELECT a.platform, a.model_id, COUNT(*), SUM(a.outcome = 'upstream_error') FROM request_attempts a "
+            "JOIN requests r ON r.id = a.request_id WHERE r.created_at >= ? GROUP BY a.platform, a.model_id",
+            (utc_text(now_ms - WARN_WINDOW_MS),))}
     finally:
         con.close()
     out: dict[str, list[dict]] = {c: [] for c in CHAINS}
@@ -108,9 +135,15 @@ def chain_capacity(db: Path | None = None, now_ms: float | None = None) -> dict[
         pool = [e for (p2, _), (e, s2) in benched.items() if p2 == pl and s2 == "authoritative"]
         if pool and (exp is None or max(pool) > exp):
             exp, src = max(pool), "authoritative, provider-wide"
-        out[chain].append({"model": f"{pl}/{mid}", "rpd": rpd, "used": used.get((pl, mid), 0),
+        router_used = used.get((pl, mid), 0)
+        attempts = day_attempts.get((pl, mid), 0) if counts_attempts(pl, mid) else None
+        n, bad = recent.get((pl, mid), (0, 0))
+        out[chain].append({"model": f"{pl}/{mid}", "rpd": rpd,
+                           "used": max(router_used, attempts or 0), "router_used": router_used,
+                           "day_attempts": attempts,
                            "benched_min": round((exp - now_ms) / 60000, 1) if exp else None,
-                           "bench_source": src})
+                           "bench_source": src,
+                           "upstream_errors": (int(bad or 0), n)})
     return out
 
 
@@ -133,7 +166,23 @@ def left(models: list[dict]) -> float:
 def model_text(m: dict) -> str:
     cap = m["rpd"] if m["rpd"] is not None else "no cap"
     bench = f" BENCHED {m['benched_min']:g} min ({m['bench_source']})" if m.get("benched_min") else ""
-    return f"{m['model']} {m['used']}/{cap}{bench}"
+    day = (f" (OpenRouter UTC day: {m['day_attempts']} attempts; router 24 h: {m['router_used']})"
+           if m.get("day_attempts") is not None else "")
+    return f"{m['model']} {m['used']}/{cap}{day}{bench}"
+
+
+def upstream_warnings(cap: dict[str, list[dict]]) -> list[str]:
+    """Models with upstream errors on at least half of >= WARN_MIN_ATTEMPTS attempts in the last hour.
+    A warning only (Haris, 26 Oct): a provider's 503 burst often ends in minutes."""
+    seen, lines = set(), []
+    for ch in CHAINS:
+        for m in cap[ch]:
+            bad, n = m.get("upstream_errors", (0, 0))
+            if m["model"] not in seen and n >= WARN_MIN_ATTEMPTS and 2 * bad >= n:
+                seen.add(m["model"])
+                lines.append(f"  WARNING {m['model']}: upstream error on {bad} of {n} attempts in the last "
+                             "hour (not counted as capacity loss; you decide)")
+    return lines
 
 
 def budget_check(cases: list[EvalCase], repeat: int, cap: dict[str, list[dict]]) -> tuple[bool, list[str]]:
@@ -151,7 +200,7 @@ def budget_check(cases: list[EvalCase], repeat: int, cap: dict[str, list[dict]])
     if both > left(list(shared.values())):
         ok = False
         lines.append(f"  long+qa share models: need up to {both}, left {left(list(shared.values())):g}  SHORT")
-    return ok, lines
+    return ok, lines + upstream_warnings(cap)
 
 
 # ---------- live run ----------
@@ -325,7 +374,8 @@ def main(argv=None) -> int:
         print("Not started: the tools no longer match the answer key (see above).")
         return 1
 
-    print("\nBudget guard (router's sliding 24 h counts):")
+    print("\nBudget guard (router's sliding 24 h counts; OpenRouter :free = attempts since 00:00 UTC, "
+          "04:00 Dubai):")
     try:
         ok, lines = budget_check(cases, a.repeat, chain_capacity())
     except sqlite3.Error as exc:
