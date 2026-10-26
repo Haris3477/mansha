@@ -1,0 +1,127 @@
+{
+  "served_by": "google/gemini-3.6-flash",
+  "latency_s": 209.97,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "latency_s": 76.56,
+      "ok": false,
+      "http_status": 502,
+      "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'Provider error (Dots3 Note Preview (free)): OpenRouter returned 200 with a non-JSON body — the endpoint is not OpenAI-compatible. Check the base URL (for Ollama use [redacted-url] for llama.cpp/vLLM/LM Studio the /v1 path).', 'type': 'provider_error'}, 'execution_id': '5f0ef892-f41c-4763-936a-0c2a9f2c286b'}",
+      "waited_before_retry_s": 30
+    },
+    {
+      "attempt": 2,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "google/gemini-3.6-flash",
+      "usage": {
+        "prompt": 7507,
+        "completion": 1318
+      },
+      "finish_reason": "stop",
+      "latency_s": 209.97,
+      "ok": true
+    }
+  ],
+  "problems": [
+    "follow_up_questions must say what the user must provide (see the `missing` items in TOOL:origin:33049990)"
+  ],
+  "warnings": [],
+  "normalized_by_code": [
+    "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Please provide the 6-digit HS code for Emollients (BOM row 2) so that compliance with the CTSH rule can be determined.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: Classification - Chosen tariff line 33049990 ('Other beauty or make-up preparations') based on description match to cosmetic skin creams.",
+      "Step 2: Preference - Tariff line 33049990 is listed as PREFERENTIAL under the India-UAE CEPA with a 0% rate in 2026.",
+      "Step 3: Tariff - The effective MFN rate is 20% and the preferential CEPA rate is 0%.",
+      "Step 4: Origin - The rule requires CTSH + VA 40%; evaluation needs more data due to a missing 6-digit HS code for Emollients.",
+      "Step 5: Saving - Estimated duty saving is 12000.00 AED based on the provided shipment value of 60000.00 AED.",
+      "Step 6: Procedure - Outlined the required steps for factory registration, certificate application, issuance, and record-keeping.",
+      "Step 7: Caveats - Included notes on CIF duty calculation basis, BCD scope, rule interpretation, and authority details."
+    ],
+    "classification": {
+      "tariff_line": "33049990",
+      "description": "Other beauty or make-up preparations",
+      "confidence": "high",
+      "source_id": "TL-IN-33049990"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-33049990"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 40%",
+      "source_id": "PSR-IN-R046"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": "The product requires a change in tariff sub-heading (CTSH) and a regional value content of at least 40% (VA 40%). A 6-digit HS code is needed for non-originating Emollients (BOM row 2) to complete the verification.",
+      "source_id": "TOOL:origin:33049990"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "12000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:33049990"
+    },
+    "procedure": [
+      {
+        "step": "The factory must be registered outside a free zone through the Ministry of Economy and Tourism's Factory Registration service before applying for a certificate of origin.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "Apply for the certificate using the 'Certificate of Origin for India' e-service provided by the Ministry of Foreign Trade, uploading factory registration proof and commercial invoices.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Pay the certificate of origin fee of AED 50 charged by the Ministry of Foreign Trade for shipments with an invoice value up to AED 100,000.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the certificate of origin prior to, at, or within five working days of exportation, valid for 12 months for a single import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The Indian importer claims preferential tariff treatment upon filing the bill of entry and must maintain supporting origin information; electronic certificates are reportedly accepted via e-Sanchit (unconfirmed).",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter must maintain all origin documents and cost breakdowns for at least five years from the end of the year of certificate issuance.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The '+' symbol in the product-specific rule is interpreted by Mansha as 'and', requiring both CTSH and VA 40% tests to pass.",
+        "source_id": "TOOL:origin:33049990"
+      },
+      {
+        "note": "Duty savings are estimated based on the shipment value provided; India charges customs duty on the CIF assessable value at import, and CEPA rate reductions apply to Basic Customs Duty (BCD) only.",
+        "source_id": "TOOL:duty:33049990"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which requires the factory to be located outside a free zone.",
+        "source_id": "P-MOET-FACTORY-REG"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}

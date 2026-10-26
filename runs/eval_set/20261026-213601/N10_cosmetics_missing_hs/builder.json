@@ -1,0 +1,69 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 29.76,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1723,
+            "completion": 2857
+          },
+          "finish_reason": "stop",
+          "latency_s": 29.76,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet because the 6-digit HS code for the non-originating input 'Emollients' is missing. If the product qualifies, the estimated saving would be 12000.00 AED.",
+    "classification": "The product is classified under tariff line 33049990, Other beauty or make-up preparations, with high confidence. However, the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal MFN rate is 20% and the CEPA rate is 0%. If the product qualifies, the estimated saving would be 12000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff sub-heading (CTSH), meaning each non-originating input must be classified in a different 6-digit sub-heading than the product, and a regional value content of at least 40% (VA), which is the share of the product's price that does not come from non-originating materials. The product cannot be checked yet because the 6-digit HS code for the non-originating input 'Emollients' is missing, so the CTSH requirement cannot be verified.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' symbol in the product-specific rule is interpreted by Mansha as 'and', requiring both CTSH and VA 40% tests to pass.",
+      "source_id": "TOOL:origin:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Duty savings are estimated based on the shipment value provided; India charges customs duty on the CIF assessable value at import, and CEPA rate reductions apply to Basic Customs Duty (BCD) only.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which requires the factory to be located outside a free zone.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}
