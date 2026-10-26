@@ -1,0 +1,100 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 33.47,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2020,
+            "completion": 2248
+          },
+          "finish_reason": "stop",
+          "latency_s": 33.47,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 33.53,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2483,
+            "completion": 2800
+          },
+          "finish_reason": "stop",
+          "latency_s": 33.53,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "REJECTED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product does not qualify for the CEPA rate, so the normal (MFN) rate of 20% applies. This is because the product failed the final manufacture, minimal operations, tariff shift, and value addition checks. No saving is available.",
+    "classification": "The product is classified under tariff line 85044030 for battery chargers, and Mansha's confidence in this classification is high. However, the code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "The India-UAE CEPA provides a normal (MFN) rate of 20% and a CEPA rate of 0% for this tariff line. Because the product does not qualify, no saving applies and the normal rate will be charged.",
+    "origin": "Under the rule of origin, the product must undergo a change in tariff heading—meaning each non‑originating input must be classified in a different 4‑digit heading—and achieve at least 40% value addition. The final manufacture check failed because the last manufacturing step did not occur in the UAE, and the minimal operations check failed because only simple packaging and labeling were performed. Additionally, the tariff‑shift test failed as one non‑originating input in the same heading represents 88% of the price, above the 10% de minimis, and the value addition is only 12%, below the 40% threshold.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    }
+  ]
+}

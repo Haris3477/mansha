@@ -1,0 +1,87 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 45.52,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7556,
+        "completion": 3760
+      },
+      "finish_reason": "stop",
+      "latency_s": 45.52,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): \"Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85044030): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.\""
+  ],
+  "output": {
+    "reasoning": [
+      "Chose TL-IN-85044030 (Battery chargers) as the best description match; no HS code was given so there is no conflict; confidence high.",
+      "CEPA status is PREFERENTIAL, so the product is not excluded from preference and the MFN rate does not apply automatically.",
+      "MFN rate is 20% (tariff and effective both 20%) and the 2026 CEPA rate is 0%, per TL-IN-85044030.",
+      "Origin rule is PSR-IN-R126 (CTH + VA 40%); the origin check FAILS on all four checks: final manufacture in UAE, minimal operations, CTH (1 non-originating input, 88.0% of price, above 10% de minimis) and VA (build-down 12.0% vs 40% threshold).",
+      "Because origin status is DOES_NOT_QUALIFY, the estimated saving is NOT_APPLICABLE.",
+      "Procedure is empty because the product does not qualify for CEPA preference.",
+      "Collected caveats from the tariff line, origin tool, duty tool and agreement passages; no regulatory gaps were detected."
+    ],
+    "classification": {
+      "tariff_line": "85044030",
+      "description": "Battery chargers",
+      "confidence": "high",
+      "source_id": "TL-IN-85044030"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85044030"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in UAE: FAIL — declared final manufacture did not take place in the UAE (Art. 3.2.3). Minimal operations: FAIL — declared operations are all minimal operations under Art. 3.5.1, which never confer origin: (b) changes of packaging and breaking up and assembly of packages; (k) simple placing in bottles, cans, flasks, bags, cases, boxes, fixing on cards or boards and all other simple packaging operations; (l) affixing or printing marks, labels, logos and other like distinguishing signs on products or their packaging. CTH: FAIL — 1 non-originating input(s) are in the same heading 8504 as the product (Battery chargers (finished)); together 88.0% of the price, above the 10% de minimis. VA: FAIL — build-down 12.0% against a threshold of 40%, FOB basis. Totals: price basis FOB; 2 input(s), of which 1 non-originating; non-originating inputs are 88% of the price.",
+      "source_id": "TOOL:origin:85044030"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85044030"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+        "source_id": "TL-IN-85044030"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85044030"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85044030"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

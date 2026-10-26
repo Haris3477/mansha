@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "summary: Includes the unsupported advice \"exporter should follow the checklist below\" which is not in FACTS or NOTES. Fix: The product does not qualify for the CEPA rate, so the normal (MFN) rate of 20% applies. This is because the product failed the final manufacture, minimal operations, tariff shift, and value addition checks. No saving is available. (see FACTS)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 2.08,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2357,
+            "completion": 1366
+          },
+          "finish_reason": "stop",
+          "latency_s": 2.08,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}
