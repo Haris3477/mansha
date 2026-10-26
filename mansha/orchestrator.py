@@ -44,7 +44,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from mansha.document_builder import BuilderResult, run_document_builder
+from mansha.document_builder import CHECKLIST_VERDICTS, BuilderResult, run_document_builder
 from mansha.evidence import EvidencePack, build_evidence
 from mansha.intake import IntakeResult, detect_language, run_intake
 from mansha.kb import CORRIDORS, corridor_for
@@ -64,6 +64,7 @@ from mansha.qa import (
 )
 from mansha.report_check import check_report
 from mansha.researcher import ResearcherResult, run_researcher
+from mansha.tools.origin_calculator import TOOL_PREFIX as ORIGIN_TOOL_PREFIX
 
 log = logging.getLogger("mansha.orchestrator")
 
@@ -546,8 +547,13 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
     # 5. Document Builder (always returns a report; code-only fallback on failure).
     # Step 7.6: each round's prose is checked for meaning by the prose QA (one call, never split).
     t = _Timer()
+    # Problem 97: the chosen line's deciding conditions come from the origin tool itself (the
+    # Researcher may drop its note), so the Builder's code can put a caution in the summary.
+    line = str((research.data.get("classification") or {}).get("tariff_line") or "")
+    conditions = list((pack.tool_results.get(f"{ORIGIN_TOOL_PREFIX}:{line}") or {}).get("conditions") or [])
     br: BuilderResult = run_document_builder(research.data, intake, pack.id_sources,
-                                             corridor=corridor, llm=llm, review=prose_qa)
+                                             corridor=corridor, llm=llm, review=prose_qa,
+                                             conditions=conditions)
     calls = [call_record(c) for c in br.llm_calls]
     if br.failed_attempts:
         calls.append({"ok": False, "served_by": None, "error": "LLM call failed",
@@ -561,7 +567,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         "review_status": br.review_status, "problems_left": br.problems,
         "rounds": [{"round": r["round"], "code_problems": r["code_problems"],
                     "prose_qa": r["review"].status if r.get("review") else None} for r in br.rounds],
-        "prose": br.prose, "notes": br.notes})
+        "prose": br.prose, "notes": br.notes, "conditions": conditions})
     review_text = {QA_APPROVED: "prose QA approved", QA_ERROR: "prose NOT reviewed by QA",
                    "SKIPPED": "prose QA not run"}.get(br.review_status, "")
     if br.used_fallback:
@@ -573,7 +579,9 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
     phases.append(Phase(
         "Document Builder", "FALLBACK" if br.used_fallback else "OK", max(builder_seconds, 0.0),
         f"{what} | rounds: {len(br.rounds)} | notes: {len(br.notes)} in ({n_mand} mandatory, verbatim) -> "
-        f"{n_mand + len(br.prose.get('notes', []))} in the report",
+        f"{n_mand + len(br.prose.get('notes', []))} in the report"
+        + (f" | summary cautions (code): {', '.join(conditions)}"
+           if conditions and research.data.get("verdict") in CHECKLIST_VERDICTS else ""),
         calls=calls, problems=br.problems,
         details={**({"corrections_sent": round2["corrections_sent"]}
                     if round2 and round2["corrections_sent"] else {}),

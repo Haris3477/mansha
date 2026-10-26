@@ -12,8 +12,11 @@ import sys
 from pathlib import Path
 
 from mansha.document_builder import (
+    CONDITION_TEXT,
     ESTIMATE_NOTE_START,
     EVIDENCE_ID_RE,
+    FACTORY_REG_ID,
+    FREE_ZONE_STEP_TEXT,
     MAX_NOTES,
     MIN_LLM_NOTES,
     SAVING_HOW_RE,
@@ -21,6 +24,7 @@ from mansha.document_builder import (
     build_messages,
     check_prose,
     cite,
+    condition_sentences,
     fallback_prose,
     is_mandatory,
     max_llm_notes,
@@ -32,6 +36,7 @@ from mansha.evidence import build_evidence
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.prose_qa import ProseQAOutcome
+from mansha.report_check import check_report
 from mansha.tools.duty_estimate import duty_estimate
 from scripts.pipeline_cases import DEV_INTAKES as CASES
 
@@ -327,6 +332,41 @@ ar_intake = dict(intake, language="ar")
 md_ar = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
 check("Arabic headings and disclaimer", "## الملخص" in md_ar and "ليس قرارًا رسميًا" in md_ar)
 check("Arabic checklist label is 'الجهة المختصة'", "*الجهة المختصة: " in md_ar)
+
+print("\n3a. Deciding conditions: code cautions in the summary (problem 97, fix round 26 Oct)")
+
+
+def summary_of(md: str) -> str:
+    return md.split("## Summary\n\n", 1)[1].split("\n## ", 1)[0] if "## Summary\n\n" in md else \
+        md.split("## الملخص\n\n", 1)[1].split("\n## ", 1)[0]
+
+
+fz_research = copy.deepcopy(research)
+fz_research["procedure"] = [dict(fz_research["procedure"][0], source_id=FACTORY_REG_ID)] + fz_research["procedure"][1:]
+md_fz = render_report(fz_research, intake, good, notes, pack.id_sources, kb_sources, ["FREE_ZONE"])
+check("FREE_ZONE: the caution ends the summary, after the LLM's text",
+      summary_of(md_fz).strip() == good["summary"].strip() + " " + CONDITION_TEXT["FREE_ZONE"]["en"])
+check("FREE_ZONE: marked under the factory-registration step",
+      md_fz.count(FREE_ZONE_STEP_TEXT["en"]) == 1
+      and md_fz.index(FREE_ZONE_STEP_TEXT["en"]) < md_fz.index("## Important notes"))
+md_in = render_report(research, intake, good, notes, pack.id_sources, kb_sources, ["INDIAN_INPUTS"])
+check("INDIAN_INPUTS: caution in the summary, no step marker",
+      CONDITION_TEXT["INDIAN_INPUTS"]["en"] in summary_of(md_in) and FREE_ZONE_STEP_TEXT["en"] not in md_in)
+check("no conditions: the report is unchanged",
+      render_report(research, intake, good, notes, pack.id_sources, kb_sources, []) ==
+      render_report(research, intake, good, notes, pack.id_sources, kb_sources))
+md_fz_ar = render_report(fz_research, ar_intake, good, notes, pack.id_sources, kb_sources, ["FREE_ZONE"])
+check("Arabic: the Arabic caution and step marker",
+      CONDITION_TEXT["FREE_ZONE"]["ar"] in summary_of(md_fz_ar) and FREE_ZONE_STEP_TEXT["ar"] in md_fz_ar
+      and CONDITION_TEXT["FREE_ZONE"]["en"] not in md_fz_ar)
+check("no caution when no claim is possible (NOT_ELIGIBLE, NO_PREFERENCE, gap)",
+      all(condition_sentences(["FREE_ZONE", "INDIAN_INPUTS"], v, "en") == []
+          for v in ("NOT_ELIGIBLE", "NO_PREFERENCE", "REGULATORY_GAP_DETECTED")))
+check("NEEDS_MORE_DATA keeps the caution; unknown codes and repeats ignored",
+      condition_sentences(["FREE_ZONE", "FREE_ZONE", "X"], "NEEDS_MORE_DATA", "en")
+      == [CONDITION_TEXT["FREE_ZONE"]["en"]])
+rc_problems, _ = check_report(md_fz, research=fz_research, evidence_text=pack.text, message="")
+check("the cautions pass the report check (no numbers, IDs or code words)", rc_problems == [], rc_problems)
 
 print("\n3b. Small rendering rules (Step 9.5)")
 ch_research, ch_intake, _ = cases["chargers"]

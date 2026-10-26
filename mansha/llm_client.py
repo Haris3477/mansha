@@ -43,10 +43,13 @@ logger = logging.getLogger("mansha.llm")
 # auto:judge (QA Evaluator, Step 7) shares no model with auto:long. Its Groq models allow
 # 8,000 tokens per minute, prompt and answer together, so the answer budget stays small;
 # QA's JSON is short, the rest is room for a reasoning model's thinking (tuned in Step 7.4).
+# P1 (fix round, 26 Oct): judge = Cerebras since 7.7 (30,000 tokens per minute). Ceiling 6000 so a
+# truncated answer is retried with double the room; with default = ceiling = 3000 the retry was cut
+# off at 3000 again and the QA part was NOT reviewed (N3, sitting 4: two attempts, 3000 each).
 CHAIN_LIMITS: dict[str, dict[str, int]] = {
     "auto:qa": {"default": 1000, "ceiling": 1000},
     "auto:long": {"default": 16000, "ceiling": 16000},
-    "auto:judge": {"default": 3000, "ceiling": 3000},
+    "auto:judge": {"default": 3000, "ceiling": 6000},
 }
 
 # The router's own fallback budget is 45 s; leave headroom on top of it.

@@ -101,6 +101,16 @@ check("build-up 47% passes (either method)", results(r).get("VA") == "PASS" and 
       va(r))
 
 # --- rule not loaded ---
+# --- problem 97: deciding conditions, next to their notes (fix round, 26 Oct) ---
+r = origin_from_folder("94036000", "samples/eval/furniture_freezone")
+check("free-zone factory -> condition FREE_ZONE, note kept",
+      r.conditions == ["FREE_ZONE"] and any("free zone" in n for n in r.notes), (r.conditions, r.notes))
+r = origin_from_folder("32091010", "samples/eval/paint_indian_resin")
+check("input from India -> condition INDIAN_INPUTS, note kept",
+      r.conditions == ["INDIAN_INPUTS"] and any("proof" in n for n in r.notes), (r.conditions, r.notes))
+r = origin_from_folder("76101000", "samples/windows_qualifies")
+check("windows: no conditions", r.conditions == [], r.conditions)
+
 r = origin_from_folder("71131910", "samples/windows_qualifies")
 check("chapter 71 -> RULE_GAP", r.status == "RULE_GAP" and any("REGULATORY_GAP_DETECTED" in n for n in r.notes),
       r.notes)

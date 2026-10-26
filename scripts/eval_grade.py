@@ -295,6 +295,12 @@ CASE_ANCHORS: dict[str, list[tuple[str, str, re.Pattern]]] = {
                        r"(?:\bproof\b|\bcumulat\w*|\bIndian[- ](?:input|resin|material|origin)|"
                        r"\b(?:resin|inputs?|materials?) (?:bought|sourced|made|purchased) (?:in|from) India|"
                        r"\boriginat\w* in India)", re.I | re.M))],
+    # G9 (fix round, 26 Oct; Haris: re-mark A): the user attached the BOM and only row 2's HS code is
+    # missing, so a whole bill of materials must not be asked for (3 of 3 repeats, baseline clean).
+    # N10 only: the same ask is right when no BOM was given (C3 windows_nodata, 18 saved reports).
+    "N10": [("a whole bill of materials asked for", "not",
+             re.compile(r"\bbill of materials (?:with|showing|listing|including|giving) [^.\n]{0,80}?\beach input|"
+                        r"\b(?:a |the )?(?:full|complete|whole|new) bill of materials", re.I))],
     "N3": [("a saving from the 15% tariff rate", "not", re.compile(r"(?<![\d,])15,?000(?:\.00)?(?![\d,])"))],
     "N4": [("45% applied as the threshold", "not",
             re.compile(r"against (?:a |the )?(?:threshold of |minimum of )?45\s?%|45\s?% threshold (?:applied|used)", re.I)),

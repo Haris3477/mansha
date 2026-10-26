@@ -43,6 +43,9 @@ class OriginResult:
     totals: dict = field(default_factory=dict)
     missing: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    # Problem 97: conditions that decide whether the result can be used (FREE_ZONE, INDIAN_INPUTS).
+    # The Builder's code prints a fixed caution for each in the summary; the notes above stay as they are.
+    conditions: list[str] = field(default_factory=list)
     sources: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -306,12 +309,14 @@ def calculate_origin(tariff_line: str, bom_rows: list[dict] | None = None,
     if any(it["origin"] == "IN" for it in items):
         res.notes.append("Indian inputs count as originating only with proof of their originating status "
                          "(bilateral cumulation, Art. 3.7).")
+        res.conditions.append("INDIAN_INPUTS")
     if dec["labour"] is not None:
         res.notes.append("'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.")
     res.notes.append("Operations and final manufacture are the exporter's own declaration.")
     if dec["free_zone"]:
         res.notes.append("Factory declared in a free zone: likely not eligible for the ministry's factory "
                          "registration; confirm with the ministry.")
+        res.conditions.append("FREE_ZONE")
     return res
 
 

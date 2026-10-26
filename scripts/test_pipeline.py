@@ -14,12 +14,13 @@ import csv
 import json
 import logging
 import re
+import shutil
 import sys
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 
-from mansha.document_builder import build_facts, fallback_prose, max_llm_notes
+from mansha.document_builder import CONDITION_TEXT, build_facts, fallback_prose, max_llm_notes
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.orchestrator import (
     MOFT_CEPA_URL,
@@ -197,6 +198,25 @@ check("windows: all phase files saved", files == sorted([
     "builder.json", "prose_qa_1.json", "report.md", "phase_log.json", "phase_log.md"]), files)
 check("windows: report.md is the report", (res.out_dir / "report.md").read_text() == res.output
       and res.output.startswith("#"))
+# Problem 97 (fix round, 26 Oct): the origin tool's conditions reach the summary through the
+# orchestrator, from the tool result itself (the windows fixture has no free-zone caveat at all).
+fz_folder = TMP / "windows_freezone_case"
+shutil.copytree(PIPELINE_CASES["windows"][1], fz_folder)
+dec = json.loads((fz_folder / "declaration.json").read_text())
+(fz_folder / "declaration.json").write_text(json.dumps(dict(dec, factory_in_free_zone=True)))
+fz = run_pipeline(PIPELINE_CASES["windows"][0], case_folder=fz_folder, llm=fake_for("windows"),
+                  out_dir=TMP / "windows_freezone_run")
+fz_summary = fz.output.split("## Summary\n\n", 1)[1].split("\n## ", 1)[0]
+check("free-zone factory: code caution in the summary (problem 97)",
+      fz.verdict == "ELIGIBLE" and CONDITION_TEXT["FREE_ZONE"]["en"] in fz_summary, fz_summary[-200:])
+check("free-zone factory: conditions in builder.json and the phase log",
+      json.loads((fz.out_dir / "builder.json").read_text())["conditions"] == ["FREE_ZONE"]
+      and "summary cautions (code): FREE_ZONE" in phase(fz, "Document Builder").summary,
+      phase(fz, "Document Builder").summary)
+check("windows (not in a free zone): no caution, conditions []",
+      "Caution:" not in res.output
+      and json.loads((res.out_dir / "builder.json").read_text())["conditions"] == [])
+
 plog = json.loads((res.out_dir / "phase_log.json").read_text())
 check("phase_log.json: status, verdict and 8 phases", plog["status"] == "REPORT"
       and plog["verdict"] == "ELIGIBLE" and len(plog["phases"]) == 8)

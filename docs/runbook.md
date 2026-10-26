@@ -28,7 +28,7 @@ _How to run things and where the code is. Moved verbatim from progress.md (20 Oc
 data/india/          # sources, tariff_lines, psr_rules, passages (.json)
 samples/             # windows_qualifies/, chargers_repacked/, researcher_outputs/, builder_outputs/ (7.6), qa_replays/ (7.6g), eval/ (12 synthetic BOM folders, evaluation set)
 mansha/
-  llm_client.py      # CHAIN_LIMITS (long 16000/16000, qa 1000/1000, judge 3000/3000); timeout 300 s; busy waits, cooldown waits, busy budget; RATE_LIMITS pacing of auto:judge 4/60 s (7.6k)
+  llm_client.py      # CHAIN_LIMITS (long 16000/16000, qa 1000/1000, judge 3000/6000 since P1, 26 Oct); timeout 300 s; busy waits, cooldown waits, busy budget; RATE_LIMITS pacing of auto:judge 4/60 s (7.6k)
   prompts.py, intake.py, kb.py (CORRIDORS)
   evidence.py        # build_evidence() -> EvidencePack (+ corridor 7.6d, fixed_notes 7.6f); counts and percentages only
   researcher.py      # run_researcher(), check_researcher() and the code normalizations, in run order: normalize_gaps, unbracket_ids, move_note_gaps (7.6g), drop_user_data_gaps (7.6h), plain_check_names (7.6j), restore_qualified_notes (7.8), drop_hs_follow_ups (7.9), fill_authorities, fill_tariff_line, fill_fixed_notes (7.6f), drop_caveat_gaps; then drop_follow_ups / drop_claim_caveats (7.6c-d); strip_list_markers(), the claim-note rule

@@ -237,6 +237,40 @@ DISCLAIMER = {
     "ar": "هذا التقرير للعلم فقط وليس قرارًا رسميًا بشأن المنشأ. يرجى التحقق من جميع التفاصيل "
           "مع الجهة المصدرة للشهادة ومع الجمارك قبل الشحن.",
 }
+# Problem 97 (fix round, 26 Oct): a condition that decides whether the result can be used reached the
+# reader only as a note (N2 free-zone factory in 4 of 4 runs; N5 Indian resin). The origin tool's notes
+# are mandatory, so the Builder never sees them and cannot put them in the summary. Code adds one fixed
+# caution per condition (from the origin tool's `conditions`) at the end of the summary, only for the
+# verdicts with a claim checklist. Wording from the tool's notes and P-MOET-FACTORY-REG.
+CONDITION_TEXT = {
+    "FREE_ZONE": {
+        "en": "Caution: your factory is in a free zone, so it is likely not eligible for the factory "
+              "registration needed before applying for the certificate of origin; confirm with the "
+              "Ministry of Economy and Tourism before relying on this result.",
+        "ar": "تنبيه: مصنعك في منطقة حرة، لذلك يُرجَّح أنه غير مؤهل لتسجيل المصنع المطلوب قبل التقدم "
+              "بطلب شهادة المنشأ؛ تحقّق من ذلك مع وزارة الاقتصاد والسياحة قبل الاعتماد على هذه النتيجة.",
+    },
+    "INDIAN_INPUTS": {
+        "en": "Caution: this result counts your inputs from India as originating, which holds only with "
+              "proof of their originating status.",
+        "ar": "تنبيه: تَعُدّ هذه النتيجة مدخلاتك القادمة من الهند مدخلاتٍ ذات منشأ، ولا يصح ذلك إلا "
+              "بإثبات صفتها المنشئية.",
+    },
+}
+# ...and under the factory-registration step of the checklist (N2: step 1 required a factory outside a
+# free zone without saying that this factory is in one).
+FACTORY_REG_ID = "P-MOET-FACTORY-REG"
+FREE_ZONE_STEP_TEXT = {
+    "en": "Your factory is in a free zone: see the caution in the summary.",
+    "ar": "مصنعك في منطقة حرة: راجع التنبيه في الملخص.",
+}
+
+
+def condition_sentences(conditions: list[str] | None, verdict: str, lang: str) -> list[str]:
+    """The fixed cautions for the summary (problem 97): none when no claim is possible."""
+    if verdict not in CHECKLIST_VERDICTS:
+        return []
+    return [CONDITION_TEXT[c][lang] for c in dict.fromkeys(conditions or []) if c in CONDITION_TEXT]
 
 
 @dataclass
@@ -543,9 +577,11 @@ def cap(s: str) -> str:
 
 
 def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
-                  id_sources: dict[str, dict[str, str]], kb_sources: dict[str, dict]) -> str:
+                  id_sources: dict[str, dict[str, str]], kb_sources: dict[str, dict],
+                  conditions: list[str] | None = None) -> str:
     lang = "ar" if intake.get("language") == "ar" else "en"
     h, verdict = HEADINGS[lang], research["verdict"]
+    cautions = condition_sentences(conditions, verdict, lang)   # problem 97
     src = SourceList(id_sources, kb_sources)
     cls, tar = research["classification"], research["tariff"]
     needed = still_needed(research)
@@ -558,7 +594,7 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
         "",
         f"**{h['result']}: {RESULT_LABEL[lang].get(verdict, RESULT_LABEL[lang][GAP])}**",
         "",
-        f"## {h['summary']}", "", prose["summary"].strip(), "",
+        f"## {h['summary']}", "", " ".join([prose["summary"].strip(), *cautions]), "",
     ]
     if verdict == "NEEDS_MORE_DATA":   # D4: lead with what the user must provide
         out += needed_section()
@@ -589,8 +625,11 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
         for st in steps:
             authority = plain(st.get("authority"))
             nums = src.refs(st.get("source_id"))
-            out.append(f"- [ ] {str(st.get('step', '')).strip()}  \n"
-                       f"  *{h['authority']}: {cap(authority)}.*{cite(nums)}")
+            line = (f"- [ ] {str(st.get('step', '')).strip()}  \n"
+                    f"  *{h['authority']}: {cap(authority)}.*{cite(nums)}")
+            if st.get("source_id") == FACTORY_REG_ID and "FREE_ZONE" in (conditions or []):
+                line += f"  \n  **{FREE_ZONE_STEP_TEXT[lang]}**"   # problem 97
+            out.append(line)
         out.append("")
 
     # 8.5: mandatory notes first, word for word; then the LLM's condensed optional notes.
@@ -639,12 +678,14 @@ def reviewable(prose: dict) -> bool:
 
 
 def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dict[str, str]],
-                         *, corridor: str = "india", llm=call_llm, review=None) -> BuilderResult:
+                         *, corridor: str = "india", llm=call_llm, review=None,
+                         conditions: list[str] | None = None) -> BuilderResult:
     """Write the report for APPROVED Researcher output. Always returns a report.
 
     llm: the call function (tests pass a fake one).
     review: None (code checks only), or a meaning check called as
             review(facts_text, prose, llm=llm) -> ProseQAOutcome (Step 7.6: review_prose).
+    conditions: the chosen line's origin-tool conditions (problem 97); code adds their cautions.
     """
     research = copy.deepcopy(research)
     facts_text, notes = build_facts(research, intake, corridor)
@@ -704,7 +745,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
         review_status = reviewed.status if reviewed is not None else QA_ERROR
 
     kb_sources = load_corridor(corridor)["sources"]
-    md = render_report(research, intake, prose, notes, id_sources, kb_sources)
+    md = render_report(research, intake, prose, notes, id_sources, kb_sources, conditions)
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
                          problems=problems if used_fallback else [], llm_calls=calls,
                          failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,

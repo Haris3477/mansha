@@ -272,6 +272,17 @@ run.output = ("## Summary\n\nThe product meets the rule of origin, so the CEPA r
               "## Important notes\n\n- Indian inputs count as originating only with proof of their originating status.\n")
 check("N5: proof only in the notes is caught (problem 97)",
       "must say the Indian-origin proof condition in the summary" in case_anchor_problems(BY_ID["N5"], run))
+# G9 in N10 (fix round, 26 Oct): only row 2's HS code may be asked for, not a whole bill of materials
+for w in ("Provide a bill of materials with the origin, 6-digit HS code and value of each input, especially "
+          "for BOM row 2 (Emollients).",
+          "Please send a complete bill of materials."):
+    run.output = "## What's still needed\n\n- " + w + "\n"
+    check(f"N10: whole-BOM ask caught: {w[:40]}...",
+          "must not say a whole bill of materials asked for" in str(case_anchor_problems(BY_ID["N10"], run)))
+for w in ("Provide the 6-digit HS code for the Emollients input (row 2 of the bill of materials).",
+          "Give the 6-digit HS code of the input in row 2 (Emollients) of your bill of materials."):
+    run.output = "## What's still needed\n\n- " + w + "\n"
+    check(f"N10 ok: {w[:40]}...", not case_anchor_problems(BY_ID["N10"], run), str(case_anchor_problems(BY_ID["N10"], run)))
 run.output = "Value added 43% against a threshold of 40% (45% minus 5 points on an Ex-Works basis)."
 check("N4: the Ex-Works threshold is fine", not case_anchor_problems(BY_ID["N4"], run))
 run.output = "Value added 43% against 45%."

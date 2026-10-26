@@ -191,6 +191,29 @@ out, fake, waits = run(E502, ok_reply(), call_s=70)
 check("within the budget: retries normally", isinstance(out, lc.LLMResult) and fake.calls == 2)
 clock["advance"] = False
 
+print("\n5. Truncated judge answer: the retry gets double the room (P1, fix round 26 Oct)")
+
+
+def truncated_reply():
+    resp = SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content='{"cut'), finish_reason="length")],
+        usage=None)
+    return SimpleNamespace(headers={"x-routed-via": "fake/model"}, parse=lambda: resp)
+
+
+sent_max: list[int] = []
+fake = FakeClient(truncated_reply(), ok_reply('{"ok": 1}'))
+create = fake._create
+fake.chat.completions.with_raw_response.create = lambda **kw: (sent_max.append(kw["max_tokens"]), create(**kw))[1]
+lc._client = fake
+try:
+    out = lc.call_llm("qa", "auto:judge", [{"role": "user", "content": "hi"}], expect_json=True)
+except lc.LLMCallError as e:
+    out = e
+check("judge ceiling is above its default", lc.CHAIN_LIMITS["auto:judge"]["ceiling"] > lc.CHAIN_LIMITS["auto:judge"]["default"])
+check("first try 3000, retry after truncation 6000", sent_max == [3000, 6000], sent_max)
+check("the retry's answer is used", isinstance(out, lc.LLMResult) and fake.calls == 2, out)
+
 lc._client = None
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)
