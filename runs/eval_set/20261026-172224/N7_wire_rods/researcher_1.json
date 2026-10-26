@@ -1,0 +1,88 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 38.39,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8959,
+        "completion": 3400
+      },
+      "finish_reason": "stop",
+      "latency_s": 38.39,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): \"Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:76041010): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-DUTY-SCOPE): 'The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Classification: TL-IN-76041010 matches 'Aluminium wire rods' exactly; no conflict, confidence high.",
+      "Preference: CEPA status is PREFERENTIAL, so a preferential rate exists.",
+      "Tariff: MFN rate 7.5% (tariff and effective), 2026 CEPA rate 3.75%.",
+      "Origin: Rule PSR-IN-R118 (CTSH + VA 45%); origin check FAILS because VA build-down is 30.0% against a 45% threshold.",
+      "Saving: Because origin DOES_NOT_QUALIFY, the estimated saving is not applicable.",
+      "Procedure: Empty list because the product does not qualify for origin.",
+      "Caveats: Compiled from tool and passage notes that affect the interpretation of this result."
+    ],
+    "classification": {
+      "tariff_line": "76041010",
+      "description": "Aluminium wire rods",
+      "confidence": "high",
+      "source_id": "TL-IN-76041010"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "7.5% (tariff and effective)",
+      "preferential_rate": "3.75%",
+      "source_id": "TL-IN-76041010"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "VA check failed: build-down 30.0% against a threshold of 45%, FOB basis. Other checks (final manufacture in UAE, minimal operations, CTSH) passed.",
+      "source_id": "TOOL:origin:76041010"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:76041010"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76041010"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:76041010"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

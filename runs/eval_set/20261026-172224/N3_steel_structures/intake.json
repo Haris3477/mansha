@@ -1,0 +1,19 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "steel building structures",
+    "uae_processing": "fabricated from imported steel H-sections",
+    "destination_country": "India",
+    "hs_code_given": null,
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 100000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given"
+    ]
+  }
+}

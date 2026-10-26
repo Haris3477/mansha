@@ -1,0 +1,47 @@
+{
+  "runs": 5,
+  "passed": 2,
+  "scored": 5,
+  "verdict_correct": 4,
+  "verdict_cases": 5,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 1,
+  "qa_rejections": 0,
+  "qa_overruled": 0,
+  "router_refusals": 1,
+  "paced_wait_s": 55.0,
+  "median_seconds_reports": 240.5,
+  "slips": {
+    "96": 1
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 5,
+      "prompt": 3483,
+      "completion": 1589
+    },
+    "auto:long": {
+      "requests": 11,
+      "prompt": 44068,
+      "completion": 62651
+    },
+    "auto:judge": {
+      "requests": 19,
+      "prompt": 69066,
+      "completion": 26379
+    }
+  },
+  "failed_checks": {
+    "N2": [
+      "anchors: must say the free-zone caution in the summary"
+    ],
+    "N3": [
+      "QA: QA (round 1) FAILED; QA (round 1): NOT reviewed"
+    ],
+    "C1": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected ELIGIBLE"
+    ]
+  }
+}

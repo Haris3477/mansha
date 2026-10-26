@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "notes[0].text: The phrase \"Only originating materials from India can be counted as originating in the UAE\" adds an unsupported qualifier \"Only\" not present in N8. Fix: Originating materials from India used in production in the UAE may be counted as originating, and the final production step must go beyond the minimal operations. (see N8)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.63,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2459,
+            "completion": 1883
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.63,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

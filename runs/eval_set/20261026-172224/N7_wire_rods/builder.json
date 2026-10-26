@@ -1,0 +1,75 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 50.89,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1797,
+            "completion": 4650
+          },
+          "finish_reason": "stop",
+          "latency_s": 50.89,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product does not qualify for the CEPA rate, which is the reduced duty rate under the India-UAE CEPA, because it does not meet the rule of origin. Thus, the normal (MFN) rate applies, which is the standard import duty rate charged when no trade-agreement preference is claimed. The main reason is that the value addition check failed.",
+    "classification": "The product is classified under tariff line 76041010 for aluminium wire rods, with high confidence. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 7.5% and the CEPA rate is 3.75%. Since the product does not qualify, no saving applies.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and value addition (VA) of 45%. CTSH means each non-originating input must be classified in a different 6-digit subheading than the product. VA is the share of the product's price that does not come from non-originating materials. The product passed the CTSH check, the final manufacture check (meaning the last manufacturing step took place in the UAE), and the minimal operations check (meaning the work goes beyond simple operations that never give origin alone). However, the VA check failed because the build-down was 30.0% against a threshold of 45% on an FOB basis, where FOB is the price of the goods loaded on board at the UAE port.",
+    "notes": [
+      {
+        "text": "The agreement does not specify whether the build-down and build-up methods use the same threshold, apart from a 5-point Ex-Works adjustment.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76041010",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76041010",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    }
+  ]
+}
