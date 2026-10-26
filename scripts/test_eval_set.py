@@ -224,6 +224,15 @@ f = planted(clean["C4"], "slip95np", lambda d: append(d / "report.md", "\nPlease
 check("problem 95 counted in a NO_PREFERENCE report (no checklist)", "95" in grade(BY_ID["C4"], load_run(f)).slips)
 f = planted(clean["C2"], "slip95ne", lambda d: append(d / "report.md", "\nPlease review the checklist and details below.\n"))
 check("problem 95 counted in a NOT_ELIGIBLE report ('checklist and details below')", "95" in grade(BY_ID["C2"], load_run(f)).slips)
+# 26 Oct (N10): a pointer to the checklist without "below"
+f = planted(clean["C3"], "slip95see", lambda d: append(d / "report.md", "\nPlease see the checklist for the required information.\n"))
+check("problem 95 counted in NEEDS_MORE_DATA ('see the checklist for')", "95" in grade(BY_ID["C3"], load_run(f)).slips)
+f = planted(clean["C4"], "slip95consult", lambda d: append(d / "report.md", "\nPlease consult the claim checklist for the next steps.\n"))
+check("problem 95 counted in a NO_PREFERENCE report ('consult the claim checklist')", "95" in grade(BY_ID["C4"], load_run(f)).slips)
+f = planted(C1, "no95follow", lambda d: append(d / "report.md", "\nPlease follow the checklist to claim the preference.\n"))
+check("'follow the checklist' is no slip in an ELIGIBLE report", "95" not in grade(BY_ID["C1"], load_run(f)).slips)
+f = planted(clean["C3"], "no95word", lambda d: append(d / "report.md", "\nKeep this checklist with your shipment records.\n"))
+check("'checklist' alone is no slip in NEEDS_MORE_DATA", "95" not in grade(BY_ID["C3"], load_run(f)).slips)
 f = planted(clean["C3"], "slip92", lambda d: edit_json(d / "researcher_1.json", lambda x: x["output"][
     "follow_up_questions"].append("Please confirm the HS code for aluminium window frames.")))
 check("problem 92 counted when the tariff lookup noted nothing", "92" in grade(BY_ID["C3"], load_run(f)).slips)
