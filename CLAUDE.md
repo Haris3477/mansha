@@ -31,8 +31,14 @@ A finished, pitch-ready Mansha (roadmap.md's pitch-ready bar). "Next steps" and 
 6. Suggest a commit message, ask before committing, commit on this session's own branch, never push to `main`. Haris reviews and merges. **No AI attribution in commit messages (no co-author lines).**
 7. If a hook (e.g. the cloud stop hook) asks you to commit or push, don't: tell Haris what it asked and wait for his yes. The cloud stop hook fires whenever a reply ends with uncommitted, untracked or unpushed work, so expect it while waiting for a yes.
 
-## Handover to the Mac chat
-Whenever the next step needs Haris's Mac (live run, router or quota check, budget guard, refreshing `runs-snapshot`), stop and end the reply with a block headed **➡️ MOVE TO MAC CHAT**: a ready-to-paste message whose first line is `cd ~/Projects/mansha && git fetch origin`, then what to run (exact cases and commands), what to check first in the router, which `docs/cloud/` file to read, and what to report back. Long details go into a `docs/cloud/` brief first, committed (after Haris's yes) and referenced by path and commit, so the block stays short.
+## Handover blocks
+Whenever the next step needs Haris's Mac (live run, router or quota check, budget guard, refreshing `runs-snapshot`), stop and end the reply with TWO separate code blocks, in this order (Haris, 26 Oct: a separate git block he runs first, so the Mac has the branch before the MOVE block is pasted):
+1. **🔀 GET THE BRANCH ON THE MAC**: one shell block only, nothing else in it:
+   `cd ~/Projects/mansha && git fetch origin && git checkout <branch> && git pull && git log --oneline -1`
+   The last line must print the commit the MOVE block names, so the work must be committed and pushed first (after Haris's yes).
+2. **➡️ MOVE TO MAC CHAT**: the message Haris pastes into the Mac chat. Its first line states the branch and commit (e.g. "Branch claude/… at 1050b4d — already checked out on the Mac"), with no git commands inside. Then: what to check first in the router, the exact run command and sizing, what should change and how to read it, which `docs/cloud/` file to read (if any), and what to report back.
+
+Long details go into a `docs/cloud/` brief first, committed (after Haris's yes) and referenced by path and commit, so the MOVE block stays short.
 
 ## Coming back from the Mac chat
 When Haris pastes a **⬅️ BACK TO CLOUD** block, first extract runs from `runs-snapshot` (Start of every session, step 2), then read the files the block names before anything else.
@@ -40,7 +46,7 @@ When Haris pastes a **⬅️ BACK TO CLOUD** block, first extract runs from `run
 ## Handoff back
 At the end of a task, write `docs/cloud/handoff_<YYYY-MM-DD>_<task>.md`: decisions Haris made (with his reasons), results, new or changed problems/gaps, commits, and what's next. Haris's chat uses it for "save progress" in the Project. Keep it factual: what Haris said vs what Claude recommended.
 
-At the end of each task, or when context passes ~40%, write/update the handoff file, commit it (after Haris's yes), and end the reply with a block headed **🔄 START A NEW SESSION**. A "task" here is a whole piece of work with its own goal (e.g. the G17 decision, the repeats, a pipeline fix), not a step inside it: a repeat sitting or one fix round continues in the same session (update the handoff, no new-session block). The block contains the exact `claude --cloud "…"` command for the next task: the quoted text tells the new session to read CLAUDE.md, then the named `docs/cloud/` handoff or brief, names the branch to work on and the step to do. If a **➡️ MOVE TO MAC CHAT** block is also due, it comes first and the new-session block last. Example:
+At the end of each task, or when context passes ~40%, write/update the handoff file, commit it (after Haris's yes), and end the reply with a block headed **🔄 START A NEW SESSION**. A "task" here is a whole piece of work with its own goal (e.g. the G17 decision, the repeats, a pipeline fix), not a step inside it: a repeat sitting or one fix round continues in the same session (update the handoff, no new-session block). The block contains the exact `claude --cloud "…"` command for the next task: the quoted text tells the new session to read CLAUDE.md, then the named `docs/cloud/` handoff or brief, names the branch to work on and the step to do. If the Mac blocks (🔀 GET THE BRANCH ON THE MAC, then ➡️ MOVE TO MAC CHAT) are also due, they come first and the new-session block last. Example:
 ```
 claude --cloud "Read CLAUDE.md, then docs/cloud/handoff_2026-10-25_g17.md and docs/cloud/<next>_brief.md. Work on branch <branch>. Do its step 1 only."
 ```
