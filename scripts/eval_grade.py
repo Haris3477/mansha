@@ -213,7 +213,10 @@ GLOBAL_ANCHORS = {  # open problem -> pattern on the report (counted as slips, D
                      r"\bconvert(?:ed|ing)? (?:the |your )?(?:value|amount|shipment|price)", re.I),
     "94": re.compile(r"^- \[ \] (?:\*\*)?The Ministry of [^:\n]{3,50}:\s|requires the applicant to log in|"
                      r"\*Authority: Not in Mansha's sources", re.I | re.M),
-    "95": re.compile(r"checklist below|bill of materials[^.\n]{0,60}needed to estimate the (?:duty )?saving", re.I),
+    # 95: a pointer to a checklist that isn't where it says. Widened 26 Oct: "checklist and details below"
+    # (N7) and any report with no checklist section (C4 NO_PREFERENCE): 90 saved reports, those 2 new hits,
+    # 0 false alarms.
+    "95": re.compile(r"checklist\b[^.\n]{0,20}?\bbelow|bill of materials[^.\n]{0,60}needed to estimate the (?:duty )?saving", re.I),
     "G12": re.compile(r"\bAIDC\b|Agricultur\w* Infrastructure", re.I),
     # 96: the box-8/9 KB note turned into an instruction to the exporter (added 25 Oct: 10 of 63 saved
     # reports, 0 false alarms). The KB's own "India's form say/use box 9" and the descriptive "require
@@ -221,7 +224,8 @@ GLOBAL_ANCHORS = {  # open problem -> pattern on the report (counted as slips, D
     "96": re.compile(r"\byou (?:must|should|need to) use box 9\b|(?<!form )(?<!forms )\buse box 9\b|"
                      r"\bbox 9 (?:to be completed|must be used|should be used)\b", re.I),
 }
-NEEDS_MORE_DATA_ONLY = {"95"}      # "checklist below" is right in an ELIGIBLE report
+NEEDS_MORE_DATA_ONLY = {"95"}      # "checklist below" is right in an ELIGIBLE report (it has one); also counted
+                                   # in any report with no checklist section
 CHECKLIST_RE = re.compile(r"^## .*(?:checklist|قائمة)", re.I | re.M)
 TABLE_RE = re.compile(r"\(table (I{1,3}), S\.No\.")
 
@@ -252,7 +256,7 @@ def slips(run: Run) -> dict[str, list[str]]:
         return out
     text = run.output
     for pid, pat in GLOBAL_ANCHORS.items():
-        if pid in NEEDS_MORE_DATA_ONLY and run.verdict != "NEEDS_MORE_DATA":
+        if pid in NEEDS_MORE_DATA_ONLY and run.verdict != "NEEDS_MORE_DATA" and CHECKLIST_RE.search(text):
             continue
         if pid == "G12" and chosen_table(run) != "I":
             continue
