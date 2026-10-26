@@ -508,7 +508,22 @@ def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
         sid = cv.get("source_id")
         if not isinstance(sid, str) or sid in pack.fixed_notes:
             continue
-        notes = [u for kind, u in qualifier_drops(cv.get("note"), sents.get(sid, [])) if kind == "note"]
+        units = sents.get(sid, [])
+        notes = [u for kind, u in qualifier_drops(cv.get("note"), units) if kind == "note"]
+        if notes:
+            # Fix round 1 (26 Oct, N5 live): a caveat merging several qualified notes of one record ("Inference:
+            # SWS ...; anti-dumping ... still apply") keeps the qualifier only once, so one note counts as
+            # dropped and the other as kept. Rewrite it as the dropped notes plus the notes a clause restates
+            # WITH a qualifier kept, in KB order (a clause the record's summary states plainly stays out:
+            # 23 Oct 19:56, left to the revision).
+            clauses = [c for c in CLAUSE_SPLIT_RE.split(cv.get("note")) if c.strip()]
+
+            def kept(u: str) -> bool:
+                core = SOURCE_QUALIFIER_RE.sub(" ", u)
+                return any(coverage(c, core) >= RESTATING_CLAUSE and KEPT_QUALIFIER_RE.search(c) for c in clauses)
+
+            notes = [u for kind, u in units if kind == "note" and SOURCE_QUALIFIER_RE.search(u)
+                     and (u in notes or kept(u))]
         # Only a caveat that is those notes and nothing more (each of its clauses restates one of them)
         # is rewritten; one that also says other things is left to check_researcher, so nothing is lost.
         cores = [SOURCE_QUALIFIER_RE.sub(" ", n) for n in notes]
@@ -523,9 +538,25 @@ def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
 # A follow-up about the product's own HS / tariff code ("Please confirm the HS code for aluminium window
 # frames"), as opposed to a bill-of-materials question that mentions each input's HS code.
 HS_QUESTION_RE = re.compile(r"\b(?:HS|tariff|customs)[ -]?(?:code|line)s?\b|\bclassification\b", re.IGNORECASE)
-NOT_PRODUCT_CODE_RE = re.compile(r"\bbill of materials\b|\binputs?\b|\bmaterials?\b|\bcomponents?\b|"
-                                 r"\bdeclaration\b", re.IGNORECASE)
+NOT_PRODUCT_CODE_RE = re.compile(r"\bbill of materials\b|\bBOM\b|\brows? \d+\b|\binputs?\b|\bmaterials?\b|"
+                                 r"\bcomponents?\b|\bdeclaration\b", re.IGNORECASE)
 TARIFF_LOOKUP_ID = "TOOL:tariff_lookup"
+# Fix round 1 (26 Oct, N10 live): a question naming an input that the origin tool lists as missing ("the
+# 6-digit HS code for Emollients (BOM row 2)") is the follow-up G9 asks for, not about the product's code.
+# The origin tool labels such items "BOM row <n> (<description>): ..." (origin_calculator.parse_bom).
+MISSING_INPUT_RE = re.compile(r"^BOM row \d+ \(([^)]*)\):")
+
+
+def missing_input_names(pack: EvidencePack) -> list[str]:
+    """Descriptions of the BOM inputs any origin tool result lists as missing (lower case)."""
+    names = []
+    for tid, res in pack.tool_results.items():
+        if tid.startswith("TOOL:origin:") and isinstance(res, dict):
+            for m in res.get("missing") or []:
+                hit = MISSING_INPUT_RE.match(str(m))
+                if hit and hit.group(1).strip() and hit.group(1) != "no description":
+                    names.append(hit.group(1).strip().lower())
+    return names
 
 
 def drop_hs_follow_ups(data: dict, pack: EvidencePack) -> list[str]:
@@ -543,8 +574,10 @@ def drop_hs_follow_ups(data: dict, pack: EvidencePack) -> list[str]:
     if not isinstance(qs, list) or not isinstance(tl, dict) or tl.get("notes"):
         return []
     keep, changes = [], []
+    inputs = missing_input_names(pack)
     for i, q in enumerate(qs):
-        if isinstance(q, str) and HS_QUESTION_RE.search(q) and not NOT_PRODUCT_CODE_RE.search(q):
+        if (isinstance(q, str) and HS_QUESTION_RE.search(q) and not NOT_PRODUCT_CODE_RE.search(q)
+                and not any(name in q.lower() for name in inputs)):
             changes.append(f"follow_up_questions[{i}]: HS-code confirmation dropped, the tariff lookup found "
                            f"no conflict: {q!r}")
         else:

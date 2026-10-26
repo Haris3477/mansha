@@ -827,6 +827,30 @@ for folder, name, want in (("20261018-051708_windows_nodata", "researcher_1.json
     check(f"replay {folder}/{name}: the dropped qualifier(s) restored",
           all(d["caveats"][i]["note"] == t for i, t in want.items()) and len(ch) == len(want), ch)
 
+# Fix round 1 (26 Oct, N5 live): one caveat merging both "Inference:" notes of P-IN-DUTY-SCOPE.
+paint = build_evidence({"product_description": "acrylic paint", "hs_code_given": None,
+                        "shipment_value": {"amount": 100000, "currency": "AED"}}, "samples/eval/paint_indian_resin")
+DUTY_NOTES = [u for k, u in record_sentences(paint)["P-IN-DUTY-SCOPE"] if k == "note"]
+check("P-IN-DUTY-SCOPE has the two Inference notes", len(DUTY_NOTES) == 2
+      and all(n.startswith("Inference:") for n in DUTY_NOTES), DUTY_NOTES)
+for text, label in (
+        ("Inference: the Social Welfare Surcharge (SWS) is charged on the reduced BCD (no CEPA-specific text "
+         "found); anti-dumping and safeguard duties still apply (no exemption found).",
+         "N5 round 2, word for word: one leading qualifier"),
+        ("SWS is charged on the reduced BCD (no CEPA-specific text found), and anti-dumping and safeguard "
+         "duties still apply (no exemption found).", "both as plain fact")):
+    note, ch = restored("P-IN-DUTY-SCOPE", text, paint)
+    d = with_caveats(("P-IN-DUTY-SCOPE", text))
+    restore_qualified_notes(d, paint)
+    check(f"merged qualified notes ({label}): both KB notes, word for word, check 10 clean",
+          note == " ".join(DUTY_NOTES) and len(ch) == 1
+          and not any("plain fact" in x and "caveats" in x for x in check_researcher(d, paint)[0]),
+          (note, ch, check_researcher(d, paint)[0]))
+extra = ("Inference: SWS is charged on the reduced BCD (no CEPA-specific text found); anti-dumping and safeguard "
+         "duties still apply (no exemption found); IGST is charged on the assessable value plus BCD.")
+note, ch = restored("P-IN-DUTY-SCOPE", extra, paint)
+check("merged notes plus another claim: left as written, for check 10 (nothing lost)", note == extra and ch == [])
+
 print("\n== Step 7.9: HS-code follow-ups without a tariff-lookup conflict (problem 92)")
 check("no HS code given: the tariff lookup notes nothing (windows, windows_nodata)",
       w.tool_results["TOOL:tariff_lookup"]["notes"] == [] and wn.tool_results["TOOL:tariff_lookup"]["notes"] == [])
@@ -868,6 +892,21 @@ for intake, label in (({"product_description": "aluminium window frames", "hs_co
     d = copy.deepcopy(GOOD_WN); d["follow_up_questions"] = [HS_LIVE[0]] + BOM_Q
     check(f"tariff lookup noted something ({label}): HS question kept",
           bool(notes) and drop_hs_follow_ups(d, pk) == [] and d["follow_up_questions"][0] == HS_LIVE[0], notes)
+# Fix round 1 (26 Oct, N10 live): a question about an input the origin tool lists as missing is kept.
+cos = build_evidence({"product_description": "cosmetic skin creams", "hs_code_given": None,
+                      "shipment_value": {"amount": 60000, "currency": "AED"}}, "samples/eval/cosmetics_missing_hs")
+check("N10: the tariff lookup notes nothing, the origin tool lists BOM row 2 (Emollients)",
+      cos.tool_results["TOOL:tariff_lookup"]["notes"] == []
+      and any(m.startswith("BOM row 2 (Emollients):") for m in cos.tool_results["TOOL:origin:33049990"]["missing"]))
+for q in ("Please provide the 6-digit HS code for Emollients (BOM row 2) so that compliance with the CTSH rule "
+          "can be determined.",   # N10 round 1, Gemini 3.6, word for word: dropped before this fix
+          "Please give the HS code for Emollients.",
+          "Please provide the 6-digit HS code of row 2."):
+    d = {"follow_up_questions": [q]}
+    check(f"N10 kept: {q[:50]!r}", drop_hs_follow_ups(d, cos) == [] and d["follow_up_questions"] == [q])
+d = {"follow_up_questions": ["Please confirm the HS code for cosmetic skin creams."]}
+check("N10: a product-code confirmation is still dropped", len(drop_hs_follow_ups(d, cos)) == 1
+      and d["follow_up_questions"] == [])
 res = run_researcher(wi, wn, llm=fake_llm({**copy.deepcopy(GOOD_WN),
                                            "follow_up_questions": GOOD_WN["follow_up_questions"] + [HS_LIVE[1]]}))
 check("run_researcher: HS question dropped by code, answer passes, change recorded",
