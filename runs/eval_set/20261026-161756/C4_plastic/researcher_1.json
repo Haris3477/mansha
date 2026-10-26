@@ -1,0 +1,74 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 51.01,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 6905,
+        "completion": 4319
+      },
+      "finish_reason": "stop",
+      "latency_s": 51.01,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (TOOL:duty:39239090): \"This line is excluded from India's CEPA concessions: no preferential rate, the normal (MFN) duty applies whatever the origin.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (TOOL:duty:39239090): \"Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NO_PREFERENCE (P-IN-DUTY-SCOPE): 'The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: The only candidate TL-IN-39239090 matches the given HS code 39239090 exactly and its description 'Other (heading 3923: plastic articles for packing)' matches the product description 'plastic packing articles'. Confidence is high.",
+      "Step 2: The CEPA status of TL-IN-39239090 is EXCLUDED, so no preferential rate applies regardless of origin.",
+      "Step 3: The MFN rate is tariff 15%, effective 15%. The preferential rate is EXCLUDED (no preferential rate; the normal MFN rate applies).",
+      "Step 4: Rule lookup and origin are not run for excluded lines, so origin is NOT_APPLICABLE and the origin rule is also NOT_APPLICABLE.",
+      "Step 5: The duty tool returns NO_PREFERENCE with 0.00 AED saving, so the estimated saving is NO_PREFERENCE with null amount and currency.",
+      "Step 6: Procedure is empty because the origin status is NOT_APPLICABLE (only QUALIFIES or NEEDS_MORE_DATA trigger procedure steps).",
+      "Step 7: Caveats capture the exclusion, the CIF-based duty estimate, and the additional Indian duties that still apply."
+    ],
+    "classification": {
+      "tariff_line": "39239090",
+      "description": "Other (heading 3923: plastic articles for packing)",
+      "confidence": "high",
+      "source_id": "TL-IN-39239090"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 15%, effective 15%",
+      "preferential_rate": "EXCLUDED",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_rule": {
+      "rule": "NOT_APPLICABLE",
+      "source_id": "TL-IN-39239090"
+    },
+    "origin_result": {
+      "status": "NOT_APPLICABLE",
+      "basis": "The tariff line 39239090 is excluded from CEPA preference, so the origin determination is not applicable.",
+      "source_id": "TL-IN-39239090"
+    },
+    "estimated_saving": {
+      "status": "NO_PREFERENCE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:39239090"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "This line is excluded from CEPA preference, so the normal (MFN) rate applies even if the product meets the rule of origin.",
+        "source_id": "TL-IN-39239090"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NO_PREFERENCE"
+  }
+}

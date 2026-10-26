@@ -1,0 +1,105 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 47.51,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1890,
+            "completion": 4310
+          },
+          "finish_reason": "stop",
+          "latency_s": 47.51,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "This product does not qualify for the CEPA rate because it does not meet the rule of origin for battery chargers. As a result, the normal (MFN) rate applies, and you cannot claim the 0% CEPA rate. The primary reason is that the final manufacture in the UAE failed, involving only minimal operations, and both the tariff shift and value addition thresholds were not met.",
+    "classification": "The product is classified under tariff line 85044030 for battery chargers, and Mansha has high confidence in this classification. However, you should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for battery chargers is 20%, and the CEPA rate is 0%. Because the product does not meet the rule of origin, no CEPA saving applies, and the normal 20% rate will be charged.",
+    "origin": "The rule of origin for battery chargers requires a change in tariff heading (CTH), meaning non-originating inputs must be classified in a different 4-digit heading, and at least 40% value addition (VA), which is the share of the product's price not from non-originating materials. The product failed to meet this rule because the final manufacture in the UAE did not occur, and only minimal operations were performed. Additionally, the CTH check failed as a non-originating input made up 88% of the price, exceeding the 10% de minimis limit, and the VA build-down was only 12%, falling short of the 40% threshold.",
+    "notes": [
+      {
+        "text": "A lower 15% rate under Notification 45/2025-Customs applies only for electric-vehicle manufacture, so the general 20% rate is used here.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "If a product only undergoes minimal operations like repacking, labelling, or simple assembly, it does not originate under the agreement, even if it meets its product-specific rule.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "A lower 15% rate under Notification 45/2025-Customs (S.No. 323) applies only for electric-vehicle manufacture; Mansha uses the general 20% rate.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "Mansha has not checked whether India charges anti-dumping duty on this product; check with Indian customs or a customs broker.",
+      "source_id": "TL-IN-85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85044030",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "A product that only undergoes minimal operations (e.g., repacking, labelling, simple assembly) does not originate, even if it meets its product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M4",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "Direct labour cost and direct overhead cost are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    }
+  ]
+}

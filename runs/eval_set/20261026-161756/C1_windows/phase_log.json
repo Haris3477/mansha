@@ -1,0 +1,313 @@
+{
+  "status": "CHECKS_FAILED",
+  "verdict": null,
+  "language": "en",
+  "seconds": 175.75,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 61.21,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 61.21,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 699,
+                "completion": 244
+              },
+              "finish_reason": "stop",
+              "latency_s": 61.21,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: given | evidence 24172 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "MEETS",
+          "TOOL:duty:76101000": "ESTIMATED",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "MEETS",
+          "TOOL:duty:76041010": "ESTIMATED",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "MEETS",
+          "TOOL:duty:76151030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 85.61,
+      "summary": "line 76101000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 1 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 85.6,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8955,
+                "completion": 7949
+              },
+              "finish_reason": "stop",
+              "latency_s": 85.6,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[3].note contains 'PSR-IN-R118': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+      ],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "caveats[10]: note written from the KB, qualifier kept (P-IN-DUTY-SCOPE)",
+          "caveats[11]: note written from the KB, qualifier kept (P-IN-DUTY-SCOPE)",
+          "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Please confirm that HS code 76101000 (doors, windows and their frames and thresholds for doors (aluminium)) is the correct classification for your aluminium window frames.'",
+          "caveats[5]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 3.88,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.2,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4839,
+                "completion": 1190
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.2,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.55,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 5039,
+                "completion": 2677
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.55,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.12,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2382,
+                "completion": 1062
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.12,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[7].note: The note adds qualifiers \"reportedly\" and \"but this is unconfirmed\" which are not present in the cited record. Fix: Electronic certificates are accepted and uploaded to India's e-Sanchit system, and this comes from CBIC Instruction 28/2022 read only through secondary reports. Cite P-IN-IMPORTER in source_id, not in the text.",
+        "caveats[14].note: The note adds an unsupported qualifier about the retrospective issuance remark that is not present in the cited record. Fix: The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India. Cite P-AGR-COO-RULES in source_id, not in the text."
+      ],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.2,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.55,
+            "scope": [
+              "procedure[5]",
+              "procedure[6]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]",
+              "caveats[12]",
+              "caveats[13]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.12,
+            "scope": [
+              "caveats[14]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "FAILED",
+      "seconds": 25.04,
+      "summary": "line 76101000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 1 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 25.03,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 11148,
+                "completion": 2479
+              },
+              "finish_reason": "stop",
+              "latency_s": 25.03,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[7].note states as a plain fact what its cited record qualifies with 'reportedly' ('Electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed: seen only in secondary sources).'): keep that qualifier in the text"
+      ],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "caveats[3].note contains 'PSR-IN-R118': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+          "QA: caveats[7].note: The note adds qualifiers \"reportedly\" and \"but this is unconfirmed\" which are not present in the cited record. Fix: Electronic certificates are accepted and uploaded to India's e-Sanchit system, and this comes from CBIC Instruction 28/2022 read only through secondary reports. Cite P-IN-IMPORTER in source_id, not in the text.",
+          "QA: caveats[14].note: The note adds an unsupported qualifier about the retrospective issuance remark that is not present in the cited record. Fix: The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India. Cite P-AGR-COO-RULES in source_id, not in the text."
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "SKIPPED",
+      "seconds": 0.0,
+      "summary": "not run: code checks still fail",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

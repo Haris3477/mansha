@@ -1,0 +1,41 @@
+{
+  "runs": 5,
+  "passed": 4,
+  "scored": 5,
+  "verdict_correct": 4,
+  "verdict_cases": 5,
+  "expected_failures": [],
+  "checks_failed": 1,
+  "llm_error": 0,
+  "qa_rejections": 2,
+  "qa_overruled": 0,
+  "router_refusals": 0,
+  "paced_wait_s": 0.0,
+  "median_seconds_reports": 134.8,
+  "slips": {
+    "95": 1
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 5,
+      "prompt": 3469,
+      "completion": 1381
+    },
+    "auto:long": {
+      "requests": 11,
+      "prompt": 66827,
+      "completion": 55935
+    },
+    "auto:judge": {
+      "requests": 16,
+      "prompt": 58630,
+      "completion": 18763
+    }
+  },
+  "failed_checks": {
+    "C1": [
+      "status: CHECKS_FAILED, expected REPORT",
+      "verdict: None, expected ELIGIBLE"
+    ]
+  }
+}
