@@ -1,0 +1,35 @@
+{
+  "runs": 1,
+  "passed": 0,
+  "scored": 1,
+  "verdict_correct": 0,
+  "verdict_cases": 1,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 1,
+  "qa_rejections": 0,
+  "qa_overruled": 0,
+  "router_refusals": 1,
+  "paced_wait_s": 0.0,
+  "median_seconds_reports": null,
+  "slips": {},
+  "requests": {
+    "auto:qa": {
+      "requests": 1,
+      "prompt": 696,
+      "completion": 293
+    },
+    "auto:long": {
+      "requests": 5,
+      "prompt": 0,
+      "completion": 0
+    }
+  },
+  "failed_checks": {
+    "N5": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected ELIGIBLE",
+      "anchors: must say the Indian-origin proof condition in the summary"
+    ]
+  }
+}

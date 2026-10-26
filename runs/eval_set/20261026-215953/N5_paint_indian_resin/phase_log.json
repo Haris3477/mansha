@@ -1,0 +1,143 @@
+{
+  "status": "LLM_ERROR",
+  "verdict": null,
+  "language": "en",
+  "seconds": 130.03,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.31,
+      "summary": "product='acrylic paint' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.27,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 696,
+                "completion": 293
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.27,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-32091010 | bill of materials: given | evidence 19613 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:32091010": "RULE_FOUND",
+          "TOOL:origin:32091010": "MEETS",
+          "TOOL:duty:32091010": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 128.72,
+      "summary": "LLM call failed",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "[researcher] failed after 4 model attempt(s) and 1 cooldown wait(s). Last problem: HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '01080713-f8c6-4387-869f-87ab7c5802c4'}",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "latency_s": 4.44,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 2 routed attempt(s) failed with upstream provider errors (upstream_error ×1, daily_quota_exhausted ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.6-flash key1: upstream_error; openrouter/dots-studio/dots-3-note-preview:free key2: daily_quota_exhausted. Last error: OpenRouter API error 429: Rate limit exceeded: free-models-per-day. Add 5 credits to unlock 1000 free model requests per day', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '4bb01304-6578-4788-a538-fcecc42dde7a'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "latency_s": 1.79,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '3d5eae2d-9158-43f9-9d50-481863406837'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 3,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "latency_s": 0.08,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 3 routes checked (3 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~27s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1793037689015}, 'execution_id': 'dbbec4c7-b8ca-4d04-9b2f-0dc257816455'}",
+              "waited_before_retry_s": 28.4
+            },
+            {
+              "attempt": 4,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "latency_s": 2.02,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.6-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': 'bf8a578a-5838-4069-8bf4-161caa3fe014'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 5,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "latency_s": 1.96,
+              "ok": false,
+              "http_status": 502,
+              "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '01080713-f8c6-4387-869f-87ab7c5802c4'}"
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "[researcher] failed after 4 model attempt(s) and 1 cooldown wait(s). Last problem: HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '01080713-f8c6-4387-869f-87ab7c5802c4'}"
+      ],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}
