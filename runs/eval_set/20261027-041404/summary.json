@@ -1,0 +1,47 @@
+{
+  "runs": 4,
+  "passed": 0,
+  "scored": 4,
+  "verdict_correct": 0,
+  "verdict_cases": 4,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 4,
+  "qa_rejections": 0,
+  "qa_overruled": 0,
+  "router_refusals": 0,
+  "paced_wait_s": 0.0,
+  "median_seconds_reports": null,
+  "slips": {},
+  "requests": {
+    "auto:qa": {
+      "requests": 8,
+      "prompt": 0,
+      "completion": 0
+    }
+  },
+  "failed_checks": {
+    "N5": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected ELIGIBLE",
+      "intake: no Intake output",
+      "anchors: must say the Indian-origin proof condition in the summary"
+    ],
+    "N10": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected NEEDS_MORE_DATA",
+      "intake: no Intake output"
+    ],
+    "C1": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected ELIGIBLE",
+      "intake: no Intake output"
+    ],
+    "N2": [
+      "status: LLM_ERROR, expected REPORT",
+      "verdict: None, expected ELIGIBLE",
+      "intake: no Intake output",
+      "anchors: must say the free-zone caution in the summary"
+    ]
+  }
+}

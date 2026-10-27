@@ -1,0 +1,19 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "acrylic paint",
+    "uae_processing": "manufactured from imported resin and pigments",
+    "destination_country": "India",
+    "hs_code_given": null,
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 100000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": [
+      "hs_code_given"
+    ]
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "served_by": "google/gemini-3.6-flash",
+  "latency_s": 17.01,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "google/gemini-3.6-flash",
+      "usage": {
+        "prompt": 7726,
+        "completion": 1301
+      },
+      "finish_reason": "stop",
+      "latency_s": 17.01,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Classification: Tariff line 32091010 ('Acrylic emulsion (paint)') best matches 'acrylic paint'. Confidence is high.",
+      "Preference: Tariff line 32091010 is marked PREFERENTIAL under the India-UAE CEPA.",
+      "Tariff: The effective MFN rate is 10% and the 2026 CEPA preferential rate is 0%.",
+      "Origin: The product meets rule PSR-IN-R045 ('CTSH + VA 40%') with non-originating inputs outside 320910 and 65.0% value addition.",
+      "Saving: Duty savings are estimated at 10000.00 AED based on the 100000.00 AED shipment value.",
+      "Procedure: Outlined procedural steps for factory registration, certificate application, issuance, direct consignment, importer claim, and record retention.",
+      "Caveats: Included mandatory caveats covering duty scope, CIF valuation, issuer details, and exporter declarations."
+    ],
+    "classification": {
+      "tariff_line": "32091010",
+      "description": "Acrylic emulsion (paint)",
+      "confidence": "high",
+      "source_id": "TL-IN-32091010"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-32091010"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 40%",
+      "source_id": "PSR-IN-R045"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture took place in the UAE. Manufacturing goes beyond minimal operations. CTSH passed as all 2 non-originating inputs are classified outside subheading 320910. Value addition passed at 65.0% against a threshold of 40% on an FOB basis.",
+      "source_id": "TOOL:origin:32091010"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "10000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:32091010"
+    },
+    "procedure": [
+      {
+        "step": "the Ministry of Economy and Tourism requires factory registration outside a free zone prior to certificate application.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "the Ministry of Foreign Trade provides the Certificate of Origin for India e-service for local manufacturers and exporters upon submitting required documents.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "the Ministry of Foreign Trade charges a certificate fee of AED 50 for invoice values up to AED 100,000.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "the competent authority issues the certificate of origin prior to, at, or within five working days of exportation.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "the exporter must ensure direct shipment from the UAE to India and indicate third-party invoicing on the claim if applicable.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "the Indian importer claims the preferential tariff treatment when filing the bill of entry and maintains required origin information.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "the exporter must retain origin records and cost breakdown details for at least 5 years.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+        "source_id": "TOOL:duty:32091010"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:32091010"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:rule_lookup:32091010"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:32091010"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

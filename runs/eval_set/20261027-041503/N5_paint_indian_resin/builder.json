@@ -1,0 +1,77 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 8.57,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1797,
+            "completion": 329
+          },
+          "finish_reason": "stop",
+          "latency_s": 8.57,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your acrylic paint qualifies for the preferential rate under the India-UAE CEPA. Claiming this preferential rate reduces the duty in India from the normal (MFN) rate of 10% to 0%, giving an estimated saving of 10000.00 AED. Please refer to the checklist below for the steps to claim this preference.",
+    "classification": "The product is classified under tariff line 32091010 covering Acrylic emulsion (paint), with high confidence. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% while the preferential CEPA rate is 0%. This results in an estimated duty saving of 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH, where non-originating inputs must be in a different 6-digit subheading) along with value addition (VA, the non-foreign share of the price) of at least 40% on an FOB basis (the price loaded on board in the UAE). The product meets this rule because final manufacture took place in the UAE, and the processing goes beyond simple minimal operations. All 2 non-originating inputs are classified outside subheading 320910, and the achieved value addition is 65.0%, surpassing the required threshold.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    }
+  ],
+  "conditions": [
+    "INDIAN_INPUTS"
+  ]
+}
