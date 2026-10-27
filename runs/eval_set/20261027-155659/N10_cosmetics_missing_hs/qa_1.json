@@ -1,0 +1,207 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "origin_result.basis: Includes 'possibly other non-originating inputs' not mentioned in the cited record Fix: Missing 6-digit HS code for Emollients (BOM row 2); no checks run. Keep this field's source_id as it is.",
+    "follow_up_questions[0]: Asks for HS codes for other non-originating inputs not required by the cited record Fix: Provide the 6-digit HS code for Emollients (BOM row 2) as required by the origin rule. Cite TOOL:origin:33049990 in source_id, not in the text.",
+    "procedure[3].step: Adds '(the Ministry of Foreign Trade)' which is not in the cited record Fix: The certificate must be issued before, at, or within 5 working days of export. It is valid for 12 months from issue and covers one import. It must bear the authorised signature and official seal of the competent authority. Cite P-AGR-COO-RULES in source_id, not in the text.",
+    "caveats[0].note: The note includes the specific rule 'CTSH + VA 40%' which is not present in the cited record. Fix: The '+' in the rule is interpreted as 'and' (both tests must pass); the agreement does not define '+'. Cite TOOL:rule_lookup:33049990 in source_id, not in the text.",
+    "caveats[13].note: The note adds an unsupported claim about Mansha not performing currency conversion. Fix: Certificate fee bands are in AED and apply to the invoice value in AED. Cite TOOL:coo_fee in source_id, not in the text."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 2 (2 real) | 3 parts",
+  "warning_judgements": [
+    {
+      "id": "W2",
+      "warning": "procedure[3]: names 'Ministry of Foreign Trade', which P-AGR-COO-RULES does not; cite the record that states it, or split the step",
+      "judgement": "REAL",
+      "reason": "Procedure step cites 'Ministry of Foreign Trade' which is not in the source record"
+    },
+    {
+      "id": "W1",
+      "warning": "caveats[0]: number(s) ['40'] not found in TOOL:rule_lookup:33049990",
+      "judgement": "REAL",
+      "reason": "The cited rule_lookup record does not contain the number '40', so the note references unsupported information."
+    }
+  ],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.88,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]",
+        "procedure[6]"
+      ],
+      "warnings": [
+        "W2"
+      ],
+      "note": ""
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.55,
+      "scope": [
+        "procedure[7]",
+        "procedure[8]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]"
+      ],
+      "warnings": [
+        "W1"
+      ],
+      "note": ""
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.8,
+      "scope": [
+        "caveats[11]",
+        "caveats[12]",
+        "caveats[13]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "raw_corrections": [
+    {
+      "field": "origin_result.basis",
+      "problem": "Includes 'possibly other non-originating inputs' not mentioned in the cited record",
+      "fix": "Missing 6-digit HS code for Emollients (BOM row 2); no checks run.",
+      "source_id": "TOOL:origin:33049990"
+    },
+    {
+      "field": "follow_up_questions[0]",
+      "problem": "Asks for HS codes for other non-originating inputs not required by the cited record",
+      "fix": "Provide the 6-digit HS code for Emollients (BOM row 2) as required by the origin rule.",
+      "source_id": "TOOL:origin:33049990"
+    },
+    {
+      "field": "procedure[3].step",
+      "problem": "Adds '(the Ministry of Foreign Trade)' which is not in the cited record",
+      "fix": "The certificate must be issued before, at, or within 5 working days of export. It is valid for 12 months from issue and covers one import. It must bear the authorised signature and official seal of the competent authority.",
+      "source_id": "P-AGR-COO-RULES"
+    },
+    {
+      "field": "caveats[0].note",
+      "problem": "The note includes the specific rule 'CTSH + VA 40%' which is not present in the cited record.",
+      "fix": "The '+' in the rule is interpreted as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:rule_lookup:33049990"
+    },
+    {
+      "field": "caveats[13].note",
+      "problem": "The note adds an unsupported claim about Mansha not performing currency conversion.",
+      "fix": "Certificate fee bands are in AED and apply to the invoice value in AED.",
+      "source_id": "TOOL:coo_fee"
+    }
+  ],
+  "overruled_by_kb": [],
+  "rejudged": false,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.88,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4919,
+            "completion": 2489
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.88,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.55,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4685,
+            "completion": 2339
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.55,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.8,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2793,
+            "completion": 793
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.8,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": [
+    "caveats[0]: number(s) ['40'] not found in TOOL:rule_lookup:33049990",
+    "procedure[3]: names 'Ministry of Foreign Trade', which P-AGR-COO-RULES does not; cite the record that states it, or split the step"
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 55.4,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1952,
+            "completion": 4803
+          },
+          "finish_reason": "stop",
+          "latency_s": 55.4,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product meets the rule of origin, so the CEPA rate can be claimed. The estimated saving is 10000.00 AED. Please refer to the checklist below for the steps to claim.",
+    "classification": "The product is classified under tariff line 32091010, Acrylic emulsion (paint). Mansha’s confidence in this classification is high, but you should confirm it with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. The estimated saving is 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and at least 40% value addition (VA). The final manufacture and minimal operations checks passed, meaning the last manufacturing step took place in the UAE and the work goes beyond simple operations. The CTSH requirement is satisfied because all non-originating inputs are classified outside subheading 320910, and the VA requirement is met with a value addition of 65.0% on an FOB basis, exceeding the 40% threshold. As a result, the product meets the rule of origin.",
+    "notes": [
+      {
+        "text": "There is a discrepancy between the agreement and India's certificate form: the agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "UAE law sets a 3-year minimum for record keeping, but the CEPA requires 5 years for CEPA claims.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Mansha's interpretation: '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+'.",
+      "source_id": "TOOL:rule_lookup:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Indian inputs count as originating only with proof of their originating status (bilateral cumulation, Art. 3.7).",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Discrepancy between the agreement and India's certificate form: the agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M8",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M10",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources (CBIC Instruction 28/2022 via LiveLaw, taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "Certificate fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+      "source_id": "P-MOET-COO-INDIA",
+      "mandatory": false
+    }
+  ],
+  "conditions": [
+    "INDIAN_INPUTS"
+  ]
+}

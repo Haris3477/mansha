@@ -1,0 +1,156 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 50.07,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1993,
+            "completion": 4995
+          },
+          "finish_reason": "stop",
+          "latency_s": 50.07,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The hardwood bedroom furniture meets the rule of origin under the India-UAE CEPA, so the reduced CEPA rate of 12.5% can be claimed instead of the normal 20% rate. For a shipment valued at 100000 AED, this results in an estimated saving of 7500.00 AED. Please follow the steps in the checklist below to claim this preference.",
+    "classification": "The product is classified under tariff line 94036000 for other wooden furniture, and Mansha's confidence in this classification is high. However, you should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal import duty rate (MFN rate) for this product is 20%, while the reduced CEPA rate is 12.5%. Since the product qualifies, claiming the CEPA rate yields an estimated saving of 7500.00 AED on a shipment value of 100000 AED. Note that the CEPA rate applies to Basic Customs Duty only, and other import charges such as IGST will still be payable.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH), meaning all non-originating inputs must be classified under a different 4-digit heading than the finished furniture, plus at least 40% value addition (VA). Value addition is the share of the product's price, calculated on a FOB basis, that does not come from non-originating materials. The product meets this rule because the final manufacture took place in the UAE, the work done goes beyond minimal operations, all 2 non-originating inputs are classified outside heading 9403, and the value added is 52.0%, which exceeds the 40% threshold.",
+    "notes": [
+      {
+        "text": "If your factory is located in a free zone, you may not be eligible for the required factory registration, which is a prerequisite for obtaining the certificate of origin. You should verify your facility's location status with the relevant authorities.",
+        "from": [
+          "N7"
+        ]
+      },
+      {
+        "text": "When completing the certificate of origin, note that the agreement specifies box 8 for remarks, but India's actual form uses box 9. Since India's form governs entry into India, you should use box 9 on your submission.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTH + VA 40%' is interpreted by Mansha as requiring both the tariff shift and the value addition to be met; the agreement does not define '+'.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The origin determination (final manufacture, minimal operations, CTH, VA) is based on the exporter's own declaration.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Factory declared in a free zone: likely not eligible for the ministry's factory registration; confirm with the ministry.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "The duty estimate is based on the shipment value given; India charges duty on the assessable (CIF) value, so actual amounts will differ.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The certificate fee estimate assumes the invoice value equals the shipment value given.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not specify whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "The certificate form box for remarks: the agreement says box 8, but India's form says box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "The issuing authority may require detailed cost sheets and a factory visit when applying.",
+      "source_id": "P-AGR-3.17-APPLICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "UAE law sets a 3-year record-keeping minimum, but the CEPA requires 5 years for CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M8",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is from secondary sources, not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "N6",
+      "text": "The 40% value-added letter required for factory registration is a registration condition only, not the CEPA product-specific rule test.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "N7",
+      "text": "The factory registration requires the factory to be located outside a free zone, so a free-zone producer may not be eligible.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    }
+  ],
+  "conditions": [
+    "FREE_ZONE"
+  ]
+}

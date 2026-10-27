@@ -1,0 +1,523 @@
+{
+  "status": "REPORT",
+  "verdict": "ELIGIBLE",
+  "language": "en",
+  "seconds": 293.06,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.11,
+      "summary": "product='hardwood bedroom furniture' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.11,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 699,
+                "completion": 311
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.11,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-94036000 | bill of materials: given | evidence 19694 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:94036000": "RULE_FOUND",
+          "TOOL:origin:94036000": "MEETS",
+          "TOOL:duty:94036000": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 147.78,
+      "summary": "line 94036000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 147.77,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7439,
+                "completion": 13629
+              },
+              "finish_reason": "stop",
+              "latency_s": 147.77,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "caveats[2]: note written from the KB, qualifier kept (TOOL:origin:94036000)",
+          "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: \"Please confirm the HS code for 'hardwood bedroom furniture' is 94036000 (Other wooden furniture).\"",
+          "caveats[12]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 3.56,
+      "summary": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.43,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4966,
+                "completion": 1821
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.43,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.3,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4996,
+                "completion": 2279
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.3,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.81,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2334,
+                "completion": 589
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.81,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[7].note: The note adds an inference ('which may affect the value addition calculation') that is not present in the cited record. Fix: 'Direct labour cost' and 'direct overhead cost' are not defined in the agreement. Cite P-AGR-3.2.2-VA in source_id, not in the text."
+      ],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.43,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]",
+              "procedure[6]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "REJECTED",
+            "scores": {
+              "factuality": 0,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.3,
+            "scope": [
+              "procedure[7]",
+              "procedure[8]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]",
+              "caveats[12]",
+              "caveats[13]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 0.81,
+            "scope": [
+              "caveats[14]",
+              "caveats[15]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "OK",
+      "seconds": 44.78,
+      "summary": "line 94036000 (high) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 44.77,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 9461,
+                "completion": 4604
+              },
+              "finish_reason": "stop",
+              "latency_s": 44.77,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "QA: caveats[7].note: The note adds an inference ('which may affect the value addition calculation') that is not present in the cited record. Fix: 'Direct labour cost' and 'direct overhead cost' are not defined in the agreement. Cite P-AGR-3.2.2-VA in source_id, not in the text."
+        ],
+        "normalized_by_code": [
+          "caveats[12]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "OK",
+      "seconds": 44.72,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.5,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4938,
+                "completion": 1488
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.5,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.32,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "paced_wait_s": 11.2,
+              "latency_s": 0.02,
+              "ok": false,
+              "http_status": 429,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded'}, 'execution_id': '5026c2a4-15fa-4da8-8921-b9ee84ec0158'}",
+              "waited_before_retry_s": 30
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4988,
+                "completion": 1415
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.32,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 0.71,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2334,
+                "completion": 589
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.71,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.5,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]",
+              "procedure[6]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.32,
+            "scope": [
+              "procedure[7]",
+              "procedure[8]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]",
+              "caveats[12]",
+              "caveats[13]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 0.71,
+            "scope": [
+              "caveats[14]",
+              "caveats[15]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 50.08,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 16 in (9 mandatory, verbatim) -> 11 in the report | summary cautions (code): FREE_ZONE",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 50.07,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1993,
+                "completion": 4995
+              },
+              "finish_reason": "stop",
+              "latency_s": 50.07,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 1.02,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.02,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2484,
+                "completion": 1111
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.02,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

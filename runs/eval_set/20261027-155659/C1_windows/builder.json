@@ -1,0 +1,130 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 52.9,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2011,
+            "completion": 4516
+          },
+          "finish_reason": "stop",
+          "latency_s": 52.9,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The aluminium window frames meet the rule of origin, so the CEPA rate of 0% can be claimed. The estimated saving is 10000.00 AED. See the claim checklist below for the required steps.",
+    "classification": "The product is classified under tariff line 76101000, Doors, windows and their frames and thresholds for doors (aluminium). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "The India-UAE CEPA sets a normal (MFN) rate of 10% and a CEPA rate of 0% for this product. The estimated saving is 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and at least 45% value addition (VA) on an FOB basis. The final manufacture in the UAE passes, and the manufacturing goes beyond minimal operations. All three non‑originating inputs are classified outside subheading 761010, satisfying CTSH. The value added is 49.0%, which exceeds the 45% threshold, satisfying VA.",
+    "notes": [
+      {
+        "text": "The 0% CEPA rate applies only to Basic Customs Duty and the Agriculture Infrastructure and Development Cess. Other charges such as IGST, GST compensation cess, Social Welfare Surcharge, and any anti‑dumping, countervailing or safeguard duties remain payable.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "You must keep records for at least five years to support a CEPA claim, even though UAE law requires only three years.",
+        "from": [
+          "N4"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD) and the Agriculture Infrastructure and Development Cess for lines in Table II; IGST, GST compensation cess, the Social Welfare Surcharge, and any anti-dumping, countervailing or safeguard duty still apply.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual duty amounts will differ from the estimate shown. The estimate is in the shipment's own currency and has not been converted.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture in the UAE are the exporter's own declaration.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The 40% value-added letter is a factory registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The agreement says box 8 for the retrospective issuance remark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources (CBIC Instruction 28/2022, read through LiveLaw and taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5-year requirement governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "Certificate fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+      "source_id": "P-MOET-COO-INDIA",
+      "mandatory": false
+    }
+  ],
+  "conditions": []
+}

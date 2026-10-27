@@ -1,0 +1,176 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 75.59,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7218,
+        "completion": 6902
+      },
+      "finish_reason": "stop",
+      "latency_s": 75.59,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [
+    "caveats[0]: number(s) ['40'] not found in TOOL:rule_lookup:33049990",
+    "procedure[3]: names 'Ministry of Foreign Trade', which P-AGR-COO-RULES does not; cite the record that states it, or split the step"
+  ],
+  "normalized_by_code": [
+    "caveats[8]: note written from the KB, qualifier kept (P-AGR-3.4-DEMINIMIS)",
+    "caveats[9]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Selected TL-IN-33049990 (Other beauty or make-up preparations) as the best match for cosmetic skin creams; no HS code conflict, confidence high.",
+      "CEPA status is PREFERENTIAL, so preferential duty is available if origin criteria are satisfied.",
+      "MFN rate is 20% (tariff and effective), 2026 CEPA rate is 0% under India-UAE CEPA.",
+      "Origin rule is PSR-IN-R046 'CTSH + VA 40%'; origin check returns INSUFFICIENT_DATA because a 6-digit HS code for Emollients (BOM row 2) is missing.",
+      "Duty estimate shows a saving of 12000.00 AED (MFN duty 12000.00 AED vs CEPA duty 0.00 AED), status ESTIMATED.",
+      "Procedure steps cover factory registration, applying for the Certificate of Origin for India, paying the fee, issuance, direct consignment, importer claim, record keeping, and verification.",
+      "Caveats include the interpretation of '+' as 'and', limited duty scope, free-zone ineligibility, and unconfirmed electronic certificate acceptance."
+    ],
+    "classification": {
+      "tariff_line": "33049990",
+      "description": "Other beauty or make-up preparations",
+      "confidence": "high",
+      "source_id": "TL-IN-33049990"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20% (tariff 20%, effective 20%)",
+      "preferential_rate": "0% (2026 CEPA rate)",
+      "source_id": "TL-IN-33049990"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 40%",
+      "source_id": "PSR-IN-R046"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": "Missing 6-digit HS code for Emollients (BOM row 2) and possibly other non-originating inputs; no checks run.",
+      "source_id": "TOOL:origin:33049990"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "12000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:33049990"
+    },
+    "procedure": [
+      {
+        "step": "Register the factory through the Ministry of Economy and Tourism's Factory Registration service; the factory must be outside a free zone, hold a MoIAT industrial licence, and provide a MoIAT letter confirming 40% domestic value added. Registration takes about 3 working days.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "Log in to the ministry e-services portal, choose the Certificate of Origin for India service, fill in the application form, upload proof of factory registration and the commercial invoice (and the factory's purchase invoice if a trading exporter), pay the fee online, and submit. Processing takes about one working day; the service runs 24/7.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Pay the certificate fee: AED 50 (estimated for an invoice value of AED 60000, within the AED 10–200 band).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The certificate must be issued before, at, or within 5 working days of export. It is valid for 12 months from issue and covers one import. It must bear the authorised signature and official seal of the competent authority (the Ministry of Foreign Trade).",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "A certificate can be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 of India's certificate form.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "Goods must be shipped directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations other than unloading, reloading, or storage. An invoice issued by a third party does not deny the claim if the exporter indicates 'third-party invoicing'.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter must keep origin records, including a cost breakdown, for at least 5 years starting from the end of the calendar year of the certificate's issue. Refusing a verification visit is grounds for denying preferential benefits.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The issuing authority may apply risk management, including requesting detailed cost sheets and conducting a factory visit.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The '+' in the rule 'CTSH + VA 40%' is interpreted as 'and' (both tests must pass); the agreement does not define '+'.",
+        "source_id": "TOOL:rule_lookup:33049990"
+      },
+      {
+        "note": "The duty estimate covers Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
+        "source_id": "TOOL:duty:33049990"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value, so actual amounts will differ from the estimate shown in AED.",
+        "source_id": "TOOL:duty:33049990"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:33049990"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "The 40% value-added letter required for Factory Registration is a registration condition only, not the CEPA product-specific rule test.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Direct labour cost and direct overhead cost are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not state whether the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this is seen only in secondary sources, not the official text.",
+        "source_id": "P-IN-IMPORTER"
+      },
+      {
+        "note": "The agreement refers to box 8 for the retrospective mark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "source_id": "P-AGR-COO-RULES"
+      },
+      {
+        "note": "UAE law sets a 3-year minimum for record keeping, but the CEPA's 5-year requirement governs CEPA claims.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "Certificate fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+        "source_id": "TOOL:coo_fee"
+      }
+    ],
+    "follow_up_questions": [
+      "Provide the 6-digit HS code for Emollients (BOM row 2) and for any other non-originating inputs, as required by the origin rule."
+    ],
+    "gaps": [],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}
