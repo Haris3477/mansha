@@ -210,7 +210,11 @@ for w in ("Since India's form governs entry into the country, you must use box 9
           "For the retrospective mark, use box 9 on the certificate as per India's form.",
           "India's certificate form requires box 9 to be completed for entry into India.",
           "The agreement refers to box 8, but India's origin rules and certificate form use box 9; you must follow "
-          "India's form when entering the country."):   # 163642 N5 (KB batch, 27 Oct)
+          "India's form when entering the country.",   # 163642 N5 (KB batch, 27 Oct)
+          "For a retrospective certificate, the agreement specifies box 8 for the 'ISSUED RETROSPECTIVELY' mark, but "
+          "India's form uses box 9; follow India's form.",   # 183851 N1
+          "For retrospective certificate issuance, use box 9 for the 'ISSUED RETROSPECTIVELY' mark, as India's form "
+          "governs entry into India."):   # 183851 N2
     run.output = w
     check(f"96: {w[:45]}...", "96" in slips(run), str(slips(run)))
 for w in ("The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",

@@ -270,6 +270,16 @@ FREE_ZONE_STEP_TEXT = {
 }
 
 
+# KB batch (27 Oct, Haris option 2A): the Builder prompt asked the LLM to point an ELIGIBLE reader to the
+# checklist, and prose QA rejected that sentence as advice not in FACTS in 4 of 6 ELIGIBLE reports (20261027-
+# 180618 C1, N2; -183851 C1, N2), each spending the Builder's one retry. Code writes it at the end of the
+# summary instead, after the cautions, only when the checklist is rendered.
+CHECKLIST_POINTER = {
+    "en": "See the checklist below for the steps to claim the CEPA rate.",
+    "ar": "راجع قائمة الخطوات أدناه للمطالبة بسعر الاتفاقية.",
+}
+
+
 def condition_sentences(conditions: list[str] | None, verdict: str, lang: str) -> list[str]:
     """The fixed cautions for the summary (problem 97): none when no claim is possible."""
     if verdict not in CHECKLIST_VERDICTS:
@@ -586,6 +596,9 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
     lang = "ar" if intake.get("language") == "ar" else "en"
     h, verdict = HEADINGS[lang], research["verdict"]
     cautions = condition_sentences(conditions, verdict, lang)   # problem 97
+    steps = research.get("procedure") or []
+    if verdict == "ELIGIBLE" and steps:   # 2A: the pointer to the checklist, by code
+        cautions.append(CHECKLIST_POINTER[lang])
     src = SourceList(id_sources, kb_sources)
     cls, tar = research["classification"], research["tariff"]
     needed = still_needed(research)
@@ -623,7 +636,6 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
                                                    research["origin_result"].get("source_id"))),
             ""]
 
-    steps = research.get("procedure") or []
     if verdict in CHECKLIST_VERDICTS and steps:   # D4: no checklist when no preference can be claimed
         out += [f"## {h['checklist']}", ""]
         for st in steps:

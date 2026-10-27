@@ -3,7 +3,14 @@
     "corridor": "UAE -> India",
     "agreement": "India-UAE CEPA",
     "data_checked": "2026-10-14",
-    "quote_policy": "quotes hold only text marked (V) or (B) in the fact base. Everything else is paraphrased in summary. Re-check every quote character by character against the official PDFs before exporters rely on it."
+    "quote_policy": "quotes hold only text marked (V) or (B) in the fact base. Everything else is paraphrased in summary. Re-check every quote character by character against the official PDFs before exporters rely on it.",
+    "notes_kept_out": [
+      {
+        "record": "P-AGR-COO-RULES",
+        "fact": "For a certificate issued retrospectively, the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' mark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "why": "KB batch, 27 Oct 2026 (Haris, option C): the Document Builder turned this note into an instruction (slip 96: 18 of 118 saved reports; 2 of 4 in sitting 20261027-183851 after it was scoped). The record's summary already gives the exporter box 9 on India's form. Not shown to the agents."
+      }
+    ]
   },
   "passages": [
     {
@@ -295,9 +302,7 @@
         }
       ],
       "summary": "A certificate of origin is valid for 12 months from issue and covers one import (it may list several products). It should be issued before, at, or within 5 working days of export. A certificate may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form. Minor typing or formatting errors are tolerated; discrepancies in signature or seal are not. A lost certificate can be replaced by a certified true copy.",
-      "notes": [
-        "Only for a certificate issued retrospectively: the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' mark, but India's origin rules and certificate form say box 9; India's form governs entry into India."
-      ]
+      "notes": []
     },
     {
       "id": "P-AGR-3.17-APPLICATION",

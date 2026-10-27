@@ -225,8 +225,9 @@ GLOBAL_ANCHORS = {  # open problem -> pattern on the report (counted as slips, D
     # box 9" stay unflagged (reading).
     "96": re.compile(r"\byou (?:must|should|need to) use box 9\b|(?<!form )(?<!forms )\buse box 9\b|"
                      r"\bbox 9 (?:to be completed|must be used|should be used)\b|"
-                     # KB batch (27 Oct): "you must follow India's form" (163642 N5) was missed.
-                     r"\byou (?:must|should|need to) follow India['\u2019]?s (?:certificate )?form\b", re.I),
+                     # KB batch (27 Oct): "you must follow India's form" (163642 N5) and "…; follow India's
+                     # form." (183851 N1) were missed.
+                     r"\b(?:you (?:must|should|need to) )?follow India['\u2019]?s (?:certificate )?form\b", re.I),
 }
 NEEDS_MORE_DATA_ONLY = {"95"}      # "checklist below" is right in an ELIGIBLE report (it has one); also counted
                                    # in any report with no checklist section
