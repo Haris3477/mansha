@@ -375,6 +375,27 @@ res = run("windows", llm, qa=qa_script(rejected, rejected))
 check("QA rejects twice: CHECKS_FAILED", res.status == "CHECKS_FAILED"
       and "document_builder" not in llm.agents())
 
+# 1d (27 Oct, N10 16:36): round 2 may not reject an item round 1 reviewed without a correction and that
+# is unchanged since; a correction on an item round 1 flagged still counts
+CLS = {"field": "classification", "problem": "classification not justified", "fix": "f.", "source_id": None}
+STEP0 = {"field": "procedure[0].step", "problem": "says 'keep', not 'must keep'", "fix": "f.", "source_id": None}
+rej1 = QAOutcome("REJECTED", ["c"], {"factuality": 0, "completeness": 1, "formatting_safety": 1},
+                 qa_llm("fake/qa"), raw_corrections=[CLS])
+llm = fake_for("windows", researcher=[research_fixture("windows")] * 2)
+res = run("windows", llm, qa=qa_script(rej1, QAOutcome("REJECTED", ["c"], dict(rej1.scores), qa_llm("fake/qa"),
+                                                       note="REJECTED", raw_corrections=[STEP0])))
+qa2 = phase(res, "QA (round 2)")
+check("1d: round 2 rejects only an unchanged step round 1 passed -> SETTLED, REPORT",
+      res.status == "REPORT" and qa2.status == "SETTLED", (res.status, qa2.status))
+check("1d: pipeline warning and phase log name the settled correction",
+      any("not counted" in w and "procedure[0].step" in w for w in res.warnings)
+      and "QA round-2 corrections not counted" in (res.out_dir / "phase_log.md").read_text(),
+      res.warnings)
+llm = fake_for("windows", researcher=[research_fixture("windows")] * 2)
+res = run("windows", llm, qa=qa_script(rej1, QAOutcome("REJECTED", ["c"], dict(rej1.scores), qa_llm("fake/qa"),
+                                                       raw_corrections=[CLS])))
+check("1d: round 2 on an item round 1 flagged still counts -> CHECKS_FAILED", res.status == "CHECKS_FAILED", res.status)
+
 overruled = QAOutcome("OVERRULED", [], {"factuality": 0, "completeness": 1, "formatting_safety": 1},
                       qa_llm("fake/qa"), note="OVERRULED | 1 correction(s) overruled by the KB, after a re-judge",
                       overruled=[{"field": "caveats[3].note", "problem": "p", "fix": "f", "source_id": None,

@@ -283,8 +283,11 @@ CASE_ANCHORS: dict[str, list[tuple[str, str, re.Pattern]]] = {
     # (label, "not" | "must", pattern)
     "N1": [("an AED amount for the shipment or saving", "not",
             re.compile(r"\d[\d,.]*\s?AED\b|\bAED\s?(?:\d{4,}|\d{1,3},\d{3})"))],  # the fee range "AED 10 to AED 200" is fine
+    # 27 Oct (163642): "does not eliminate it" is the right wording, not a removal claim (negation guard;
+    # saved reports: 2 negated, 0 plain)
     "N2": [("duty removed wording", "not",
-            re.compile(r"duty[- ]free|\beliminat\w*|\bno (?:customs |import )?duty\b|\bcannot claim\b", re.I)),
+            re.compile(r"duty[- ]free|(?<!not )(?<!n't )\beliminat\w*|\bno (?:customs |import )?duty\b|"
+                       r"\bcannot claim\b", re.I)),
            # problem 97 (Haris option ii, 25 Oct): the free-zone doubt must reach the summary, not only a note
            ("the free-zone caution in the summary", "must",
             re.compile(r"^## (?:Summary|الملخص)[^\S\n]*\n(?:(?!## )[^\n]*\n)*?(?!## )[^\n]*free[- ]zone", re.I | re.M))],
@@ -463,7 +466,7 @@ def grade(case: EvalCase, run: Run) -> Grade:
         g.add("report check", ["no report check"] if check is None else
               [f"{len(check.get('problems') or [])} problem(s): " + "; ".join(check.get("problems") or [])]
               if check.get("problems") else [])
-        g.add("QA", review_problems(run, "QA", {"OK", "REJECTED", "OVERRULED"}))
+        g.add("QA", review_problems(run, "QA", {"OK", "REJECTED", "OVERRULED", "SETTLED"}))
         g.add("prose QA", review_problems(run, "Prose QA", {"OK", "REJECTED"}))
     if run.output:
         g.add("language", language_problems(case, run))

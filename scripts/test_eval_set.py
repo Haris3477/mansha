@@ -263,6 +263,14 @@ check("N2: free zone only in the notes is caught (problem 97)",
       "must say the free-zone caution in the summary" in case_anchor_problems(BY_ID["N2"], run))
 run.output = "## الملخص\n\nالمصنع في منطقة حرة (free zone)\n"
 check("N2: the Arabic summary heading is read too", not case_anchor_problems(BY_ID["N2"], run))
+# 27 Oct (163642): a negated "eliminate" is the right wording; a plain one is still caught
+for w, bad in (("The CEPA reduces the duty but does not eliminate it.", False),   # 163642, word for word
+               ("The CEPA lowers the rate; it doesn't eliminate the duty.", False),
+               ("The CEPA eliminates the duty on this furniture.", True),
+               ("Duty is eliminated under the CEPA.", True)):
+    run.output = "## Summary\n\nYour factory is in a free zone.\n\n## Notes\n\n- " + w + "\n"
+    got = "must not say duty removed wording" in str(case_anchor_problems(BY_ID["N2"], run))
+    check(f"N2 'eliminat' {'caught' if bad else 'ok'}: {w[:40]}...", got == bad, str(case_anchor_problems(BY_ID["N2"], run)))
 # problem 97 in N5 (25 Oct): the Indian-origin proof condition must be in the summary
 for w in ("It meets the rule only if you can prove that the resin bought in India is originating.",
           "The result relies on bilateral cumulation for the Indian resin.",

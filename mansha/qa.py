@@ -80,7 +80,8 @@ JUDGEMENTS = ("REAL", "NOISE")
 QA_APPROVED, QA_REJECTED, QA_SKIPPED, QA_ERROR = "APPROVED", "REJECTED", "SKIPPED", "ERROR"
 # OVERRULED: QA rejected, but code showed every correction contradicts the KB (Step 7.6g).
 QA_OVERRULED = "OVERRULED"
-QA_ACCEPTS = {QA_APPROVED, QA_SKIPPED, QA_ERROR, QA_OVERRULED}  # statuses that let the pipeline go on
+QA_SETTLED = "SETTLED"  # round 2: every correction was on an item round 1 reviewed and left unchanged (1d)
+QA_ACCEPTS = {QA_APPROVED, QA_SKIPPED, QA_ERROR, QA_OVERRULED, QA_SETTLED}  # statuses that let the pipeline go on
 QA_NOT_REVIEWED = {QA_SKIPPED, QA_ERROR}
 
 # Plan B sizes (tokens). Estimates use ~3.6 characters per token, which ran ~10% high
@@ -144,6 +145,7 @@ class QAOutcome:
     raw_corrections: list[dict] = field(default_factory=list)  # QA's corrections as given (kept ones)
     overruled: list[dict] = field(default_factory=list)  # corrections the KB shield overruled
     rejudged: bool = False                   # a re-judge with the KB notes was asked for
+    settled: list[dict] = field(default_factory=list)  # round 2: corrections on items round 1 already passed
 
 
 @dataclass
@@ -384,6 +386,79 @@ def overruled_text(o: dict) -> str:
         return (f"{o.get('field')}: fix {o.get('fix')!r} rejects text that is {o['record']}'s own KB note "
                 f"{o['kb_note']!r}")
     return f"{o.get('field')}: fix {o.get('fix')!r} drops the qualifier of {o['record']}'s note {o['kb_note']!r}"
+
+
+# ---------- round 2: items round 1 already passed (fix round 1d) ----------
+# QA round 2 judges the whole output again and can reject an item that is unchanged since round 1 and
+# that round 1 reviewed without a correction; no revision is left, so a correct case gets no report.
+# 27 Oct 16:36 (N10): "The exporter: keep origin records ..." rejected for not saying "must keep";
+# 4 of the 32 saved runs with a QA round 2 had such a rejection.
+SETTLE_FIELD_RE = re.compile(r"^([a-z_]+)(?:\[(\d+)\])?(?:\.([a-z_]+))?$")
+
+
+def _value(data: dict, key: str, idx: int | None, sub: str | None):
+    v = data.get(key)
+    if idx is not None:
+        v = v[idx] if isinstance(v, list) and idx < len(v) else None
+    if sub is not None:
+        v = v.get(sub) if isinstance(v, dict) else None
+    return v
+
+
+def fully_reviewed(q: QAOutcome | None) -> bool:
+    """Round 1's review covered the whole output: a verdict, and no part NOT reviewed."""
+    return (q is not None and q.status in (QA_APPROVED, QA_REJECTED, QA_OVERRULED)
+            and all(p.get("status") != QA_ERROR for p in q.parts))
+
+
+def passed_in_round_1(fld: str, data2: dict, data1: dict, flagged: set[str]) -> bool:
+    """The corrected item's text is unchanged since round 1 and round 1 made no correction on it.
+
+    List items are matched by text, not position (a removed item shifts the others). A correction on a
+    whole list ("caveats": something missing) is never settled.
+    """
+    m = SETTLE_FIELD_RE.match(str(fld or ""))
+    if not m:
+        return False
+    key, idx, sub = m.group(1), m.group(2), m.group(3)
+    if idx is None:
+        if isinstance(data2.get(key), list):
+            return False
+        v2 = _value(data2, key, None, sub)
+        return v2 is not None and v2 == _value(data1, key, None, sub) and not {fld, key} & flagged
+    v2 = _value(data2, key, int(idx), sub)
+    items1 = data1.get(key) if isinstance(data1.get(key), list) else []
+    return v2 is not None and any(
+        _value(data1, key, j, sub) == v2 and not any(f.startswith(f"{key}[{j}]") for f in flagged)
+        for j in range(len(items1)))
+
+
+def settle_round_2(q2: QAOutcome, data2: dict, data1: dict, q1: QAOutcome | None) -> QAOutcome:
+    """Drop round-2 corrections on items round 1 reviewed without a correction and left unchanged.
+
+    Only when round 1 reviewed the whole output. What is dropped is kept in `settled` and logged; when
+    nothing is left, the status is SETTLED (the pipeline goes on, like OVERRULED). Pure code.
+    """
+    if q2.status != QA_REJECTED or not fully_reviewed(q1):
+        return q2
+    flagged = {str(c.get("field")) for c in q1.raw_corrections + q1.overruled}
+    kept = [c for c in q2.raw_corrections if not passed_in_round_1(c.get("field"), data2, data1, flagged)]
+    settled = [c for c in q2.raw_corrections if c not in kept]
+    if not settled:
+        return q2
+    q2.raw_corrections, q2.settled = kept, settled
+    q2.corrections = [correction_text(c) for c in kept]
+    if not kept:
+        q2.status = QA_SETTLED
+    q2.note += (f" | {len(settled)} correction(s) not counted: unchanged since round 1, which reviewed "
+                "them without a correction")
+    log.info("qa | round 2 | %d correction(s) settled by round 1, %d kept", len(settled), len(kept))
+    return q2
+
+
+def settled_text(c: dict) -> str:
+    """One line for the phase log: a round-2 correction not counted."""
+    return f"{c.get('field')}: {str(c.get('problem')).strip()} (unchanged since round 1, which passed it)"
 
 
 def rejudge_problems(overruled: list[dict]) -> list[str]:

@@ -57,10 +57,13 @@ from mansha.qa import (
     QA_NOT_REVIEWED,
     QA_OVERRULED,
     QA_REJECTED,
+    QA_SETTLED,
     QA_SKIPPED,
     QAOutcome,
     overruled_text,
     run_qa,
+    settle_round_2,
+    settled_text,
 )
 from mansha.report_check import check_report
 from mansha.researcher import ResearcherResult, run_researcher
@@ -356,6 +359,10 @@ def render_phase_log(result: PipelineResult) -> str:
         if over:
             lines += ["", "QA corrections overruled by the KB (not sent to the Researcher):"] + [
                 f"- {x}" for x in over]
+        settled = p.details.get("settled_by_round_1")
+        if settled:
+            lines += ["", "QA round-2 corrections not counted (round 1 passed these items, unchanged since):"] + [
+                f"- {x}" for x in settled]
         bad = p.details.get("qa_answer_problems")
         if bad:
             lines += ["", "Problems in QA's own answer (code validation):"] + [f"- {x}" for x in bad]
@@ -464,6 +471,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
     research: ResearcherResult | None = None
     accepted: ResearcherResult | None = None
     corrections: list[str] = []
+    round_1: tuple[dict, QAOutcome] | None = None   # (Researcher data, QA outcome) of round 1 (1d)
     for round_no in (1, 2):
         t = _Timer()
         name = f"Researcher (round {round_no})"
@@ -494,6 +502,8 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
 
         t = _Timer()
         q = qa(intake, pack, research, llm=llm)
+        if round_no == 2 and round_1 is not None:   # 1d: what round 1 passed and is unchanged stays passed
+            q = settle_round_2(q, research.data, *round_1)
         q_calls = [call_record(c) for c in (q.llm_calls or ([q.llm] if q.llm else []))]
         if q.failed_attempts:
             q_calls.append({"ok": False, "served_by": None, "error": "LLM call failed",
@@ -506,16 +516,18 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
                                             "raw_corrections": q.raw_corrections,
                                             "overruled_by_kb": q.overruled,
                                             "rejudged": q.rejudged,
+                                            "settled_by_round_1": q.settled,
                                             "served_by": q.llm.routed_via if q.llm else None,
                                             "calls": q_calls,
                                             "code_warnings_given": research.warnings})
         phases.append(Phase(
             f"QA (round {round_no})",
             {QA_APPROVED: "OK", QA_SKIPPED: "SKIPPED", QA_REJECTED: "REJECTED",
-             QA_OVERRULED: "OVERRULED"}.get(q.status, "FAILED"),
+             QA_OVERRULED: "OVERRULED", QA_SETTLED: "SETTLED"}.get(q.status, "FAILED"),
             t(), q.note or f"{q.status} | scores {q.scores}", calls=q_calls, problems=q.corrections,
             details={**({"warning_judgements": q.judgements} if q.judgements else {}),
                      **({"overruled_by_kb": [overruled_text(o) for o in q.overruled]} if q.overruled else {}),
+                     **({"settled_by_round_1": [settled_text(c) for c in q.settled]} if q.settled else {}),
                      **({"qa_answer_problems": q.output_problems} if q.output_problems else {}),
                      **({"qa_parts": q.parts} if q.parts else {})}))
         w = same_model_warning(research.llm.routed_via if research.llm else None,
@@ -528,6 +540,10 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
             warnings.append(f"QA round {round_no}: rejection overruled by the KB (every correction dropped a "
                             f"qualifier its record's note carries, or rejected the record's own note: "
                             f"{', '.join(str(o.get('field')) for o in q.overruled)})")
+        if q.settled:
+            warnings.append(f"QA round {round_no}: {len(q.settled)} correction(s) not counted, on items unchanged "
+                            f"since round 1, which reviewed them without a correction "
+                            f"({', '.join(str(c.get('field')) for c in q.settled)})")
         if q.status in QA_NOT_REVIEWED and research.warnings:
             warnings.append(f"Researcher round {round_no}: {len(research.warnings)} code warning(s) "
                             "not reviewed by QA")
@@ -539,6 +555,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         if not corrections:
             accepted = research
             break
+        round_1 = (research.data, q)
 
     if accepted is None:
         return finish(CHECKS_FAILED, msg_checks_failed(lang), intake=intake, research=research.data)

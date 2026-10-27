@@ -29,8 +29,11 @@ from mansha.qa import (
     check_qa,
     correction_text,
     estimate_tokens,
+    QA_SETTLED,
+    QAOutcome,
     plan_parts,
     run_qa,
+    settle_round_2,
 )
 from mansha.qa_evidence import item_keys
 from mansha.researcher import ResearcherResult, number_keys
@@ -405,6 +408,60 @@ q = run_qa(wi, wp, wres, llm=scripted(err, answer(corrections=[{**FIX, "field": 
                                                   c=0)))
 check("merge: a part fails but another rejects -> REJECTED (a known mistake is still fixed)",
       q.status == QA_REJECTED and len(q.corrections) == 1, (q.status, q.corrections))
+
+
+print("\n1d. Round 2: corrections on items round 1 passed and left unchanged are not counted")
+R1 = {"origin_result": {"basis": "old basis"},
+      "procedure": [{"step": "The importer: claims the rate.", "source_id": "P-IN-IMPORTER"},
+                    {"step": "The exporter: keep origin records.", "source_id": "P-AGR-RECORDS-VERIFICATION"}],
+      "caveats": [{"note": "n0", "source_id": "X"}, {"note": "n1", "source_id": "Y"}]}
+R2 = copy.deepcopy(R1)
+R2["origin_result"]["basis"] = "new basis"           # changed after round 1's correction
+R2["caveats"] = R2["caveats"][1:]                    # n0 removed: n1 moved from caveats[1] to caveats[0]
+SC = {"factuality": 0, "completeness": 1, "formatting_safety": 1}
+def corr(f):
+    return {"field": f, "problem": "p.", "fix": "f.", "source_id": None}
+def q1(*fields, status=QA_REJECTED, parts=None):
+    return QAOutcome(status, [], dict(SC), raw_corrections=[corr(f) for f in fields], parts=parts or [])
+def q2(*fields):
+    return QAOutcome(QA_REJECTED, ["x"] * len(fields), dict(SC), note="REJECTED",
+                     raw_corrections=[corr(f) for f in fields])
+q = settle_round_2(q2("procedure[1].step"), R2, R1, q1("origin_result.basis"))
+check("unchanged step round 1 passed -> SETTLED, no corrections, note says so",
+      q.status == QA_SETTLED and q.corrections == [] and len(q.settled) == 1 and "not counted" in q.note, q)
+q = settle_round_2(q2("procedure[1].step", "origin_result.basis"), R2, R1, q1("origin_result.basis"))
+check("a changed field still counts: REJECTED with 1 correction, 1 settled",
+      q.status == QA_REJECTED and len(q.raw_corrections) == 1 and len(q.settled) == 1
+      and q.corrections == [correction_text(corr("origin_result.basis"))], q)
+q = settle_round_2(q2("caveats[0].note"), R2, R1, q1("origin_result.basis"))
+check("list items matched by text, not position (caveats[1] -> caveats[0])", q.status == QA_SETTLED, q)
+q = settle_round_2(q2("caveats[0].note"), R2, R1, q1("caveats[1].note"))
+check("an item round 1 flagged (and the Researcher kept) still counts", q.status == QA_REJECTED and not q.settled, q)
+q = settle_round_2(q2("procedure[1].step"), R2, R1, q1("origin_result.basis", status="ERROR"))
+check("round 1 not reviewed (ERROR): nothing settled", q.status == QA_REJECTED and not q.settled)
+q = settle_round_2(q2("procedure[1].step"), R2, R1,
+                   q1("origin_result.basis", parts=[{"status": "REJECTED"}, {"status": "ERROR"}]))
+check("round 1 with a part NOT reviewed: nothing settled", q.status == QA_REJECTED and not q.settled)
+q = settle_round_2(q2("caveats"), R2, R1, q1("origin_result.basis"))
+check("a correction on a whole list (something missing) still counts", q.status == QA_REJECTED and not q.settled)
+q = settle_round_2(q2("procedure[1].step"), R2, R1, None)
+check("no round 1 (first review): unchanged", q.status == QA_REJECTED and not q.settled)
+appr = QAOutcome(QA_APPROVED, [], {"factuality": 1, "completeness": 1, "formatting_safety": 1})
+check("an approved round 2 is left alone", settle_round_2(appr, R2, R1, q1()).status == QA_APPROVED)
+# Replay 27 Oct 16:36 N10 (git-ignored run folder: skipped if absent)
+N10 = Path("runs/eval_set/20261027-163642/N10_cosmetics_missing_hs")
+if (N10 / "qa_2.json").exists():
+    def saved_q(f):
+        j = json.loads((N10 / f).read_text())
+        return QAOutcome(j["status"], list(j["corrections"]), j["scores"], note=j["note"], parts=j["parts"],
+                         raw_corrections=j["raw_corrections"], overruled=j["overruled_by_kb"])
+    out = lambda f: json.loads((N10 / f).read_text())["output"]
+    q = settle_round_2(saved_q("qa_2.json"), out("researcher_2.json"), out("researcher_1.json"), saved_q("qa_1.json"))
+    check("replay N10 16:36: both round-2 step rejections settled -> SETTLED",
+          q.status == QA_SETTLED and [c["field"] for c in q.settled] == ["procedure[7].step", "procedure[8].step"],
+          (q.status, q.settled))
+else:
+    print("  SKIP  replay N10 16:36 (run folder not on this machine)")
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
