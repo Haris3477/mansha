@@ -13,6 +13,7 @@ Run: python -m scripts.test_kb_shield
 """
 
 import copy
+import dataclasses
 import json
 import sys
 from pathlib import Path
@@ -191,7 +192,18 @@ check("a hedge the KB note does not carry is not shielded (QA may remove it)",
 
 # ---------------------------------------------------------------- 2b
 print("\n2b. A record's own KB note, word for word (Step 7.6i, 24 Oct 03:49)")
-IMPORTER = next(n for n in notes["P-IN-IMPORTER"] if "e-Sanchit" in n)
+# KB batch (27 Oct, 101): P-IN-IMPORTER has no note now (CBIC Instruction 28/2022 read in the official text).
+# The 03:49 run had the old hedged note; it is kept here as a synthetic notes map for that run's KB.
+IMPORTER = ("That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC "
+            "Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the "
+            "official text.")
+check("P-IN-IMPORTER has no KB note now", "P-IN-IMPORTER" not in notes, notes.get("P-IN-IMPORTER"))
+notes_0349 = dict(notes, **{"P-IN-IMPORTER": [IMPORTER]})
+NO_NOTE = "e-Sanchit by the importer or customs broker.\nnotes: none"
+check("the evidence shows P-IN-IMPORTER with no notes", pack.text.count(NO_NOTE) == 1)
+pack_0349 = dataclasses.replace(pack, text=pack.text.replace(
+    NO_NOTE, f"e-Sanchit by the importer or customs broker.\nnotes:\n- {IMPORTER}"))
+check("the synthetic 03:49 pack carries the old note", record_notes(pack_0349)["P-IN-IMPORTER"] == [IMPORTER])
 LIVE_0349 = {"field": "caveats[7].note",
              "problem": "The note adds unsupported detail about CBIC Instruction 28/2022 which is not in the "
                         "cited record.",
@@ -203,7 +215,7 @@ ITEM_0349 = {"note": "That electronic certificates are accepted and uploaded to 
                      "taxmann), not the official text.", "source_id": "P-IN-IMPORTER"}
 check("the 03:49 caveat is the P-IN-IMPORTER KB note word for word", ITEM_0349["note"] == IMPORTER)
 research = {"caveats": [None] * 7 + [ITEM_0349]}
-kept, over = kb_shield([LIVE_0349], research, notes)
+kept, over = kb_shield([LIVE_0349], research, notes_0349)
 check("03:49 replay: QA's correction of the KB's own note is overruled (verbatim)",
       kept == [] and len(over) == 1 and over[0]["why"] == "verbatim" and over[0]["record"] == "P-IN-IMPORTER",
       (kept, over))
@@ -222,25 +234,25 @@ r1 = {"caveats": [{"note": "The '+' in the rule 'CTSH + VA 45%' is read as 'and'
                            "agreement does not define '+', so this is Mansha's interpretation.",
                    "source_id": "TOOL:rule_lookup:76101000"}]}
 check("03:49 round 1 (a right correction: 45 is not in the rule lookup) is kept",
-      kb_shield([ROUND1_0349], r1, notes)[1] == [])
+      kb_shield([ROUND1_0349], r1, notes_0349)[1] == [])
 remove = dict(LIVE_0349, problem="This note does not apply to this result.", fix="Remove this caveat.")
 check("a correction that removes the KB note (it may not apply) is kept",
-      kb_shield([remove], research, notes)[1] == [])
+      kb_shield([remove], research, notes_0349)[1] == [])
 para = {"caveats": [None] * 7 + [{"note": "Electronic certificates are accepted in India.",
                                    "source_id": "P-IN-IMPORTER"}]}
 check("a shortened restatement that drops the qualifier is not shielded (QA may correct it)",
-      kb_shield([dict(LIVE_0349, fix="Say this is reported only in secondary sources.")], para, notes)[1] == [])
+      kb_shield([dict(LIVE_0349, fix="Say this is reported only in secondary sources.")], para, notes_0349)[1] == [])
 other = {"caveats": [None] * 7 + [{"note": IMPORTER, "source_id": "P-UAE-ISSUER"}]}
-check("the same text under another record is not shielded", kb_shield([LIVE_0349], other, notes)[1] == [])
+check("the same text under another record is not shielded", kb_shield([LIVE_0349], other, notes_0349)[1] == [])
 RUNS = Path(__file__).resolve().parent.parent / "runs" / "pipeline" / "20261024-034926_windows_nodata"
 if (RUNS / "researcher_2.json").exists():
     saved = json.loads((RUNS / "researcher_2.json").read_text())["output"]
     raw = json.loads((RUNS / "qa_2.json").read_text())["raw_corrections"]
-    k2, o2 = kb_shield(raw, saved, notes)
+    k2, o2 = kb_shield(raw, saved, notes_0349)
     check("replay of the saved 03:49 round 2: every correction overruled", k2 == [] and len(o2) == len(raw), (k2, o2))
     saved1 = json.loads((RUNS / "researcher_1.json").read_text())["output"]
     raw1 = json.loads((RUNS / "qa_1.json").read_text())["raw_corrections"]
-    check("replay of the saved 03:49 round 1: the right correction is kept", kb_shield(raw1, saved1, notes)[1] == [])
+    check("replay of the saved 03:49 round 1: the right correction is kept", kb_shield(raw1, saved1, notes_0349)[1] == [])
 else:
     print("  SKIP  replay of the saved 03:49 run (run folder not on this machine)")
 
@@ -302,12 +314,12 @@ data2 = copy.deepcopy(base)
 data2["caveats"].append(dict(ITEM_0349))
 v = dict(LIVE_0349, field=f"caveats[{len(data2['caveats']) - 1}].note")
 llm = Script(answer([v], f=0), answer())
-q = _review(intake, pack, data2, whole, llm)
+q = _review(intake, pack_0349, data2, whole, llm)
 check("7.6i flow: verbatim note rejected -> re-judge with the note -> APPROVED",
       q.status == QA_APPROVED and q.rejudged and len(llm.seen) == 2 and IMPORTER in llm.seen[1][-1]["content"],
       (q.status, len(llm.seen)))
 llm = Script(answer([v], f=0), answer([v], f=0))
-q = _review(intake, pack, data2, whole, llm)
+q = _review(intake, pack_0349, data2, whole, llm)
 check("7.6i flow: still rejected after the re-judge -> OVERRULED", q.status == QA_OVERRULED and q.corrections == [],
       q.status)
 

@@ -492,7 +492,9 @@ def plan_parts(intake: dict, pack: EvidencePack, research: dict, warnings) -> li
         return [whole]
 
     def fits(scope: list[str]) -> bool:
-        trial = Part("part 9/9", scope, pairs)  # worst case: every warning listed
+        # Worst case: every warning listed, and the longest label a part is sent with (KB batch, 27 Oct:
+        # "part 9/9" alone was 8 tokens short of "part 1/3: findings + steps and notes").
+        trial = Part("part 9/9: findings + steps and notes", scope, pairs)
         return (estimate_tokens(build_messages(intake, pack, research, pairs, part=trial))
                 + PLAN_BUDGET <= SPLIT_LIMIT)
 

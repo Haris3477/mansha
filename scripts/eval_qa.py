@@ -57,8 +57,9 @@ def merged_step(d):            # G8: a fact from another passage in a step (P-AG
     d["procedure"][0]["step"] += " The certificate is then issued within five working days of export."
 
 
-def dropped_qualifier(d):      # problem 6: "reportedly" dropped
-    d["procedure"][5]["step"] = d["procedure"][5]["step"].replace("are reportedly uploaded", "are uploaded")
+def dropped_qualifier(d):      # problem 6: "likely" dropped (KB batch, 27 Oct: was "reportedly" on the
+    # e-certificate step, which P-IN-IMPORTER now states plainly)
+    d["caveats"][5]["note"] = d["caveats"][5]["note"].replace("are likely not eligible", "are not eligible")
 
 
 def invented_timeline(d):      # a number the record does not give (code warns; QA must judge it REAL)
@@ -82,10 +83,11 @@ def useless_gap(d):            # 17 Oct 16:59 chargers run (Dots3): a gap that c
 
 
 def nodata_dropped_qualifier(d):   # problem 6 inside a big (split) review
-    note = d["caveats"][11]["note"]
-    d["caveats"][11]["note"] = note.replace(
-        "are reportedly accepted and uploaded to e-Sanchit (unconfirmed, seen only in secondary sources).",
-        "are accepted and uploaded to e-Sanchit.")
+    # KB batch (27 Oct): was the e-certificate hedge of caveats[11] (P-IN-IMPORTER now states it plainly).
+    # Now the free-zone KB note restated without its "likely", as the model drops a qualifier.
+    d["caveats"][10]["note"] = (
+        "A producer in a free zone is not eligible for Factory Registration, because it requires a factory "
+        "outside a free zone, and registration is needed before applying for the certificate of origin for India.")
 
 
 def nodata_merged_step(d):     # G8 inside a big (split) review: a fact from P-AGR-3.17-APPLICATION
@@ -109,13 +111,13 @@ CASES = [
     Case("clean_plastic", "plastic", note="NO_PREFERENCE"),
     Case("flip_failed_check", "chargers", flip_failed_check, ("origin_result", "origin_result.basis"), "problem 30"),
     Case("merged_step", "windows", merged_step, ("procedure[0]", "procedure"), "G8"),
-    Case("dropped_qualifier", "windows", dropped_qualifier, ("procedure[5]", "procedure"), "problem 6"),
+    Case("dropped_qualifier", "windows", dropped_qualifier, ("caveats[5]", "caveats"), "problem 6"),
     Case("invented_timeline", "windows", invented_timeline, ("procedure[1]", "procedure"), "code warning"),
     Case("bom_already_given", "chargers", bom_already_given, ("follow_up_questions", "follow_up_questions[0]"), "problem 55"),
     Case("irrelevant_caveat", "chargers", irrelevant_caveat, ("caveats", "caveats[6]"), "G12"),
     Case("useless_gap", "chargers", useless_gap, ("gaps", "gaps[0]"), "17 Oct live run"),
     Case("nodata_dropped_qualifier", "windows_nodata", nodata_dropped_qualifier,
-         ("caveats[11]", "caveats"), "problem 6, split review; code since 7.8", code_catches=True),
+         ("caveats[10]", "caveats"), "problem 6, split review; code since 7.8", code_catches=True),
     Case("nodata_merged_step", "windows_nodata", nodata_merged_step,
          ("procedure[4]", "procedure"), "G8, split review"),
 ]

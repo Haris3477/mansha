@@ -296,7 +296,7 @@
       ],
       "summary": "A certificate of origin is valid for 12 months from issue and covers one import (it may list several products). It should be issued before, at, or within 5 working days of export. A certificate may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form. Minor typing or formatting errors are tolerated; discrepancies in signature or seal are not. A lost certificate can be replaced by a certified true copy.",
       "notes": [
-        "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India."
+        "Only for a certificate issued retrospectively: the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' mark, but India's origin rules and certificate form say box 9; India's form governs entry into India."
       ]
     },
     {
@@ -378,7 +378,7 @@
       "id": "P-MOET-COO-INDIA",
       "title": "UAE e-service: Certificate of Origin for India",
       "kind": "procedure",
-      "actor": "the Ministry of Foreign Trade",
+      "actor": "the exporter",
       "tags": ["certificate", "e_service", "fees", "steps", "uae"],
       "source_keys": [
         "MOET-COO-INDIA",
@@ -431,7 +431,7 @@
       "quotes": [],
       "summary": "Before applying for a certificate, the factory must be registered through the Ministry of Economy and Tourism's Factory Registration service (moet.gov.ae). Registration requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added. It takes about 3 working days. Traders can apply only for goods bought from a registered factory. The 40% value-added letter is a registration condition only; it is NOT the CEPA product-specific rule test, which is set per tariff line.",
       "notes": [
-        "Inference: a producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism."
+        "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism."
       ]
     },
     {
@@ -457,8 +457,8 @@
       "quotes": [],
       "summary": "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
       "notes": [
-        "Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).",
-        "Inference: anti-dumping and safeguard duties still apply (no exemption found)."
+        "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found).",
+        "Anti-dumping and safeguard duties likely still apply (no CEPA exemption from them was found)."
       ]
     },
     {
@@ -468,12 +468,10 @@
       "kind": "procedure",
       "tags": ["importer", "india", "carotar", "e_sanchit", "records"],
       "source_keys": ["CAROTAR-BLR", "CBIC-INSTR-28", "N22"],
-      "provision": "CAROTAR 2020 Rules 4-6 (official summary); CBIC Instruction 28/2022 (secondary source)",
+      "provision": "CAROTAR 2020 Rules 4-6 (official summary); CBIC Instruction 28/2022-Customs (27 Oct 2022)",
       "quotes": [],
-      "summary": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days. The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details. Electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed: seen only in secondary sources).",
-      "notes": [
-        "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text."
-      ]
+      "summary": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days. The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details. Electronic certificates from the UAE issuing authority are accepted and uploaded to e-Sanchit by the importer or customs broker.",
+      "notes": []
     }
   ]
 }

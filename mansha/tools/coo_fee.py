@@ -3,7 +3,8 @@
 Pure Python, no LLM. The fee bands come from the knowledge-base passage for the
 corridor's certificate service. Bands are in AED; Mansha never converts
 currencies, so a value in another currency gets the fee range only.
-The fee's `actor` (who charges it) is copied from that passage (Step 6.4g).
+The fee's `actor` (who charges it) is copied from the corridor's issuer passage (Step 6.4g;
+KB batch, 27 Oct: the fee-band passage's own actor is the exporter, who applies).
 """
 
 from __future__ import annotations
@@ -17,6 +18,8 @@ TOOL_ID = "TOOL:coo_fee"
 GAP = "REGULATORY_GAP_DETECTED"
 # Passage that holds the fee bands of each corridor's certificate service.
 FEE_PASSAGE = {"india": "P-MOET-COO-INDIA"}
+# Passage whose actor charges the fee: the issuer, whose fee resolution sets the bands (CR 208/2025).
+ACTOR_PASSAGE = {"india": "P-UAE-ISSUER"}
 
 
 @dataclass
@@ -65,7 +68,8 @@ def certificate_fee(shipment_value: dict | None = None, corridor: str = "india")
     if not passage or not bands:
         return FeeResult(TOOL_ID, GAP, pid, notes=["No certificate fee bands are loaded for this corridor."])
 
-    actor = passage.get("actor")
+    issuer = next((p for p in _passages(kb) if p.get("id") == ACTOR_PASSAGE.get(corridor)), None)
+    actor = (issuer or {}).get("actor")
     sources = {k: kb["sources"][k]["url"] for k in passage.get("source_keys", []) if k in kb["sources"]}
     fees = [b["fee_aed"] for b in bands]
     rng = {"min": min(fees), "max": max(fees)}

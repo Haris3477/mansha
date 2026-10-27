@@ -208,12 +208,16 @@ for w in ("The Ministry of Foreign Trade issues the certificate of origin for In
 # 96 (25 Oct): the box note as an instruction is a slip; the KB's own wording is not
 for w in ("Since India's form governs entry into the country, you must use box 9 on your certificate.",
           "For the retrospective mark, use box 9 on the certificate as per India's form.",
-          "India's certificate form requires box 9 to be completed for entry into India."):
+          "India's certificate form requires box 9 to be completed for entry into India.",
+          "The agreement refers to box 8, but India's origin rules and certificate form use box 9; you must follow "
+          "India's form when entering the country."):   # 163642 N5 (KB batch, 27 Oct)
     run.output = w
     check(f"96: {w[:45]}...", "96" in slips(run), str(slips(run)))
 for w in ("The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
           "The agreement refers to box 8, but India's origin rules and certificate form use box 9.",
-          "It may be issued retrospectively, marked 'ISSUED RETROSPECTIVELY' in box 9 of India's certificate form."):
+          "It may be issued retrospectively, marked 'ISSUED RETROSPECTIVELY' in box 9 of India's certificate form.",
+          "Only for a certificate issued retrospectively: the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' "
+          "mark, but India's origin rules and certificate form say box 9; India's form governs entry into India."):
     run.output = w
     check(f"no 96: {w[:45]}...", "96" not in slips(run), str(slips(run)))
 f = planted(clean["C3"], "slip95", lambda d: append(d / "report.md", "\nSee the checklist below.\n"))
