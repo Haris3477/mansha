@@ -1,0 +1,149 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 146.4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7401,
+        "completion": 14155
+      },
+      "finish_reason": "stop",
+      "latency_s": 146.4,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Confirm that the HS code for sweet biscuits is 19053100.'"
+  ],
+  "output": {
+    "reasoning": [
+      "step 1: Classified sweet biscuits to tariff line 19053100 based on description match.",
+      "step 2: CEPA status is PREFERENTIAL, so preference applies if origin qualifies.",
+      "step 3: MFN rate is 30% and CEPA rate is 0%.",
+      "step 4: Origin rule is CTH + VA 40%; origin check meets all criteria, so product qualifies.",
+      "step 5: Estimated saving is 8100.00 USD.",
+      "step 6: Procedure steps derived from passages and fee tool.",
+      "step 7: Caveats and follow-up questions compiled."
+    ],
+    "classification": {
+      "tariff_line": "19053100",
+      "description": "Sweet biscuits",
+      "confidence": "high",
+      "source_id": "TL-IN-19053100"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "30%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-19053100"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R028"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture in UAE: PASS. Minimal operations: PASS. CTH: PASS - all 3 non-originating inputs are outside heading 1905. VA: PASS - build-down 55.0% against threshold of 40% (FOB basis); non-originating inputs are 45% of the price.",
+      "source_id": "TOOL:origin:19053100"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "8100.00",
+      "currency": "USD",
+      "source_id": "TOOL:duty:19053100"
+    },
+    "procedure": [
+      {
+        "step": "The Ministry of Economy and Tourism requires the factory to be registered through its Factory Registration service. Registration requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added. It takes about 3 working days.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The issuing authority requires the certificate application to include the HS code, description, quantity and value of the exported product; each item must qualify separately. The issuing authority may ask for detailed cost sheets and conduct a factory visit.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "The exporter applies for the Certificate of Origin for India through the e-service by logging in to the ministry e-services portal, choosing the Certificate of Origin for India service, filling in the application form, uploading the required documents (proof of factory registration, commercial invoice, and for a trading exporter, the factory's purchase invoice), paying the fee online, submitting the application, and receiving approval or a return with comments to correct. Processing takes about one working day.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Ministry of Foreign Trade charges a certificate fee. The fee range is AED 10 to AED 200, charged on the invoice value in AED.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the certificate of origin prior to, at, or within five working days of the date of exportation. The certificate is valid for twelve months from the date of issue and covers only one import (it may list several products). It must bear the authorised signature and official seal of the competent authority. A certificate can be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 of India's certificate form.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The exporter ships the goods directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations other than unloading, reloading, storage or similar. If a third party issues the invoice, the exporter must indicate 'third-party invoicing'.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days. Electronic certificates from the UAE issuing authority are accepted and uploaded to e-Sanchit by the importer or customs broker.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter keeps origin records, including the cost breakdown, for at least five years, starting from the end of the year of the date of its issue. Refusing a verification visit is grounds for denying preferential benefits.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "India's tariff schedule marks this 30% rate with a footnote that Mansha has not checked; confirm the normal (MFN) rate with Indian customs or a customs broker.",
+        "source_id": "TL-IN-19053100"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:19053100"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:19053100"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:19053100"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:19053100"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:19053100"
+      },
+      {
+        "note": "Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+        "source_id": "TOOL:coo_fee"
+      },
+      {
+        "note": "Only for a certificate issued retrospectively: the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' mark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+        "source_id": "P-AGR-COO-RULES"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "summary: includes advice 'Please follow the checklist in the report to complete the claim' which is not in FACTS or notes Fix: Remove the sentence about following the checklist, leaving only the factual statements about rule of origin, CEPA rate applicability, and estimated saving."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.11,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2436,
+            "completion": 1334
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.11,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

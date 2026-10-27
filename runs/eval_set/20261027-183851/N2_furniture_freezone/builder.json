@@ -1,0 +1,205 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 77.46,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2049,
+            "completion": 7072
+          },
+          "finish_reason": "stop",
+          "latency_s": 77.46,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 12.69,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2532,
+            "completion": 897
+          },
+          "finish_reason": "stop",
+          "latency_s": 12.69,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "REJECTED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The wooden bedroom furniture meets the rule of origin, so the CEPA rate can be claimed under the India-UAE CEPA. The CEPA rate is the reduced rate under the trade agreement, which applies to Basic Customs Duty only. On a shipment value of 100000 AED, this qualifies for an estimated saving of 7500.00 AED.",
+    "classification": "The product is classified under tariff line 94036000 for Other wooden furniture. Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 20% and the CEPA rate is 12.5%. The estimated saving is 7500.00 AED.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH), where each non-originating input must be in a different 4-digit heading than the product, and value addition (VA) of at least 40% on an FOB basis. The product meets this rule because the final manufacture took place in the UAE and the work goes beyond minimal operations. The CTH check passed as all 2 non-originating inputs are outside heading 9403, and the VA check passed with a build-down of 52.0% against the 40% threshold.",
+    "notes": [
+      {
+        "text": "For retrospective certificate issuance, use box 9 for the 'ISSUED RETROSPECTIVELY' mark, as India's form governs entry into India.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "The issuing authority may apply risk management, which can include asking for detailed cost sheets and conducting a factory visit.",
+        "from": [
+          "N7"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate; confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual duty amounts will differ from the estimate.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "The estimate is shown in the shipment's own currency and is not converted.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "Anti-dumping and safeguard duties likely still apply (no CEPA exemption from them was found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M10",
+      "text": "By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "For retrospective certificate issuance, the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' mark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "M11",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The certificate fee estimate assumes the certificate's invoice value equals the shipment value given.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+      "source_id": "P-MOET-COO-INDIA",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "The CEPA lowers the duty on this line but does not remove it.",
+      "source_id": "TL-IN-94036000",
+      "mandatory": false
+    },
+    {
+      "nid": "N7",
+      "text": "The issuing authority may apply risk management, including asking for detailed cost sheets and conducting a factory visit.",
+      "source_id": "P-AGR-3.17-APPLICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N8",
+      "text": "Minor typing or formatting errors on the certificate are tolerated; discrepancies in signature or seal are not.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N9",
+      "text": "The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    }
+  ],
+  "conditions": [
+    "FREE_ZONE"
+  ]
+}
