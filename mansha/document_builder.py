@@ -251,10 +251,14 @@ CONDITION_TEXT = {
               "بطلب شهادة المنشأ؛ تحقّق من ذلك مع وزارة الاقتصاد والسياحة قبل الاعتماد على هذه النتيجة.",
     },
     "INDIAN_INPUTS": {
+        # 27 Oct (Haris, option a): the N5 reading found a condition with no consequence or action;
+        # the added clause is the tool note's "only with proof" turned round (P-AGR-3.7-CUMULATION).
         "en": "Caution: this result counts your inputs from India as originating, which holds only with "
-              "proof of their originating status.",
+              "proof of their originating status; without that proof they count as non-originating inputs. "
+              "Keep that proof before relying on this result.",
         "ar": "تنبيه: تَعُدّ هذه النتيجة مدخلاتك القادمة من الهند مدخلاتٍ ذات منشأ، ولا يصح ذلك إلا "
-              "بإثبات صفتها المنشئية.",
+              "بإثبات صفتها المنشئية؛ ومن دون هذا الإثبات تُعدّ مدخلاتٍ غير ذات منشأ. احتفظ بهذا "
+              "الإثبات قبل الاعتماد على هذه النتيجة.",
     },
 }
 # ...and under the factory-registration step of the checklist (N2: step 1 required a factory outside a
