@@ -37,6 +37,7 @@ from mansha.researcher import (
     strip_list_markers,
     unbracket_ids,
 )
+from scripts.eval_cases import BY_ID as EVAL_BY_ID
 from scripts.pipeline_cases import DEV_INTAKES
 
 failures: list[str] = []
@@ -196,8 +197,10 @@ kb = load_corridor("india")
 kb_actors = {p["id"]: p["actor"] for p in passages_of(kb) if p.get("actor")}
 check("pack.actors holds every passage actor from the KB",
       all(w.actors.get(pid) == a for pid, a in kb_actors.items()), w.actors)
-check("pack.actors has the fee tool's actor",
-      w.actors.get("TOOL:coo_fee") == kb_actors.get("P-MOET-COO-INDIA"), w.actors.get("TOOL:coo_fee"))
+# KB batch (27 Oct, slip 72): the fee is charged by the issuer (P-UAE-ISSUER); the certificate service's own
+# actor is the exporter, who applies.
+check("pack.actors has the fee tool's actor (the issuer's)",
+      w.actors.get("TOOL:coo_fee") == kb_actors.get("P-UAE-ISSUER"), w.actors.get("TOOL:coo_fee"))
 check("actor line shown in the evidence", "actor: the Ministry of Foreign Trade" in w.text)
 
 filled = copy.deepcopy(GOOD_W)
@@ -213,7 +216,7 @@ fill_authorities(filled, w)
 got = [s["authority"] for s in filled["procedure"]]
 check("model's wrong authority overwritten by the passage actor",
       got[0] == "the Ministry of Economy and Tourism", got[0])
-check("missing authority filled from the passage", got[1] == "the Ministry of Foreign Trade", got[1])
+check("missing authority filled from the passage", got[1] == "the exporter", got[1])
 check("fee step authority comes from TOOL:coo_fee, not the model",
       got[2] == "the Ministry of Foreign Trade", got[2])
 check("issuer step -> the Ministry of Foreign Trade", got[3] == "the Ministry of Foreign Trade", got[3])
@@ -471,10 +474,45 @@ check("NOT_ELIGIBLE: every follow-up dropped, one change each",
       and all(x.startswith("follow_up_questions: dropped for verdict NOT_ELIGIBLE") for x in changes), changes)
 d = copy.deepcopy(GOOD_P); d["follow_up_questions"] = ["Can you confirm the HS code?"]
 check("NO_PREFERENCE: dropped", drop_follow_ups(d, "NO_PREFERENCE") and d["follow_up_questions"] == [])
-for v in ("ELIGIBLE", "NEEDS_MORE_DATA", GAP):
+for v in ("NEEDS_MORE_DATA", GAP):
     d = copy.deepcopy(GOOD_WN)
     check(f"{v}: follow-ups kept", drop_follow_ups(d, v) == []
           and d["follow_up_questions"] == GOOD_WN["follow_up_questions"])
+
+# ELIGIBLE (27 Oct, C1 live, Dots3): only an AED-value question, or an HS-code question when the tariff
+# lookup wrote a note (N4), is kept.
+LIVE_C1 = ["Is your factory located in a free zone? (Free-zone factories may not be eligible for the required "
+           "factory registration.)",
+           "Can you confirm that the final manufacture in the UAE went beyond the minimal operations listed in "
+           "Article 3.5.1 of the agreement? (This is based on your declaration.)"]
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = list(LIVE_C1)
+changes = drop_follow_ups(d, "ELIGIBLE", w)
+check("ELIGIBLE (C1 27 Oct): both follow-ups dropped, one change each",
+      d["follow_up_questions"] == [] and len(changes) == 2
+      and all(x.startswith("follow_up_questions: dropped for verdict ELIGIBLE") for x in changes), changes)
+LIVE_N1 = ("Provide the invoice value in AED to determine the exact certificate of origin fee, since the fee bands "
+           "are in AED and the shipment value is given in USD.")   # 25 Oct N1
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = [LIVE_C1[0], LIVE_N1]
+drop_follow_ups(d, "ELIGIBLE", w)
+check("ELIGIBLE (N1 25 Oct): the AED-value question is kept, the rest dropped",
+      d["follow_up_questions"] == [LIVE_N1], d["follow_up_questions"])
+LIVE_N4 = ("Please confirm that the product should be classified under tariff line 76101000, as the closest match "
+           "to the given HS code 76101090.")   # 25 Oct N4 researcher_2
+n4 = build_evidence(EVAL_BY_ID["N4"].intake, EVAL_BY_ID["N4"].folder)
+check("N4: the tariff lookup notes the given code (no exact match)", bool(n4.tool_results["TOOL:tariff_lookup"]["notes"]))
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = [LIVE_N4, LIVE_C1[1]]
+drop_follow_ups(d, "ELIGIBLE", n4)
+check("ELIGIBLE with a tariff-lookup note (N4): the HS-code question is kept, the declaration re-ask dropped",
+      d["follow_up_questions"] == [LIVE_N4], d["follow_up_questions"])
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = [LIVE_N4]
+check("ELIGIBLE, no tariff-lookup note: the same HS-code question is dropped",
+      drop_follow_ups(d, "ELIGIBLE", w) and d["follow_up_questions"] == [])
+asks_w = copy.deepcopy(GOOD_W); asks_w["follow_up_questions"] = list(LIVE_C1)
+res = run_researcher(wi, w, llm=fake_llm(asks_w))
+check("run_researcher (C1 27 Oct): ELIGIBLE, passes, no follow-ups, drops recorded",
+      res.passed and res.data["verdict"] == "ELIGIBLE" and res.data["follow_up_questions"] == []
+      and sum(x.startswith("follow_up_questions: dropped for verdict ELIGIBLE") for x in res.changes) == 2,
+      (res.problems, res.changes))
 d = copy.deepcopy(asks); d["gaps"] = ["A real gap."]
 drop_follow_ups(d, "NOT_ELIGIBLE")
 check("gaps are left alone", d["gaps"] == ["A real gap."])
@@ -686,9 +724,10 @@ NOTES_WN = record_notes(wn)
 DEMIN = NOTES_WN["P-AGR-3.4-DEMINIMIS"][0]
 SWS, AD = NOTES_WN["P-IN-DUTY-SCOPE"]
 PLUS = NOTES_WN["TOOL:origin:76101000"][0]
+# KB batch (27 Oct, item 4): the SWS and anti-dumping notes say "likely" instead of a leading "Inference:",
+# and the de minimis note "By interpretation," instead of "Interpretation:".
 check("KB notes carry the qualifiers this step protects",
-      DEMIN.startswith("Interpretation:") and SWS.startswith("Inference:") and AD.startswith("Inference:"),
-      (DEMIN, SWS, AD))
+      DEMIN.startswith("By interpretation,") and " likely " in SWS and " likely " in AD, (DEMIN, SWS, AD))
 
 
 def with_caveats(*cavs, base=None):
@@ -750,19 +789,31 @@ for sid, text, pack in KEPT:
 SEED_11 = ("The Indian importer must hold origin information under CAROTAR 2020, including the origin criterion "
            "claimed, keep supporting documents for at least 5 years, and respond to customs requests within 10 "
            "working days. Electronic certificates are accepted and uploaded to e-Sanchit.")  # eval_qa seed
-got, ch = restored("P-IN-IMPORTER", SEED_11)
+# KB batch (27 Oct, 101): P-IN-IMPORTER now states the e-certificate fact plainly (CBIC Instruction 28/2022 read
+# in the official text). The mechanism is still tested on a synthetic pack holding the old hedged sentence.
+IMP_NOW = ("Electronic certificates from the UAE issuing authority are accepted and uploaded to e-Sanchit by the "
+           "importer or customs broker.")
+IMP_HEDGED = ("Electronic certificates are reportedly accepted and uploaded to e-Sanchit (unconfirmed: seen only in "
+              "secondary sources).")
+check("P-IN-IMPORTER states the e-certificate fact plainly now",
+      (IMP_NOW in w.text and IMP_NOW in wn.text and "reportedly" not in w.text), IMP_NOW)
+w_hedged = dataclasses.replace(w, text=w.text.replace(IMP_NOW, IMP_HEDGED))
+wn_hedged = dataclasses.replace(wn, text=wn.text.replace(IMP_NOW, IMP_HEDGED))
+got, ch = restored("P-IN-IMPORTER", SEED_11, wn_hedged)
 check("caveat with other facts and a dropped 'reportedly': not rewritten", got == SEED_11 and ch == [], (got, ch))
 d = with_caveats(("P-IN-IMPORTER", SEED_11))
 check("... but a hard problem naming the qualifier",
-      any("plain fact" in x and "'reportedly'" in x for x in run(d, wn)[0]), run(d, wn)[0])
+      any("plain fact" in x and "'reportedly'" in x for x in run(d, wn_hedged)[0]), run(d, wn_hedged)[0])
+check("... and no problem against today's plain record", not any("plain fact" in x for x in run(d, wn)[0]),
+      run(d, wn)[0])
 MERGED_1956 = ("The Social Welfare Surcharge is charged on the reduced BCD (no CEPA-specific text found), and "
                "anti-dumping and safeguard duties still apply.")   # 23 Oct 19:56 windows caveats[15]
 got, ch = restored("P-IN-DUTY-SCOPE", MERGED_1956)
-check("23 Oct 19:56 merged caveat (SWS 'Inference' dropped, anti-dumping stated plainly by the summary): "
+check("23 Oct 19:56 merged caveat (SWS qualifier dropped, anti-dumping stated plainly by the summary): "
       "not rewritten, left to the revision", got == MERGED_1956 and ch == [], (got, ch))
 d = with_caveats(("P-IN-DUTY-SCOPE", MERGED_1956))
-check("23 Oct 19:56 merged caveat: hard problem on 'Inference'",
-      any("plain fact" in x and "'Inference'" in x for x in run(d, wn)[0]), run(d, wn)[0])
+check("23 Oct 19:56 merged caveat: hard problem on 'likely'",
+      any("plain fact" in x and "'likely'" in x for x in run(d, wn)[0]), run(d, wn)[0])
 
 # The record also says it plainly: supported as written (a caveat copying the whole summary, 16 Oct plastic).
 summary = next(u for k, u in record_sentences(wn)["P-IN-DUTY-SCOPE"] if k == "summary" and "anti-dumping" in u)
@@ -777,14 +828,15 @@ STEP_1956 = ("The Ministry of Economy and Tourism requires the factory to be reg
 ok = copy.deepcopy(GOOD_W); ok["procedure"][0] = {"step": STEP_1956, "source_id": "P-MOET-FACTORY-REG"}
 check("factory step sharing words with the free-zone Inference note: no problem",
       not any("plain fact" in x for x in run(ok, w)[0]), run(ok, w)[0])
-imp = next(u for k, u in record_sentences(w)["P-IN-IMPORTER"] if "reportedly" in u)
+imp = next(u for k, u in record_sentences(w_hedged)["P-IN-IMPORTER"] if "reportedly" in u)
 for step, bad in (("Electronic certificates are accepted and uploaded to e-Sanchit.", True),
                   ("Electronic certificates are reportedly accepted and uploaded to e-Sanchit.", False),
                   ("The importer uploads electronic certificates to e-Sanchit, which is unconfirmed.", False)):
     d = copy.deepcopy(GOOD_W); d["procedure"].append({"step": step, "source_id": "P-IN-IMPORTER"})
-    found = any("plain fact" in x and x.startswith(f"procedure[{len(d['procedure']) - 1}]") for x in run(d, w)[0])
+    found = any("plain fact" in x and x.startswith(f"procedure[{len(d['procedure']) - 1}]")
+                for x in run(d, w_hedged)[0])
     check(f"step {'drops' if bad else 'keeps'} the qualifier of {imp[:40]!r}...: problem {bad}", found == bad,
-          run(d, w)[0])
+          run(d, w_hedged)[0])
 
 # The fixed issuer note is fill_fixed_notes' job: never rewritten here.
 d = with_caveats(("P-UAE-ISSUER", "The Ministry of Foreign Trade issues the certificate."))
@@ -813,10 +865,14 @@ check("run_researcher: dropped 'Interpretation:' restored by code, answer passes
       and any("qualifier kept (P-AGR-3.4-DEMINIMIS)" in x for x in res.changes), (res.problems, res.changes))
 
 # Replays of the saved answers (git-ignored run folders: skipped if absent).
-for folder, name, want in (("20261018-051708_windows_nodata", "researcher_1.json", {8: DEMIN}),
-                           ("20261018-165049_windows_nodata", "researcher_1.json", {8: DEMIN}),
-                           ("20261018-165049_windows_nodata", "researcher_2.json", {8: DEMIN}),
-                           ("20261024-155849_windows", "researcher_1.json", {7: SWS, 8: AD})):
+# want: {caveat index: (record, note index)}, read from the run's own evidence (KB batch, 27 Oct: the
+# SWS and anti-dumping notes were reworded after these runs).
+DEMIN_0 = ("P-AGR-3.4-DEMINIMIS", 0)
+for folder, name, want in (("20261018-051708_windows_nodata", "researcher_1.json", {8: DEMIN_0}),
+                           ("20261018-165049_windows_nodata", "researcher_1.json", {8: DEMIN_0}),
+                           ("20261018-165049_windows_nodata", "researcher_2.json", {8: DEMIN_0}),
+                           ("20261024-155849_windows", "researcher_1.json",
+                            {7: ("P-IN-DUTY-SCOPE", 0), 8: ("P-IN-DUTY-SCOPE", 1)})):
     f = RUNS / folder / name
     if not f.exists():
         print(f"  SKIP  replay {folder}/{name} (run folder not on this machine)")
@@ -826,15 +882,17 @@ for folder, name, want in (("20261018-051708_windows_nodata", "researcher_1.json
     pack = dataclasses.replace(pack, text=(RUNS / folder / "evidence.txt").read_text())
     d = copy.deepcopy(json.loads(f.read_text())["output"])
     ch = restore_qualified_notes(d, pack)
+    run_notes = record_notes(pack)
     check(f"replay {folder}/{name}: the dropped qualifier(s) restored",
-          all(d["caveats"][i]["note"] == t for i, t in want.items()) and len(ch) == len(want), ch)
+          all(d["caveats"][i]["note"] == run_notes[rid][k] for i, (rid, k) in want.items())
+          and len(ch) == len(want), ch)
 
 # Fix round 1 (26 Oct, N5 live): one caveat merging both "Inference:" notes of P-IN-DUTY-SCOPE.
 paint = build_evidence({"product_description": "acrylic paint", "hs_code_given": None,
                         "shipment_value": {"amount": 100000, "currency": "AED"}}, "samples/eval/paint_indian_resin")
 DUTY_NOTES = [u for k, u in record_sentences(paint)["P-IN-DUTY-SCOPE"] if k == "note"]
-check("P-IN-DUTY-SCOPE has the two Inference notes", len(DUTY_NOTES) == 2
-      and all(n.startswith("Inference:") for n in DUTY_NOTES), DUTY_NOTES)
+check("P-IN-DUTY-SCOPE has the two qualified notes ('likely')", len(DUTY_NOTES) == 2
+      and all(" likely " in n for n in DUTY_NOTES), DUTY_NOTES)
 for text, label in (
         ("Inference: the Social Welfare Surcharge (SWS) is charged on the reduced BCD (no CEPA-specific text "
          "found); anti-dumping and safeguard duties still apply (no exemption found).",

@@ -3,7 +3,7 @@
 import sys
 
 from mansha.kb import load_corridor
-from mansha.tools.coo_fee import FEE_PASSAGE, certificate_fee
+from mansha.tools.coo_fee import ACTOR_PASSAGE, FEE_PASSAGE, certificate_fee
 
 failures: list[str] = []
 
@@ -49,7 +49,12 @@ check("tool id", r.to_dict()["tool_id"] == "TOOL:coo_fee")
 fee_passage = next(p for p in load_corridor("india")["passages"]["passages"] if p["id"] == FEE_PASSAGE["india"])
 check("note names the fee's legal basis (passage provision)",
       any(fee_passage["provision"] in n for n in r.notes), r.notes)
-check("actor comes from the fee passage", r.actor == fee_passage["actor"], r.actor)
+# KB batch (27 Oct, slip 72): the fee passage's actor is the exporter (who applies); the fee is charged by
+# the issuer, whose fee resolution sets the bands.
+issuer = next(p for p in load_corridor("india")["passages"]["passages"] if p["id"] == ACTOR_PASSAGE["india"])
+check("actor comes from the issuer passage", r.actor == issuer["actor"], r.actor)
+check("the fee's actor is the Ministry of Foreign Trade", r.actor == "the Ministry of Foreign Trade", r.actor)
+check("the fee passage's own actor is the exporter", fee_passage["actor"] == "the exporter", fee_passage["actor"])
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

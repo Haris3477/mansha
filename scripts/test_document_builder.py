@@ -12,6 +12,8 @@ import sys
 from pathlib import Path
 
 from mansha.document_builder import (
+    CHECKLIST_POINTER,
+    HEADINGS,
     CONDITION_TEXT,
     ESTIMATE_NOTE_START,
     EVIDENCE_ID_RE,
@@ -61,7 +63,7 @@ def good_windows_prose(notes: list[dict]) -> dict:
     optional = [n["nid"] for n in notes if not n["mandatory"]]
     return {
         "summary": "Your aluminium window frames meet the rule of origin, so you can claim the CEPA "
-                   "rate in India. The estimated saving is AED 10,000. Follow the checklist below.",
+                   "rate in India. The estimated saving is AED 10,000.",   # code adds the checklist pointer (2A)
         "classification": "The product falls under tariff line 76101000 (aluminium doors, windows and "
                           "their frames), with high confidence. Confirm the code with Indian customs "
                           "or a customs broker before shipping.",
@@ -344,8 +346,9 @@ def summary_of(md: str) -> str:
 fz_research = copy.deepcopy(research)
 fz_research["procedure"] = [dict(fz_research["procedure"][0], source_id=FACTORY_REG_ID)] + fz_research["procedure"][1:]
 md_fz = render_report(fz_research, intake, good, notes, pack.id_sources, kb_sources, ["FREE_ZONE"])
-check("FREE_ZONE: the caution ends the summary, after the LLM's text",
-      summary_of(md_fz).strip() == good["summary"].strip() + " " + CONDITION_TEXT["FREE_ZONE"]["en"])
+check("FREE_ZONE: the caution follows the LLM's text, then the checklist pointer (ELIGIBLE)",
+      summary_of(md_fz).strip() == " ".join([good["summary"].strip(), CONDITION_TEXT["FREE_ZONE"]["en"],
+                                            CHECKLIST_POINTER["en"]]))
 check("FREE_ZONE: marked under the factory-registration step",
       md_fz.count(FREE_ZONE_STEP_TEXT["en"]) == 1
       and md_fz.index(FREE_ZONE_STEP_TEXT["en"]) < md_fz.index("## Important notes"))
@@ -367,6 +370,27 @@ check("NEEDS_MORE_DATA keeps the caution; unknown codes and repeats ignored",
       == [CONDITION_TEXT["FREE_ZONE"]["en"]])
 rc_problems, _ = check_report(md_fz, research=fz_research, evidence_text=pack.text, message="")
 check("the cautions pass the report check (no numbers, IDs or code words)", rc_problems == [], rc_problems)
+
+# KB batch (27 Oct, 2A): code writes the pointer to the checklist; the LLM no longer does.
+md_plain = render_report(research, intake, good, notes, pack.id_sources, kb_sources)
+check("ELIGIBLE with steps: the summary ends with the checklist pointer, once",
+      summary_of(md_plain).strip() == good["summary"].strip() + " " + CHECKLIST_POINTER["en"]
+      and md_plain.count(CHECKLIST_POINTER["en"]) == 1, summary_of(md_plain))
+check("... and the checklist it points to is below it",
+      md_plain.index(CHECKLIST_POINTER["en"]) < md_plain.index("## " + HEADINGS["en"]["checklist"]))
+check("Arabic: the Arabic pointer", CHECKLIST_POINTER["ar"] in summary_of(md_ar)
+      and CHECKLIST_POINTER["en"] not in md_ar)
+no_steps = dict(copy.deepcopy(research), procedure=[])
+check("ELIGIBLE with no steps (no checklist): no pointer",
+      CHECKLIST_POINTER["en"] not in render_report(no_steps, intake, good, notes, pack.id_sources, kb_sources))
+for v in ("NEEDS_MORE_DATA", "NOT_ELIGIBLE", "NO_PREFERENCE"):
+    rv = dict(copy.deepcopy(research), verdict=v)
+    check(f"{v}: no pointer", CHECKLIST_POINTER["en"] not in render_report(rv, intake, good, notes,
+                                                                           pack.id_sources, kb_sources))
+check("the Builder prompt no longer asks the LLM for the pointer",
+      "point the reader to the checklist" not in Path("prompts/document_builder.md").read_text(encoding="utf-8"))
+rc_problems, _ = check_report(md_plain, research=research, evidence_text=pack.text, message="")
+check("the pointer passes the report check", rc_problems == [], rc_problems)
 
 print("\n3b. Small rendering rules (Step 9.5)")
 ch_research, ch_intake, _ = cases["chargers"]

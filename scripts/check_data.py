@@ -3,6 +3,7 @@
 Run from the project root:  python -m scripts.check_data
 """
 
+import re
 import sys
 
 from mansha.kb import CORRIDORS, KBError, corridor_for, load_corridor
@@ -25,13 +26,39 @@ def check_corridors() -> list[str]:
     return problems
 
 
+# KB batch (27 Oct, item 4 + leftovers): notes printed word for word reach the exporter, so no raw
+# "Inference:" or "Interpretation:" label;
+# the reworded notes must keep a qualifier that check 10 (SOURCE_QUALIFIER_RE) and the KB shield
+# (SHIELD_QUALIFIER_RE) both recognise, or a model dropping it would go unnoticed.
+QUALIFIED_NOTES = {"P-MOET-FACTORY-REG": 1, "P-IN-DUTY-SCOPE": 2, "P-AGR-3.4-DEMINIMIS": 1}
+
+
+def check_note_wording(kb: dict) -> list[str]:
+    from mansha.qa import SHIELD_QUALIFIER_RE
+    from mansha.researcher import SOURCE_QUALIFIER_RE
+    problems = []
+    by_id = {p["id"]: p for p in kb["passages"]["passages"]}
+    for p in by_id.values():
+        for text in [p.get("summary", "")] + p.get("notes", []):
+            if re.search(r"\b(?:Inference|Interpretation):", text):
+                problems.append(f"{p['id']}: raw 'Inference:'/'Interpretation:' label in {text[:60]!r}")
+    for pid, n in QUALIFIED_NOTES.items():
+        notes = by_id.get(pid, {}).get("notes", [])
+        if len(notes) != n:
+            problems.append(f"{pid}: expected {n} qualified note(s), found {len(notes)}")
+        for note in notes:
+            if not (SOURCE_QUALIFIER_RE.search(note) and SHIELD_QUALIFIER_RE.search(note)):
+                problems.append(f"{pid}: note lost its qualifier: {note[:60]!r}")
+    return problems
+
+
 def main() -> int:
     try:
         kb = load_corridor("india")
     except KBError as e:
         print(f"FAILED\n{e}")
         return 1
-    problems = check_corridors()
+    problems = check_corridors() + check_note_wording(kb)
     if problems:
         print("FAILED\n- " + "\n- ".join(problems))
         return 1

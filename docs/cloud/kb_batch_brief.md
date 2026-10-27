@@ -1,6 +1,6 @@
 # Brief: KB batch (72, 96, 101 + KB note wording), designed on paper 27 Oct 2026
 
-Follows `docs/cloud/handoff_2026-10-26_fix_round_1.md` (fix round 1 closed). Status: **design only; Haris has not chosen yet.** Nothing here is built. Each item: cause, options, Claude's recommendation, what should change and how we'll know.
+Follows `docs/cloud/handoff_2026-10-26_fix_round_1.md` (fix round 1 closed). Status: **built and closed (27 Oct)**; Haris's choices, results and later changes (96 → note removed, 2A) in `docs/cloud/handoff_2026-10-27_kb_batch.md`. Each item: cause, options, Claude's recommendation, what should change and how we'll know.
 
 Saved runs: extract `runs-snapshot` first (CLAUDE.md). Latest sittings: `runs/eval_set/20261027-155659`, `-163642`, `-172227` (Dots3).
 

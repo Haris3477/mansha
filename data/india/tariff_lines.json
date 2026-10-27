@@ -5,7 +5,7 @@
     "data_checked": "2026-10-14",
     "cepa_rate_basis": "Notification 22/2022-Customs as substituted by 09/2026-Customs (Table I), in force 1 Apr 2026",
     "mfn_basis": "CBIC First Schedule (tariff as on 30.06.2024) updated with Finance Bill 2025, read with 45/2025-Customs",
-    "duty_scope": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+    "duty_scope": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
     "open_risks": [
       "Notification 15/2026-Customs (amends 45/2025) not read: effective MFN rates could differ. Re-check before the demo.",
       "MFN tariff changes taken from Finance Bills as introduced, not the enacted Acts.",
