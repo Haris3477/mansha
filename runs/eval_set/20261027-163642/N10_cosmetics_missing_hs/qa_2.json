@@ -1,0 +1,167 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "procedure[7].step: The statement drops the required qualifier; the record says the importer must hold origin information, not that it already holds it. Fix: The Indian importer: claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days. The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details. Cite P-IN-IMPORTER in source_id, not in the text.",
+    "procedure[8].step: The statement drops the required qualifier; the record says the exporter must keep origin records, not that it simply keeps them. Fix: The exporter: must keep origin records, including the cost breakdown, for no less than five (5) years, starting from the end of the year of the date of its issue. Refusing a verification visit is grounds for denying preferential benefits. Cite P-AGR-RECORDS-VERIFICATION in source_id, not in the text."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.9,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]",
+        "procedure[6]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 2.34,
+      "scope": [
+        "procedure[7]",
+        "procedure[8]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.75,
+      "scope": [
+        "caveats[11]",
+        "caveats[12]",
+        "caveats[13]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "raw_corrections": [
+    {
+      "field": "procedure[7].step",
+      "problem": "The statement drops the required qualifier; the record says the importer must hold origin information, not that it already holds it.",
+      "fix": "The Indian importer: claims the CEPA rate when filing the bill of entry and must hold origin information under CAROTAR 2020, including which origin criterion is claimed. The importer keeps supporting documents for at least 5 years from filing and must answer a customs request within 10 working days. The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details.",
+      "source_id": "P-IN-IMPORTER"
+    },
+    {
+      "field": "procedure[8].step",
+      "problem": "The statement drops the required qualifier; the record says the exporter must keep origin records, not that it simply keeps them.",
+      "fix": "The exporter: must keep origin records, including the cost breakdown, for no less than five (5) years, starting from the end of the year of the date of its issue. Refusing a verification visit is grounds for denying preferential benefits.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION"
+    }
+  ],
+  "overruled_by_kb": [],
+  "rejudged": false,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.9,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4858,
+            "completion": 1436
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.9,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 2.34,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "paced_wait_s": 30.2,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4917,
+            "completion": 2686
+          },
+          "finish_reason": "stop",
+          "latency_s": 2.34,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.75,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 3094,
+            "completion": 769
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.75,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

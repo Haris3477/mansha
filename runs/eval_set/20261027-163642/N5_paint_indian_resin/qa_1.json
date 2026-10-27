@@ -1,0 +1,173 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "procedure[6].step: The step includes the name 'Indian importer', which is not present in the cited record. Fix: The exporter sends the certificate; if a third party issues the invoice, the exporter must indicate 'third-party invoicing'. Cite P-AGR-3.12-DIRECT in source_id, not in the text."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 1 (1 real) | 3 parts",
+  "warning_judgements": [
+    {
+      "id": "W1",
+      "warning": "procedure[6]: names 'Indian importer', which P-AGR-3.12-DIRECT does not; cite the record that states it, or split the step",
+      "judgement": "REAL",
+      "reason": "Procedure step mentions 'Indian importer' which is not found in the cited record."
+    }
+  ],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.3,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]",
+        "procedure[6]"
+      ],
+      "warnings": [
+        "W1"
+      ],
+      "note": ""
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.9,
+      "scope": [
+        "procedure[7]",
+        "procedure[8]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]",
+        "caveats[11]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.76,
+      "scope": [
+        "caveats[12]",
+        "caveats[13]",
+        "caveats[14]",
+        "caveats[15]",
+        "caveats[16]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "raw_corrections": [
+    {
+      "field": "procedure[6].step",
+      "problem": "The step includes the name 'Indian importer', which is not present in the cited record.",
+      "fix": "The exporter sends the certificate; if a third party issues the invoice, the exporter must indicate 'third-party invoicing'.",
+      "source_id": "P-AGR-3.12-DIRECT"
+    }
+  ],
+  "overruled_by_kb": [],
+  "rejudged": false,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4850,
+            "completion": 1749
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.3,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.9,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4709,
+            "completion": 1556
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.9,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.76,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 3208,
+            "completion": 715
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.76,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": [
+    "procedure[6]: names 'Indian importer', which P-AGR-3.12-DIRECT does not; cite the record that states it, or split the step"
+  ]
+}

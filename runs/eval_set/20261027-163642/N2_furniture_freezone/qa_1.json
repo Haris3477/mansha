@@ -1,0 +1,166 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1,
+    "formatting_safety": 1
+  },
+  "corrections": [
+    "reasoning[0]: The statement that the tariff line matches the product description is not directly supported by the cited record. Fix: The tariff line TL-IN-94036000 is described as 'Other wooden furniture', which can include hardwood bedroom furniture. Cite TL-IN-94036000 in source_id, not in the text.",
+    "caveats[1].note: The note is not supported by the cited record TOOL:rule_lookup:94036000, which contains no notes. Fix: '+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation. Cite TOOL:origin:94036000 in source_id, not in the text."
+  ],
+  "note": "REJECTED | factuality 0, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+  "warning_judgements": [],
+  "answer_problems": [],
+  "parts": [
+    {
+      "label": "part 1/3: findings + steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.49,
+      "scope": [
+        "findings",
+        "procedure[0]",
+        "procedure[1]",
+        "procedure[2]",
+        "procedure[3]",
+        "procedure[4]",
+        "procedure[5]",
+        "procedure[6]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 2/3: steps and notes",
+      "status": "REJECTED",
+      "scores": {
+        "factuality": 0,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 1.33,
+      "scope": [
+        "procedure[7]",
+        "caveats[0]",
+        "caveats[1]",
+        "caveats[2]",
+        "caveats[3]",
+        "caveats[4]",
+        "caveats[5]",
+        "caveats[6]",
+        "caveats[7]",
+        "caveats[8]",
+        "caveats[9]",
+        "caveats[10]"
+      ],
+      "warnings": [],
+      "note": ""
+    },
+    {
+      "label": "part 3/3: steps and notes",
+      "status": "APPROVED",
+      "scores": {
+        "factuality": 1,
+        "completeness": 1,
+        "formatting_safety": 1
+      },
+      "served_by": "cerebras/gpt-oss-120b",
+      "seconds": 0.85,
+      "scope": [
+        "caveats[11]",
+        "caveats[12]",
+        "caveats[13]",
+        "caveats[14]"
+      ],
+      "warnings": [],
+      "note": ""
+    }
+  ],
+  "raw_corrections": [
+    {
+      "field": "reasoning[0]",
+      "problem": "The statement that the tariff line matches the product description is not directly supported by the cited record.",
+      "fix": "The tariff line TL-IN-94036000 is described as 'Other wooden furniture', which can include hardwood bedroom furniture.",
+      "source_id": "TL-IN-94036000"
+    },
+    {
+      "field": "caveats[1].note",
+      "problem": "The note is not supported by the cited record TOOL:rule_lookup:94036000, which contains no notes.",
+      "fix": "'+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:94036000"
+    }
+  ],
+  "overruled_by_kb": [],
+  "rejudged": false,
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.49,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 5079,
+            "completion": 1423
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.49,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.33,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 4884,
+            "completion": 1974
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.33,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 0.85,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 3000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2943,
+            "completion": 994
+          },
+          "finish_reason": "stop",
+          "latency_s": 0.85,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "code_warnings_given": []
+}

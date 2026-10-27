@@ -1,0 +1,44 @@
+{
+  "runs": 4,
+  "passed": 2,
+  "scored": 4,
+  "verdict_correct": 3,
+  "verdict_cases": 4,
+  "expected_failures": [],
+  "checks_failed": 1,
+  "llm_error": 0,
+  "qa_rejections": 4,
+  "qa_overruled": 0,
+  "router_refusals": 1,
+  "paced_wait_s": 36.9,
+  "median_seconds_reports": 221.3,
+  "slips": {
+    "72": 2
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 4,
+      "prompt": 2788,
+      "completion": 1221
+    },
+    "auto:long": {
+      "requests": 10,
+      "prompt": 65157,
+      "completion": 59013
+    },
+    "auto:judge": {
+      "requests": 25,
+      "prompt": 97542,
+      "completion": 30820
+    }
+  },
+  "failed_checks": {
+    "N10": [
+      "status: CHECKS_FAILED, expected REPORT",
+      "verdict: None, expected NEEDS_MORE_DATA"
+    ],
+    "N2": [
+      "anchors: must not say duty removed wording: 'eliminate'"
+    ]
+  }
+}
