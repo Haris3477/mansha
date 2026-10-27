@@ -243,6 +243,8 @@ def checked_facts(research: dict, intake: dict, pack: EvidencePack) -> str:
         gave.append(f"bill of materials and declaration: NOT given or incomplete (missing: {missing})")
     else:
         gave.append("bill of materials and declaration: GIVEN (the origin check already ran on them)")
+    if tool is not None and "FREE_ZONE" in (tool.get("conditions") or []):
+        gave.append("factory location: in a free zone")   # 1c: N2 asked "is the factory in a free zone?"
     if intake.get("hs_code_given"):
         gave.append(f"HS code {intake['hs_code_given']}")
     lines.append("- the user already gave: " + "; ".join(gave))

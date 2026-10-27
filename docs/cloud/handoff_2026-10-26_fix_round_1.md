@@ -68,7 +68,19 @@ Branch `claude/fix-round-candidates-design-rz44re`, started from `claude/handoff
 - **Guard (new):** says OK when the router is down (041404). Proposal to come.
 
 ## Next
-1. **Dots3 sitting done (155659, above).** 97 (both conditions), G9 (with QA), P1 pass on Dots3. Open before merging to main: fix 1c (N10 correction/follow-up bug; N2 free-zone follow-up), designed on paper 27 Oct, waiting for Haris's choice.
+1. **Dots3 sitting done (155659, above).** 97 (both conditions), G9 (with QA), P1 pass on Dots3. Open before merging to main: fix 1c (below), built 27 Oct, live check pending.
+
+## Fix round 1c (27 Oct; Haris: "1c a+b and B+A, go")
+- **N10, a + b** (Claude's recommendation; options were a alone, b alone, a + b):
+  - a: `mansha/qa.py` `correction_text()`: a correction on `follow_up_questions` (no source_id field) no longer says "Cite X in source_id"; it says "Keep it a plain string, with no source_id." (`NO_SOURCE_FIELDS`).
+  - b: `mansha/researcher.py` `plain_follow_ups()`: a follow-up returned as an object (`question` / `text` / `step` / `note` + `source_id`) becomes its text; logged under "Normalized by code". An object with no text is left for the checks.
+- **N2, B + A** (Claude's recommendation):
+  - B: `drop_free_zone_follow_ups()`: when an origin tool result has the FREE_ZONE condition (the user declared a free-zone factory), follow-ups mentioning "free zone" are dropped and logged (same pattern as 7.9).
+  - A: `mansha/qa_evidence.py` `checked_facts()`: "the user already gave" lists "factory location: in a free zone" for the chosen line when FREE_ZONE is set.
+- **Offline evidence:** replay of 155659 N10 `researcher_2.json`: before, 1 problem (exporter-text check on the object); after, 0 problems, verdict NEEDS_MORE_DATA, follow-up = the narrowed question. 155659 N2 r1 and r2: the free-zone question dropped, 0 problems, ELIGIBLE. Sweep of all 72 saved eval-set Researcher outputs: only these change (1 object follow-up: N10 155659; 3 free-zone drops: N2 172224 r1, 155659 r1 + r2).
+- Tests: +20 checks (test_researcher, test_qa, test_qa_evidence); one test_qa expectation changed (it encoded the old "Cite … in source_id" line on a follow-up). All 19 offline suites pass.
+- No prompt change. Gaps: an Arabic free-zone question is not matched (English pattern only); a NEEDS_MORE_DATA answer whose only follow-up is the free-zone question would then fail check 7 and use the revision (no current case).
+- **Live check (pipeline change):** N10, N2, N5, C1 at k = 1 on Dots3. Expect N10 REPORT / NEEDS_MORE_DATA (if QA corrects a follow-up again, round 2 passes the checks), N2 with no free-zone question in "What's still needed", N5 and C1 unchanged.
 2. KB batch design on paper (in progress, 27 Oct): 72 (actor of `P-MOET-COO-INDIA`), then 96 (box-9 note), then 101 (`P-IN-IMPORTER` rewrite from CBIC Instruction 28/2022, fact base A6, PRIMARY since 17 Oct). Then 100 + 98, step shield, 99.
 3. Guard health check (router down → not OK): to propose.
 4. Project update: agent_prompts.md gets the G9 line of `prompts/researcher.md`; CURRENT_STATE gets this handoff; llm_backend_setup.md gets the OpenRouter UTC-day accounting, A′ done (27 Oct 15:43, $5.22, Dots3 RPD 1000) and the `smartest`-routing finding.

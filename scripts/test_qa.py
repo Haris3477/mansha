@@ -178,6 +178,14 @@ check("7.6j replay 04:09: no 'cite the rule lookup' for origin_result; keep its 
       "Cite" not in t and "TOOL:rule_lookup" not in t and t.endswith("Keep this field's source_id as it is."), t)
 for f in ("classification", "tariff.mfn_rate", "origin_rule", "estimated_saving"):
     check(f"7.6j: no cite advice for {f}", "Cite" not in correction_text({**LIVE_0409, "field": f}))
+LIVE_1556 = {"field": "follow_up_questions[0]",   # 27 Oct 15:56, N10 (Dots3 then returned an object)
+             "problem": "Asks for HS codes for other non-originating inputs not required by the cited record",
+             "fix": "Provide the 6-digit HS code for Emollients (BOM row 2) as required by the origin rule.",
+             "source_id": "TOOL:origin:33049990"}
+t = correction_text(LIVE_1556)
+check("1c replay 15:56: no 'cite in source_id' for a follow-up; keep it a plain string",
+      "Cite" not in t and "TOOL:origin" not in t and t.endswith("Keep it a plain string, with no source_id."), t)
+check("1c: also without an index", "Cite" not in correction_text({**LIVE_1556, "field": "follow_up_questions"}))
 check("7.6j: a note still gets its record to cite",
       correction_text({**LIVE_0409, "field": "caveats[0].note"}).endswith(
           "Cite TOOL:rule_lookup:76101000 in source_id, not in the text."))
@@ -191,10 +199,10 @@ check("chain is auto:judge, JSON with required keys", llm.calls[0][1] == QA_CHAI
       {"warnings", "corrections", "scores"})
 check("any 0 -> REJECTED (decided by code)", q.status == QA_REJECTED and q.scores == {
       "factuality": 0, "completeness": 0, "formatting_safety": 1})
-check("correction for the Researcher: field, problem, fix and source",
+check("correction for the Researcher: field, problem, fix (a follow-up has no source to cite, 1c)",
       q.corrections == [correction_text(FIX)] and q.corrections[0] ==
       "follow_up_questions[0]: Asks for a bill of materials already given. Fix: Remove the question. "
-      "Cite TOOL:origin:85044030 in source_id, not in the text.", q.corrections)
+      "Keep it a plain string, with no source_id.", q.corrections)
 check("judgements keep the warning text", q.judgements[1] == {
       "id": "W2", "warning": WARNS[1], "judgement": "REAL", "reason": "r"}, q.judgements)
 check("note says what happened", q.note.startswith("REJECTED | factuality 0") and "2 (1 real)" in q.note)

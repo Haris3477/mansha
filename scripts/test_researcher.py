@@ -20,8 +20,10 @@ from mansha.researcher import (
     drop_caveat_gaps,
     drop_claim_caveats,
     drop_follow_ups,
+    drop_free_zone_follow_ups,
     drop_hs_follow_ups,
     drop_user_data_gaps,
+    plain_follow_ups,
     plain_check_names,
     qualifier_drops,
     record_notes,
@@ -932,6 +934,48 @@ for folder, name, idx in (("20261024-164944_windows_nodata", "researcher_1.json"
     ch = drop_hs_follow_ups(d, pk)
     check(f"replay {folder}: only the HS question dropped",
           len(ch) == 1 and d["follow_up_questions"] == before[:idx] + before[idx + 1:], ch)
+
+print("\n== Fix round 1c: follow-ups as objects (N10) and free-zone follow-ups (N2)")
+N10_R2 = {"step": "Provide the 6-digit HS code for Emollients (BOM row 2) as required by the origin rule.",
+          "source_id": "TOOL:origin:33049990"}   # 27 Oct 15:56, Dots3 round 2, word for word
+d = {"follow_up_questions": [copy.deepcopy(N10_R2), "Please give the shipment value."]}
+ch = plain_follow_ups(d)
+check("object follow-up -> its text; the string one unchanged",
+      d["follow_up_questions"] == [N10_R2["step"], "Please give the shipment value."] and len(ch) == 1, ch)
+for k in ("question", "text", "note"):
+    d = {"follow_up_questions": [{k: "Q?", "source_id": None}]}
+    check(f"object with {k!r} -> its text", plain_follow_ups(d) and d["follow_up_questions"] == ["Q?"])
+d = {"follow_up_questions": [{"source_id": "TOOL:origin:33049990"}]}
+check("object with no text: left for the checks", plain_follow_ups(d) == []
+      and isinstance(d["follow_up_questions"][0], dict))
+nd = copy.deepcopy(GOOD_WN)
+nd["follow_up_questions"] = [copy.deepcopy(N10_R2)]
+p, _, _ = check_researcher(nd, wn)
+check("without 1c the object fails the exporter-text check (the N10 failure)",
+      any("follow_up_questions[0] contains" in x for x in p), p)
+res = run_researcher(wi, wn, llm=fake_llm(nd))
+check("run_researcher: object normalized, no exporter-text problem, change recorded",
+      res.data["follow_up_questions"] == [N10_R2["step"]]
+      and not any("follow_up_questions" in x for x in res.problems)
+      and any("object turned into its text" in x for x in res.changes), (res.problems, res.changes))
+
+fz_intake = {"product_description": "wooden bedroom furniture", "hs_code_given": None,
+             "shipment_value": {"amount": 100000, "currency": "AED"}}
+fz = build_evidence(fz_intake, "samples/eval/furniture_freezone")
+check("N2: the origin tool sets FREE_ZONE",
+      any("FREE_ZONE" in (r.get("conditions") or []) for t, r in fz.tool_results.items() if t.startswith("TOOL:origin:")))
+N2_Q = ("Is the factory located in a free zone? If so, it may not be eligible for the required factory "
+        "registration, which is a prerequisite for the certificate of origin.")   # 27 Oct 15:56, word for word
+for q in (N2_Q, "Please confirm whether your facility is in a free-zone area.", "Is the plant in the Free Zone?"):
+    d = {"follow_up_questions": [q, "Please give the shipment value."]}
+    ch = drop_free_zone_follow_ups(d, fz)
+    check(f"N2 dropped: {q[:45]!r}", len(ch) == 1 and d["follow_up_questions"] == ["Please give the shipment value."], ch)
+d = {"follow_up_questions": [N2_Q]}
+check("no FREE_ZONE (windows): a free-zone question is kept",
+      drop_free_zone_follow_ups(d, wn) == [] and d["follow_up_questions"] == [N2_Q])
+d = {"follow_up_questions": ["Please give the 6-digit HS code for hardwood."]}
+check("N2: a question without 'free zone' is kept",
+      drop_free_zone_follow_ups(d, fz) == [] and len(d["follow_up_questions"]) == 1)
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

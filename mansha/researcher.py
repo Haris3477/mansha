@@ -586,6 +586,62 @@ def drop_hs_follow_ups(data: dict, pack: EvidencePack) -> list[str]:
     return changes
 
 
+FOLLOW_UP_TEXT_KEYS = ("question", "text", "step", "note")
+
+
+def plain_follow_ups(data: dict) -> list[str]:
+    """Turn a follow-up written as an object back into its text; return what changed (fix round 1c).
+
+    `follow_up_questions` is a list of strings with no source_id. On 27 Oct 15:56 (N10, Dots3) a QA
+    correction said "Cite TOOL:origin:... in source_id" for one; the Researcher returned
+    {"step": "...", "source_id": "TOOL:origin:..."} and the exporter-text check read the object as text.
+    Only the text is kept: the question itself was right. An object with no text key is left for the checks.
+    """
+    qs = data.get("follow_up_questions")
+    if not isinstance(qs, list):
+        return []
+    changes = []
+    for i, q in enumerate(qs):
+        if isinstance(q, dict):
+            text = next((q[k] for k in FOLLOW_UP_TEXT_KEYS if isinstance(q.get(k), str) and q[k].strip()), None)
+            if text is not None:
+                qs[i] = text
+                changes.append(f"follow_up_questions[{i}]: object turned into its text (a follow-up has no "
+                               f"source_id): {text!r}")
+    return changes
+
+
+# Fix round 1c (N2, 26 Oct 17:22 and 27 Oct 15:56): "Is the factory located in a free zone?" although the
+# user said so. The origin tool sets FREE_ZONE only when the user declared a free-zone factory.
+FREE_ZONE_RE = re.compile(r"\bfree[- ]zones?\b", re.IGNORECASE)
+
+
+def free_zone_declared(pack: EvidencePack) -> bool:
+    """True when an origin tool result carries the FREE_ZONE condition (the user said so)."""
+    return any(tid.startswith("TOOL:origin:") and isinstance(res, dict) and "FREE_ZONE" in (res.get("conditions") or [])
+               for tid, res in pack.tool_results.items())
+
+
+def drop_free_zone_follow_ups(data: dict, pack: EvidencePack) -> list[str]:
+    """Drop follow-ups about the free zone when the user already declared one; return what went (1c).
+
+    The report already says it: the code-written caution in the summary and the marker under the
+    factory-registration step (problem 97).
+    """
+    qs = data.get("follow_up_questions")
+    if not isinstance(qs, list) or not free_zone_declared(pack):
+        return []
+    keep, changes = [], []
+    for i, q in enumerate(qs):
+        if isinstance(q, str) and FREE_ZONE_RE.search(q):
+            changes.append(f"follow_up_questions[{i}]: free-zone question dropped, the user already said the "
+                           f"factory is in a free zone: {q!r}")
+        else:
+            keep.append(q)
+    data["follow_up_questions"] = keep
+    return changes
+
+
 def drop_caveat_gaps(data: dict) -> list[str]:
     """Remove `gaps` items that repeat a caveat's text; return what was removed (Step 9.6e).
 
@@ -922,12 +978,14 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     data = copy.deepcopy(res.data)
     data.pop("verdict", None)  # the verdict is code's job
     changes = normalize_gaps(data)  # old plain-string gaps -> {text, source_id: null} (Step 7.6g)
+    changes += plain_follow_ups(data)  # a follow-up written as {text, source_id} -> its text (1c)
     changes += unbracket_ids(data, pack)  # "[ID]" -> "ID": the fills below read source_id (problem 75)
     changes += move_note_gaps(data, pack)  # KB notes put in gaps -> caveats, before the fills (G39)
     changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
     changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
     changes += drop_hs_follow_ups(data, pack)  # "confirm the HS code" with no conflict noted (problem 92, 7.9)
+    changes += drop_free_zone_follow_ups(data, pack)  # "is the factory in a free zone?" when the user said so (1c)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)

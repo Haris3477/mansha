@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 from mansha.evidence import build_evidence
-from mansha.qa_evidence import cited_ids, qa_evidence, research_for_qa
+from mansha.qa_evidence import checked_facts, cited_ids, qa_evidence, research_for_qa
 from mansha.researcher import GAP, digits, number_keys, split_records
 from scripts.pipeline_cases import DEV_INTAKES
 
@@ -109,6 +109,17 @@ text = qa_evidence(pack, gap)
 check("no tool results, says so", "none (no tariff line chosen)" in text)
 check("all candidates still listed",
       all(c["id"] in split_records(text) for c in pack.candidates))
+
+print("\n== the user already gave: free-zone factory (fix round 1c, N2)")
+fz_intake = {"product_description": "wooden bedroom furniture", "hs_code_given": None,
+             "shipment_value": {"amount": 100000, "currency": "AED"}}
+fz = build_evidence(fz_intake, "samples/eval/furniture_freezone")
+fz_research = {"classification": {"tariff_line": "94036000"}, "origin_result": {"status": "QUALIFIES"},
+               "verdict": "ELIGIBLE"}
+gave = next(ln for ln in checked_facts(fz_research, fz_intake, fz).splitlines() if "already gave" in ln)
+check("N2: 'factory location: in a free zone' listed", "factory location: in a free zone" in gave, gave)
+gave = next(ln for ln in checked_facts(load("windows"), intake, pack).splitlines() if "already gave" in ln)
+check("windows: no free-zone line", "free zone" not in gave, gave)
 
 print("\n== sizes (characters; ~3.6 per token)")
 for case, full_len, qa_len, view_len in sizes:

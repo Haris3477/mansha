@@ -116,6 +116,10 @@ NO_QA_FIELDS = ("classification.confidence",)
 # "cite X" for them can only break that rule: on 24 Oct 04:09 QA told the Researcher to cite the rule
 # lookup for origin_result, the Researcher did, and the code check failed the run.
 CODE_SOURCE_FIELDS = ("classification", "tariff", "origin_rule", "origin_result", "estimated_saving")
+# Fix round 1c: fields that are plain strings with no source_id. A "cite X in source_id" for them asks for
+# a field that doesn't exist: on 27 Oct 15:56 (N10) the Researcher turned follow_up_questions[0] into
+# {"step": ..., "source_id": "TOOL:origin:..."} and the exporter-text check failed the run.
+NO_SOURCE_FIELDS = ("follow_up_questions",)
 # Step 7.6i: an item that IS its record's KB note (each text has at least this share of the other's
 # content words) cannot be "unsupported" by that record. On 24 Oct 03:49 QA rejected the
 # P-IN-IMPORTER note, copied word for word, as "not in the cited record" (its fix kept
@@ -316,12 +320,14 @@ def check_qa(data: dict, research: dict, warnings, allowed_ids, *,
 def correction_text(c: dict) -> str:
     """A correction for the Researcher. The record goes in its own sentence, as a source_id to
     cite, not glued to the fix: on 23 Oct the writer copied "(see P-MOET-COO-INDIA)" into
-    exporter text (Step 7.6g)."""
+    exporter text (Step 7.6g). Fields with no source_id (follow-up questions) get no record (1c)."""
     s = f"{c.get('field')}: {str(c.get('problem')).strip()} Fix: {str(c.get('fix')).strip()}"
     sid = c.get("source_id")
     m = FIELD_RE.match(str(c.get("field") or ""))
     if m and m.group(1) in CODE_SOURCE_FIELDS:   # Step 7.6j: code fixes these sources; keep them
         return s + " Keep this field's source_id as it is."
+    if m and m.group(1) in NO_SOURCE_FIELDS:      # 1c: plain strings, no source_id to cite
+        return s + " Keep it a plain string, with no source_id."
     return s + (f" Cite {sid} in source_id, not in the text." if sid not in (None, "", "null") else "")
 
 
