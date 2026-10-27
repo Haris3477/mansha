@@ -1,0 +1,176 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 112.74,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7383,
+        "completion": 10452
+      },
+      "finish_reason": "stop",
+      "latency_s": 112.74,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "origin_result.basis: check names written in plain words",
+    "caveats[8]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "step 1: Classification: Selected TL-IN-94036000 'Other wooden furniture' as the best match for 'hardwood bedroom furniture'; no HS code conflict; confidence high.",
+      "step 2: Preference: The line is PREFERENTIAL, so CEPA preference is available.",
+      "step 3: Tariff: MFN rate 20% effective, CEPA rate 12.5% for 2026.",
+      "step 4: Origin: Rule PSR-IN-R136 CTH + VA 40%; origin tool status MEETS; all checks pass; product QUALIFIES.",
+      "step 5: Saving: Duty tool ESTIMATED; saving 7500.00 AED.",
+      "step 6: Procedure: Listed steps for factory registration, certificate application, issuance, shipment, importer claim, and record keeping.",
+      "step 7: Caveats: Collected notes on free zone eligibility, own declaration, '+' interpretation, duty estimate limitations, undefined costs, issuer ambiguity, and SWS/anti-dumping."
+    ],
+    "classification": {
+      "tariff_line": "94036000",
+      "description": "Other wooden furniture",
+      "confidence": "high",
+      "source_id": "TL-IN-94036000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "12.5%",
+      "source_id": "TL-IN-94036000"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R136"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "final manufacture check PASS; minimal operations check PASS; CTH PASS - all 2 non-originating inputs classified outside heading 9403; VA PASS - build-down 52.0% against threshold 40% on FOB basis; totals: FOB basis, 3 inputs, 2 non-originating (48% of price).",
+      "source_id": "TOOL:origin:94036000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "7500.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:94036000"
+    },
+    "procedure": [
+      {
+        "step": "The Ministry of Economy and Tourism registers the factory (requires the factory to be located outside a free zone, a MoIAT industrial licence, and a MoIAT letter confirming 40% domestic value added; takes about 3 working days).",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The exporter prepares the application documents: proof of factory registration, the commercial invoice, and for a trading exporter, the factory's purchase invoice.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The exporter logs in to the ministry e-services portal, chooses the Certificate of Origin for India service, fills in the application form, uploads the required documents, and pays the fee online.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Ministry of Foreign Trade charges a certificate fee of AED 50 (band: invoice value up to AED 100000).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The exporter submits the application and receives approval, or a return with comments to correct, then prints the approved certificate.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The competent authority issues the certificate prior to, at, or within five working days of the date of exportation.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The certificate is valid for twelve months from the date of issue and covers only one import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The exporter ensures the goods are shipped directly from the UAE to India; if in transit, only under customs control with no operations other than unloading, reloading, storage or similar.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry, holds origin information under CAROTAR 2020, and keeps supporting documents for at least five years from filing.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter keeps origin records, including the cost breakdown, for at least five years starting from the end of the calendar year of the date of issue.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The factory is declared in a free zone: likely not eligible for the ministry's factory registration; confirm with the ministry.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "'+' in the rule is read as 'and' (both tests must pass); the agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "The duty estimate is on the shipment value given; India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India; confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found).",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "Anti-dumping and safeguard duties likely still apply (no CEPA exemption from them was found).",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "The issuing authority may apply risk management, including asking for detailed cost sheets and visiting the factory.",
+        "source_id": "P-AGR-3.17-APPLICATION"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

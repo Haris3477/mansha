@@ -1,0 +1,132 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 66.88,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2006,
+            "completion": 6249
+          },
+          "finish_reason": "stop",
+          "latency_s": 66.88,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your product qualifies for the preferential duty rate under the India-UAE CEPA. Since the product meets the rule of origin, you can claim the CEPA rate of 0% for this shipment, which is estimated to save 10000.00 AED in import duties.",
+    "classification": "The product is classified under tariff line 32091010, which covers acrylic emulsion (paint), with high confidence in this classification. You should still confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal import duty (MFN rate) for this tariff line is 10%, while the CEPA rate is 0%. By claiming the CEPA rate, the Basic Customs Duty is reduced to 0%, which is estimated to save 10000.00 AED on this shipment. Please note that other import charges, such as IGST, still apply even when the CEPA rate is 0%.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning all non-originating inputs must be classified in a different 6-digit subheading than the product, and at least 40% value addition (VA), which is the share of the product's price that does not come from non-originating materials. The product meets all these checks: the final manufacture took place in the UAE, and the manufacturing process goes beyond the minimal operations that do not grant origin on their own. Additionally, both non-originating inputs are classified outside subheading 320910, and the value addition on an FOB basis is 65.0%, which exceeds the 40% threshold.",
+    "notes": [
+      {
+        "text": "The CEPA rate reduces the Basic Customs Duty (BCD) and the Agriculture Infrastructure and Development Cess (AIDC) for lines in Table II, but other charges such as IGST, GST compensation cess, the Social Welfare Surcharge (SWS), and any anti-dumping or safeguard duties still apply.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "While UAE law sets a 3-year minimum record retention period, the CEPA's 5-year requirement governs all claims made under the agreement.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) and the Agriculture Infrastructure and Development Cess (AIDC) for lines in Table II; IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Indian inputs count as originating only with proof of their originating status (bilateral cumulation, Art. 3.7).",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "Factory registration requires the factory to be located outside a free zone; a producer in a free zone is likely not eligible.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "UAE law sets a shorter 3-year minimum record retention; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "The certificate fee assumes the certificate's invoice value equals the shipment value given.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "An issued certificate can be amended once for a fee of AED 20; the invoice amount and the destination cannot be changed.",
+      "source_id": "P-MOET-AMEND-COO",
+      "mandatory": false
+    }
+  ],
+  "conditions": [
+    "INDIAN_INPUTS"
+  ]
+}

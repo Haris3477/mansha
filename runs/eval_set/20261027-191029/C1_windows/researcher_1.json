@@ -1,0 +1,153 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 81.31,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8947,
+        "completion": 7240
+      },
+      "finish_reason": "stop",
+      "latency_s": 81.31,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Please confirm the HS code for aluminium window frames (candidate 76101000).'",
+    "caveats[7]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: Classified the product using the candidate descriptions only; TL-IN-76101000 'Doors, windows and their frames and thresholds for doors (aluminium)' matches 'aluminium window frames' best. No conflict noted, confidence high.",
+      "Step 2: CEPA status for 76101000 is PREFERENTIAL, not EXCLUDED, so the preferential rate applies subject to origin.",
+      "Step 3: Tariff: MFN effective 10%, 2026 CEPA rate 0% (India-UAE CEPA).",
+      "Step 4: Origin rule is PSR-IN-R118 'CTSH + VA 45%'; origin tool status MEETS with all checks passing, so the product QUALIFIES.",
+      "Step 5: Duty tool estimates a saving of 10000.00 AED (MFN 10% vs CEPA 0% on 100000 AED). Since origin qualifies, saving status is ESTIMATED.",
+      "Step 6: Procedure steps assembled from passages: factory registration, certificate application, fee, issuance, direct consignment, importer claim, record keeping.",
+      "Step 7: Caveats compiled from tool notes and passages that affect how the result should be interpreted."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture in UAE: PASS; minimal operations: PASS; CTSH: PASS (all 3 non-originating inputs classified outside subheading 761010); VA: PASS (build-down 49.0% against threshold 45%, FOB basis). Totals: FOB basis, 6 inputs, 3 non-originating (51% of price).",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "10000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "The Ministry of Economy and Tourism registers the factory (located outside a free zone, with a MoIAT industrial licence and a letter confirming 40% domestic value added); registration takes about 3 working days.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The exporter logs in to the ministry e-services portal, chooses the Certificate of Origin for India service, fills in the application form, uploads the required documents (proof of factory registration, commercial invoice, and for a trading exporter the factory's purchase invoice), pays the fee online, and submits the application; processing takes about one working day.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Ministry of Foreign Trade charges a certificate fee of AED 50 for an invoice value up to AED 100000 (fee range AED 10 to AED 200).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the certificate prior to, at or within five working days of export; the certificate is valid for twelve months from issue and covers one import.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The exporter ensures the goods are shipped directly from the UAE to India; transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar, and if a third-party invoice is used, the exporter indicates 'third-party invoicing'.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims the CEPA rate when filing the bill of entry, holds origin information under CAROTAR 2020 including which origin criterion is claimed, and keeps supporting documents for at least five years from filing; electronic certificates are accepted and uploaded to e-Sanchit.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter keeps origin records, including the cost breakdown, for at least five years starting from the end of the calendar year of the certificate's issue.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The agreement does not define '+' in the origin rule; Mansha interprets it as 'and' (both tests must pass).",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "The origin determination relies on the exporter's own declaration of operations and final manufacture.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual duty amounts will differ from the estimate based on the shipment value given.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate reduces Basic Customs Duty (BCD) only; IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India; confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found); anti-dumping and safeguard duties likely still apply.",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating, but the last production process in the UAE must still go beyond the minimal operations.",
+        "source_id": "P-AGR-3.7-CUMULATION"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}
