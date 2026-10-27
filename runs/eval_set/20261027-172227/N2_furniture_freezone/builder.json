@@ -1,0 +1,197 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 59.73,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "latency_s": 94.76,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'Provider error (Dots3 Note Preview (free)): OpenRouter returned 200 with a non-JSON body — the endpoint is not OpenAI-compatible. Check the base URL (for Ollama use [redacted-url] for llama.cpp/vLLM/LM Studio the /v1 path).', 'type': 'provider_error'}, 'execution_id': 'cb045760-8e9c-42de-bc44-31712baceb1a'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "latency_s": 0.04,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 2 routed attempt(s) failed with upstream provider errors (error ×2). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: openrouter/dots-studio/dots-3-note-preview:free key1: error; google/gemini-3.6-flash key2: error. Last error: fetch failed (ENOTFOUND generativelanguage.googleapis.com)', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '379ea972-fec5-4794-9d26-266a0a3bf511'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 3,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "latency_s": 0.04,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.5-flash key1: error. Last error: fetch failed (ENOTFOUND generativelanguage.googleapis.com)', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': 'ca54ab91-8081-457b-8b71-ed8fd7404b8c'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 4,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "latency_s": 0.04,
+          "ok": false,
+          "http_status": 429,
+          "cooldown": true,
+          "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 3 routes checked (3 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~30s.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1793107944243}, 'execution_id': '94915da7-449e-49ee-a384-56c36cba3421'}",
+          "waited_before_retry_s": 30.9
+        },
+        {
+          "attempt": 5,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1970,
+            "completion": 5431
+          },
+          "finish_reason": "stop",
+          "latency_s": 59.73,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your wooden bedroom furniture qualifies for the preferential duty rate under the India-UAE CEPA. Claiming this preference reduces the Basic Customs Duty from the normal rate, giving an estimated saving of 7500.00 AED on your 100000 AED shipment. Please refer to the claim checklist below for the next steps.",
+    "classification": "The product is classified under tariff line 94036000, which is described as Other wooden furniture. Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this product is 20%, while the preferential CEPA rate is 12.5%. Because your product qualifies for the CEPA rate, you can claim an estimated saving of 7500.00 AED on this shipment. Note that the CEPA rate applies to Basic Customs Duty only, and other import charges such as IGST are still payable.",
+    "origin": "To qualify, your product must meet the rule of origin, which requires a change in tariff heading (CTH) and at least 40% value addition (VA). The CTH rule means that all non-originating inputs must be classified under a different 4-digit heading than the final product, and the VA rule means that at least 40% of the product's price on an FOB basis must not come from non-originating materials. Your product passes all checks: the final manufacturing step took place in the UAE, and the work done goes beyond the minimal operations required. Specifically, all 2 non-originating inputs are classified outside heading 9403, and the value addition reaches 52.0%, which is above the 40% threshold on an FOB basis.",
+    "notes": [
+      {
+        "text": "Although the agreement text refers to box 8, India's origin rules and certificate form require box 9 to be completed, and India's form governs entry into the country.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "While UAE law sets a 3-year minimum for record retention, the CEPA's 5-year requirement governs your preferential claims under the agreement.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Factory declared in a free zone: likely not eligible for the ministry's factory registration; confirm with the ministry.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "UAE law sets a shorter 3-year minimum; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M8",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "Inference: a producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M10",
+      "text": "Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "M11",
+      "text": "Inference: anti-dumping and safeguard duties still apply (no exemption found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.",
+      "source_id": "P-MOET-COO-INDIA",
+      "mandatory": false
+    }
+  ],
+  "conditions": [
+    "FREE_ZONE"
+  ]
+}

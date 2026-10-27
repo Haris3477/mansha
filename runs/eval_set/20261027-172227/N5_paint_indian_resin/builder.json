@@ -1,0 +1,211 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 48.97,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2274,
+            "completion": 4787
+          },
+          "finish_reason": "stop",
+          "latency_s": 48.97,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 10.24,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2796,
+            "completion": 849
+          },
+          "finish_reason": "stop",
+          "latency_s": 10.24,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "REJECTED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The product meets the rule of origin, so the CEPA rate can be claimed. Claiming this rate saves an estimated 10000.00 AED on the duty for this shipment.",
+    "classification": "The product is classified under tariff line 32091010, which is described as acrylic emulsion (paint). Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for this tariff line is 10%, while the CEPA rate is 0%. By claiming the CEPA rate, the estimated saving on this shipment is 10000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), where all non-originating inputs must be classified outside subheading 320910, plus value addition (VA) of at least 40% on an FOB basis. The final manufacture check passed because the last manufacturing step took place in the UAE. The minimal operations check passed, meaning the UAE work goes beyond the simple operations that never give origin on their own. The CTSH check passed as all 2 non-originating inputs were classified outside the target subheading. The VA check passed with a build-down of 65.0% against the 40% threshold.",
+    "notes": [
+      {
+        "text": "The CEPA rate of 0% reduces the Basic Customs Duty (BCD) and the Agriculture Infrastructure and Development Cess only for lines in Table II. Other charges such as IGST, GST compensation cess, and the Social Welfare Surcharge still apply, though a lower BCD also lowers the IGST amount.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Preference is given only to originating goods shipped directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations other than unloading, reloading, storage or similar.",
+        "from": [
+          "N10"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, SWS and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply, as do any anti-dumping, countervailing or safeguard duties. Because the IGST base includes BCD, a lower BCD also lowers the IGST amount.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    },
+    {
+      "nid": "M4",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "Indian inputs count as originating only with proof of their originating status (bilateral cumulation, Art. 3.7).",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:32091010",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M8",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "Indirect materials (such as fuel, tools and consumables used in production) count as neither originating nor non-originating.",
+      "source_id": "P-AGR-3.1-NOM",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating. The last production process in the UAE must still go beyond the minimal operations.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "M9",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M10",
+      "text": "Inference: a producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N7",
+      "text": "That electronic certificates are accepted and uploaded to India's e-Sanchit system comes from CBIC Instruction 28/2022, which Mansha has read only through secondary reports (LiveLaw, taxmann), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "N8",
+      "text": "UAE law sets a shorter 3-year minimum; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N9",
+      "text": "Fee bands are those of the certificate service (UAE e-service: Certificate of Origin for India; Ministry service pages; Cabinet Resolution 208/2025 fee schedule), charged on the invoice value in AED. Assumes the certificate's invoice value equals the shipment value given.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    },
+    {
+      "nid": "N10",
+      "text": "Preference is given only to originating goods shipped directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations other than unloading, reloading, storage or similar.",
+      "source_id": "P-AGR-3.12-DIRECT",
+      "mandatory": false
+    },
+    {
+      "nid": "N11",
+      "text": "An invoice issued by a third party does not by itself cause the claim to be denied; the exporter must indicate 'third-party invoicing'.",
+      "source_id": "P-AGR-3.12-DIRECT",
+      "mandatory": false
+    }
+  ],
+  "conditions": [
+    "INDIAN_INPUTS"
+  ]
+}

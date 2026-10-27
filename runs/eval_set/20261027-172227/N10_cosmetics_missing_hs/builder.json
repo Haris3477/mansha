@@ -1,0 +1,142 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 80.18,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1837,
+            "completion": 7223
+          },
+          "finish_reason": "stop",
+          "latency_s": 80.18,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the cosmetic skin creams meet the rule of origin for the CEPA rate yet, because the 6-digit HS code for the non-originating input 'Emollients' is missing. If the product meets the rule, the estimated saving would be 12000.00 AED.",
+    "classification": "The product is classified under tariff line 33049990, described as Other beauty or make-up preparations. Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 20% and the CEPA rate is 0%. If the product meets the rule of origin, the estimated saving is 12000.00 AED.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) for each non-originating input, meaning each such input must be classified in a different 6-digit subheading than the finished product, and a value addition (VA) of at least 40%, which is the share of the product's price that does not come from non-originating materials. Because the 6-digit HS code for the non-originating input 'Emollients' is missing, the origin check cannot be completed. No checks or totals were calculated.",
+    "notes": [
+      {
+        "text": "The agreement refers to box 8 for the certificate remark, but India's origin rules and certificate form use box 9; since India's form governs entry into India, you should use box 9.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "UAE law requires records to be kept for at least 3 years, but the CEPA requires 5 years for CEPA claims, so you must keep records for 5 years.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 40%' is interpreted as 'and' (both tests must pass), but the agreement does not define '+'; this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The duty estimate is on the shipment value given; India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD) only; IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "Direct labour cost and direct overhead cost are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement says box 8 for the certificate remark, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but this comes from secondary sources (CBIC Instruction 28/2022), not the official text.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "UAE law sets a shorter 3-year minimum for record keeping; the CEPA's 5 years governs CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "The certificate fee bands are in AED and apply to the invoice value in AED.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "The certificate fee estimate assumes the certificate's invoice value equals the shipment value given.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    }
+  ],
+  "conditions": []
+}
