@@ -26,10 +26,11 @@ def check_corridors() -> list[str]:
     return problems
 
 
-# KB batch (27 Oct, item 4): notes printed word for word reach the exporter, so no raw "Inference:" label;
+# KB batch (27 Oct, item 4 + leftovers): notes printed word for word reach the exporter, so no raw
+# "Inference:" or "Interpretation:" label;
 # the reworded notes must keep a qualifier that check 10 (SOURCE_QUALIFIER_RE) and the KB shield
 # (SHIELD_QUALIFIER_RE) both recognise, or a model dropping it would go unnoticed.
-QUALIFIED_NOTES = {"P-MOET-FACTORY-REG": 1, "P-IN-DUTY-SCOPE": 2}
+QUALIFIED_NOTES = {"P-MOET-FACTORY-REG": 1, "P-IN-DUTY-SCOPE": 2, "P-AGR-3.4-DEMINIMIS": 1}
 
 
 def check_note_wording(kb: dict) -> list[str]:
@@ -39,8 +40,8 @@ def check_note_wording(kb: dict) -> list[str]:
     by_id = {p["id"]: p for p in kb["passages"]["passages"]}
     for p in by_id.values():
         for text in [p.get("summary", "")] + p.get("notes", []):
-            if re.search(r"\bInference:", text):
-                problems.append(f"{p['id']}: raw 'Inference:' label in {text[:60]!r}")
+            if re.search(r"\b(?:Inference|Interpretation):", text):
+                problems.append(f"{p['id']}: raw 'Inference:'/'Interpretation:' label in {text[:60]!r}")
     for pid, n in QUALIFIED_NOTES.items():
         notes = by_id.get(pid, {}).get("notes", [])
         if len(notes) != n:

@@ -712,8 +712,14 @@ def unbracket_ids(data: dict, pack: EvidencePack) -> list[str]:
     return [f"source_id: square brackets removed around {len(fixed)} evidence ID(s) ({', '.join(fixed)})"]
 
 
-def drop_follow_ups(data: dict, verdict: str) -> list[str]:
-    """Empty `follow_up_questions` for NOT_ELIGIBLE / NO_PREFERENCE; return what went (Step 7.6c).
+# KB batch follow-up (27 Oct, C1 live): an ELIGIBLE answer keeps only follow-ups asking for the value in AED
+# (N1, 25 Oct: a USD shipment, so only the certificate fee range could be given; Mansha never converts).
+VALUE_QUESTION_RE = re.compile(r"\bAED\b|\b(?:invoice|shipment) value\b", re.IGNORECASE)
+
+
+def drop_follow_ups(data: dict, verdict: str, pack: EvidencePack | None = None) -> list[str]:
+    """Empty `follow_up_questions` for NOT_ELIGIBLE / NO_PREFERENCE, keep only AED-value questions for
+    ELIGIBLE; return what went (Step 7.6c).
 
     Problem 74 (19 Oct, chargers): a not-eligible report asked for the UAE operations, the
     place of final manufacture and the FOB/CIF values, all already given, as if another
@@ -721,13 +727,28 @@ def drop_follow_ups(data: dict, verdict: str) -> list[str]:
     question in round 1 and approved the rest in round 2. Follow-up questions belong to
     NEEDS_MORE_DATA and NEEDS_VALUE; the "confirm the code" advice is in the Builder's
     classification text. `gaps` are left alone.
+
+    ELIGIBLE (27 Oct, C1 live, Dots3): a finished answer ended with "What's still needed": "Is your
+    factory located in a free zone?" (the user had said Sharjah, no free zone) and a re-ask of the
+    final-manufacture declaration the result rests on; QA approved both. The free-zone doubt is
+    already a KB note. Kept: a question asking for the value in AED (VALUE_QUESTION_RE), and an HS-code
+    question when the tariff lookup wrote a note (7.9's exception; N4 25 Oct: the given 76101090 has no
+    exact match, and that question was the report's only mention of it).
     """
     qs = data.get("follow_up_questions")
-    if verdict not in NO_CEPA_RATE_VERDICTS or not isinstance(qs, list) or not qs:
+    if not isinstance(qs, list) or not qs:
         return []
-    data["follow_up_questions"] = []
+    if verdict in NO_CEPA_RATE_VERDICTS:
+        keep = []
+    elif verdict == "ELIGIBLE":
+        tl = (pack.tool_results.get(TARIFF_LOOKUP_ID) if pack else None) or {}
+        keep = [q for q in qs if isinstance(q, str) and (
+            VALUE_QUESTION_RE.search(q) or (tl.get("notes") and HS_QUESTION_RE.search(q)))]
+    else:
+        return []
+    data["follow_up_questions"] = keep
     return [f"follow_up_questions: dropped for verdict {verdict} (the result does not depend on "
-            f"more information from the user): {q!r}" for q in qs]
+            f"more information from the user): {q!r}" for q in qs if q not in keep]
 
 
 def drop_claim_caveats(data: dict, verdict: str, corridor: str = "india") -> list[str]:
@@ -991,7 +1012,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)
     changes += drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
     problems, warnings, verdict = check_researcher(data, pack)
-    dropped = drop_follow_ups(data, verdict)  # no follow-ups once no CEPA rate can apply (problem 74)
+    dropped = drop_follow_ups(data, verdict, pack)  # none once no CEPA rate can apply (74); ELIGIBLE: AED value only
     dropped += drop_claim_caveats(data, verdict, pack.corridor)  # nor notes about claiming it (problem 76)
     if dropped:
         changes += dropped

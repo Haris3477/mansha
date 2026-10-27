@@ -37,6 +37,7 @@ from mansha.researcher import (
     strip_list_markers,
     unbracket_ids,
 )
+from scripts.eval_cases import BY_ID as EVAL_BY_ID
 from scripts.pipeline_cases import DEV_INTAKES
 
 failures: list[str] = []
@@ -473,10 +474,45 @@ check("NOT_ELIGIBLE: every follow-up dropped, one change each",
       and all(x.startswith("follow_up_questions: dropped for verdict NOT_ELIGIBLE") for x in changes), changes)
 d = copy.deepcopy(GOOD_P); d["follow_up_questions"] = ["Can you confirm the HS code?"]
 check("NO_PREFERENCE: dropped", drop_follow_ups(d, "NO_PREFERENCE") and d["follow_up_questions"] == [])
-for v in ("ELIGIBLE", "NEEDS_MORE_DATA", GAP):
+for v in ("NEEDS_MORE_DATA", GAP):
     d = copy.deepcopy(GOOD_WN)
     check(f"{v}: follow-ups kept", drop_follow_ups(d, v) == []
           and d["follow_up_questions"] == GOOD_WN["follow_up_questions"])
+
+# ELIGIBLE (27 Oct, C1 live, Dots3): only an AED-value question, or an HS-code question when the tariff
+# lookup wrote a note (N4), is kept.
+LIVE_C1 = ["Is your factory located in a free zone? (Free-zone factories may not be eligible for the required "
+           "factory registration.)",
+           "Can you confirm that the final manufacture in the UAE went beyond the minimal operations listed in "
+           "Article 3.5.1 of the agreement? (This is based on your declaration.)"]
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = list(LIVE_C1)
+changes = drop_follow_ups(d, "ELIGIBLE", w)
+check("ELIGIBLE (C1 27 Oct): both follow-ups dropped, one change each",
+      d["follow_up_questions"] == [] and len(changes) == 2
+      and all(x.startswith("follow_up_questions: dropped for verdict ELIGIBLE") for x in changes), changes)
+LIVE_N1 = ("Provide the invoice value in AED to determine the exact certificate of origin fee, since the fee bands "
+           "are in AED and the shipment value is given in USD.")   # 25 Oct N1
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = [LIVE_C1[0], LIVE_N1]
+drop_follow_ups(d, "ELIGIBLE", w)
+check("ELIGIBLE (N1 25 Oct): the AED-value question is kept, the rest dropped",
+      d["follow_up_questions"] == [LIVE_N1], d["follow_up_questions"])
+LIVE_N4 = ("Please confirm that the product should be classified under tariff line 76101000, as the closest match "
+           "to the given HS code 76101090.")   # 25 Oct N4 researcher_2
+n4 = build_evidence(EVAL_BY_ID["N4"].intake, EVAL_BY_ID["N4"].folder)
+check("N4: the tariff lookup notes the given code (no exact match)", bool(n4.tool_results["TOOL:tariff_lookup"]["notes"]))
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = [LIVE_N4, LIVE_C1[1]]
+drop_follow_ups(d, "ELIGIBLE", n4)
+check("ELIGIBLE with a tariff-lookup note (N4): the HS-code question is kept, the declaration re-ask dropped",
+      d["follow_up_questions"] == [LIVE_N4], d["follow_up_questions"])
+d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = [LIVE_N4]
+check("ELIGIBLE, no tariff-lookup note: the same HS-code question is dropped",
+      drop_follow_ups(d, "ELIGIBLE", w) and d["follow_up_questions"] == [])
+asks_w = copy.deepcopy(GOOD_W); asks_w["follow_up_questions"] = list(LIVE_C1)
+res = run_researcher(wi, w, llm=fake_llm(asks_w))
+check("run_researcher (C1 27 Oct): ELIGIBLE, passes, no follow-ups, drops recorded",
+      res.passed and res.data["verdict"] == "ELIGIBLE" and res.data["follow_up_questions"] == []
+      and sum(x.startswith("follow_up_questions: dropped for verdict ELIGIBLE") for x in res.changes) == 2,
+      (res.problems, res.changes))
 d = copy.deepcopy(asks); d["gaps"] = ["A real gap."]
 drop_follow_ups(d, "NOT_ELIGIBLE")
 check("gaps are left alone", d["gaps"] == ["A real gap."])
@@ -688,9 +724,10 @@ NOTES_WN = record_notes(wn)
 DEMIN = NOTES_WN["P-AGR-3.4-DEMINIMIS"][0]
 SWS, AD = NOTES_WN["P-IN-DUTY-SCOPE"]
 PLUS = NOTES_WN["TOOL:origin:76101000"][0]
-# KB batch (27 Oct, item 4): the SWS and anti-dumping notes say "likely" instead of a leading "Inference:".
+# KB batch (27 Oct, item 4): the SWS and anti-dumping notes say "likely" instead of a leading "Inference:",
+# and the de minimis note "By interpretation," instead of "Interpretation:".
 check("KB notes carry the qualifiers this step protects",
-      DEMIN.startswith("Interpretation:") and " likely " in SWS and " likely " in AD, (DEMIN, SWS, AD))
+      DEMIN.startswith("By interpretation,") and " likely " in SWS and " likely " in AD, (DEMIN, SWS, AD))
 
 
 def with_caveats(*cavs, base=None):

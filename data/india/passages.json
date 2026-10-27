@@ -225,7 +225,7 @@
         "wholly_obtained_pct": 1
       },
       "notes": [
-        "Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage."
+        "By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage."
       ],
       "dev_notes": ["The Art. 3.4.1 lead-in (the exact conditions) was not captured verbatim."]
     },
