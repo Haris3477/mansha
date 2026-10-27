@@ -1,0 +1,130 @@
+{
+  "served_by": "google/gemini-3.6-flash",
+  "latency_s": 176.64,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "google/gemini-3.6-flash",
+      "usage": {
+        "prompt": 7734,
+        "completion": 1486
+      },
+      "finish_reason": "stop",
+      "latency_s": 176.64,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Step 1: Selected tariff line 94036000 (Other wooden furniture) as the best match for hardwood bedroom furniture.",
+      "Step 2: Tariff line 94036000 is preferential under the India-UAE CEPA with a staging reduction to 12.5% in 2026.",
+      "Step 3: MFN effective rate is 20% and the 2026 CEPA rate is 12.5% under India-UAE CEPA.",
+      "Step 4: Origin rule PSR-IN-R136 is CTH + VA 40%. The product meets all origin criteria with 52.0% build-down VA and valid CTH.",
+      "Step 5: Estimated saving is 7,500.00 AED based on the duty difference between 20% MFN and 12.5% CEPA on a 100,000.00 AED shipment value.",
+      "Step 6: Outline procedure for factory registration, certificate application, fee payment, direct consignment, importer claim, and record keeping.",
+      "Step 7: Compiled caveats regarding BCD scope, CIF valuation basis, free zone factory constraints, and issuing authority notes."
+    ],
+    "classification": {
+      "tariff_line": "94036000",
+      "description": "Other wooden furniture",
+      "confidence": "high",
+      "source_id": "TL-IN-94036000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20%",
+      "preferential_rate": "12.5%",
+      "source_id": "TL-IN-94036000"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R136"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture took place in the UAE and manufacturing operations go beyond minimal operations. CTH is met as all 2 non-originating inputs are classified outside heading 9403. Value addition is 52.0% against the 40% threshold on an FOB build-down basis.",
+      "source_id": "TOOL:origin:94036000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "7500.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:94036000"
+    },
+    "procedure": [
+      {
+        "step": "The factory must be registered through the Ministry of Economy and Tourism's Factory Registration service prior to applying for a certificate of origin.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "The exporter applies for the certificate through the 'Certificate of Origin for India' e-service by submitting the commercial invoice and required documents.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Ministry of Foreign Trade charges a certificate fee of AED 50 for an invoice value of AED 100,000.",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "The competent authority issues the certificate of origin prior to, at, or within five working days of exportation.",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "The exporter must ensure preferential goods are shipped directly from the UAE to India.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "The Indian importer claims preferential tariff treatment when filing the bill of entry and holds origin information under CAROTAR 2020.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "The exporter must retain origin documentation and cost sheets for at least 5 years from the end of the year of issue.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The CEPA lowers the duty on this tariff line but does not remove it entirely.",
+        "source_id": "TL-IN-94036000"
+      },
+      {
+        "note": "The '+' in a rule is read as 'and', requiring both CTH and value addition tests to pass. The agreement does not define '+', which is Mansha's interpretation.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Operations and final manufacture evaluation relies on the exporter's own declaration.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "A factory declared in a free zone is likely not eligible for the ministry's factory registration; confirm eligibility with the ministry.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Duty estimate is calculated on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

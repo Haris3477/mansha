@@ -1,0 +1,121 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 13.23,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1822,
+            "completion": 368
+          },
+          "finish_reason": "stop",
+          "latency_s": 13.23,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 7.76,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 2263,
+            "completion": 358
+          },
+          "finish_reason": "stop",
+          "latency_s": 7.76,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "REJECTED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Your hardwood bedroom furniture qualifies for the reduced duty rate under the India-UAE CEPA because it meets the required rule of origin. This gives an estimated duty saving of 7500.00 AED on your shipment to India.",
+    "classification": "The product is classified under tariff line 94036000, covering \"Other wooden furniture\", with high confidence. You should confirm this tariff code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal import duty rate (MFN rate) of 20% is reduced to a preferential CEPA rate of 12.5%. This produces an estimated duty saving of 7500.00 AED for your shipment.",
+    "origin": "The product must satisfy a change in tariff heading (CTH), where non-originating inputs are classified in a different 4-digit heading than the product, and achieve a value addition (VA) of at least 40% based on the FOB price (the price loaded on board at the UAE port). Final manufacture took place in the UAE, and the work done goes beyond minimal operations. The CTH requirement is met as all 2 non-originating inputs are classified outside heading 9403, and the value addition reaches 52.0% against the 40% threshold.",
+    "notes": [
+      {
+        "text": "The India-UAE CEPA reduces the customs duty on this tariff line but does not eliminate it completely.",
+        "from": [
+          "N1"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "The CEPA lowers the duty on this tariff line but does not remove it entirely.",
+      "source_id": "TL-IN-94036000",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "The '+' in a rule is read as 'and', requiring both CTH and value addition tests to pass. The agreement does not define '+', which is Mansha's interpretation.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture evaluation relies on the exporter's own declaration.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "A factory declared in a free zone is likely not eligible for the ministry's factory registration; confirm eligibility with the ministry.",
+      "source_id": "TOOL:origin:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Duty estimate is calculated on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, Social Welfare Surcharge, and any anti-dumping or safeguard duties still apply.",
+      "source_id": "TOOL:duty:94036000",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    }
+  ],
+  "conditions": [
+    "FREE_ZONE"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "summary: Contains the sentence 'Please follow the checklist below to claim this preferential rate.' which is advice not present in FACTS or notes. Fix: Your hardwood bedroom furniture qualifies for the reduced duty rate under the India-UAE CEPA because it meets the required rule of origin. This gives an estimated duty saving of 7500.00 AED on your shipment to India. (see FACTS)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.63,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2119,
+            "completion": 1707
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.63,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}
