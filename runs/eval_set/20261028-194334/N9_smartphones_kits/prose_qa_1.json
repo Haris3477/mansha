@@ -1,0 +1,36 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "notes[0].text: The note adds \"which may affect how you declare the shipment,\" which is not present in N1. Fix: India's CEPA tariff schedule (Annex 2A) lists this product under its older HS 2017 code 8517 12 11. (see N1)",
+    "notes[1].text: The note adds the examples \"such as simple assembly or packaging,\" which are not in N2. Fix: A product that only undergoes minimal operations (Art. 3.5.1 a-q) does not originate, even if it meets its product-specific rule. (see N2)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.32,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2511,
+            "completion": 1336
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.32,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

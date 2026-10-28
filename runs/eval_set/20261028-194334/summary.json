@@ -1,0 +1,42 @@
+{
+  "runs": 3,
+  "passed": 1,
+  "scored": 3,
+  "verdict_correct": 2,
+  "verdict_cases": 3,
+  "expected_failures": [],
+  "checks_failed": 1,
+  "llm_error": 0,
+  "qa_rejections": 2,
+  "qa_overruled": 0,
+  "router_refusals": 2,
+  "paced_wait_s": 6.5,
+  "median_seconds_reports": 318.0,
+  "slips": {},
+  "requests": {
+    "auto:qa": {
+      "requests": 3,
+      "prompt": 2082,
+      "completion": 937
+    },
+    "auto:long": {
+      "requests": 9,
+      "prompt": 56850,
+      "completion": 70551
+    },
+    "auto:judge": {
+      "requests": 13,
+      "prompt": 44877,
+      "completion": 16049
+    }
+  },
+  "failed_checks": {
+    "N4": [
+      "QA: QA (round 2) FAILED; QA (round 2): NOT reviewed"
+    ],
+    "N13": [
+      "status: CHECKS_FAILED, expected REPORT",
+      "verdict: None, expected REGULATORY_GAP_DETECTED"
+    ]
+  }
+}

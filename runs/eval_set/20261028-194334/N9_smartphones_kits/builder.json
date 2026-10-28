@@ -1,0 +1,131 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 50.71,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2085,
+            "completion": 4844
+          },
+          "finish_reason": "stop",
+          "latency_s": 50.71,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 28.47,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2693,
+            "completion": 2848
+          },
+          "finish_reason": "stop",
+          "latency_s": 28.47,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "REJECTED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "The smartphones do not qualify for the preferential rate under the India-UAE CEPA because they do not meet the rule of origin. The main failed check is the minimal operations check, as the work done in the UAE consists only of simple assembly and packaging. Therefore, the normal (MFN) rate applies, and no CEPA saving is available for this shipment.",
+    "classification": "The tariff line is 85171300 for smartphones, and Mansha's confidence in this classification is medium. Please confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate for smartphones is 20%, while the CEPA rate is 0%. Since the product does not qualify for the CEPA rate, no saving applies.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH) and a value addition (VA) of 40%, where CTH means non-originating inputs must be in a different heading than the product, and VA is the share of the product's price not from non-originating materials. The product fails the origin requirements because the minimal operations check failed: the UAE work consists only of simple assembly and packaging, which do not confer origin. The CTH check also failed because a non-originating input in the same heading represents 88.89% of the price, exceeding the 10% de minimis. Finally, the VA check failed with a build-down of only 11.11%, which is below the 40% threshold.",
+    "notes": [
+      {
+        "text": "India's CEPA tariff schedule (Annex 2A) lists this product under its older HS 2017 code 8517 12 11.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "A product that only undergoes minimal operations (Art. 3.5.1 a-q) does not originate, even if it meets its product-specific rule.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "N1",
+      "text": "India's CEPA tariff schedule (Annex 2A) lists this product under its older HS 2017 code 8517 12 11.",
+      "source_id": "TL-IN-85171300",
+      "mandatory": false
+    },
+    {
+      "nid": "M1",
+      "text": "'+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:85171300",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85171300",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "A product that only undergoes minimal operations (Art. 3.5.1 a-q) does not originate, even if it meets its product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M3",
+      "text": "By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Value addition may be calculated by build-down or build-up; 'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "The code 85171211 you gave is India's older HS 2017 code for this product; India's current tariff line is 85171300.",
+      "source_id": "TOOL:tariff_lookup",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}
