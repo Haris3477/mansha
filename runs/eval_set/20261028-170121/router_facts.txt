@@ -1,0 +1,78 @@
+Router facts (run runs/eval_set/20261028-170121), read-only from freeapi.db (settings and api_keys refused)
+Window (UTC): 2026-10-28 12:56:21 to 2026-10-28 13:14:13 (folder start and last log file, padded 5 min)
+
+a) Router requests in the window (18)
+  #1364 13:01:22 groq/openai/gpt-oss-120b success 1176 ms  <- N5_paint_indian_resin Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1154 ms
+  #1365 13:03:09 openrouter/dots-studio/dots-3-note-preview:free success 107395 ms  <- N5_paint_indian_resin Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 107395 ms
+  #1366 13:03:11 cerebras/gpt-oss-120b success 1689 ms  <- N5_paint_indian_resin QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1679 ms
+  #1367 13:03:12 cerebras/gpt-oss-120b success 1068 ms  <- N5_paint_indian_resin QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1067 ms
+  #1368 13:03:13 cerebras/gpt-oss-120b success 1222 ms  <- N5_paint_indian_resin QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1216 ms
+  #1369 13:04:09 openrouter/dots-studio/dots-3-note-preview:free success 55271 ms  <- N5_paint_indian_resin Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 55270 ms
+  #1370 13:04:10 cerebras/gpt-oss-120b success 1310 ms  <- N5_paint_indian_resin Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1305 ms
+  #1371 13:04:11 groq/openai/gpt-oss-120b success 1071 ms  <- C1_windows Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1067 ms
+  #1372 13:06:40 openrouter/dots-studio/dots-3-note-preview:free success 149002 ms  <- C1_windows Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 149004 ms
+  #1373 13:06:41 cerebras/gpt-oss-120b success 1217 ms  <- C1_windows QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1214 ms
+  #1374 13:06:42 cerebras/gpt-oss-120b success 1227 ms  <- C1_windows QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1224 ms
+  #1375 13:06:43 cerebras/gpt-oss-120b success 952 ms  <- C1_windows QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 951 ms
+  #1376 13:07:37 openrouter/dots-studio/dots-3-note-preview:free success 53991 ms  <- C1_windows Researcher (round 2) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 53987 ms
+  #1377 13:07:39 cerebras/gpt-oss-120b success 1394 ms  <- C1_windows QA (round 2) attempt 1
+      0 cerebras/gpt-oss-120b ok 1392 ms
+  #1378 13:08:12 cerebras/gpt-oss-120b success 1374 ms  <- C1_windows QA (round 2) attempt 2
+      0 cerebras/gpt-oss-120b ok 1369 ms
+  #1379 13:08:13 cerebras/gpt-oss-120b success 658 ms  <- C1_windows QA (round 2) attempt 1
+      0 cerebras/gpt-oss-120b ok 655 ms
+  #1380 13:09:12 openrouter/dots-studio/dots-3-note-preview:free success 58956 ms  <- C1_windows Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 58956 ms
+  #1381 13:09:13 cerebras/gpt-oss-120b success 1284 ms  <- C1_windows Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1280 ms
+
+b) Per platform (attempts in the window, by outcome)
+  cerebras: 11 attempts (ok 11)
+  groq: 2 attempts (ok 2)
+  openrouter: 5 attempts (ok 5)
+  non-success requests: none
+
+  Long-chain calls (Researcher / Builder): served model at the serving attempt's ordinal
+  N5_paint_indian_resin Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N5_paint_indian_resin Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  C1_windows Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  C1_windows Researcher (round 2): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  C1_windows Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+
+  Validity (every Researcher/Builder call on openrouter at ordinal 0)
+  N5_paint_indian_resin: valid (2 long calls)
+  C1_windows: valid (3 long calls)
+
+  Client calls not matched in the router: C1_windows QA (round 2) attempt 1
+
+c) Cooldowns set or expiring in the window (0)
+
+d) Router state at 2026-10-28 13:09:14 UTC
+  active cooldowns: none
+  capacity (router 24 h successes = rate_limit_usage; OpenRouter :free used = max with UTC-day attempts):
+    long  google/gemini-3.5-flash: router 24 h 0; used 0/20; left 20
+    long  google/gemini-3.6-flash: router 24 h 3; used 3/20; left 17
+    long  openrouter/dots-studio/dots-3-note-preview:free: router 24 h 45, UTC-day attempts 5; used 45/1000; left 955
+    qa    groq/openai/gpt-oss-120b: router 24 h 18; used 18/1000; left 982
+    judge cerebras/gpt-oss-120b: router 24 h 88; used 88/2400; left 2312
+  OpenRouter attempts since 00:00 UTC (04:00 Dubai): dots-studio/dots-3-note-preview:free 5 (ok 5)
+  OpenRouter timeouts in the window: none
+  Cerebras last 24 h: 88 requests, 350429 input + 116295 output tokens, about $0.21 at $0.35/$0.75 per 1M
+
+e) Chains (enabled models, order as stored; rpd_limit with overrides)
+  long: google/gemini-3.5-flash (rpd 20), google/gemini-3.6-flash (rpd 20), openrouter/dots-studio/dots-3-note-preview:free (rpd 1000)
+  qa: groq/openai/gpt-oss-120b (rpd 1000)
+  judge: cerebras/gpt-oss-120b (rpd 2400)
