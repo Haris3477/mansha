@@ -592,18 +592,22 @@ def add_tariff_notes(data: dict, pack: EvidencePack) -> list[str]:
     Baseline 25 Oct: N4's reason "8-digit codes are national and differ between the UAE and India" reached
     the report in 0 of 2 runs (once left out by the Researcher, once shortened away by the Builder), and N9's
     HS 2017 code gave no note at all, so the report said "high" confidence and nothing about the old code.
-    A caveat citing the tool that restates a report note (SAME_NOTE_COVERAGE) is replaced by it; other
-    caveats citing the tool stay. The Builder prints TOOL:tariff_lookup notes verbatim.
+    A caveat citing the tool that restates any of its notes (SAME_NOTE_COVERAGE) is replaced by the report
+    notes: the Builder prints TOOL:tariff_lookup notes verbatim, so a paraphrase of a Researcher-only note
+    would reach the exporter unchecked (28 Oct, N13: "No candidate matches the whole description. One
+    candidate matches only 'door' …" scored 0.54 against the report note, 0.77 against the tool's own
+    Researcher note). Other caveats citing the tool stay.
     """
     tl = pack.tool_results.get(TARIFF_LOOKUP_ID)
     caveats = data.get("caveats")
     notes = (tl or {}).get("report_notes") if isinstance(tl, dict) else None
     if not notes or not isinstance(caveats, list):
         return []
+    tool_notes = list(tl.get("notes") or []) + notes
     changes = []
     for i, cv in reversed(list(enumerate(caveats))):
         if (isinstance(cv, dict) and cv.get("source_id") == TARIFF_LOOKUP_ID and cv.get("note") not in notes
-                and any(coverage(cv.get("note"), n) >= SAME_NOTE_COVERAGE for n in notes)):
+                and any(coverage(cv.get("note"), n) >= SAME_NOTE_COVERAGE for n in tool_notes)):
             del caveats[i]
             changes.append(f"caveats[{i}]: restated note of {TARIFF_LOOKUP_ID} dropped: {cv.get('note')!r}")
     for n in notes:
@@ -856,6 +860,27 @@ def drop_claim_caveats(data: dict, verdict: str, corridor: str = "india") -> lis
             f"({c.get('source_id')}): {c.get('note')!r}" for c in gone]
 
 
+LINE_TOOL_PREFIXES = ("TOOL:origin:", "TOOL:duty:", "TOOL:rule_lookup:")
+
+
+def drop_line_notes(data: dict) -> list[str]:
+    """Drop caveats citing a tariff line's tool results when no line was chosen (Step 7.6m).
+
+    28 Oct (N13, the first gap report): the "'+' is read as 'and'" note of TOOL:origin:76101000, a line
+    not chosen, was printed (TOOL:origin notes are mandatory) in a report with no rule of origin.
+    """
+    caveats = data.get("caveats")
+    cls = data.get("classification")
+    if (not isinstance(caveats, list) or not isinstance(cls, dict)
+            or str(cls.get("tariff_line", "")).strip() != GAP):
+        return []
+    keep = [c for c in caveats if not (isinstance(c, dict) and str(c.get("source_id")).startswith(LINE_TOOL_PREFIXES))]
+    gone = [c for c in caveats if c not in keep]
+    data["caveats"] = keep
+    return [f"caveats: dropped a note on a line that was not chosen ({c.get('source_id')}): {c.get('note')!r}"
+            for c in gone]
+
+
 # ---------- the checks ----------
 
 def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[str], str]:
@@ -1103,6 +1128,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)
     changes += drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
+    changes += drop_line_notes(data)  # a gap: no notes from lines that were not chosen (7.6m)
     problems, warnings, verdict = check_researcher(data, pack)
     dropped = drop_follow_ups(data, verdict, pack)  # none once no CEPA rate can apply (74); ELIGIBLE: AED value only
     dropped += drop_claim_caveats(data, verdict, pack.corridor)  # nor notes about claiming it (problem 76)

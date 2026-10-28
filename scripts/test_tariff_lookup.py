@@ -85,7 +85,13 @@ for desc, expect in [("wooden doors", ["TL-IN-76101000", "TL-IN-94036000"]), ("s
     r = tariff_lookup(desc)
     check(f"split match: {desc}", r.split_match and any("No candidate matches the whole description" in n
                                                            and "REGULATORY_GAP_DETECTED" in n for n in r.notes)
-          and r.report_notes == [] and (expect is None or ids(r) == expect), (ids(r), r.notes))
+          and len(r.report_notes) == 1 and r.report_notes[0] in r.notes
+          and not any("TL-IN-" in n for n in r.notes) and (expect is None or ids(r) == expect), (ids(r), r.notes))
+r = tariff_lookup("wooden doors")
+check("N13: the report note in plain words, no IDs (28 Oct fix)",
+      r.report_notes == ["No tariff line in Mansha's sources matches the whole description 'wooden doors': the "
+                         "closest lines are 'Doors, windows and their frames and thresholds for doors "
+                         "(aluminium)' and 'Other wooden furniture'."], r.report_notes)
 # Every product description in the saved runs and eval cases up to 28 Oct: none is a split match.
 for desc in ("acrylic paint", "acrylic paint (resin)", "aluminium cookware", "aluminium window frames",
              "aluminium windows", "aluminium wire rods", "battery chargers", "cosmetic skin creams",

@@ -187,9 +187,18 @@ def tariff_lookup(product_description: str | None = None, hs_code_given: str | N
             matched = [sorted(q_tokens & _line_tokens(l)) for l in tied]
             if len(tied) > 1 and len({tuple(m) for m in matched}) > 1:
                 result.split_match = True
-                parts = ", ".join(f"{l['id']} matches only {' '.join(m)!r}" for l, m in zip(tied, matched))
+                # Descriptions, not IDs: on 28 Oct (N13) the Researcher copied the IDs into shown text (a
+                # wasted revision), and its paraphrase was printed verbatim. The report gets its own note.
+                parts = ", ".join(f"'{l['description']}' matches only {' '.join(m)!r}"
+                                  for l, m in zip(tied, matched))
+                closest = " and ".join(f"'{l['description']}'" for l in tied)
+                result.report_notes.append(
+                    f"No tariff line in Mansha's sources matches the whole description '{product_description}': "
+                    f"the closest lines are {closest}."
+                )
+                result.notes += result.report_notes
                 result.notes.append(
-                    f"No candidate matches the whole description ({parts}). If none of them describes the "
+                    f"No candidate matches the whole description: {parts}. If none of them describes the "
                     f"product, the classification is REGULATORY_GAP_DETECTED."
                 )
         else:

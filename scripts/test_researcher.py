@@ -23,6 +23,7 @@ from mansha.researcher import (
     drop_follow_ups,
     drop_free_zone_follow_ups,
     drop_hs_follow_ups,
+    drop_line_notes,
     drop_user_data_gaps,
     plain_follow_ups,
     plain_check_names,
@@ -1151,6 +1152,30 @@ check("N13 gap: no split-match problem", not any(SPLIT in p for p in run(d, n13)
 check("N13: the Researcher's confirm-code question is kept (7.9)",
       drop_hs_follow_ups({"follow_up_questions": ["Please confirm the HS code for wooden doors."]}, n13) == [])
 check("windows by keywords: no split-match problem", not any(SPLIT in p for p in run(GOOD_W, w)[0]))
+print("\n== 28 Oct fixes after sitting 20261028-191831 (N13): the split note's paraphrase, notes of unchosen lines")
+N13_NOTE = n13.tool_results["TOOL:tariff_lookup"]["report_notes"][0]
+PLUS = ("'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is "
+        "Mansha's interpretation.")
+# Live, word for word: 28 Oct 19:29 N13 round 2 (round 1 had the IDs in place of "One candidate" / "Another").
+N13_LIVE = ("No candidate matches the whole description. One candidate matches only 'door' and is for aluminium "
+            "products. Another matches only 'wooden' and is for other wooden furniture.")
+gap_cls = {k: GAP for k in ("tariff_line", "description", "source_id")}
+d = {"classification": dict(gap_cls, confidence="low"),
+     "caveats": [{"note": N13_LIVE, "source_id": "TOOL:tariff_lookup"},
+                 {"note": PLUS, "source_id": "TOOL:origin:76101000"}]}
+ch = add_tariff_notes(d, n13)
+check("N13 live paraphrase of the Researcher-only note -> replaced by the report note",
+      d["caveats"][0] == {"note": PLUS, "source_id": "TOOL:origin:76101000"}
+      and d["caveats"][-1] == {"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"} and len(d["caveats"]) == 2
+      and d["classification"]["confidence"] == "low", (d["caveats"], ch))
+ch = drop_line_notes(d)
+check("7.6m: gap -> the '+' note of an unchosen line is dropped, the tool's note kept",
+      d["caveats"] == [{"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}] and len(ch) == 1, (d["caveats"], ch))
+d = copy.deepcopy(GOOD_W)
+check("7.6m: a chosen line keeps its tool notes", drop_line_notes(d) == [] and d == GOOD_W)
+check("N13 report note passes the shown-text check",
+      not any("caveats" in p for p in run({**copy.deepcopy(GOOD_W), "caveats": [
+          {"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}]}, n13)[0]), run(GOOD_W, n13)[0])
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
