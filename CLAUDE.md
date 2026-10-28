@@ -8,8 +8,9 @@
 3. Code map: `python3 -m venv ~/gvenv && ~/gvenv/bin/pip install graphifyy==0.9.95 && GRAPHIFY_BACKEND=none ~/gvenv/bin/graphify update .` (no LLM). Before reading whole files use `graphify explain "<symbol>"` / `graphify path "A" "B"`, then read only the lines needed. Prompt files and uncommitted files: read directly. Verify INFERRED links in the code; prompt↔code links by ID string (e.g. "TOOL:tariff_lookup") are not drawn: use grep.
 
 ## What a cloud session can and cannot do
-- CAN: design on paper, edit code, run the offline tests (`pip install -r requirements.txt` first), re-grade and replay saved runs, read reports and phase logs, update repo docs.
-- CANNOT: live pipeline runs or router checks (the router is on Haris's Mac at localhost:3001). Those happen in Haris's claude.ai chat. Never try to reach the router, never expose it, never ask for keys.
+- CAN: design on paper, edit code, run the offline tests (`pip install -r requirements.txt` first), re-grade and replay saved runs, read reports and phase logs, read live sittings in full (reports, phase logs, `router_facts.txt`) and write the reading, update repo docs.
+- CANNOT: live pipeline runs or router checks (the router is on Haris's Mac at localhost:3001). Those run from a 🖥️ terminal block on the Mac (below). Never try to reach the router, never expose it, never ask for keys.
+- The Mac chat (claude.ai, bills Haris's plan) is NOT used for routine sittings: live runs are a 🖥️ terminal block, the reading is done here. The Mac chat is only for 💾 SAVE PROGRESS and the four ➡️ cases below.
 - Never open, create or read any `.env`. Keys are never in the repo or the chat.
 
 ## North Star
@@ -31,22 +32,43 @@ A finished, pitch-ready Mansha (roadmap.md's pitch-ready bar). "Next steps" and 
 6. Suggest a commit message, ask before committing, commit on this session's own branch, never push to `main`. Haris reviews and merges. **No AI attribution in commit messages (no co-author lines).**
 7. If a hook (e.g. the cloud stop hook) asks you to commit or push, don't: tell Haris what it asked and wait for his yes. The cloud stop hook fires whenever a reply ends with uncommitted, untracked or unpushed work, so expect it while waiting for a yes.
 
-## Handover blocks
-Whenever the next step needs Haris's Mac (live run, router or quota check, budget guard, refreshing `runs-snapshot`), stop and end the reply with TWO separate code blocks, in this order (Haris, 26 Oct: a separate git block he runs first, so the Mac has the branch before the MOVE block is pasted):
-1. **🔀 GET THE BRANCH ON THE MAC**: one shell block only, nothing else in it:
-   `cd ~/Projects/mansha && git fetch origin && git checkout <branch> && git pull && git log --oneline -1`
-   The last line must print the commit the MOVE block names, so the work must be committed and pushed first (after Haris's yes).
-2. **➡️ MOVE TO MAC CHAT**: the message Haris pastes into the Mac chat. Its first line states the branch and commit (e.g. "Branch claude/… at 1050b4d — already checked out on the Mac"), with no git commands inside. Then: what to check first in the router, the exact run command and sizing, what should change and how to read it, which `docs/cloud/` file to read (if any), and what to report back.
+## Live sittings and the Mac (Haris, 27 Oct 20:08)
+**🖥️ RUN ON YOUR MAC (TERMINAL):** when a step needs a live sitting (work committed and pushed first, after Haris's yes), end the reply with one block Haris pastes into his VS Code terminal (not the Mac chat). It runs inside `( … )` so a STOP ends the block, not his shell. `eval_set` exits 1 when a run fails a code check (those runs still get router facts and the snapshot) and 2 when the guard refused (nothing ran). Template:
+```
+(
+set -e
+cd ~/Projects/mansha && git fetch origin && git checkout <branch> && git pull --ff-only
+test "$(git rev-parse --short HEAD)" = "<hash>" || { echo "STOP: expected <hash>"; exit 1; }
+test "$(grep -c '^PROVIDER_TIMEOUT_OPENROUTER=210000$' ~/Projects/freellmapi/.env)" = 1 || { echo "STOP: router timeout is not 210000"; exit 1; }
+curl -s -o /dev/null -w "router %{http_code}\n" http://localhost:3001/v1/models | grep -qx "router 200" || { echo "STOP: router not answering. Start it: cd ~/Projects/freellmapi && npm run dev"; exit 1; }
+source .venv/bin/activate
+python3 -m scripts.router_facts --now
+rc=0; python -m scripts.eval_set --case <A> --case <B> || rc=$?
+[ "$rc" != 2 ] || { echo "STOP: budget guard refused (nothing ran)"; exit 1; }
+RUN=$(ls -t runs/eval_set | head -1)
+python3 -m scripts.router_facts runs/eval_set/$RUN
+cd ~/Projects/mansha-runs && rsync -a ~/Projects/mansha/runs/eval_set/$RUN runs/eval_set/ && git add runs/eval_set/$RUN && git commit -m "Runs snapshot $RUN (<cases>, <hash>)" && git push origin runs-snapshot && git ls-remote origin runs-snapshot
+)
+```
+Never `--force`. Size the sitting to the cases the change can affect (k = 1 unless a repeat is the point). Say what to paste back if it stops (the STOP line, or the last 30 lines); if Haris pastes the `--now` output first, size the sitting from it. When Haris says "pushed", fetch `runs-snapshot` and do the full reading (below).
 
-Long details go into a `docs/cloud/` brief first, committed (after Haris's yes) and referenced by path and commit, so the MOVE block stays short.
+**💾 SAVE PROGRESS IN MAC CHAT:** at the end of every closed step or task: which handoff file on main to read (ask Haris to merge and pull first), what changed, and which Project docs to update: the CURRENT_STATE live addendum; the agent_prompts addendum if a prompt changed (old → new); the llm_backend_setup addendum if the backend changed; the fact-base addendum if a KB fact moved.
 
-## Coming back from the Mac chat
-When Haris pastes a **⬅️ BACK TO CLOUD** block, first extract runs from `runs-snapshot` (Start of every session, step 2), then read the files the block names before anything else.
+**➡️ MOVE TO MAC CHAT:** only for what the cloud can't do: (a) a live look at the Mac (router source, the router DB beyond `router_facts.txt`, router logs, why a run failed on the Mac); (b) a router, dashboard or `.env` change Haris must make, confirmed in the DB afterwards; (c) a terminal block that fails in a way the pasted error can't explain; (d) any Project doc read or write. Say which of (a)–(d), what to check and what to bring back. Its first line names the branch and commit; if the Mac needs the branch, give the terminal block's git line first. Long details go into a `docs/cloud/` brief first, committed (after Haris's yes) and referenced by path and commit, so the block stays short.
+
+## Reading a sitting
+On "pushed": `git fetch origin runs-snapshot` and extract (Start of every session, step 2). First sweep anchors, labels, serving models and seconds with one script, against `router_facts.txt`; then read every report.md and phase_log in full (no shortcut). Write `docs/cloud/readings/<run>_reading.md`: validity per run (every Researcher/Builder call on the expected model at ordinal 0, from `router_facts.txt`; an unmatched call is "unknown", never "valid"); serving-model table with seconds; targets table; QA statuses and every rejection/overrule with why (corrections checked against the KB records); must-say / must-not-say per case marked from reading; slip counts; G17 streak. Standard: the reading.md of 180618, 183851, 191029. A **⬅️ BACK TO CLOUD** block from the Mac chat is handled the same way: extract, then read the files it names first.
+
+## Router facts
+`scripts/router_facts.py` (on `scripts/router_db.py`) runs on the Mac only. The router DB is opened read-only and an authorizer refuses `settings` and `api_keys` (problem 84). Select named columns only; never add a query on those two tables; never open any `.env` in a script or command (the terminal block's count-only `grep -c` is the one exception). The cloud never reaches the router or its DB: it reads `router_facts.txt` from the snapshot.
+
+## Cloud credit (Haris, 27 Oct 20:58)
+About $50 left; expires 5 Nov 11:59 Dubai. Quality first, no check skipped. Within that: graphify before whole files; no re-reads; the suite once per change plus once before a live handover; sittings sized to the change; a sweep script before the full read; short replies; 🔄 at ~40 % context; say small / medium / large before each step. If credit runs low: stop at a clean point, write the handoff; the Mac chat takes over again.
 
 ## Handoff back
 At the end of a task, write `docs/cloud/handoff_<YYYY-MM-DD>_<task>.md`: decisions Haris made (with his reasons), results, new or changed problems/gaps, commits, and what's next. Haris's chat uses it for "save progress" in the Project. Keep it factual: what Haris said vs what Claude recommended.
 
-At the end of each task, or when context passes ~40%, write/update the handoff file, commit it (after Haris's yes), and end the reply with a block headed **🔄 START A NEW SESSION**. A "task" here is a whole piece of work with its own goal (e.g. the G17 decision, the repeats, a pipeline fix), not a step inside it: a repeat sitting or one fix round continues in the same session (update the handoff, no new-session block). The block contains the exact `claude --cloud "…"` command for the next task: the quoted text tells the new session to read CLAUDE.md, then the named `docs/cloud/` handoff or brief, names the branch to work on and the step to do. If the Mac blocks (🔀 GET THE BRANCH ON THE MAC, then ➡️ MOVE TO MAC CHAT) are also due, they come first and the new-session block last. Example:
+At the end of each task, or when context passes ~40%, write/update the handoff file, commit it (after Haris's yes), and end the reply with a block headed **🔄 START A NEW SESSION**. A "task" here is a whole piece of work with its own goal (e.g. the G17 decision, the repeats, a pipeline fix), not a step inside it: a repeat sitting or one fix round continues in the same session (update the handoff, no new-session block). The block contains the exact `claude --cloud "…"` command for the next task: the quoted text tells the new session to read CLAUDE.md, then the named `docs/cloud/` handoff or brief, names the branch to work on and the step to do. If a 🖥️ block, 💾 SAVE PROGRESS or ➡️ block is also due, it comes first, and 🔄 START A NEW SESSION last. Example:
 ```
 claude --cloud "Read CLAUDE.md, then docs/cloud/handoff_2026-10-25_g17.md and docs/cloud/<next>_brief.md. Work on branch <branch>. Do its step 1 only."
 ```
@@ -70,9 +92,9 @@ Four agents, each a separate LLM call orchestrated in Python (`mansha/orchestrat
 - Priority: simple end to end first, then accuracy, then demo polish.
 - When Haris pastes an error, explain the cause before the fix.
 
-## Offline tests (all 19)
+## Offline tests (all 20)
 ```
-for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done
+for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set test_router_facts; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done
 ```
 (`usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected.) Details: `docs/runbook.md`.
 

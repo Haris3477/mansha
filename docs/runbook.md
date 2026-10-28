@@ -13,8 +13,9 @@ _How to run things and where the code is. Moved verbatim from progress.md (20 Oc
 - **Try a new model:** put it alone in the `trial` chain, then `python -m scripts.try_chain trial [case ...] [--agents researcher document_builder qa]`.
 - **Edit a chain in the dashboard:** Activate it, toggle models, re-Activate Default. A new chain: name box + **tick "Start empty"** + Create.
 - **Re-check saved reports:** `python -m scripts.check_reports [folders]`.
-- **All offline tests in one go (19 on `main` since the evaluation set, 24 Oct):**
-  `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
+- **Router facts (since 27 Oct; Mac only, standard library, read-only):** `python3 -m scripts.router_facts runs/eval_set/<run>` writes `<run>/router_facts.txt` and prints it: a) every router request in the sitting's window (folder name = Mac local start, to the newest log file, ±5 min) with its attempts, each matched to a case call or marked not matched; b) per-platform attempts, every Researcher/Builder call's served model and ordinal, validity per case (OpenRouter at ordinal 0); c) cooldowns set or expiring in the window; d) router state now (active cooldowns, 24 h counts and capacity per chain model, OpenRouter attempts since 00:00 UTC, OpenRouter timeouts in the window, Cerebras tokens and cost in 24 h); e) the chains. `python3 -m scripts.router_facts --now` prints d) and e) only. Both the guard and router_facts read through `scripts/router_db.py`: mode=ro, and an authorizer refuses `settings`/`api_keys` (problem 84).
+- **All offline tests in one go (20 since router_facts, 27 Oct):**
+  `for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set test_router_facts; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done`
   (`usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected: tests check that bad arguments are refused and that the runner reports a mismatch. Replays of saved runs in `test_researcher`/`test_kb_shield` print SKIP when the git-ignored `runs/` folders are absent. `test_llm_retry` passes only on the Mac: Claude's scratch copy uses a stand-in `openai` package.)
 - Branches: `git switch -c <name>`, `git switch <name>`, `git push -u origin <name>`; merge with `git switch main && git merge --ff-only <name> && git push`.
 - **Commit by file name, check `git status` first** (an unexpected untracked file would slip into a `git add -A`). No AI attribution lines in commits.
@@ -44,7 +45,7 @@ scripts/
   smoke_test, test_llm_client (live), check_data
   test_tariff_lookup, test_rule_lookup, test_origin_calculator, test_duty_estimate, test_coo_fee
   test_evidence, test_researcher, test_intake (--offline), test_document_builder, test_llm_retry,
-  test_pipeline, test_report_check, test_qa_evidence, test_qa, test_prose_qa, test_kb_shield, test_pacing, test_eval_set
+  test_pipeline, test_report_check, test_qa_evidence, test_qa, test_prose_qa, test_kb_shield, test_pacing, test_eval_set, test_router_facts
   pipeline_cases.py, run_pipeline.py, try_chain.py, eval_qa.py, eval_prose_qa.py, check_reports.py
   eval_cases.py (25 cases + answer key), eval_set.py (dry run, budget guard, live runner, summary), eval_grade.py (grading, anchors)
 runs/                # git-ignored

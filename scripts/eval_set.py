@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sqlite3
 import statistics
 import sys
@@ -29,10 +28,9 @@ from pathlib import Path
 
 from scripts.eval_cases import BY_ID, CASES, GROUPS, EvalCase
 from scripts.eval_grade import Grade, compare, derive, grade, load_run, supplier_leaks
+from scripts.router_db import CHAINS, ROUTER_DB, chain_capacity, utc_text  # noqa: F401 (utc_text: tests)
 
 RUNS_ROOT = Path("runs/eval_set")
-ROUTER_DB = Path(os.environ.get("MANSHA_ROUTER_DB",
-                                Path.home() / "Projects/freellmapi/server/data/freeapi.db"))
 DEFAULT_GROUPS = ("core", "stop", "new")
 
 
@@ -67,84 +65,11 @@ def dry_run(cases: list[EvalCase], verbose: bool = False) -> int:
 
 # ---------- budget guard (E1, D3 = A) ----------
 
-CHAINS = ("long", "qa", "judge")
 # Worst case per run, in requests: both Researcher and Builder rounds plus one retry each (long),
 # Intake plus a retry (qa), and up to 3 QA parts x (2 rounds + format retry/re-judge) + prose QA (judge).
 WORST = {"REPORT": {"long": 5, "qa": 2, "judge": 14}, "STOP": {"long": 0, "qa": 2, "judge": 0}}
 TYPICAL = {"REPORT": {"long": 3, "qa": 1, "judge": 4}, "STOP": {"long": 0, "qa": 1, "judge": 0}}
-DAY_MS = 24 * 3600 * 1000
-# Fix round 1b (26 Oct 21:59, N5 LLM_ERROR): OpenRouter counts EVERY request that reaches it (ok, error,
-# timeout) per UTC day (resets 00:00 UTC = 04:00 Dubai), while rate_limit_usage holds the router's
-# successes over a sliding 24 h. The guard showed Dots3 47/50 "3 left" when OpenRouter's count was 50.
-# For OpenRouter :free models, used = max(router's sliding count, attempts since 00:00 UTC), read from
-# request_attempts joined to requests (requests.created_at is SQLite datetime('now'), UTC text). Every
-# outcome counts; a route the router skipped for a cooldown has no row, so it is never counted.
-WARN_WINDOW_MS = 3600 * 1000
 WARN_MIN_ATTEMPTS = 2
-
-
-def utc_text(ms: float) -> str:
-    """Epoch ms -> 'YYYY-MM-DD HH:MM:SS' in UTC, the format of requests.created_at."""
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(ms / 1000))
-
-
-def counts_attempts(platform: str, model_id: str) -> bool:
-    return platform == "openrouter" and model_id.endswith(":free")
-
-
-def chain_capacity(db: Path | None = None, now_ms: float | None = None) -> dict[str, list[dict]]:
-    """Each chain's enabled models with their daily cap and the router's own sliding-24 h count
-    (rate_limit_usage, the table the router enforces from); for OpenRouter :free models, also every
-    attempt since 00:00 UTC (OpenRouter's own daily count), and each model's upstream errors in the
-    last hour (a warning only). Read-only; selected columns only."""
-    db, now_ms = db or ROUTER_DB, now_ms or time.time() * 1000
-    if not Path(db).exists():
-        raise sqlite3.OperationalError(f"no such file: {db}")
-    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
-    try:
-        rows = con.execute(
-            "SELECT p.name, m.platform, m.model_id, m.rpd_limit FROM profiles p "
-            "JOIN profile_models pm ON pm.profile_id = p.id JOIN models m ON m.id = pm.model_db_id "
-            "WHERE pm.enabled = 1 AND m.enabled = 1 AND p.name IN (?, ?, ?)", CHAINS).fetchall()
-        overrides = {(pl, mid): json.loads(o or "{}") for pl, mid, o in
-                     con.execute("SELECT platform, model_id, overrides_json FROM model_overrides")}
-        used = {(pl, mid): n for pl, mid, n in con.execute(
-            "SELECT platform, model_id, COUNT(*) FROM rate_limit_usage WHERE kind = 'request' "
-            "AND created_at_ms > ? GROUP BY platform, model_id", (now_ms - DAY_MS,))}
-        # A model the router has benched (e.g. Google's project-wide daily quota, 24 Oct 19:22) has
-        # nothing left until the bench expires, whatever its own request count says.
-        benched = {(pl, mid): (exp, src) for pl, mid, exp, src in con.execute(
-            "SELECT platform, model_id, MAX(expires_at_ms), source FROM rate_limit_cooldowns "
-            "WHERE expires_at_ms > ? GROUP BY platform, model_id", (now_ms,))}
-        day_start = utc_text(now_ms)[:10] + " 00:00:00"
-        day_attempts = {(pl, mid): n for pl, mid, n in con.execute(
-            "SELECT a.platform, a.model_id, COUNT(*) FROM request_attempts a JOIN requests r "
-            "ON r.id = a.request_id WHERE r.created_at >= ? GROUP BY a.platform, a.model_id", (day_start,))}
-        recent = {(pl, mid): (n, bad) for pl, mid, n, bad in con.execute(
-            "SELECT a.platform, a.model_id, COUNT(*), SUM(a.outcome = 'upstream_error') FROM request_attempts a "
-            "JOIN requests r ON r.id = a.request_id WHERE r.created_at >= ? GROUP BY a.platform, a.model_id",
-            (utc_text(now_ms - WARN_WINDOW_MS),))}
-    finally:
-        con.close()
-    out: dict[str, list[dict]] = {c: [] for c in CHAINS}
-    for chain, pl, mid, rpd in rows:
-        rpd = overrides.get((pl, mid), {}).get("rpdLimit", rpd)
-        exp, src = benched.get((pl, mid), (None, None))
-        # A provider's own daily quota is account- or project-wide (Google: one quota for the
-        # project's models, 24 Oct 19:22), so its bench holds every model of that provider.
-        pool = [e for (p2, _), (e, s2) in benched.items() if p2 == pl and s2 == "authoritative"]
-        if pool and (exp is None or max(pool) > exp):
-            exp, src = max(pool), "authoritative, provider-wide"
-        router_used = used.get((pl, mid), 0)
-        attempts = day_attempts.get((pl, mid), 0) if counts_attempts(pl, mid) else None
-        n, bad = recent.get((pl, mid), (0, 0))
-        out[chain].append({"model": f"{pl}/{mid}", "rpd": rpd,
-                           "used": max(router_used, attempts or 0), "router_used": router_used,
-                           "day_attempts": attempts,
-                           "benched_min": round((exp - now_ms) / 60000, 1) if exp else None,
-                           "bench_source": src,
-                           "upstream_errors": (int(bad or 0), n)})
-    return out
 
 
 def need(cases: list[EvalCase], repeat: int, table: dict) -> dict[str, int]:
@@ -377,7 +302,7 @@ def main(argv=None) -> int:
     print("\nBudget guard (router's sliding 24 h counts; OpenRouter :free = attempts since 00:00 UTC, "
           "04:00 Dubai):")
     try:
-        ok, lines = budget_check(cases, a.repeat, chain_capacity())
+        ok, lines = budget_check(cases, a.repeat, chain_capacity(ROUTER_DB))
     except sqlite3.Error as exc:
         ok, lines = False, [f"  cannot read the router database {ROUTER_DB}: {exc}"]
     print("\n".join(lines))
