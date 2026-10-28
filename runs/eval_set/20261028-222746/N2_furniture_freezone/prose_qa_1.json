@@ -1,0 +1,33 @@
+{
+  "status": "APPROVED",
+  "scores": {
+    "factuality": 1,
+    "completeness": 1
+  },
+  "corrections": [],
+  "note": "APPROVED | factuality 1, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 5.62,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2325,
+            "completion": 1580
+          },
+          "finish_reason": "stop",
+          "latency_s": 5.62,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

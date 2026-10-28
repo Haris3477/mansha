@@ -1,0 +1,86 @@
+Router facts (run runs/eval_set/20261028-222746), read-only from freeapi.db (settings and api_keys refused)
+Window (UTC): 2026-10-28 18:22:46 to 2026-10-28 18:39:15 (folder start and last log file, padded 5 min)
+
+a) Router requests in the window (21)
+  #1476 18:27:47 groq/openai/gpt-oss-120b success 1339 ms  <- N2_furniture_freezone Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1333 ms
+  #1477 18:28:47 openrouter/dots-studio/dots-3-note-preview:free success 60068 ms  <- N2_furniture_freezone Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 60065 ms
+  #1478 18:28:49 cerebras/gpt-oss-120b success 1504 ms  <- N2_furniture_freezone QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1499 ms
+  #1479 18:28:50 cerebras/gpt-oss-120b success 941 ms  <- N2_furniture_freezone QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 938 ms
+  #1480 18:28:50 cerebras/gpt-oss-120b success 618 ms  <- N2_furniture_freezone QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 616 ms
+  #1481 18:30:14 openrouter/dots-studio/dots-3-note-preview:free success 83242 ms  <- N2_furniture_freezone Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 83242 ms
+  #1482 18:30:19 cerebras/gpt-oss-120b success 5613 ms  <- N2_furniture_freezone Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 5606 ms
+  #1483 18:30:21 groq/openai/gpt-oss-120b success 1300 ms  <- N10_cosmetics_missing_hs Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1298 ms
+  #1484 18:30:55 openrouter/dots-studio/dots-3-note-preview:free success 34395 ms  <- N10_cosmetics_missing_hs Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 34391 ms
+  #1485 18:30:56 cerebras/gpt-oss-120b success 1267 ms  <- N10_cosmetics_missing_hs QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1265 ms
+  #1486 18:30:57 cerebras/gpt-oss-120b success 849 ms  <- N10_cosmetics_missing_hs QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 847 ms
+  #1487 18:31:36 openrouter/dots-studio/dots-3-note-preview:free success 38394 ms  <- N10_cosmetics_missing_hs Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 38393 ms
+  #1488 18:31:37 cerebras/gpt-oss-120b success 1015 ms  <- N10_cosmetics_missing_hs Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1008 ms
+  #1489 18:31:38 groq/openai/gpt-oss-120b success 851 ms  <- N15_arabic_windows_nodata Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 850 ms
+  #1490 18:32:50 openrouter/dots-studio/dots-3-note-preview:free success 72757 ms  <- N15_arabic_windows_nodata Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 72754 ms
+  #1491 18:32:52 cerebras/gpt-oss-120b success 1535 ms  <- N15_arabic_windows_nodata QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1531 ms
+  #1492 18:32:53 cerebras/gpt-oss-120b success 960 ms  <- N15_arabic_windows_nodata QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 961 ms
+  #1493 18:32:54 cerebras/gpt-oss-120b success 1312 ms  <- N15_arabic_windows_nodata QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1310 ms
+  #1494 18:32:55 cerebras/gpt-oss-120b success 996 ms  <- N15_arabic_windows_nodata QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 994 ms
+  #1495 18:34:13 openrouter/dots-studio/dots-3-note-preview:free success 78206 ms  <- N15_arabic_windows_nodata Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 78209 ms
+  #1496 18:34:15 cerebras/gpt-oss-120b success 1679 ms  <- N15_arabic_windows_nodata Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1669 ms
+
+b) Per platform (attempts in the window, by outcome)
+  cerebras: 12 attempts (ok 12)
+  groq: 3 attempts (ok 3)
+  openrouter: 6 attempts (ok 6)
+  non-success requests: none
+
+  Long-chain calls (Researcher / Builder): served model at the serving attempt's ordinal
+  N2_furniture_freezone Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N2_furniture_freezone Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N10_cosmetics_missing_hs Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N10_cosmetics_missing_hs Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N15_arabic_windows_nodata Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N15_arabic_windows_nodata Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+
+  Validity (every Researcher/Builder call on openrouter at ordinal 0)
+  N2_furniture_freezone: valid (2 long calls)
+  N10_cosmetics_missing_hs: valid (2 long calls)
+  N15_arabic_windows_nodata: valid (2 long calls)
+
+  Client calls not matched in the router: none
+
+c) Cooldowns set or expiring in the window (0)
+
+d) Router state at 2026-10-28 18:34:15 UTC
+  active cooldowns: none
+  capacity (router 24 h successes = rate_limit_usage; OpenRouter :free used = max with UTC-day attempts):
+    long  google/gemini-3.5-flash: router 24 h 1; used 1/20; left 19
+    long  google/gemini-3.6-flash: router 24 h 0; used 0/20; left 20
+    long  openrouter/dots-studio/dots-3-note-preview:free: router 24 h 46, UTC-day attempts 47; used 47/1000; left 953
+    qa    groq/openai/gpt-oss-120b: router 24 h 18; used 18/1000; left 982
+    judge cerebras/gpt-oss-120b: router 24 h 59; used 59/2400; left 2341
+  OpenRouter attempts since 00:00 UTC (04:00 Dubai): dots-studio/dots-3-note-preview:free 47 (error 1, ok 46)
+  OpenRouter timeouts in the window: none
+  Cerebras last 24 h: 66 requests, 250232 input + 74046 output tokens, about $0.14 at $0.35/$0.75 per 1M
+
+e) Chains (enabled models, order as stored; rpd_limit with overrides)
+  long: google/gemini-3.5-flash (rpd 20), google/gemini-3.6-flash (rpd 20), openrouter/dots-studio/dots-3-note-preview:free (rpd 1000)
+  qa: groq/openai/gpt-oss-120b (rpd 1000)
+  judge: cerebras/gpt-oss-120b (rpd 2400)

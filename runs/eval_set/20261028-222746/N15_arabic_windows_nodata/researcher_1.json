@@ -1,0 +1,163 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 72.77,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8287,
+        "completion": 7708
+      },
+      "finish_reason": "stop",
+      "latency_s": 72.77,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Please confirm the HS code for aluminium window frames, as it was not provided.'",
+    "procedure: 8 step(s) written by code from the knowledge base",
+    "caveats[10]: dropped, it restates the checklist step from P-AGR-3.12-DIRECT: 'Preferential treatment requires direct consignment from the UAE to India; transi'",
+    "caveats[11]: dropped, it restates the checklist step from P-AGR-COO-RULES: 'The certificate of origin is valid for 12 months from issue, covers one import, '",
+    "caveats[13]: dropped, it restates the checklist step from P-MOET-FACTORY-REG: 'Before applying for the certificate, the factory must be registered through the '",
+    "caveats[14]: dropped, it restates the checklist step from P-IN-IMPORTER: 'The Indian importer claims the CEPA rate when filing the bill of entry and must '",
+    "caveats[15]: dropped, it restates the checklist step from P-AGR-RECORDS-VERIFICATION: 'The exporter must keep origin records, including cost breakdown, for at least 5 '",
+    "caveats[16]: dropped, it restates the checklist step from P-AGR-3.17-APPLICATION: 'The certificate application must include the HS code, description, quantity and '",
+    "caveats[10]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified 'aluminium window frames' to TL-IN-76101000 because its description 'Doors, windows and their frames and thresholds for doors (aluminium)' is the best match among the candidates; confidence high.",
+      "The chosen line has CEPA status PREFERENTIAL, so the product may receive preferential duty treatment.",
+      "Tariff details: agreement India-UAE CEPA, MFN rate 10% (tariff and effective), 2026 CEPA rate 0%.",
+      "The applicable origin rule is PSR-IN-R118 'CTSH + VA 45%'. The origin tool returned INSUFFICIENT_DATA with no checks performed, so the origin status is NEEDS_MORE_DATA.",
+      "The duty tool estimates a saving of 10000.00 AED if the CEPA rate applies (status ESTIMATED).",
+      "Procedure list is left empty for the code to fill with the claim steps.",
+      "Caveats and follow-up questions have been compiled from the evidence notes and missing data items."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": "No checks were performed because the necessary information is missing: a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the UAE, operations done in the UAE).",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "10000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "سجّل مصنعك عبر خدمة تسجيل المصانع في وزارة الاقتصاد والسياحة (moet.gov.ae) قبل التقدم بطلب الشهادة. يجب أن يكون المصنع خارج المنطقة الحرة، وأن يحمل رخصة صناعية من وزارة الصناعة والتكنولوجيا المتقدمة وخطاباً منها يؤكد قيمة مضافة محلية بنسبة 40% (وهذا شرط للتسجيل فقط، وليس قاعدة المنشأ الخاصة بمنتجك). يستغرق التسجيل نحو 3 أيام عمل. ولا يجوز للتاجر التقدم إلا لبضائع مشتراة من مصنع مسجّل.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "قدّم الطلب عبر الخدمة الإلكترونية «شهادة المنشأ للهند» (eservices.moec.gov.ae أو التطبيق الذكي): سجّل الدخول، واختر الخدمة، واملأ النموذج، وارفع إثبات تسجيل المصنع والفاتورة التجارية (ويرفع التاجر أيضاً فاتورة الشراء من المصنع)، وادفع الرسوم إلكترونياً ثم أرسل الطلب. تستغرق المعالجة نحو يوم عمل واحد. إذا أُعيد الطلب مع ملاحظات فصحّحه، وبعد الموافقة اطبع الشهادة.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "اذكر في الطلب رمز النظام المنسق (HS) ووصف المنتج وكميته وقيمته. يجب أن يستوفي كل بند في الشهادة شروط المنشأ بمفرده. وقد تطلب جهة الإصدار كشوف تكاليف مفصلة أو تزور المصنع.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "ادفع رسوم الشهادة: 50 درهم لقيمة فاتورة تبلغ 100,000 درهم (تتراوح الرسوم بين 10 و200 درهم حسب قيمة الفاتورة).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "احرص على إصدار الشهادة قبل التصدير أو عنده أو خلال 5 أيام عمل منه. وهي صالحة لمدة 12 شهراً من تاريخ إصدارها وتغطي عملية استيراد واحدة (ويمكن أن تشمل عدة منتجات).",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "اشحن البضائع مباشرة من الإمارات إلى الهند. ولا يُسمح بالعبور عبر بلد آخر إلا تحت رقابة الجمارك، ودون أي عمليات هناك سوى التفريغ وإعادة التحميل والتخزين أو ما شابه. وإذا أصدر طرف ثالث الفاتورة، فاذكر عبارة 'third-party invoicing' (فوترة طرف ثالث).",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "يطالب المستورد الهندي بسعر الاتفاقية عند تقديم بيان الإدخال (bill of entry)، ويرفع المستورد أو وكيله الجمركي الشهادة إلى نظام e-Sanchit. وبموجب قواعد CAROTAR 2020 يجب أن يحتفظ المستورد بمعلومات المنشأ، بما فيها معيار المنشأ المطالب به، ويبقى عليه واجب العناية المعقولة، لذا قد يُطلب منك تقديم تفاصيل الإنتاج والتكاليف.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "احتفظ بسجلات المنشأ، بما فيها تفصيل التكاليف، لمدة 5 سنوات على الأقل من نهاية السنة الميلادية التي صدرت فيها الشهادة. وقد تطلب الهند من الجهة الإماراتية التحقق من الشهادة، ويُعد رفض زيارة التحقق سبباً لرفض المعاملة التفضيلية.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The '+' in the rule 'CTSH + VA 45%' is interpreted as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "The duty estimate is based on the shipment value given (100000 AED). India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate reduces Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The final manufacture before export must have occurred in the UAE.",
+        "source_id": "P-AGR-3.2-ORIGIN"
+      },
+      {
+        "note": "Operations listed as minimal in the agreement (such as simple assembly, packaging, labelling) never confer origin, regardless of the product-specific rule. The processing 'cut and assembled from imported aluminium sections' may fall into this category if it is considered simple assembly.",
+        "source_id": "P-AGR-3.5-MINIMAL"
+      },
+      {
+        "note": "Value addition must be calculated on an FOB basis; if using an Ex-Works price, the threshold is 5 percentage points lower. The agreement does not define 'direct labour cost' or 'direct overhead cost' for the build-up method.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "Non-originating materials are valued at their customs (CIF) value at import, or at the first ascertainable price paid in the UAE or India if the CIF value is unknown.",
+        "source_id": "P-AGR-3.1-NOM"
+      },
+      {
+        "note": "A small amount of non-originating material may be tolerated under the de minimis rule (up to 10% of the FOB value or Ex-Works price).",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      },
+      {
+        "note": "Originating materials from India used in production in the UAE may be counted as originating (bilateral cumulation), provided the last production process goes beyond minimal operations.",
+        "source_id": "P-AGR-3.7-CUMULATION"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      }
+    ],
+    "follow_up_questions": [
+      "Please provide a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, confirmation that final manufacture occurred in the UAE, and the operations performed in the UAE)."
+    ],
+    "gaps": [],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}

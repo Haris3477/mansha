@@ -1,0 +1,124 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 78.23,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2042,
+            "completion": 7957
+          },
+          "finish_reason": "stop",
+          "latency_s": 78.23,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "لا يمكن لـ Mansha تأكيد النتيجة حتى الآن، بسبب نقص المعلومات مثل فواتير المواد ( INCLUDING وصف كل مادة، الرمز الجمركي بـ 6 أرقام، دولة الأصل، القيمة والعملة) وال迈尔斯 ( INCLUDING سعر المنتج، أساس FOB أو Ex-works، تأكيد أن التصنيع Final حدث في الإمارات، والعمليات Done في الإمارات). إذا استحق المنتج، فإن الادخال الم估算 يبلغ 10000.00 درهم إماراتي.",
+    "classification": "الرمز الجمركي للproduct هو 76101000 (الأبواب والنوافذ وأطرافها وعتبات الأبواب من الألمنيوم)، ومستوى ثقة Mansha عالي. ومع ذلك، يجب تأكيد الرمز مع الجمره الهندية أو مستشار جمركي قبل الشحن.",
+    "duty": "ال_AGREEMENT هو اتفاقية India-UAE CEPA. Normal rate (MFN rate) هي 10%, بينما reduced rate (CEPA rate) هي 0%. الادخال الم估算 هو 10000.00 درهم إماراتي إذا استحق المنتج.",
+    "origin": "Rule of origin هي CTSH + VA 45%. CTSH تعني تغيير في التصنيف الجمركي (change in tariff subheading)، حيث يجب أن يتمclassify كل مادة غير م.origina في فرع جمركي مختلف عن المنتج. VA تعني القيمة المضافة (value addition)، وهي حصة سعر المنتج التي لا ت coming من مواد غير م.origina. لا يمكن فحص المنتج حتى الآن بسبب نقص المعلومات مثل فواتير المواد وال迈尔斯، وبالتالي لم يتم إجراء أي فحوصات.",
+    "notes": [
+      {
+        "text": "عمليات بسيطة مثل التجميع أو التغلاف أوucceeding التسمية لا تمنحك الأصل بحسب الاتفاقية. قد ينطبق هذا على عملية قطع وجمع أجزاء الألمنيوم المستوردة إذا كانت ت considered تجميعاً بسيطاً.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "يجب حساب القيمة المضافة على أساس FOB؛ إذا استخدمت أسعار Ex-works، يكون العتبة أقل بـ 5 نقطة مئوية. كما أن الاتفاقية لا تحدد تعريف تكلفة العمل المباشر أو التكلفة العامة المباشرة لطريقة البناء.",
+        "from": [
+          "N3"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 45%' is interpreted as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The duty estimate is based on the shipment value given (100000 AED). India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The final manufacture before export must have occurred in the UAE.",
+      "source_id": "P-AGR-3.2-ORIGIN",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Operations listed as minimal in the agreement (such as simple assembly, packaging, labelling) never confer origin, regardless of the product-specific rule. The processing 'cut and assembled from imported aluminium sections' may fall into this category if it is considered simple assembly.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "Value addition must be calculated on an FOB basis; if using an Ex-Works price, the threshold is 5 percentage points lower. The agreement does not define 'direct labour cost' or 'direct overhead cost' for the build-up method.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Non-originating materials are valued at their customs (CIF) value at import, or at the first ascertainable price paid in the UAE or India if the CIF value is unknown.",
+      "source_id": "P-AGR-3.1-NOM",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "A small amount of non-originating material may be tolerated under the de minimis rule (up to 10% of the FOB value or Ex-Works price).",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "Originating materials from India used in production in the UAE may be counted as originating (bilateral cumulation), provided the last production process goes beyond minimal operations.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}

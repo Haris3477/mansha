@@ -1,0 +1,75 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 38.4,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1683,
+            "completion": 4221
+          },
+          "finish_reason": "stop",
+          "latency_s": 38.4,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm the result yet because information is missing, specifically the 6-digit HS code for the emollients input. If the product qualifies, the estimated saving is 12000.00 AED.",
+    "classification": "The product is classified under tariff line 33049990, Other beauty or make-up preparations, and Mansha's confidence in this is medium. You should confirm this code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 20% and the CEPA rate is 0%. The estimated saving is 12000.00 AED if the product qualifies, but since the origin check is incomplete, no saving can be claimed yet.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH) and at least 40% value addition (VA). CTSH means each non-originating input must be classified in a different 6-digit subheading than the product. VA is the share of the product's price that does not come from non-originating materials. The product cannot be checked yet because no checks have been run, as the 6-digit HS code for the emollients input is missing.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "'+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "Estimate is on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}
