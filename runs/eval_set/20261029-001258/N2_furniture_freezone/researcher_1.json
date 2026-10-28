@@ -1,0 +1,148 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 30.21,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7173,
+        "completion": 3113
+      },
+      "finish_reason": "stop",
+      "latency_s": 30.21,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "origin_result.basis: check names written in plain words",
+    "caveats[4]: re-cited to TOOL:duty:94036000, the tool's BCD-only note word for word (was P-IN-DUTY-SCOPE)",
+    "procedure: 8 step(s) written by code from the knowledge base",
+    "caveats[6]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Selected tariff line TL-IN-94036000 as the best description match for 'hardwood bedroom furniture'; no HS code conflict, so confidence is high.",
+      "CEPA status is PREFERENTIAL, so the preferential rate applies subject to origin.",
+      "Tariff: MFN effective rate 20%, 2026 CEPA rate 12.5%.",
+      "Origin rule PSR-IN-R136 requires CTH plus VA 40%; origin tool reports MEETS with all checks passing (final manufacture, minimal operations, CTH, VA build-down 52%).",
+      "Duty tool estimates a saving of 7500.00 AED based on the 100000.00 AED shipment value.",
+      "Procedure list is empty; caveats capture free‑zone factory registration risk, duty scope limitations, and other disclaimers.",
+      "No regulatory gaps detected; no follow‑up questions required because origin qualifies and the shipment value is known."
+    ],
+    "classification": {
+      "tariff_line": "94036000",
+      "description": "Other wooden furniture",
+      "confidence": "high",
+      "source_id": "TL-IN-94036000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20% (effective 20%)",
+      "preferential_rate": "12.5%",
+      "source_id": "TL-IN-94036000"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R136"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "final manufacture check PASS; minimal operations check PASS; CTH PASS (all 2 non‑originating inputs outside heading 9403); VA PASS (build‑down 52.0% against threshold 40%, FOB basis)",
+      "source_id": "TOOL:origin:94036000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "7500.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:94036000"
+    },
+    "procedure": [
+      {
+        "step": "Register your factory through the Ministry of Economy and Tourism's Factory Registration service (moet.gov.ae) before you apply for the certificate. The factory must be outside a free zone and hold a MoIAT industrial licence and a MoIAT letter confirming 40% domestic value added (a registration condition only, not your product's rule of origin). Registration takes about 3 working days. A trader can apply only for goods bought from a registered factory.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "Apply through the 'Certificate of Origin for India' e-service (eservices.moec.gov.ae or the smart app): log in, choose the service, fill in the form, upload proof of factory registration and the commercial invoice (a trader also uploads the factory's purchase invoice), pay the fee online and submit. Processing takes about one working day. If the application is returned with comments, correct it; once approved, print the certificate.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "In the application, give the HS code, description, quantity and value of the product. Each item on the certificate must qualify separately. The issuing authority may ask for detailed cost sheets or visit the factory.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "Pay the certificate fee: AED 50 for an invoice value of AED 100,000 (fees run from AED 10 to AED 200 by invoice value).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Have the certificate issued before, at, or within 5 working days of export. It is valid for 12 months from issue and covers one import (it can list several products).",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "Ship the goods directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations there other than unloading, reloading, storage or similar. If a third party issues the invoice, indicate 'third-party invoicing'.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "Your Indian importer claims the CEPA rate when filing the bill of entry, and the importer or their customs broker uploads the certificate to e-Sanchit. Under CAROTAR 2020 the importer must hold origin information, including which origin criterion is claimed, and still has a duty of reasonable care, so you may be asked for production and cost details.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "Keep your origin records, including the cost breakdown, for at least 5 years from the end of the calendar year in which the certificate was issued. India may ask the UAE authority to verify the certificate, and refusing a verification visit is grounds for denying the preference.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "The '+' in the rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:rule_lookup:94036000"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Factory declared in a free zone: likely not eligible for the ministry's factory registration; confirm with the ministry.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement. The agreement does not say whether the build‑down and build‑up methods use the same threshold, apart from the 5‑point Ex‑Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA‑specific text on it was found).",
+        "source_id": "P-IN-DUTY-SCOPE"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}
