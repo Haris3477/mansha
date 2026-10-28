@@ -1,0 +1,46 @@
+{
+  "runs": 2,
+  "passed": 0,
+  "scored": 2,
+  "verdict_correct": 2,
+  "verdict_cases": 2,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 0,
+  "qa_rejections": 0,
+  "qa_overruled": 0,
+  "router_refusals": 0,
+  "paced_wait_s": 23.6,
+  "median_seconds_reports": 86.2,
+  "slips": {},
+  "requests": {
+    "auto:qa": {
+      "requests": 2,
+      "prompt": 1424,
+      "completion": 640
+    },
+    "auto:long": {
+      "requests": 2,
+      "prompt": 16573,
+      "completion": 11781
+    },
+    "auto:judge": {
+      "requests": 7,
+      "prompt": 26212,
+      "completion": 9088
+    },
+    "auto:arabic": {
+      "requests": 2,
+      "prompt": 4034,
+      "completion": 1265
+    }
+  },
+  "failed_checks": {
+    "N15 N15_arabic_windows_nodata_r1": [
+      "language: 105 English word(s) in an Arabic report: ['tariff', 'effective', 'The', 'in', 'the', 'rule', 'is', 'interpreted', 'as', 'meaning']"
+    ],
+    "N15 N15_arabic_windows_nodata_r2": [
+      "language: 58 English word(s) in an Arabic report: ['The', 'in', 'the', 'rule', 'is', 'read', 'as', 'agreement', 'does', 'not']"
+    ]
+  }
+}

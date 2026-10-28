@@ -1,0 +1,164 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 16.75,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:arabic",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 2051,
+            "completion": 682
+          },
+          "finish_reason": "stop",
+          "latency_s": 16.75,
+          "ok": true
+        }
+      ],
+      "chain": "auto:arabic"
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "untranslated": [],
+  "chain_fallback": null,
+  "rounds": [
+    {
+      "round": 1,
+      "chain": "auto:arabic",
+      "code_problems": [],
+      "prose_qa": "APPROVED",
+      "prose": {
+        "summary": "لا يمكن لـ «منشأ» تأكيد نتيجة التأهل حتى الآن لعدم اكتمال البيانات المطلوبة. وفي حال تأهل المنتج، فإن الوفر المالي المحتمل يبلغ 10000.00 AED في الرسوم الجمركية عند الاستيراد إلى الهند.",
+        "classification": "يندرج المنتج تحت البند الجمركي 76101000 (أبواب ونوافذ وأطرها وأعتابها للأبواب من ألومنيوم) بمستوى ثقة عالٍ لدى «منشأ». ويجب دائماً تأكيد هذا الرمز مع الجمارك الهندية أو مخلص جمركي قبل الشحن.",
+        "duty": "بموجب اتفاقية الشراكة الاقتصادية الشاملة بين الإمارات والهند، يبلغ الرسم العادي (معدل الدولة الأكثر رعاية المطبق عند عدم المطالبة بتفضيل) 10% تعريفي و10% فعلي، بينما يبلغ معدل الاتفاقية التفضيلية 0% للرسوم الجمركية الأساسية. ويقدر الوفر المالي بمبلغ 10000.00 AED في حال تأهل المنتج.",
+        "origin": "تتطلب قاعدة المنشأ تحقيق تغيير في البند الفرعي الجمركي (CTSH - بحيث يصنف كل مدخل غير حائز على المنشأ في بند فرعي مكون من 6 أرقام مختلف عن المنتج) مع إضافة قيمة مضافة (VA - نسبة سعر المنتج التي لا تأتي من مواد غير حائزة على المنشأ) لا تقل عن 45%. ولم يُفحص المنشأ حتى الآن لعدم توفر قائمة المواد والإقرار المطلوبين.",
+        "notes": [
+          {
+            "text": "يعد التجميع البسيط للأجزاء لإنشاء منتج كامل من العمليات الدنيا التي لا تمنح المنشأ؛ وإذا اقتصرت العمليات في الإمارات على التجميع البسيط فلن يتأهل المنتج.",
+            "from": [
+              "N1"
+            ]
+          },
+          {
+            "text": "تُحسب قيمة المواد غير الحائزة على المنشأ بناءً على قيمتها الجمركية (CIF) عند الاستيراد، أو بناءً على أول سعر معلوم مدفوع لها في الإمارات أو الهند في حال عدم معرفة القيمة الجمركية.",
+            "from": [
+              "N2"
+            ]
+          }
+        ],
+        "product": "إطارات نوافذ من الألمنيوم",
+        "needed": [
+          "يرجى تقديم قائمة المواد المستخدمة لإطارات نوافذ من الألمنيوم، تتضمن لكل مدخل وصفه، والرمز المنسق المكون من 6 أرقام، وبلد المنشأ، والقيمة والعملة.",
+          "يرجى تقديم إقرار يوضح سعر المنتج، وما إذا كان السعر شامل التكاليف على ظهر السفينة (FOB) أو تسليم المصنع (Ex-Works)، وأن التصنيع النهائي تم في دولة الإمارات، والعمليات التي تمت في دولة الإمارات."
+        ]
+      }
+    }
+  ],
+  "prose": {
+    "summary": "لا يمكن لـ «منشأ» تأكيد نتيجة التأهل حتى الآن لعدم اكتمال البيانات المطلوبة. وفي حال تأهل المنتج، فإن الوفر المالي المحتمل يبلغ 10000.00 AED في الرسوم الجمركية عند الاستيراد إلى الهند.",
+    "classification": "يندرج المنتج تحت البند الجمركي 76101000 (أبواب ونوافذ وأطرها وأعتابها للأبواب من ألومنيوم) بمستوى ثقة عالٍ لدى «منشأ». ويجب دائماً تأكيد هذا الرمز مع الجمارك الهندية أو مخلص جمركي قبل الشحن.",
+    "duty": "بموجب اتفاقية الشراكة الاقتصادية الشاملة بين الإمارات والهند، يبلغ الرسم العادي (معدل الدولة الأكثر رعاية المطبق عند عدم المطالبة بتفضيل) 10% تعريفي و10% فعلي، بينما يبلغ معدل الاتفاقية التفضيلية 0% للرسوم الجمركية الأساسية. ويقدر الوفر المالي بمبلغ 10000.00 AED في حال تأهل المنتج.",
+    "origin": "تتطلب قاعدة المنشأ تحقيق تغيير في البند الفرعي الجمركي (CTSH - بحيث يصنف كل مدخل غير حائز على المنشأ في بند فرعي مكون من 6 أرقام مختلف عن المنتج) مع إضافة قيمة مضافة (VA - نسبة سعر المنتج التي لا تأتي من مواد غير حائزة على المنشأ) لا تقل عن 45%. ولم يُفحص المنشأ حتى الآن لعدم توفر قائمة المواد والإقرار المطلوبين.",
+    "notes": [
+      {
+        "text": "يعد التجميع البسيط للأجزاء لإنشاء منتج كامل من العمليات الدنيا التي لا تمنح المنشأ؛ وإذا اقتصرت العمليات في الإمارات على التجميع البسيط فلن يتأهل المنتج.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "تُحسب قيمة المواد غير الحائزة على المنشأ بناءً على قيمتها الجمركية (CIF) عند الاستيراد، أو بناءً على أول سعر معلوم مدفوع لها في الإمارات أو الهند في حال عدم معرفة القيمة الجمركية.",
+        "from": [
+          "N2"
+        ]
+      }
+    ],
+    "product": "إطارات نوافذ من الألمنيوم",
+    "needed": [
+      "يرجى تقديم قائمة المواد المستخدمة لإطارات نوافذ من الألمنيوم، تتضمن لكل مدخل وصفه، والرمز المنسق المكون من 6 أرقام، وبلد المنشأ، والقيمة والعملة.",
+      "يرجى تقديم إقرار يوضح سعر المنتج، وما إذا كان السعر شامل التكاليف على ظهر السفينة (FOB) أو تسليم المصنع (Ex-Works)، وأن التصنيع النهائي تم في دولة الإمارات، والعمليات التي تمت في دولة الإمارات."
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 45%' is interpreted as 'and', meaning both the tariff shift and value addition tests must pass. The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The duty estimate is based on the shipment value given (100000.00 AED). India charges duty on the assessable (CIF) value at import, so actual amounts will differ. The amounts are shown in the shipment's own currency and have not been converted.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement, which may affect the value-addition calculation under the build-up method.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Simple assembly of parts to constitute a complete article is a minimal operation that never confers origin. If the UAE processing is limited to such simple assembly, the product would not qualify.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Non-originating materials are valued at their customs (CIF) value at import; if that is unknown, at the first ascertainable price paid for them in the UAE or India.",
+      "source_id": "P-AGR-3.1-NOM",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is required before applying for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N4",
+      "text": "UAE law sets a shorter 3-year minimum; the CEPA's 5 years govern CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M8",
+      "text": "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found). Anti-dumping and safeguard duties likely still apply.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}
