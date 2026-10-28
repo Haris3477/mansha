@@ -21,6 +21,7 @@ from mansha.kb import load_corridor
 TOOL_ID = "TOOL:tariff_lookup"
 MAX_CANDIDATES = 5
 CORRIDOR_CODES = {"india": "IN"}
+CORRIDOR_NAMES = {"india": "India"}
 
 # Words too common in tariff descriptions to say anything about the product.
 STOPWORDS = {
@@ -39,6 +40,12 @@ class TariffLookupResult:
     query: dict
     candidates: list[dict] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    # Notes about the user's own code that code prints in the report word for word (problem 98); each is
+    # also in `notes`. The other notes are for the Researcher only (they name IDs or give instructions).
+    report_notes: list[str] = field(default_factory=list)
+    # Keyword path: the best candidates tie and each matches different words of the description, so no
+    # line describes the product as a whole (problem 100; the Researcher must then write a gap).
+    split_match: bool = False
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -145,11 +152,22 @@ def tariff_lookup(product_description: str | None = None, hs_code_given: str | N
 
         if result.candidates:
             result.method = "hs_code"
+            country = CORRIDOR_NAMES.get(corridor, corridor.title())
             if len(code) >= 8 and not exact:
-                result.notes.append(
-                    f"8-digit code {code[:8]} has no exact match; showing lines under the same "
-                    f"{plen}-digit code. 8-digit codes are national and differ between the UAE and India."
+                result.report_notes.append(
+                    f"The 8-digit code {code[:8]} you gave is not a line in {country}'s tariff; Mansha matched "
+                    f"it on its first {plen} digits ({code[:plen]}). 8-digit codes are national and differ "
+                    f"between the UAE and {country}."
                 )
+            # Problem 98 (N9, 25 Oct): an HS 2017 code matched exactly through the line's hs2017_code, so no
+            # note was written and the report said nothing about the old code.
+            for l in hits:
+                if l["tariff_line"] in exact and l["tariff_line"] != code[:8]:
+                    result.report_notes.append(
+                        f"The code {code[:8]} you gave is {country}'s older HS 2017 code for this product; "
+                        f"{country}'s current tariff line is {l['tariff_line']}."
+                    )
+            result.notes += result.report_notes
         else:
             result.notes.append(f"HS code {code} matches no line in the knowledge base; trying keywords.")
 
@@ -162,6 +180,18 @@ def tariff_lookup(product_description: str | None = None, hs_code_given: str | N
         if not result.candidates:
             result.method = "keywords" if top else None
             result.candidates = [_line_candidate(l, sources, excluded, "keywords", s) for s, l in top]
+            # Problem 100 (N13, 25 Oct): "wooden doors" matched aluminium doors on "door" and wooden
+            # furniture on "wooden", 1 each; the Researcher picked furniture. A tie on different words
+            # means no line describes the product as a whole.
+            tied = [l for s, l in top if s == top[0][0]] if top else []
+            matched = [sorted(q_tokens & _line_tokens(l)) for l in tied]
+            if len(tied) > 1 and len({tuple(m) for m in matched}) > 1:
+                result.split_match = True
+                parts = ", ".join(f"{l['id']} matches only {' '.join(m)!r}" for l, m in zip(tied, matched))
+                result.notes.append(
+                    f"No candidate matches the whole description ({parts}). If none of them describes the "
+                    f"product, the classification is REGULATORY_GAP_DETECTED."
+                )
         else:
             # Both given: flag if the words point somewhere the code doesn't.
             code_ids = {c["id"] for c in result.candidates}

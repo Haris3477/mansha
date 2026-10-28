@@ -15,6 +15,7 @@ from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.researcher import (
     GAP,
+    add_tariff_notes,
     build_messages,
     check_researcher,
     drop_caveat_gaps,
@@ -1094,6 +1095,62 @@ check("run_researcher: re-cited before the checks (both caveats, no problem)",
       {"note": WN_SCOPE, "source_id": "TOOL:duty:76101000"} in res.data["caveats"]
       and {"note": IGST_BASE, "source_id": "P-IN-DUTY-SCOPE"} in res.data["caveats"] and res.passed,
       (res.data["caveats"], res.problems))
+
+print("\n== Step 7.6l: the tariff lookup's notes on the user's code reach the report (problem 98)")
+w8 = build_evidence({"product_description": "aluminium window frames", "hs_code_given": "76101090",
+                     "shipment_value": {"amount": 100000, "currency": "AED"}}, "samples/windows_qualifies")
+N4_NOTE = w8.tool_results["TOOL:tariff_lookup"]["report_notes"][0]
+# 27 Oct 18:38 N4 round 1, word for word: the Builder later shortened it and the "national" reason was lost.
+N4_LIVE = ("The given HS code 76101090 has no exact match; the candidate tariff line 76101000 is under the same "
+           "6-digit code. 8-digit codes are national and differ between the UAE and India.")
+d = copy.deepcopy(GOOD_W); d["caveats"].append({"note": N4_LIVE, "source_id": "TOOL:tariff_lookup"})
+ch = add_tariff_notes(d, w8)
+check("N4 live: the restated note is replaced by the tool's note, word for word",
+      [c for c in d["caveats"] if c["source_id"] == "TOOL:tariff_lookup"]
+      == [{"note": N4_NOTE, "source_id": "TOOL:tariff_lookup"}] and len(ch) == 3, ch)
+check("... confidence high -> medium", d["classification"]["confidence"] == "medium")
+check("... idempotent (the revision round)", add_tariff_notes(d, w8) == [])
+d = copy.deepcopy(GOOD_W); d["classification"]["confidence"] = "medium"
+add_tariff_notes(d, w8)
+check("N4 (25 Oct): no caveat on it -> the note is added, confidence medium kept",
+      d["caveats"][-1] == {"note": N4_NOTE, "source_id": "TOOL:tariff_lookup"}
+      and d["classification"]["confidence"] == "medium")
+other = {"note": "The description points to another line; confirm the product.", "source_id": "TOOL:tariff_lookup"}
+d = copy.deepcopy(GOOD_W); d["caveats"].append(other)
+add_tariff_notes(d, w8)
+check("another caveat citing the tool is kept", other in d["caveats"])
+d = copy.deepcopy(GOOD_W)
+check("no code note (windows by keywords): nothing changes", add_tariff_notes(d, w) == [] and d == GOOD_W)
+res = run_researcher({"product_description": "aluminium window frames", "hs_code_given": "76101090"}, w8,
+                     llm=fake_llm(copy.deepcopy(GOOD_W)))
+check("run_researcher (N4 shape): note added, medium, ELIGIBLE, passes",
+      {"note": N4_NOTE, "source_id": "TOOL:tariff_lookup"} in res.data["caveats"]
+      and res.data["classification"]["confidence"] == "medium" and res.data["verdict"] == "ELIGIBLE"
+      and res.passed, (res.problems, res.changes))
+n9 = build_evidence(EVAL_BY_ID["N9"].intake, EVAL_BY_ID["N9"].folder)
+N9_NOTE = ("The code 85171211 you gave is India's older HS 2017 code for this product; India's current tariff "
+           "line is 85171300.")
+d = {"classification": {"tariff_line": "85171300", "confidence": "high", "source_id": "TL-IN-85171300"},
+     "caveats": []}
+add_tariff_notes(d, n9)
+check("N9: HS 2017 note added, confidence medium",
+      d["caveats"] == [{"note": N9_NOTE, "source_id": "TOOL:tariff_lookup"}]
+      and d["classification"]["confidence"] == "medium", d)
+check("N9: the tool note keeps the HS-code question (7.9)",
+      drop_hs_follow_ups({"follow_up_questions": ["Please confirm the HS code for smartphones."]}, n9) == [])
+print("\n== Check 3b: no candidate matches the whole description (problem 100)")
+n13 = build_evidence(EVAL_BY_ID["N13"].intake, EVAL_BY_ID["N13"].folder)
+check("N13: the tariff lookup marks a split match", n13.tool_results["TOOL:tariff_lookup"]["split_match"])
+SPLIT = "matches the whole product description"
+d = copy.deepcopy(GOOD_W)
+d["classification"] = {"tariff_line": "94036000", "description": "Other wooden furniture", "confidence": "medium",
+                       "source_id": "TL-IN-94036000"}
+check("N13 live pick (wooden furniture): caught", any(SPLIT in p for p in run(d, n13)[0]), run(d, n13)[0])
+d["classification"] = {k: GAP for k in ("tariff_line", "description", "confidence", "source_id")}
+check("N13 gap: no split-match problem", not any(SPLIT in p for p in run(d, n13)[0]), run(d, n13)[0])
+check("N13: the Researcher's confirm-code question is kept (7.9)",
+      drop_hs_follow_ups({"follow_up_questions": ["Please confirm the HS code for wooden doors."]}, n13) == [])
+check("windows by keywords: no split-match problem", not any(SPLIT in p for p in run(GOOD_W, w)[0]))
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

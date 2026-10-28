@@ -583,6 +583,40 @@ def recite_duty_notes(data: dict, pack: EvidencePack) -> list[str]:
     return changes
 
 
+# ---------- the tariff lookup's notes on the user's code (Step 7.6l, problem 98) ----------
+
+def add_tariff_notes(data: dict, pack: EvidencePack) -> list[str]:
+    """Write each of the tariff lookup's report notes as a caveat citing it, word for word, and cap the
+    classification's confidence at "medium" when there is one (Step 7.6l, problem 98).
+
+    Baseline 25 Oct: N4's reason "8-digit codes are national and differ between the UAE and India" reached
+    the report in 0 of 2 runs (once left out by the Researcher, once shortened away by the Builder), and N9's
+    HS 2017 code gave no note at all, so the report said "high" confidence and nothing about the old code.
+    A caveat citing the tool that restates a report note (SAME_NOTE_COVERAGE) is replaced by it; other
+    caveats citing the tool stay. The Builder prints TOOL:tariff_lookup notes verbatim.
+    """
+    tl = pack.tool_results.get(TARIFF_LOOKUP_ID)
+    caveats = data.get("caveats")
+    notes = (tl or {}).get("report_notes") if isinstance(tl, dict) else None
+    if not notes or not isinstance(caveats, list):
+        return []
+    changes = []
+    for i, cv in reversed(list(enumerate(caveats))):
+        if (isinstance(cv, dict) and cv.get("source_id") == TARIFF_LOOKUP_ID and cv.get("note") not in notes
+                and any(coverage(cv.get("note"), n) >= SAME_NOTE_COVERAGE for n in notes)):
+            del caveats[i]
+            changes.append(f"caveats[{i}]: restated note of {TARIFF_LOOKUP_ID} dropped: {cv.get('note')!r}")
+    for n in notes:
+        if not any(isinstance(cv, dict) and cv.get("note") == n for cv in caveats):
+            caveats.append({"note": n, "source_id": TARIFF_LOOKUP_ID})
+            changes.append(f"caveats: note written from {TARIFF_LOOKUP_ID}: {n!r}")
+    cls = data.get("classification")
+    if isinstance(cls, dict) and str(cls.get("confidence") or "").strip().lower() == "high":
+        cls["confidence"] = "medium"
+        changes.append(f"classification.confidence: high -> medium ({TARIFF_LOOKUP_ID} has a note on the code)")
+    return changes
+
+
 # ---------- product HS-code follow-ups (Step 7.9, problem 92) ----------
 # A follow-up about the product's own HS / tariff code ("Please confirm the HS code for aluminium window
 # frames"), as opposed to a bill-of-materials question that mentions each input's HS code.
@@ -892,6 +926,13 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     # 3. Classification is a candidate (or a declared gap)
     chosen, cls_problems = find_chosen(data, pack)
     problems += cls_problems
+    # 3b. No candidate matches the whole description (problem 100, N13 25 Oct: furniture for wooden doors)
+    tl = pack.tool_results.get(TARIFF_LOOKUP_ID)
+    if chosen is not None and isinstance(tl, dict) and tl.get("split_match"):
+        problems.append(f"{TARIFF_LOOKUP_ID} found no candidate that matches the whole product description "
+                        "(each matches different words), so none of them describes the product: set the "
+                        f"classification values to {GAP} and say in gaps that no tariff line in the evidence "
+                        "covers this product")
     excluded = chosen is not None and chosen["id"] in pack.excluded_ids
     line = chosen.get("tariff_line") if chosen else None
 
@@ -1054,6 +1095,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
     changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
     changes += recite_duty_notes(data, pack)  # the duty tool's "BCD only" note cited to a passage (7.6k)
+    changes += add_tariff_notes(data, pack)  # the tariff lookup's notes on the user's code, verbatim (98, 7.6l)
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
     changes += drop_hs_follow_ups(data, pack)  # "confirm the HS code" with no conflict noted (problem 92, 7.9)
     changes += drop_free_zone_follow_ups(data, pack)  # "is the factory in a free zone?" when the user said so (1c)

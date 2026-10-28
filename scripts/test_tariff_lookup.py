@@ -63,4 +63,37 @@ check("unknown code, no description -> NOT_FOUND",
 r = tariff_lookup("space rocket engine")
 check("unrelated product -> NOT_FOUND", r.status == "NOT_FOUND", ids(r))
 
+# problem 98: notes on the user's own code that the report prints word for word
+r = tariff_lookup("aluminium windows", hs_code_given="76101090")
+check("N4: no exact 8-digit match -> one report note, also in notes",
+      r.report_notes == ["The 8-digit code 76101090 you gave is not a line in India's tariff; Mansha matched it "
+                         "on its first 6 digits (761010). 8-digit codes are national and differ between the UAE "
+                         "and India."] and r.report_notes[0] in r.notes, r.report_notes)
+r = tariff_lookup("smartphones", hs_code_given="85171211")
+check("N9: HS 2017 code -> report note naming the current line",
+      r.report_notes == ["The code 85171211 you gave is India's older HS 2017 code for this product; India's "
+                         "current tariff line is 85171300."] and r.notes == r.report_notes, r.notes)
+for code in ("76101000", "85171300", "39239090"):
+    r = tariff_lookup(hs_code_given=code)
+    check(f"current 8-digit line {code}: no report note", r.report_notes == [], r.report_notes)
+r = tariff_lookup("aluminium window frames", hs_code_given="39239090")
+check("N14 conflict note stays for the Researcher only", r.report_notes == [] and r.notes, r.notes)
+
+# problem 100: best keyword candidates tie on different words -> no line describes the product
+for desc, expect in [("wooden doors", ["TL-IN-76101000", "TL-IN-94036000"]), ("steel doors", None),
+                     ("wooden windows", None), ("plastic kitchenware", None), ("aluminium furniture", None)]:
+    r = tariff_lookup(desc)
+    check(f"split match: {desc}", r.split_match and any("No candidate matches the whole description" in n
+                                                           and "REGULATORY_GAP_DETECTED" in n for n in r.notes)
+          and r.report_notes == [] and (expect is None or ids(r) == expect), (ids(r), r.notes))
+# Every product description in the saved runs and eval cases up to 28 Oct: none is a split match.
+for desc in ("acrylic paint", "acrylic paint (resin)", "aluminium cookware", "aluminium window frames",
+             "aluminium windows", "aluminium wire rods", "battery chargers", "cosmetic skin creams",
+             "hardwood bedroom furniture", "perfume", "plastic packing articles", "smartphones",
+             "steel building structures", "sweet biscuits", "wooden bedroom furniture", "laptop computers"):
+    r = tariff_lookup(desc)
+    check(f"no split match: {desc}", not r.split_match and r.notes == [], r.notes)
+r = tariff_lookup("wooden doors", hs_code_given="76101000")
+check("code given: no split match (the code path decides)", not r.split_match, r.notes)
+
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
