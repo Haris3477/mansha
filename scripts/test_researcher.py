@@ -24,6 +24,8 @@ from mansha.researcher import (
     drop_free_zone_follow_ups,
     drop_hs_follow_ups,
     drop_line_notes,
+    fill_gap,
+    GAP_BASIS,
     drop_user_data_gaps,
     plain_follow_ups,
     plain_check_names,
@@ -1173,6 +1175,30 @@ check("7.6m: gap -> the '+' note of an unchosen line is dropped, the tool's note
       d["caveats"] == [{"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}] and len(ch) == 1, (d["caveats"], ch))
 d = copy.deepcopy(GOOD_W)
 check("7.6m: a chosen line keeps its tool notes", drop_line_notes(d) == [] and d == GOOD_W)
+print("\n== Step 7.6n: code completes a gap answer (sitting 20261028-194334, N13 round 2)")
+# Live shape: round 2 set only the classification to the gap and kept the line's fields, steps, questions
+# and notes (3 code problems, CHECKS_FAILED). Here the line kept is the windows line (a candidate in N13).
+r2 = copy.deepcopy(GOOD_W)
+r2["classification"] = {k: GAP for k in ("tariff_line", "description", "confidence")}
+r2["classification"]["source_id"] = "TOOL:tariff_lookup"
+r2["origin_result"]["status"] = "NEEDS_MORE_DATA"
+r2["follow_up_questions"] = ["Provide a bill of materials.", "Provide the shipment value in AED."]
+r2["gaps"] = [{"text": "No tariff line in the evidence covers wooden doors.", "source_id": "TOOL:tariff_lookup"}]
+check("before 7.6n: the live shape fails the checks", bool(run(r2, n13)[0]))
+res = run_researcher(EVAL_BY_ID["N13"].intake, n13, llm=fake_llm(r2))
+check("run_researcher: the gap answer is completed by code and passes",
+      res.passed and res.data["verdict"] == GAP and res.data["procedure"] == [] and res.data["follow_up_questions"] == []
+      and res.data["origin_result"] == {"status": GAP, "basis": GAP_BASIS, "source_id": "TOOL:tariff_lookup"}
+      and res.data["estimated_saving"]["status"] == GAP and res.data["tariff"]["mfn_rate"] == GAP
+      and res.data["origin_rule"]["rule"] == GAP and res.data["classification"]["confidence"] == "low",
+      (res.problems, res.changes))
+check("... only the tariff lookup's note is left in caveats (issuer, duty and line notes dropped)",
+      res.data["caveats"] == [{"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}], res.data["caveats"])
+check("... the gap text is kept", res.data["gaps"] == r2["gaps"])
+d = copy.deepcopy(GOOD_W)
+check("7.6n: a chosen line is left alone", fill_gap(d) == [] and d == GOOD_W)
+g = copy.deepcopy(res.data)
+check("7.6n: idempotent (an already complete gap)", fill_gap(g) == [])
 check("N13 report note passes the shown-text check",
       not any("caveats" in p for p in run({**copy.deepcopy(GOOD_W), "caveats": [
           {"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}]}, n13)[0]), run(GOOD_W, n13)[0])

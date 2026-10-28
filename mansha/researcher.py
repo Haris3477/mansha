@@ -860,25 +860,64 @@ def drop_claim_caveats(data: dict, verdict: str, corridor: str = "india") -> lis
             f"({c.get('source_id')}): {c.get('note')!r}" for c in gone]
 
 
-LINE_TOOL_PREFIXES = ("TOOL:origin:", "TOOL:duty:", "TOOL:rule_lookup:")
-
-
 def drop_line_notes(data: dict) -> list[str]:
-    """Drop caveats citing a tariff line's tool results when no line was chosen (Step 7.6m).
+    """Keep only the tariff lookup's caveats when no line was chosen (Step 7.6m).
 
-    28 Oct (N13, the first gap report): the "'+' is read as 'and'" note of TOOL:origin:76101000, a line
-    not chosen, was printed (TOOL:origin notes are mandatory) in a report with no rule of origin.
+    28 Oct (N13, the first gap reports): 19:18 printed the "'+' is read as 'and'" note of
+    TOOL:origin:76101000, a line not chosen (TOOL:origin notes are mandatory), in a report with no rule of
+    origin; the 19:43 revision also kept the furniture line's notes ("The CEPA rate on this line is
+    12.5%", value-addition and Ex-Works notes, the issuer and factory-registration notes). With no line,
+    the only thing a gap report can say is why no line fits: the tariff lookup's note.
     """
     caveats = data.get("caveats")
     cls = data.get("classification")
     if (not isinstance(caveats, list) or not isinstance(cls, dict)
             or str(cls.get("tariff_line", "")).strip() != GAP):
         return []
-    keep = [c for c in caveats if not (isinstance(c, dict) and str(c.get("source_id")).startswith(LINE_TOOL_PREFIXES))]
+    keep = [c for c in caveats if isinstance(c, dict) and c.get("source_id") == TARIFF_LOOKUP_ID]
     gone = [c for c in caveats if c not in keep]
     data["caveats"] = keep
-    return [f"caveats: dropped a note on a line that was not chosen ({c.get('source_id')}): {c.get('note')!r}"
-            for c in gone]
+    return [f"caveats: dropped for a gap, no line was chosen ({c.get('source_id') if isinstance(c, dict) else '-'}): "
+            f"{(c.get('note') if isinstance(c, dict) else c)!r}" for c in gone]
+
+
+GAP_BASIS = "No tariff line in Mansha's sources describes this product, so no rule of origin could be applied."
+
+
+def fill_gap(data: dict) -> list[str]:
+    """Write the rest of a gap answer when the classification is the gap (Step 7.6n, problem 100).
+
+    28 Oct 19:43 (N13, Dots3): check 3b sent "set the classification values to REGULATORY_GAP_DETECTED";
+    round 2 did only that and kept the furniture line's tariff rates, rule, origin status (NEEDS_MORE_DATA),
+    saving (NEEDS_VALUE), 6 claim steps and its data questions: 3 code problems, CHECKS_FAILED. With no
+    line every one of these is fixed (expected_origin(None) is the gap), so code writes them, as in the
+    valid gap answer of 28 Oct 19:18. Its caveats are trimmed by drop_line_notes (7.6m).
+    """
+    cls = data.get("classification")
+    if not isinstance(cls, dict) or str(cls.get("tariff_line", "")).strip() != GAP:
+        return []
+    src = TARIFF_LOOKUP_ID
+    want = {
+        "tariff": {"agreement": GAP, "mfn_rate": GAP, "preferential_rate": GAP, "source_id": src},
+        "origin_rule": {"rule": GAP, "source_id": src},
+        "origin_result": {"status": GAP, "basis": GAP_BASIS, "source_id": src},
+        "estimated_saving": {"status": GAP, "amount": None, "currency": None, "source_id": src},
+    }
+    changes = []
+    if str(cls.get("confidence") or "").strip().lower() not in CONFIDENCE_VALUES:  # 19:43: the gap marker
+        changes.append(f"classification.confidence: {cls.get('confidence')!r} -> 'low' for a gap")
+        cls["confidence"] = "low"
+    for k, v in want.items():
+        old = data.get(k)
+        if not (isinstance(old, dict) and (old.get("status", old.get("rule", old.get("agreement"))) == GAP)):
+            data[k] = v
+            changes.append(f"{k}: written for a gap (was {old!r})")
+    for k in ("procedure", "follow_up_questions"):
+        if data.get(k):
+            changes.append(f"{k}: emptied for a gap ({len(data[k])} item(s); no line, so nothing to claim or "
+                           "supply)")
+            data[k] = []
+    return changes
 
 
 # ---------- the checks ----------
@@ -1129,6 +1168,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)
     changes += drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
     changes += drop_line_notes(data)  # a gap: no notes from lines that were not chosen (7.6m)
+    changes += fill_gap(data)  # a gap: no line, so no rates, rule, origin, saving, steps or questions (7.6n)
     problems, warnings, verdict = check_researcher(data, pack)
     dropped = drop_follow_ups(data, verdict, pack)  # none once no CEPA rate can apply (74); ELIGIBLE: AED value only
     dropped += drop_claim_caveats(data, verdict, pack.corridor)  # nor notes about claiming it (problem 76)
