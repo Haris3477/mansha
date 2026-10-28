@@ -1,0 +1,86 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 44.09,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7752,
+        "completion": 4214
+      },
+      "finish_reason": "stop",
+      "latency_s": 44.09,
+      "ok": true
+    }
+  ],
+  "problems": [
+    "caveats[0].note contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+    "gaps[0].text contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+  ],
+  "warnings": [],
+  "normalized_by_code": [
+    "source_id: square brackets removed around 8 evidence ID(s) (classification, tariff, origin_rule, origin_result, estimated_saving, caveats[0], caveats[1], gaps[0])"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: Neither candidate fully matches 'wooden doors' — TL-IN-76101000 is aluminium doors and TL-IN-94036000 is other wooden furniture. The tariff lookup tool itself flags this as a potential gap, so classification is set to REGULATORY_GAP_DETECTED with low confidence.",
+      "Step 2: Preference is not applicable because no valid tariff line was classified.",
+      "Step 3: Tariff rates cannot be determined without a confirmed line; all rate fields set to REGULATORY_GAP_DETECTED.",
+      "Step 4: No origin rule applies since no tariff line was confirmed; origin status set to REGULATORY_GAP_DETECTED.",
+      "Step 5: Saving cannot be estimated without a confirmed tariff line and shipment value; set to REGULATORY_GAP_DETECTED.",
+      "Step 6: Procedure is empty because origin status is not QUALIFIES or NEEDS_MORE_DATA.",
+      "Step 7: Caveats include the tool's note about no candidate matching and the '+' interpretation note from the origin tool."
+    ],
+    "classification": {
+      "tariff_line": "REGULATORY_GAP_DETECTED",
+      "description": "REGULATORY_GAP_DETECTED",
+      "confidence": "low",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "tariff": {
+      "agreement": "REGULATORY_GAP_DETECTED",
+      "mfn_rate": "REGULATORY_GAP_DETECTED",
+      "preferential_rate": "REGULATORY_GAP_DETECTED",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "origin_rule": {
+      "rule": "REGULATORY_GAP_DETECTED",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "origin_result": {
+      "status": "REGULATORY_GAP_DETECTED",
+      "basis": "No tariff line could be confirmed for 'wooden doors', so no origin rule could be applied.",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "estimated_saving": {
+      "status": "REGULATORY_GAP_DETECTED",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "No candidate matches the whole description: TL-IN-76101000 matches only 'door' (aluminium), TL-IN-94036000 matches only 'wooden' (other wooden furniture).",
+        "source_id": "TOOL:tariff_lookup"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:76101000"
+      }
+    ],
+    "follow_up_questions": [
+      "Please confirm the HS code for wooden doors, or provide more details about the product (e.g., is it a wooden door or an aluminium door? What type of wooden furniture?)."
+    ],
+    "gaps": [
+      {
+        "text": "No tariff line in the evidence describes 'wooden doors'. TL-IN-76101000 covers aluminium doors and TL-IN-94036000 covers other wooden furniture, but neither matches the full product description.",
+        "source_id": "TOOL:tariff_lookup"
+      }
+    ],
+    "verdict": "REGULATORY_GAP_DETECTED"
+  }
+}

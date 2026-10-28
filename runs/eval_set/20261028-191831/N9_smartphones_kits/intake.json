@@ -1,0 +1,17 @@
+{
+  "served_by": "groq/openai/gpt-oss-120b",
+  "changes": [],
+  "output": {
+    "product_description": "smartphones",
+    "uae_processing": "assembled from imported kits",
+    "destination_country": "India",
+    "hs_code_given": "85171211",
+    "exporter_role": "manufacturer",
+    "shipment_value": {
+      "amount": 90000,
+      "currency": "AED"
+    },
+    "language": "en",
+    "missing_fields": []
+  }
+}

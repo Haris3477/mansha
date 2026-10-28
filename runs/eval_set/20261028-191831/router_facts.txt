@@ -1,0 +1,75 @@
+Router facts (run runs/eval_set/20261028-191831), read-only from freeapi.db (settings and api_keys refused)
+Window (UTC): 2026-10-28 15:13:31 to 2026-10-28 15:34:48 (folder start and last log file, padded 5 min)
+
+a) Router requests in the window (14)
+  #1382 15:18:33 groq/openai/gpt-oss-120b success 1901 ms  <- N4_windows_exw Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1893 ms
+  #1383 15:21:19 openrouter/dots-studio/dots-3-note-preview:free success 165291 ms  <- N4_windows_exw Researcher (round 1) attempt 2
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 165289 ms
+  #1384 15:23:57 openrouter/dots-studio/dots-3-note-preview:free success 158401 ms  <- not matched to a case
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 158396 ms
+  #1385 15:23:58 cerebras/gpt-oss-120b error 674 ms  <- N4_windows_exw QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b rate_limited 675 ms  "Cerebras API error 429: Too Many Requests"
+  #1386 15:24:51 openrouter/dots-studio/dots-3-note-preview:free success 52887 ms  <- not matched to a case
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 52885 ms
+  #1387 15:25:29 cerebras/gpt-oss-120b error 567 ms  <- N4_windows_exw QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b rate_limited 560 ms  "Cerebras API error 429: Too Many Requests"
+  #1388 15:25:30 groq/openai/gpt-oss-120b success 1163 ms  <- not matched to a case
+      0 groq/openai/gpt-oss-120b ok 1161 ms
+  #1389 15:26:48 openrouter/dots-studio/dots-3-note-preview:free success 78025 ms  <- not matched to a case
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 78026 ms
+  #1390 15:27:01 cerebras/gpt-oss-120b error 351 ms  <- N4_windows_exw QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b rate_limited 352 ms  "Cerebras API error 429: Too Many Requests"
+  #1391 15:28:23 openrouter/dots-studio/dots-3-note-preview:free success 82645 ms  <- not matched to a case
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 82643 ms
+  #1392 15:28:24 groq/openai/gpt-oss-120b success 1038 ms  <- N9_smartphones_kits Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1037 ms
+  #1393 15:29:08 openrouter/dots-studio/dots-3-note-preview:free success 44079 ms  <- N13_wooden_doors Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 44079 ms
+  #1394 15:29:23 openrouter/dots-studio/dots-3-note-preview:free success 14729 ms  <- N13_wooden_doors Researcher (round 2) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 14727 ms
+  #1395 15:29:48 openrouter/dots-studio/dots-3-note-preview:free success 24638 ms  <- N13_wooden_doors Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 24638 ms
+
+b) Per platform (attempts in the window, by outcome)
+  cerebras: 3 attempts (rate_limited 3)
+  groq: 3 attempts (ok 3)
+  openrouter: 8 attempts (ok 8)
+  non-success requests: #1385 cerebras/gpt-oss-120b error, #1387 cerebras/gpt-oss-120b error, #1390 cerebras/gpt-oss-120b error
+
+  Long-chain calls (Researcher / Builder): served model at the serving attempt's ordinal
+  N4_windows_exw Researcher (round 1): served openrouter/dots-studio/dots-3-note-preview:free (client), NOT MATCHED in the router
+  N4_windows_exw Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N4_windows_exw Document Builder: served openrouter/dots-studio/dots-3-note-preview:free (client), NOT MATCHED in the router
+  N9_smartphones_kits Researcher (round 1): served openrouter/dots-studio/dots-3-note-preview:free (client), NOT MATCHED in the router
+  N9_smartphones_kits Document Builder: served openrouter/dots-studio/dots-3-note-preview:free (client), NOT MATCHED in the router
+  N13_wooden_doors Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N13_wooden_doors Researcher (round 2): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N13_wooden_doors Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+
+  Validity (every Researcher/Builder call on openrouter at ordinal 0)
+  N4_windows_exw: NOT VALID: Document Builder not matched; Researcher (round 1) attempt 1 failed at the client (3 long calls)
+  N9_smartphones_kits: NOT VALID: Researcher (round 1) not matched; Document Builder not matched (2 long calls)
+  N13_wooden_doors: valid (3 long calls)
+
+  Client calls not matched in the router: N4_windows_exw Researcher (round 1) attempt 1, N4_windows_exw Document Builder attempt 1, N4_windows_exw Prose QA (round 1) attempt 1, N4_windows_exw Prose QA (round 1) attempt 2, N9_smartphones_kits Researcher (round 1) attempt 1, N9_smartphones_kits QA (round 1) attempt 1, N9_smartphones_kits QA (round 1) attempt 2, N9_smartphones_kits Document Builder attempt 1, N9_smartphones_kits Prose QA (round 1) attempt 1, N13_wooden_doors Intake attempt 1, N13_wooden_doors QA (round 1) attempt 1, N13_wooden_doors QA (round 2) attempt 1, N13_wooden_doors Prose QA (round 1) attempt 1
+
+c) Cooldowns set or expiring in the window (1)
+  cerebras/gpt-oss-120b: set 15:27:01, expires 15:37:01 (600 s, heuristic)
+
+d) Router state at 2026-10-28 15:29:48 UTC
+  active cooldowns: cerebras/gpt-oss-120b 7.2 min left (heuristic)
+  capacity (router 24 h successes = rate_limit_usage; OpenRouter :free used = max with UTC-day attempts):
+    long  google/gemini-3.5-flash: router 24 h 0; used 0/20; left 20
+    long  google/gemini-3.6-flash: router 24 h 0; used 0/20; left 20
+    long  openrouter/dots-studio/dots-3-note-preview:free: router 24 h 13, UTC-day attempts 13; used 13/1000; left 987
+    qa    groq/openai/gpt-oss-120b: router 24 h 5; used 5/1000; left 995
+    judge cerebras/gpt-oss-120b: router 24 h 11; used 11/2400; left 0 (benched 7.2 min, heuristic)
+  OpenRouter attempts since 00:00 UTC (04:00 Dubai): dots-studio/dots-3-note-preview:free 13 (ok 13)
+  OpenRouter timeouts in the window: none
+  Cerebras last 24 h: 14 requests, 55073 input + 14563 output tokens, about $0.03 at $0.35/$0.75 per 1M
+
+e) Chains (enabled models, order as stored; rpd_limit with overrides)
+  long: google/gemini-3.5-flash (rpd 20), google/gemini-3.6-flash (rpd 20), openrouter/dots-studio/dots-3-note-preview:free (rpd 1000)
+  qa: groq/openai/gpt-oss-120b (rpd 1000)
+  judge: cerebras/gpt-oss-120b (rpd 2400)

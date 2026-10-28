@@ -1,0 +1,283 @@
+{
+  "status": "REPORT",
+  "verdict": "REGULATORY_GAP_DETECTED",
+  "language": "en",
+  "seconds": 84.57,
+  "warnings": [
+    "QA round 1: QA call failed: output NOT reviewed by QA",
+    "QA round 2: QA call failed: output NOT reviewed by QA",
+    "Document Builder: report prose NOT reviewed by QA (prose QA call failed: prose NOT reviewed by QA)"
+  ],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.04,
+      "summary": "product='wooden doors' | destination='India' | role=manufacturer | value=None | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.04,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 676,
+                "completion": 312
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.04,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given",
+          "shipment_value"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-94036000 | bill of materials: not given | evidence 20674 chars, 31 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "INSUFFICIENT_DATA",
+          "TOOL:duty:76101000": "NEEDS_VALUE",
+          "TOOL:rule_lookup:94036000": "RULE_FOUND",
+          "TOOL:origin:94036000": "INSUFFICIENT_DATA",
+          "TOOL:duty:94036000": "NEEDS_VALUE",
+          "TOOL:coo_fee": "NEEDS_VALUE"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "FAILED",
+      "seconds": 44.1,
+      "summary": "line REGULATORY_GAP_DETECTED (low) | origin REGULATORY_GAP_DETECTED | verdict REGULATORY_GAP_DETECTED | problems 2 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 44.09,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7752,
+                "completion": 4214
+              },
+              "finish_reason": "stop",
+              "latency_s": 44.09,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "caveats[0].note contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+        "gaps[0].text contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+      ],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "source_id: square brackets removed around 8 evidence ID(s) (classification, tariff, origin_rule, origin_result, estimated_saving, caveats[0], caveats[1], gaps[0])"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "FAILED",
+      "seconds": 0.02,
+      "summary": "QA call failed: output NOT reviewed by QA",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "LLM call failed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~8m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1793201821135}, 'execution_id': 'ae32550c-d25e-4047-ba8e-32152301707c'}",
+              "retry_skipped": "router busy for ~473s (> 90s cap)"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Researcher (round 2)",
+      "status": "OK",
+      "seconds": 14.74,
+      "summary": "line REGULATORY_GAP_DETECTED (low) | origin REGULATORY_GAP_DETECTED | verdict REGULATORY_GAP_DETECTED | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 14.73,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8553,
+                "completion": 1352
+              },
+              "finish_reason": "stop",
+              "latency_s": 14.73,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "caveats[0].note contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)",
+          "gaps[0].text contains 'TL-IN-76101000': this text is shown to the exporter, so write it in plain words without evidence IDs or internal words (cite only in source_id)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 2)",
+      "status": "FAILED",
+      "seconds": 0.01,
+      "summary": "QA call failed: output NOT reviewed by QA",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "LLM call failed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~8m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1793201821135}, 'execution_id': 'ee796f4d-d200-433b-ae6d-c7906e433883'}",
+              "retry_skipped": "router busy for ~458s (> 90s cap)"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 24.65,
+      "summary": "LLM prose passed the code checks; prose NOT reviewed by QA | rounds: 1 | notes: 2 in (2 mandatory, verbatim) -> 2 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 24.64,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1635,
+                "completion": 2069
+              },
+              "finish_reason": "stop",
+              "latency_s": 24.64,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "FAILED",
+      "seconds": 0.01,
+      "summary": "prose QA call failed: prose NOT reviewed by QA",
+      "calls": [
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "LLM call failed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "latency_s": 0.01,
+              "ok": false,
+              "http_status": 429,
+              "cooldown": true,
+              "problem": "HTTP 429: Error code: 429 - {'error': {'message': 'All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~7m.', 'type': 'rate_limit_error', 'code': 'rate_limit_exceeded', 'retryAtMs': 1793201821135}, 'execution_id': 'b2131a2b-c83b-4ceb-ad99-6a7837ade881'}",
+              "retry_skipped": "router busy for ~434s (> 90s cap)"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

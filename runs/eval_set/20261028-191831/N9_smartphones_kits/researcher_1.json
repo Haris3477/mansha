@@ -1,0 +1,106 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 78.05,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7571,
+        "completion": 7757
+      },
+      "finish_reason": "stop",
+      "latency_s": 78.05,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "caveats[13]: note written from the KB (P-UAE-ISSUER)",
+    "follow_up_questions: dropped for verdict NOT_ELIGIBLE (the result does not depend on more information from the user): 'The HS code you provided (85171211) is an older HS 2017 code; the current tariff line is 85171300. Please confirm that you want to use the current line.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85171300): \"Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85171300): 'CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (TOOL:duty:85171300): 'The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-DUTY-SCOPE): 'The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found).'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-DUTY-SCOPE): 'Anti-dumping and safeguard duties likely still apply (no CEPA exemption from them was found).'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-IN-IMPORTER): \"The certificate does not remove the importer's duty of reasonable care, so the UAE exporter may be asked for production and cost details.\"",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-UAE-ISSUER): 'No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-COO-INDIA): 'Fee bands are in AED and apply to the invoice value in AED; no currency conversion is done by Mansha.'",
+    "caveats: dropped a note about claiming the CEPA rate for verdict NOT_ELIGIBLE (P-MOET-FACTORY-REG): 'A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.'"
+  ],
+  "output": {
+    "reasoning": [
+      "Selected TL-IN-85171300 (Smartphones) as the best description match; noted the given HS code 85171211 is an older HS 2017 code, so set confidence to medium and added a follow-up question to confirm the code.",
+      "The chosen line has CEPA status PREFERENTIAL, so preference is available subject to origin.",
+      "Tariff: agreement India-UAE CEPA, MFN rate 20% (effective 20%), preferential rate 0%.",
+      "Origin rule is PSR-IN-R126 'CTH + VA 40%'; origin check fails on minimal operations, CTH, and VA, so the product does not qualify.",
+      "Since origin does not qualify, the estimated saving is NOT_APPLICABLE.",
+      "Procedure is empty because the product does not qualify for origin.",
+      "Collected caveats about the HS code discrepancy, the '+' interpretation, the exporter's own declaration, the duty estimate limitations, the undefined value-addition terms, the de minimis interpretation, and the remaining Indian duties."
+    ],
+    "classification": {
+      "tariff_line": "85171300",
+      "description": "Smartphones",
+      "confidence": "medium",
+      "source_id": "TL-IN-85171300"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "20% (effective 20%)",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-85171300"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R126"
+    },
+    "origin_result": {
+      "status": "DOES_NOT_QUALIFY",
+      "basis": "Final manufacture in UAE passed, but minimal operations failed: simple assembly of parts, simple packaging, and affixing labels are minimal operations that never confer origin. CTH failed: one non-originating input (smartphone assembly kits) is in the same heading 8517, representing 88.89% of the price, above the 10% de minimis threshold. VA failed: build-down of 11.11% against a required 40% on FOB basis.",
+      "source_id": "TOOL:origin:85171300"
+    },
+    "estimated_saving": {
+      "status": "NOT_APPLICABLE",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:duty:85171300"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "The code 85171211 you gave is India's older HS 2017 code for this product; India's current tariff line is 85171300.",
+        "source_id": "TOOL:tariff_lookup"
+      },
+      {
+        "note": "India's CEPA tariff schedule (Annex 2A) lists this product under its older HS 2017 code 8517 12 11.",
+        "source_id": "TL-IN-85171300"
+      },
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:85171300"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:85171300"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+        "source_id": "P-AGR-3.4-DEMINIMIS"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "NOT_ELIGIBLE"
+  }
+}

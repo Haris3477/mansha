@@ -1,0 +1,100 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 82.65,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1921,
+            "completion": 7679
+          },
+          "finish_reason": "stop",
+          "latency_s": 82.65,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "ERROR",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "ERROR"
+    }
+  ],
+  "prose": {
+    "summary": "The product does not meet the rule of origin, so the normal (MFN) rate applies. The main failed check is the minimal operations test.",
+    "classification": "The product is classified under tariff line 85171300, described as Smartphones. Mansha's confidence in this classification is medium, and you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India‑UAE CEPA, the normal (MFN) duty is 20% and the CEPA rate is 0%. Because the product does not qualify, no saving applies.",
+    "origin": "The rule of origin requires a change in tariff heading (CTH) and at least 40% value addition (VA). CTH means each non‑originating input must be classified in a different four‑digit heading than the product, and VA is the share of the product's price that does not come from non‑originating materials, calculated on an FOB basis. The final manufacture in the UAE passed, but the minimal operations check failed because only simple assembly, packaging and labelling were performed. The CTH check failed because a non‑originating input, smartphone assembly kits, is in the same heading 8517 and accounts for 88.89% of the price, exceeding the 10% de minimis threshold. The VA check failed because the build‑down was only 11.11% against the required 40% on an FOB basis.",
+    "notes": [
+      {
+        "text": "India's CEPA tariff schedule (Annex 2A) lists this product under the older HS 2017 code 8517 12 11.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "The agreement does not specify whether the build‑down and build‑up methods use the same threshold, except for a 5‑point Ex‑Works adjustment.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The code 85171211 you gave is India's older HS 2017 code for this product; India's current tariff line is 85171300.",
+      "source_id": "TOOL:tariff_lookup",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "India's CEPA tariff schedule (Annex 2A) lists this product under its older HS 2017 code 8517 12 11.",
+      "source_id": "TL-IN-85171300",
+      "mandatory": false
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:85171300",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "Operations and final manufacture are the exporter's own declaration.",
+      "source_id": "TOOL:origin:85171300",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}

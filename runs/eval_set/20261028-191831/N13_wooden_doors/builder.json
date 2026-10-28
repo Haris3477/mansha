@@ -1,0 +1,57 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 24.64,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1635,
+            "completion": 2069
+          },
+          "finish_reason": "stop",
+          "latency_s": 24.64,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "ERROR",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "ERROR"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether wooden doors qualify for preferential duty under the India CEPA because its sources do not include a tariff line for this product. Without a confirmed HS code, the rule of origin cannot be applied.",
+    "classification": "The tariff line for wooden doors is not in Mansha's sources, so Mansha's confidence is low. The HS code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "The India CEPA agreement, the normal (MFN) rate and the CEPA rate are not available in Mansha's sources. Therefore no saving can be estimated.",
+    "origin": "The rule of origin for this product is not available in Mansha's sources. Without a confirmed tariff line, the origin rule cannot be applied, so the product cannot be checked.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No candidate matches the whole description. One candidate matches only 'door' and is for aluminium products. Another matches only 'wooden' and is for other wooden furniture.",
+      "source_id": "TOOL:tariff_lookup",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}

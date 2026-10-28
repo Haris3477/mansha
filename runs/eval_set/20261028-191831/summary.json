@@ -1,0 +1,47 @@
+{
+  "runs": 3,
+  "passed": 0,
+  "scored": 3,
+  "verdict_correct": 3,
+  "verdict_cases": 3,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 0,
+  "qa_rejections": 0,
+  "qa_overruled": 0,
+  "router_refusals": 11,
+  "paced_wait_s": 0.0,
+  "median_seconds_reports": 174.1,
+  "slips": {},
+  "requests": {
+    "auto:qa": {
+      "requests": 3,
+      "prompt": 2082,
+      "completion": 954
+    },
+    "auto:long": {
+      "requests": 8,
+      "prompt": 44336,
+      "completion": 59688
+    },
+    "auto:judge": {
+      "requests": 11,
+      "prompt": 0,
+      "completion": 0
+    }
+  },
+  "failed_checks": {
+    "N4": [
+      "QA: QA (round 1) FAILED; QA (round 1): NOT reviewed",
+      "prose QA: Prose QA (round 1) FAILED; Prose QA (round 1): NOT reviewed"
+    ],
+    "N9": [
+      "QA: QA (round 1) FAILED; QA (round 1): NOT reviewed",
+      "prose QA: Prose QA (round 1) FAILED; Prose QA (round 1): NOT reviewed"
+    ],
+    "N13": [
+      "QA: QA (round 1) FAILED; QA (round 1): NOT reviewed; QA (round 2) FAILED; QA (round 2): NOT reviewed",
+      "prose QA: Prose QA (round 1) FAILED; Prose QA (round 1): NOT reviewed"
+    ]
+  }
+}
