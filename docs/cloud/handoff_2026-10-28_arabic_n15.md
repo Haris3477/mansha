@@ -130,3 +130,17 @@ Option (b), a repeat sitting now, was not needed.
 - **Re-grade of 015311:** finds 2 brand slips per run, as the reading did; "مواد غير منشأة" is correctly not flagged.
 - **No prompt change.** All 20 suites pass.
 - **Sitting:** N15 ×2. Targets: 0 brand slips; B again (Gemini at ordinal 0 on `auto:arabic`, clean round 1, no chain fallback); the 015311 wrong-term list.
+
+**Sitting 20261029-022326 (N15 ×2, `90e2431`; reading `docs/cloud/readings/20261029-022326_reading.md`):**
+- **Brand:** 0 «منشأة» brand slips in 2 of 2 runs (015311: 2 per run). The name is written «منشأ» 2–3 times per report.
+- **Validity:** both runs valid (Gemini 3.6 at ordinal 0 on `auto:arabic`, no failed attempt, no chain fallback).
+- **B holds:** round 1 clean in both, prose QA approved round 1. Gemini sample: 4 of 4 clean.
+- **G17 streak:** 10. Slips: none.
+- **New (for `arabic_review.md` / Part 2):**
+  - r1's FOB as "السعر شامل التكاليف على ظهر السفينة";
+  - r2 translated "AED" as "درهم إماراتي" (digits exact, so no check caught it);
+  - the MFN cell "tariff 10%, effective 10%" is code-printed English;
+  - MFN still has two names ("الأكثر رعاية" in the prose, "الأولى بالرعاية" in the table);
+  - "الفرع الفرعي" again.
+- **Small observation:** r2's gap-drop label "data the user must supply" on the "+ is not defined" gap (harmless: the mandatory "+" note is printed).
+- **Closing the brand fix is Haris's call.**
