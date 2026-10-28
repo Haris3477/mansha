@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROUTER_DB = Path(os.environ.get("MANSHA_ROUTER_DB",
                                 Path.home() / "Projects/freellmapi/server/data/freeapi.db"))
-CHAINS = ("long", "qa", "judge")
+CHAINS = ("long", "qa", "judge", "arabic")   # arabic (B, 28 Oct): Arabic Builder calls, Gemini only
 DAY_MS = 24 * 3600 * 1000
 # Fix round 1b (26 Oct 21:59, N5 LLM_ERROR): OpenRouter counts EVERY request that reaches it (ok, error,
 # timeout) per UTC day (resets 00:00 UTC = 04:00 Dubai), while rate_limit_usage holds the router's
@@ -67,7 +67,8 @@ def chain_capacity(db: Path | None = None, now_ms: float | None = None) -> dict[
         rows = con.execute(
             "SELECT p.name, m.platform, m.model_id, m.rpd_limit FROM profiles p "
             "JOIN profile_models pm ON pm.profile_id = p.id JOIN models m ON m.id = pm.model_db_id "
-            "WHERE pm.enabled = 1 AND m.enabled = 1 AND p.name IN (?, ?, ?)", CHAINS).fetchall()
+            "WHERE pm.enabled = 1 AND m.enabled = 1 AND p.name IN (" + ", ".join("?" * len(CHAINS)) + ")",
+            CHAINS).fetchall()
         overrides = {(pl, mid): json.loads(o or "{}") for pl, mid, o in
                      con.execute("SELECT platform, model_id, overrides_json FROM model_overrides")}
         used = {(pl, mid): n for pl, mid, n in con.execute(

@@ -185,6 +185,22 @@ check("... but without the tool figure it would be flagged", value_leaks(BY_ID["
 check("... and another input amount still is", value_leaks(BY_ID["N5"], "Titanium dioxide 25,000 AED", "", figs))
 f = planted(C1, "arabic", lambda d: append(d / "report.md", "\nملاحظة\n"))
 check("Arabic letters in an English report -> language fails", "language" in failed_names(f))
+f = planted(C1, "cjk", lambda d: (d / "report.md").write_text(   # above the sources list, which is skipped
+    (d / "report.md").read_text(encoding="utf-8").replace("\n## Summary\n", "\n## Summary\n\nthe 估算 saving\n", 1),
+    encoding="utf-8"))
+check("N15: another script in a report -> language fails", "language" in failed_names(f))
+# N15 (A4): the Builder's script check on a whole Arabic report; the sources list and [n] are skipped.
+from types import SimpleNamespace
+from scripts.eval_grade import language_problems
+AR_CASE = SimpleNamespace(intake={"language": "ar"})
+AR_OK = ("# فحص المنشأ\n\n## الملخص\n\nالسعر العادي MFN هو 10% وسعر الاتفاقية CEPA هو 0%. [1][2]\n\n"
+         "## المصادر\n\n1. [CBIC Customs Tariff of India](https://www.cbic.gov.in/x)\n")
+check("N15: a clean Arabic report passes", language_problems(AR_CASE, SimpleNamespace(output=AR_OK)) == [],
+      language_problems(AR_CASE, SimpleNamespace(output=AR_OK)))
+probs = language_problems(AR_CASE, SimpleNamespace(
+    output=AR_OK.replace("السعر العادي", "Done للx وال迈尔斯")))
+check("N15: English words, mixed words and another script are each reported",
+      len(probs) == 3 and "迈尔斯" in probs[0] and "للx" in probs[1] and "['Done']" in probs[2], probs)
 
 print("\n4. Global anchors count known open problems as slips; they don't fail a case (D1 = A)")
 f = planted(C1, "slip72", lambda d: append(d / "report.md",
@@ -435,6 +451,35 @@ check("B: 1 of 4, or errors two hours ago -> no warning", "groq/q" not in text2.
 cap_ok = {ch: [dict(m, upstream_errors=(0, 0)) for m in ms] for ch, ms in cap2.items()}
 check("B: the warning never changes ok", ok2 == eval_set.budget_check([BY_ID["N5"]], 1, cap_ok)[0])
 check("B: no error text from the provider is printed", "high demand" not in text2)
+
+# B (28 Oct): Arabic Builder calls ask auto:arabic (Gemini 3.5 + 3.6, 20 a day each); a fallback lands on long
+def m3(model, rpd, used, benched=None):
+    return {"model": model, "rpd": rpd, "used": used, "router_used": used, "day_attempts": None,
+            "benched_min": benched, "bench_source": "authoritative" if benched else None, "upstream_errors": (0, 0)}
+
+
+n15 = BY_ID["N15"]
+check("N15 is an Arabic case", (n15.intake or {}).get("language") == "ar")
+w = eval_set.need([n15], 2, eval_set.WORST)
+check("N15 x2: arabic 6 worst, long keeps 10 (a fallback lands there)", (w["arabic"], w["long"]) == (6, 10), str(w))
+check("an English case asks auto:arabic nothing", eval_set.need([BY_ID["N5"]], 1, eval_set.WORST)["arabic"] == 0)
+base = {"long": [m3("openrouter/dots:free", 50, 0), m3("google/g35", 20, 0)], "qa": [m3("groq/q", 1000, 0)],
+        "judge": [m3("cerebras/j", 2400, 0)], "arabic": [m3("google/g35", 20, 0), m3("google/g36", 20, 0)]}
+ok3, lines3 = eval_set.budget_check([n15], 2, base)
+check("N15 x2 fits 40 Gemini requests a day", ok3 and any(x.startswith("  arabic need 4-6, left 40  OK") for x in lines3),
+      "\n".join(lines3))
+benched = dict(base, arabic=[m3("google/g35", 20, 0, 600.0), m3("google/g36", 20, 0, 600.0)])
+ok3, lines3 = eval_set.budget_check([n15], 2, benched)
+check("Google benched (project-wide quota): an Arabic sitting refuses", not ok3
+      and any(x.startswith("  arabic need 4-6, left 0  SHORT") for x in lines3), "\n".join(lines3))
+check("Google benched: an English sitting does not care about auto:arabic",
+      eval_set.budget_check([BY_ID["N5"]], 1, benched)[0])
+tight = dict(base, long=[m3("openrouter/dots:free", 50, 48), m3("google/g35", 20, 10)],
+             arabic=[m3("google/g35", 20, 10), m3("google/g36", 20, 20)])
+ok3, lines3 = eval_set.budget_check([n15], 2, tight)
+check("long + arabic share Gemini 3.5: each fits alone (12 >= 10, 10 >= 6), together SHORT (12 < 16)",
+      not ok3 and "  long+arabic share models: need up to 16, left 12  SHORT" in lines3, "\n".join(lines3))
+check("the arabic chain is read from the router DB (CHAINS)", "arabic" in eval_set.CHAINS)
 
 eval_set.ROUTER_DB = db
 check("a live run that may not fit refuses to start (exit 2)", eval_set.main(["--group", "core"]) == 2)

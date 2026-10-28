@@ -8,11 +8,14 @@ Also saves the code-only (fallback) report of each case to runs/<case>/report_fa
 
 import copy
 import json
+import re
 import sys
 from pathlib import Path
 
 from mansha.document_builder import (
+    AUTHORITY_TEXT,
     CHECKLIST_POINTER,
+    FALLBACK_NOTICE,
     HEADINGS,
     CONDITION_TEXT,
     ESTIMATE_NOTE_START,
@@ -22,7 +25,9 @@ from mansha.document_builder import (
     MAX_NOTES,
     MIN_LLM_NOTES,
     SAVING_HOW_RE,
+    TRANSLATED_KEYS,
     build_facts,
+    check_translations,
     build_messages,
     check_prose,
     cite,
@@ -32,6 +37,8 @@ from mansha.document_builder import (
     max_llm_notes,
     render_report,
     run_document_builder,
+    script_problems,
+    sent_notes,
     still_needed,
 )
 from mansha.evidence import build_evidence
@@ -305,6 +312,36 @@ p = copy.deepcopy(good)
 p["summary"] = p["summary"].replace("AED 10,000", "AED 10000")
 check("thousands separators are the same number", check_prose(p, facts, notes) == [])
 
+# N15 (222746): the script check. Arabic prose with Dots3's faults, then clean Arabic (215427 style).
+ar_good = {"summary": "لا يمكن لـ Mansha تأكيد النتيجة بعد، لأن قائمة المواد ناقصة.",
+           "classification": "الرمز الجمركي HS للمنتج مذكور أعلاه (رمز النظام المنسق).",
+           "duty": "السعر العادي MFN أعلى من سعر الاتفاقية CEPA، ويُحسب على أساس FOB أو Ex-Works.",
+           "origin": "تشترط القاعدة تغيير البند الفرعي CTSH مع قيمة مضافة VA، وتُقدَّم الشهادة عبر e-Sanchit "
+                     "وفق قواعد CAROTAR، ويطالب المستورد بالسعر عند تقديم بيان الإدخال (bill of entry) "
+                     "عبر eservices.moec.gov.ae.",
+           "notes": []}
+check("N15: clean Arabic prose passes the script check", check_prose(ar_good, facts, notes, "ar") == [],
+      check_prose(ar_good, facts, notes, "ar"))
+bad = {"summary": "وال迈尔斯 الم估算", "classification": "الرمز للproduct", "duty": "ال_AGREEMENT هي",
+       "origin": "Rule of origin هي CTSH (يتم including التحقق)"}
+for key, want in (("summary", "another script (迈尔斯估算)"), ("classification", "['للproduct']"),
+                  ("duty", "['ال_AGREEMENT']"), ("origin", "['Rule', 'of', 'origin', 'including']")):
+    p = copy.deepcopy(ar_good)
+    p[key] = bad[key]
+    probs = check_prose(p, facts, notes, "ar")
+    check(f"N15: {key} {bad[key]!r} -> {want}", len(probs) == 1 and probs[0].startswith(f"`{key}`")
+          and want in probs[0], probs)
+p = copy.deepcopy(ar_good)
+p["notes"] = [{"text": "عملية بسيطة أوucceeding لا تمنح المنشأ.", "from": [n["nid"] for n in sent_notes(notes)][:1]}]
+check("N15: a note item is checked too", any(x.startswith("notes[0]") and "أوucceeding" in x
+                                              for x in check_prose(p, facts, notes, "ar")))
+check("N15: English prose is not held to the Arabic rules", check_prose(good, facts, notes, "en") == [])
+p = copy.deepcopy(good)
+p["summary"] += " 估算"
+check("N15: another script fails an English report too",
+      any("another script (估算)" in x for x in check_prose(p, facts, notes)), check_prose(p, facts, notes))
+check("N15: accented Latin letters are Latin", script_problems("café naïve", "en")["other"] == [])
+
 print("\n3. Code-only report for each verdict")
 kb_sources = load_corridor("india")["sources"]
 for name, (research, intake, pack) in cases.items():
@@ -336,6 +373,21 @@ ar_intake = dict(intake, language="ar")
 md_ar = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
 check("Arabic headings and disclaimer", "## الملخص" in md_ar and "ليس قرارًا رسميًا" in md_ar)
 check("Arabic checklist label is 'الجهة المختصة'", "*الجهة المختصة: " in md_ar)
+# N15 step 2: the authority itself in Arabic; an actor not in AUTHORITY_TEXT stays as the KB has it.
+auth_ar = re.findall(r"\*الجهة المختصة: ([^*]*)\.\*", md_ar)
+check("N15: every Arabic authority line names an Arabic authority",
+      auth_ar and all(a in AUTHORITY_TEXT["ar"].values() for a in auth_ar), auth_ar)
+odd = copy.deepcopy(research)
+odd["procedure"][0]["authority"] = "the Port Authority"
+check("N15: an actor with no Arabic name stays in English",
+      "*الجهة المختصة: The Port Authority.*" in render_report(odd, ar_intake, good, notes, pack.id_sources,
+                                                             kb_sources))
+kb_actors = {p["actor"].strip().lower() for p in load_corridor("india")["passages"]["passages"] if p.get("actor")}
+check("N15: every actor in the KB has an Arabic name", kb_actors and kb_actors <= set(AUTHORITY_TEXT["ar"]),
+      sorted(kb_actors - set(AUTHORITY_TEXT["ar"])))
+md_en = render_report(research, intake, good, notes, pack.id_sources, kb_sources)
+check("N15: English reports keep the English authority",
+      not any(a in md_en for a in AUTHORITY_TEXT["ar"].values()))
 
 print("\n3a. Deciding conditions: code cautions in the summary (problem 97, fix round 26 Oct)")
 
@@ -438,6 +490,11 @@ r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("bad twice: code-only report", r.used_fallback and r.problems and "40,000" not in r.markdown)
 check("code-only report keeps the mandatory notes verbatim",
       all(f"- {t}" in notes_section(r.markdown) for t in mand_texts))
+check("N15: an English code-only report has no Arabic notice", FALLBACK_NOTICE["ar"] not in r.markdown)
+r = run_document_builder(research, ar_intake, pack.id_sources, llm=fake_llm(bad, bad))
+check("N15: an Arabic code-only report says first, in Arabic, that its prose is English",
+      r.used_fallback and summary_of(r.markdown).startswith(FALLBACK_NOTICE["ar"] + "\n\n"),
+      summary_of(r.markdown)[:120])
 
 failed = [{"attempt": 1, "ok": False, "http_status": 502, "problem": "HTTP 502",
            "waited_before_retry_s": 30}, {"attempt": 2, "ok": False, "problem": "empty reply"}]
@@ -581,6 +638,125 @@ r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
 check("malformed prose is not sent for review (nothing to read); the retry's prose is",
       len(rv.seen) == 1 and rv.seen[0][1] == good and r.rounds[0]["review"] is None
       and r.review_status == "APPROVED")
+
+print("\n8. N15 (D): the title's product and 'still needed' in Arabic")
+nd_research, nd_intake, nd_pack = cases["windows_nodata"]
+nd_ar = dict(nd_intake, language="ar")
+nd_needed = still_needed(nd_research)
+check("windows_nodata has still-needed items", len(nd_needed) >= 1, nd_needed)
+tr = {"product": "إطارات نوافذ من الألمنيوم", "needed": ["يرجى تقديم قائمة المواد."] * len(nd_needed)}
+check("D: English reports need no translations", check_translations({}, nd_research, nd_intake, "en") == [])
+check("D: good translations pass", check_translations(tr, nd_research, nd_ar, "ar") == [],
+      check_translations(tr, nd_research, nd_ar, "ar"))
+probs = check_translations({}, nd_research, nd_ar, "ar")
+check("D: none given -> both asked for", len(probs) == 2 and probs[0].startswith("`product`")
+      and probs[1].startswith("`needed`"), probs)
+for label, bad_tr, want in (
+        ("one item too many", dict(tr, needed=tr["needed"] + ["زائد"]), "`needed` must be a list of"),
+        ("an English word in the product", dict(tr, product="إطارات Window"), "['Window']"),
+        ("a number not in the item", dict(tr, needed=["قائمة المواد 999"] + tr["needed"][1:]), "['999']"),
+        ("a note number", dict(tr, product="إطارات N1"), "remove 'N1'"),
+        ("a long product", dict(tr, product="إطار " * 30), "short name")):
+    probs = check_translations(bad_tr, nd_research, nd_ar, "ar")
+    check(f"D: {label} -> {want}", any(want in x for x in probs), probs)
+
+check("D: nothing still needed -> `needed` may be left out",
+      still_needed(research) == [] and check_translations({"product": tr["product"]}, research,
+                                                          ar_intake, "ar") == [])
+
+
+def title_of(md: str) -> str:
+    return md.split("\n", 1)[0]
+
+def needed_of(md: str) -> str:
+    return md.split("## " + HEADINGS["ar"]["needed"] + "\n\n", 1)[1].split("\n## ", 1)[0]
+
+llm = fake_llm(dict(ar_good, **tr))
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("D: good translations are used: Arabic title and still-needed, one call",
+      len(llm.seen) == 1 and not r.used_fallback and r.untranslated == []
+      and title_of(r.markdown).endswith(": " + tr["product"])
+      and needed_of(r.markdown).strip() == "\n".join(f"- {x}" for x in tr["needed"])
+      and nd_needed[0] not in r.markdown, title_of(r.markdown))
+llm = fake_llm(ar_good, dict(ar_good, **tr))
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("D: missing at first -> asked for in the one retry, then used",
+      len(llm.seen) == 2 and "`needed`" in llm.seen[1][-1]["content"] and r.untranslated == []
+      and title_of(r.markdown).endswith(tr["product"]))
+llm = fake_llm(ar_good, ar_good)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("D: still missing after the retry -> Arabic prose kept, English originals printed",
+      len(llm.seen) == 2 and not r.used_fallback and len(r.untranslated) == 2
+      and ar_good["summary"] in r.markdown and nd_needed[0] in r.markdown
+      and title_of(r.markdown).endswith(nd_intake["product_description"])
+      and not set(TRANSLATED_KEYS) & set(r.prose), r.untranslated)
+r = run_document_builder(nd_research, nd_intake, nd_pack.id_sources, llm=fake_llm(dict(ar_good, **tr)))
+check("D: in an English report the keys are ignored", tr["product"] not in r.markdown
+      and nd_needed[0] in r.markdown and not set(TRANSLATED_KEYS) & set(r.prose))
+rv = scripted(ok_review())
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=fake_llm(dict(ar_good, **tr)), review=rv)
+check("D: prose QA reads only the fields it was built for", rv.seen[0][1] == ar_good
+      and r.review_status == "APPROVED" and title_of(r.markdown).endswith(tr["product"]), rv.seen[0][1].keys())
+
+print("\n9. B (28 Oct): the chain by language, the one code fallback to auto:long, every round's prose")
+
+
+def chain_llm(*replies):
+    """fake_llm that also records the chain of each call."""
+    inner = fake_llm(*replies)
+
+    def llm(agent, chain, messages, **kwargs):
+        llm.chains.append(chain)
+        return inner(agent, chain, messages, **kwargs)
+    llm.chains, llm.seen = [], inner.seen
+    return llm
+
+
+ar_ok = dict(ar_good, **tr)
+ar_bad = dict(ar_ok, summary=ar_good["summary"] + " 中文")
+down = [{"attempt": 1, "ok": False, "problem": "connection error", "chain": "auto:arabic"}]
+check("B: the bad Arabic used here is caught by the code checks",
+      check_prose(ar_bad, build_facts(nd_research, nd_ar, "india")[0], build_facts(nd_research, nd_ar, "india")[1], "ar"))
+llm = chain_llm(good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("B: English -> auto:long, no fallback", llm.chains == ["auto:long"] and r.chain_fallback is None
+      and r.rounds[0]["chain"] == "auto:long", llm.chains)
+llm = chain_llm(ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: Arabic -> auto:arabic, no fallback", llm.chains == ["auto:arabic"] and r.chain_fallback is None
+      and r.rounds[0]["chain"] == "auto:arabic" and not r.used_fallback, llm.chains)
+llm = chain_llm(ar_bad, ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: Arabic round 2 stays on auto:arabic when round 1 only failed the checks",
+      llm.chains == ["auto:arabic", "auto:arabic"] and r.chain_fallback is None, llm.chains)
+check("B: every round's prose is saved (the rejected round 1 too)",
+      r.rounds[0]["prose"] == ar_bad and r.rounds[1]["prose"] == ar_ok, [x["prose"] for x in r.rounds])
+llm = chain_llm(LLMCallError("gemini down", down), ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: auto:arabic fails in round 1 -> the same round on auto:long, its prose used",
+      llm.chains == ["auto:arabic", "auto:long"] and not r.used_fallback and r.rounds[0]["chain"] == "auto:long"
+      and ar_good["summary"] in r.markdown, llm.chains)
+check("B: the fallback is recorded by name, with the failed attempts",
+      r.chain_fallback == {"from": "auto:arabic", "to": "auto:long", "round": 1, "reason": "gemini down"}
+      and r.failed_attempts == down, r.chain_fallback)
+llm = chain_llm(LLMCallError("gemini down", down), ar_bad, ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: after a fallback, round 2 stays on auto:long (once per run)",
+      llm.chains == ["auto:arabic", "auto:long", "auto:long"] and r.chain_fallback["round"] == 1, llm.chains)
+llm = chain_llm(ar_bad, LLMCallError("gemini down", down), ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: auto:arabic fails in round 2 -> round 2 on auto:long",
+      llm.chains == ["auto:arabic", "auto:arabic", "auto:long"] and r.chain_fallback["round"] == 2
+      and [x["chain"] for x in r.rounds] == ["auto:arabic", "auto:long"] and not r.used_fallback, llm.chains)
+llm = chain_llm(LLMCallError("gemini down", down), LLMCallError("router down", failed[:1]))
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: auto:long fails too -> code-only report, both chains' failed attempts kept, no second fallback",
+      llm.chains == ["auto:arabic", "auto:long"] and r.used_fallback and r.failed_attempts == down + failed[:1]
+      and r.chain_fallback["to"] == "auto:long" and r.rounds[0]["prose"] is None, llm.chains)
+llm = chain_llm(LLMCallError("router down", failed[:1]))
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("B: an English auto:long failure has no chain fallback", llm.chains == ["auto:long"]
+      and r.chain_fallback is None and r.used_fallback)
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

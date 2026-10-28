@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from mansha.document_builder import saving_how
+from mansha.document_builder import saving_how, script_problems
 from mansha.evidence import build_evidence, is_excluded
 from mansha.kb import corridor_for
 from mansha.researcher import HS_QUESTION_RE, NOT_PRODUCT_CODE_RE, ORIGIN_MAP
@@ -433,7 +433,18 @@ def language_problems(case: EvalCase, run: Run) -> list[str]:
         return [f"expected Arabic, found {ar} Arabic and {la} Latin letters"]
     if want == "en" and ar > 0:
         return [f"{ar} Arabic letters in an English output"]
-    return []
+    # N15 (A4): the Builder's script check on the whole report, without the sources list (official
+    # English titles) and the [n] citations.
+    body = re.split(r"\n## (?:Sources|المصادر)\n", body)[0]
+    found = script_problems(re.sub(r"\[\d+\]", "", body), want)
+    out = []
+    if found["other"]:
+        out.append(f"letters of another script: {''.join(found['other'][:12])}")
+    if found.get("mixed"):
+        out.append(f"{len(found['mixed'])} word(s) mixing Arabic and Latin letters: {found['mixed'][:6]}")
+    if found.get("english"):
+        out.append(f"{len(found['english'])} English word(s) in an Arabic report: {found['english'][:10]}")
+    return out
 
 
 def cost(run: Run) -> dict:

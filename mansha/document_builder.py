@@ -25,11 +25,12 @@ import copy
 import json
 import logging
 import re
+import unicodedata
 from dataclasses import dataclass, field
 
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
-from mansha.prompts import build_system_prompt
+from mansha.prompts import LANGUAGE_NAMES, build_system_prompt
 from mansha.prose_qa import QA_ERROR, QA_REJECTED, ProseQAOutcome
 from mansha.researcher import (  # noqa: F401  (NO_CEPA_RATE_VERDICTS is re-exported for report_check)
     EVIDENCE_ID_RE,
@@ -178,6 +179,63 @@ CODE_WORD_RE = re.compile(
     r"\b(?:REGULATORY_GAP_DETECTED|NOT_ELIGIBLE|ELIGIBLE|NEEDS_MORE_DATA|NO_PREFERENCE|"
     r"NOT_APPLICABLE|NEEDS_VALUE|DOES_NOT_QUALIFY|QUALIFIES|MANDATORY)\b")
 
+# N15 (222746): Dots3's Arabic prose had Chinese letters ("وال迈尔斯"), Arabic+Latin words
+# ("للproduct") and English words ("Rule of origin هي"). Code finds all three (A1); the grader
+# uses the same check on the whole report (A4). Spelling is not checked.
+ARABIC_CHARS = "؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿"
+ARABIC_RE = re.compile(f"[{ARABIC_CHARS}]")
+# Trade terms and names that may stay in Latin letters in an Arabic report (lower case, one word each).
+LATIN_TERMS = ("HS", "CEPA", "MFN", "FOB", "CIF", "Ex-Works", "EXW", "CTSH", "CTH", "CC", "VA", "AED",
+               "BCD", "IGST", "GST", "SWS", "CAROTAR", "e-Sanchit", "Mansha")
+LATIN_OK = {w.lower() for t in LATIN_TERMS for w in re.findall(r"[A-Za-z]+", t)}
+# A bracket or quote holding no Arabic is a gloss of the word before it ("(bill of entry)"): allowed.
+GLOSS_RE = re.compile(r"\([^()]*\)|«[^«»]*»|\"[^\"]*\"|“[^”]*”|'[^']*'")
+DOMAIN_RE = re.compile(r"https?://\S+|\b[\w-]+(?:\.[\w-]+)*\.(?:ae|in|gov|com|org|net)\b")
+
+
+def script_problems(text: str, language: str) -> dict[str, list[str]]:
+    """Letters that do not belong in a report in `language` ("ar" or "en"). Pure code.
+
+    other: letters of a third script (neither Arabic nor Latin), in any report.
+    Arabic reports only: mixed (one word with Arabic and Latin letters) and english (Latin
+    words outside LATIN_TERMS, glosses and web addresses)."""
+    out: dict[str, list[str]] = {"other": list(dict.fromkeys(
+        c for c in text if c.isalpha() and not ARABIC_RE.match(c)
+        and not unicodedata.name(c, "").startswith("LATIN")))}
+    if language != "ar":
+        return out
+    mixed, english = [], []
+    plain = DOMAIN_RE.sub(" ", text)
+    plain = GLOSS_RE.sub(lambda m: m.group(0) if ARABIC_RE.search(m.group(0)) else " ", plain)
+    for word in re.findall(r"\w+", plain):
+        latin = re.findall(r"[A-Za-z]+", word)
+        if latin and ARABIC_RE.search(word):
+            mixed.append(word)
+        else:
+            english += [w for w in latin if w.lower() not in LATIN_OK]
+    out["mixed"] = list(dict.fromkeys(mixed))
+    out["english"] = list(dict.fromkeys(english))
+    return out
+
+
+def script_corrections(where: str, text: str, language: str) -> list[str]:
+    """script_problems as corrections for the Builder's retry."""
+    found = script_problems(text, language)
+    name = LANGUAGE_NAMES.get(language, "the report's language")
+    out = []
+    if found["other"]:
+        out.append(f"{where}: remove the letters of another script ({''.join(found['other'][:12])}); "
+                   f"write only in {name}")
+    if found.get("mixed"):
+        out.append(f"{where}: these words mix Arabic and Latin letters: {found['mixed'][:8]}; "
+                   "write each word fully in Arabic")
+    if found.get("english"):
+        out.append(f"{where}: the report is in Arabic, but these words are English: "
+                   f"{found['english'][:8]}; write them in Arabic. Only these terms may stay in Latin "
+                   f"letters: {', '.join(LATIN_TERMS)}; an English term may also follow its Arabic "
+                   "word in brackets")
+    return out
+
 HEADINGS = {
     "en": {
         "title": "Mansha origin check",
@@ -237,6 +295,24 @@ DISCLAIMER = {
           "details with the issuing authority and customs before shipping.",
     "ar": "هذا التقرير للعلم فقط وليس قرارًا رسميًا بشأن المنشأ. يرجى التحقق من جميع التفاصيل "
           "مع الجهة المصدرة للشهادة ومع الجمارك قبل الشحن.",
+}
+# N15 step 2: the checklist's `Authority:` line in an Arabic report. Keyed by the KB record's `actor`
+# (copied by code, Step 6.4g); an actor not listed stays in English. Ministry names are the official
+# Arabic names; the role words are those of the KB's Arabic step texts (S3). docs/cloud/arabic_review.md.
+AUTHORITY_TEXT = {
+    "ar": {
+        "the exporter": "المُصدِّر",
+        "the competent authority": "السلطة المختصة",
+        "the issuing authority": "جهة الإصدار",
+        "the ministry of foreign trade": "وزارة التجارة الخارجية",
+        "the ministry of economy and tourism": "وزارة الاقتصاد والسياحة",
+        "the indian importer": "المستورد الهندي",
+    },
+}
+# N15 step 2: the code-only prose is English (its Arabic version waits for review, arabic_review.md),
+# so an Arabic report that falls back to it says so in Arabic first.
+FALLBACK_NOTICE = {
+    "ar": "تنبيه: تعذّر إعداد شرح هذا التقرير باللغة العربية بجودة كافية، لذلك يظهر الشرح باللغة الإنجليزية.",
 }
 # Problem 97 (fix round, 26 Oct): a condition that decides whether the result can be used reached the
 # reader only as a note (N2 free-zone factory in 4 of 4 runs; N5 Indian resin). The origin tool's notes
@@ -303,6 +379,10 @@ class BuilderResult:
     # FALLBACK (code-only prose, nothing to review) | SKIPPED (no review asked for)
     review_status: str = "SKIPPED"
     fallback_reason: str = ""
+    # N15 (D): problems left on `product` / `needed`, so the report shows their English originals
+    untranslated: list[str] = field(default_factory=list)
+    # B (28 Oct): None, or {from, to, round, reason} when the Arabic chain failed and auto:long took over
+    chain_fallback: dict | None = None
 
 
 # ---------- FACTS and NOTES (code, before the call) ----------
@@ -466,8 +546,10 @@ def build_facts(research: dict, intake: dict, corridor: str = "india") -> tuple[
 
 # ---------- checks (code, after the call) ----------
 
-def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
-    """Return problems (each one becomes a correction). Pure code."""
+def check_prose(prose: dict, facts_text: str, notes: list[dict], language: str = "en") -> list[str]:
+    """Return problems (each one becomes a correction). Pure code.
+
+    language: the report's language ("ar" or "en"), for the script check (N15)."""
     problems: list[str] = []
     facts_numbers = number_keys(facts_text.split("\n\nNOTES")[0])
     by_nid = {n["nid"]: n for n in sent_notes(notes)}
@@ -498,6 +580,7 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
             for m in saving_how(text):            # problem 67, 7.6h
                 problems.append(f"{where}: {m.group(0)!r} explains how the saving is worked out, "
                                 f"which FACTS does not say; {SAVING_HOW_FIX}")
+        problems.extend(script_corrections(where, text, language))   # N15
 
     for k in TEXT_KEYS:
         text_problems(f"`{k}`", prose[k], facts_numbers)
@@ -523,6 +606,53 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
                 allowed |= number_keys(by_nid[s]["text"])
         text_problems(where, item["text"], allowed,
                       " ".join(by_nid[s]["text"] for s in src if s in by_nid))
+    return problems
+
+
+# N15 step 3 (D): in a report not in English, the Builder also writes the product name (title) and
+# the STILL NEEDED items (the Researcher's English follow-up and gaps) in the report's language.
+# If they still fail after the retry, the report keeps the LLM prose and prints the English originals.
+TRANSLATED_KEYS = ("product", "needed")
+TRANSLATE_LANGUAGES = {"ar"}
+MAX_PRODUCT_CHARS = 100
+
+
+def check_translations(prose: dict, research: dict, intake: dict, language: str) -> list[str]:
+    """Problems with `product` and `needed` (each one becomes a correction). Pure code."""
+    if language not in TRANSLATE_LANGUAGES:
+        return []
+    problems: list[str] = []
+
+    def one(where: str, text: str, original: str) -> None:
+        extra = number_keys(text) - number_keys(original)
+        if extra:
+            problems.append(f"{where}: number(s) {sorted(extra)} are not in the original; copy numbers "
+                            "exactly as given")
+        found = ID_RE.search(text) or CODE_WORD_RE.search(text)
+        if found:
+            problems.append(f"{where}: remove {found.group(0)!r}; write plain words")
+        problems.extend(script_corrections(where, text, language))
+
+    product = prose.get("product")
+    if not isinstance(product, str) or not product.strip():
+        problems.append("`product` must be a non-empty string: the PRODUCT line of FACTS in "
+                        f"{LANGUAGE_NAMES.get(language, language)}")
+    elif len(product) > MAX_PRODUCT_CHARS:
+        problems.append(f"`product` must be a short name (at most {MAX_PRODUCT_CHARS} characters)")
+    else:
+        one("`product`", product, plain(intake.get("product_description")))
+
+    needed = still_needed(research)
+    items = prose.get("needed")
+    if not needed and not items:   # nothing needed: an empty or left-out `needed` is fine
+        return problems
+    if not isinstance(items, list) or len(items) != len(needed) or not all(
+            isinstance(x, str) and x.strip() for x in items):
+        problems.append(f"`needed` must be a list of {len(needed)} non-empty string(s), one for each "
+                        "STILL NEEDED item of FACTS, in the same order")
+    else:
+        for i, (text, original) in enumerate(zip(items, needed)):
+            one(f"needed[{i}]", text, original)
     return problems
 
 
@@ -602,13 +732,14 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
         cautions.append(CHECKLIST_POINTER[lang])
     src = SourceList(id_sources, kb_sources)
     cls, tar = research["classification"], research["tariff"]
-    needed = still_needed(research)
+    needed = prose.get("needed") or still_needed(research)   # N15 (D): checked by run_document_builder
+    product = prose.get("product") or plain(intake.get("product_description"))
 
     def needed_section() -> list[str]:
         return [f"## {h['needed']}", "", *[f"- {n}" for n in needed], ""] if needed else []
 
     out = [
-        f"# {h['title']}: {plain(intake.get('product_description'))}",
+        f"# {h['title']}: {product}",
         "",
         f"**{h['result']}: {RESULT_LABEL[lang].get(verdict, RESULT_LABEL[lang][GAP])}**",
         "",
@@ -641,6 +772,7 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
         out += [f"## {h['checklist']}", ""]
         for st in steps:
             authority = plain(st.get("authority"))
+            authority = AUTHORITY_TEXT.get(lang, {}).get(authority.strip().lower(), authority)
             nums = src.refs(st.get("source_id"))
             line = (f"- [ ] {str(st.get('step', '')).strip()}  \n"
                     f"  *{h['authority']}: {cap(authority)}.*{cite(nums)}")
@@ -694,6 +826,16 @@ def reviewable(prose: dict) -> bool:
                                            for i in items)
 
 
+# B (Haris, 28 Oct): Arabic reports go to auto:arabic (Gemini only). The router orders every chain by
+# one global score, so Dots3 cannot be Gemini's backup inside a chain: the backup is here, in code.
+BUILDER_CHAIN = "auto:long"
+BUILDER_CHAINS = {"ar": "auto:arabic"}
+
+
+def builder_chain(language: str | None) -> str:
+    return BUILDER_CHAINS.get(language or "en", BUILDER_CHAIN)
+
+
 def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dict[str, str]],
                          *, corridor: str = "india", llm=call_llm, review=None,
                          conditions: list[str] | None = None) -> BuilderResult:
@@ -711,50 +853,78 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     failed_attempts: list[dict] = []
     rounds: list[dict] = []
     prose, problems = None, []
+    main_left: list[str] = []   # prose problems left: they mean the code-only prose
+    tr_left: list[str] = []     # N15 (D): `product` / `needed` problems left: English originals
     reviewed: ProseQAOutcome | None = None
     fallback_reason = ""
+    chain = builder_chain(language)
+    chain_fallback: dict | None = None
 
     for round_no in (1, 2):   # first pass, then at most one correction round
         sent = problems if round_no == 2 else []
+        messages = build_messages(facts_text, language, previous=prose, corrections=sent or None)
         try:
-            res = llm("document_builder", "auto:long",
-                      build_messages(facts_text, language, previous=prose, corrections=sent or None),
-                      expect_json=True, required_keys=REQUIRED_KEYS)
+            try:
+                res = llm("document_builder", chain, messages, expect_json=True, required_keys=REQUIRED_KEYS)
+            except LLMCallError as exc:
+                if chain == BUILDER_CHAIN:
+                    raise
+                # B: the Arabic chain failed after the client's own retries. Once per run, this round
+                # goes to auto:long, and so does any later round. Such a run is not valid for judging B.
+                chain_fallback = {"from": chain, "to": BUILDER_CHAIN, "round": round_no, "reason": str(exc)}
+                log.warning("document builder | chain fallback: %s -> %s (round %d: %s)",
+                            chain, BUILDER_CHAIN, round_no, exc)
+                failed_attempts = list(exc.attempts)
+                chain = BUILDER_CHAIN
+                res = llm("document_builder", chain, messages, expect_json=True, required_keys=REQUIRED_KEYS)
         except LLMCallError as exc:
             log.warning("document builder | LLM call failed: %s", exc)
             problems = [f"LLM call failed: {exc}"]
-            failed_attempts = list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)
+            failed_attempts += list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)
             fallback_reason = f"Builder call failed in round {round_no}"
-            rounds.append({"round": round_no, "code_problems": problems, "review": None,
-                           "corrections_sent": sent})
+            main_left, tr_left = problems, []
+            rounds.append({"round": round_no, "chain": chain, "code_problems": problems, "review": None,
+                           "corrections_sent": sent, "prose": None})
             break
         calls.append(res)
         prose = res.data
-        code_problems = check_prose(prose, facts_text, notes)
+        code_problems = check_prose(prose, facts_text, notes, language or "en")
+        tr_problems = check_translations(prose, research, intake, language or "en")
         log.info("document builder checks | round=%d | served_by=%s | problems=%d",
-                 round_no, res.routed_via, len(code_problems))
-        for p in code_problems:
+                 round_no, res.routed_via, len(code_problems) + len(tr_problems))
+        for p in code_problems + tr_problems:
             log.info("document builder problem | %s", p)
 
         # 7.6: the meaning check runs even when code found problems (P1: one shared retry),
         # unless the prose is malformed (nothing to read yet).
-        reviewed = review(facts_text, prose, llm=llm) if review and reviewable(prose) else None
+        # Prose QA reads the fields it was built for; `product` / `needed` are checked by code only.
+        reviewed = (review(facts_text, {k: v for k, v in prose.items() if k not in TRANSLATED_KEYS}, llm=llm)
+                    if review and reviewable(prose) else None)
         qa_problems = []
         if reviewed is not None and reviewed.status == QA_REJECTED:
             qa_problems = [f"QA: {c}" for c in reviewed.corrections] or ["QA: rejected without corrections"]
-        rounds.append({"round": round_no, "code_problems": code_problems, "review": reviewed,
-                       "corrections_sent": sent})
-        problems = code_problems + qa_problems
+        rounds.append({"round": round_no, "chain": chain, "code_problems": code_problems + tr_problems,
+                       "review": reviewed, "corrections_sent": sent, "prose": copy.deepcopy(prose)})
+        main_left, tr_left = code_problems + qa_problems, tr_problems
+        problems = main_left + tr_left
         if not problems:
             break
         fallback_reason = ("code checks and prose QA" if code_problems and qa_problems else
                            "prose QA" if qa_problems else "code checks")
         fallback_reason += f" still failing after round {round_no}"
 
-    used_fallback = bool(problems)
+    used_fallback = bool(main_left)
+    if not used_fallback and (tr_left or language not in TRANSLATE_LANGUAGES):
+        if tr_left:
+            log.warning("document builder | title and still-needed kept in English (%d problem(s) left)",
+                        len(tr_left))
+        prose = {k: v for k, v in prose.items() if k not in TRANSLATED_KEYS}
     if used_fallback:
+        problems = main_left
         log.warning("document builder | using the code-only report (%d problem(s) left)", len(problems))
         prose = fallback_prose(research, notes)
+        if language in FALLBACK_NOTICE:   # N15 step 2
+            prose["summary"] = FALLBACK_NOTICE[language] + "\n\n" + prose["summary"]
         review_status = "FALLBACK"
     elif review is None:
         review_status = "SKIPPED"
@@ -766,4 +936,5 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
                          problems=problems if used_fallback else [], llm_calls=calls,
                          failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,
-                         fallback_reason=fallback_reason if used_fallback else "")
+                         fallback_reason=fallback_reason if used_fallback else "",
+                         untranslated=[] if used_fallback else tr_left, chain_fallback=chain_fallback)

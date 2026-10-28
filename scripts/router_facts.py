@@ -30,6 +30,10 @@ OUT_NAME = "router_facts.txt"
 # R1 (27 Oct): the long chain is Dots3 (OpenRouter), Gemini 3.6, Gemini 3.5. A run is valid only when every
 # Researcher and Builder call was served by OpenRouter at ordinal 0 (a Dots3 timeout or bench sends it to Gemini).
 EXPECTED_LONG_PLATFORM = "openrouter"
+# B (28 Oct): Arabic Builder calls ask auto:arabic (Gemini 3.5 / 3.6 Flash; the router's global order picks
+# which). Valid there = a Gemini model at ordinal 0. A Builder call that fell back in code to auto:long makes
+# the case NOT VALID for judging B, whatever served it.
+EXPECTED_SERVING = {"auto:long": EXPECTED_LONG_PLATFORM + "/", "auto:arabic": "google/gemini-"}
 LONG_PHASES = ("Researcher", "Document Builder")
 SUCCESS = ("success", "ok")
 MATCH_ABS_S, MATCH_REL = 2.0, 0.10      # router latency vs the client's: within max(2 s, 10 %)
@@ -138,7 +142,8 @@ def long_line(call: dict) -> str:
         return f"  {call['case']} {call['phase']}: router request #{req['id']} {req['status']} (no serving attempt)"
     before = [f"{a['model']} {a['outcome']} {(a['duration_ms'] or 0) / 1000:.1f} s"
               for a in req["attempts"] if a["ordinal"] < s["ordinal"]]
-    return (f"  {call['case']} {call['phase']}: {s['model']} at ordinal {s['ordinal']}"
+    chain = f" ({call['chain']})" if call["chain"] in EXPECTED_SERVING and call["chain"] != "auto:long" else ""
+    return (f"  {call['case']} {call['phase']}{chain}: {s['model']} at ordinal {s['ordinal']}"
             + (f" (after {'; '.join(before)})" if before else ""))
 
 
@@ -154,8 +159,12 @@ def validity(calls: list[dict]) -> list[str]:
             s = serving(call["req"]) if call["req"] else None
             if s is None:
                 bad.append(f"{call['phase']} not matched")
-            elif not (s["model"].startswith(EXPECTED_LONG_PLATFORM + "/") and s["ordinal"] == 0):
+            elif not (s["model"].startswith(EXPECTED_SERVING.get(call["chain"], EXPECTED_LONG_PLATFORM + "/"))
+                      and s["ordinal"] == 0):
                 bad.append(f"{call['phase']} {s['model']} ordinal {s['ordinal']}")
+        builder = {c["chain"] for c in calls if c["case"] == case and c["phase"].startswith("Document Builder")}
+        if "auto:arabic" in builder and "auto:long" in builder:
+            bad.append("chain fallback auto:arabic -> auto:long (not valid for judging B)")
         failed = [c for c in calls if c["case"] == case and is_long(c) and not c["ok"]]
         bad += [f"{c['phase']} attempt {c['attempt']} failed at the client" for c in failed]
         n = sum(1 for c in calls if c["case"] == case and is_long(c))
@@ -190,7 +199,8 @@ def section_platforms(calls: list[dict], reqs: list[dict]) -> list[str]:
     out.append("  non-success requests: " + (", ".join(f"#{r['id']} {r['model']} {r['status']}" for r in bad) or "none"))
     out += ["", "  Long-chain calls (Researcher / Builder): served model at the serving attempt's ordinal"]
     out += [long_line(c) for c in calls if is_long(c)] or ["  none"]
-    out += ["", f"  Validity (every Researcher/Builder call on {EXPECTED_LONG_PLATFORM} at ordinal 0)"]
+    out += ["", f"  Validity (every Researcher/Builder call at ordinal 0 on {EXPECTED_LONG_PLATFORM} (auto:long) "
+                "or Gemini (auto:arabic); no chain fallback)"]
     out += validity(calls) or ["  no cases"]
     lost = [c for c in calls if c["req"] is None]
     out += ["", "  Client calls not matched in the router: " + (", ".join(label(c) for c in lost) or "none")]
