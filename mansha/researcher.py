@@ -534,6 +534,55 @@ def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
     return changes
 
 
+# ---------- the duty tool's "BCD only" note cited to a passage (Step 7.6k, N5 duty-note re-cite) ----------
+DUTY_TOOL_PREFIX = "TOOL:duty:"
+BCD_ONLY_RE = re.compile(r"\b(?:Basic Customs Duty|BCD)(?:\s*\(BCD\))?,?\s+only\b", re.IGNORECASE)
+TABLE_II_RE = re.compile(r"\bAIDC\b|\bAgriculture Infrastructure\b|\bTable II\b", re.IGNORECASE)
+
+
+def recite_duty_notes(data: dict, pack: EvidencePack) -> list[str]:
+    """Cite the duty tool for a caveat that copies its "BCD only" note under another record (Step 7.6k).
+
+    27 Oct 19:10 (N5) and 15:56 (C1): the tool's Table I note "CEPA rates reduce Basic Customs Duty (BCD)
+    only. ..." cited P-IN-DUTY-SCOPE; QA judged it against that record's "BCD, and AIDC only for lines in
+    Table II" and its "fix" (the Table II wording, wrong for a Table I line) was copied. All 16 such
+    caveats in the saved outputs were on lines whose duty result carries the note. Code writes the
+    caveat as the tool's note with the tool's ID (printed verbatim by the Builder); a sentence the note
+    does not cover stays a caveat with the record it cited. Only when the chosen line's duty result has
+    the note: on a Table II or excluded line it is a real claim, left to the checks and QA.
+    """
+    caveats = data.get("caveats")
+    cls = data.get("classification")
+    if not isinstance(caveats, list) or not isinstance(cls, dict):
+        return []
+    tid = DUTY_TOOL_PREFIX + digits(cls.get("tariff_line"))
+    tool_note = next((n for n in (pack.tool_results.get(tid) or {}).get("notes") or []
+                      if BCD_ONLY_RE.search(n)), None)
+    if not tool_note:
+        return []
+    out, changes, have_note = [], [], any(
+        isinstance(c, dict) and c.get("source_id") == tid and coverage(tool_note, c.get("note")) >= SAME_NOTE_COVERAGE
+        for c in caveats)
+    for i, cv in enumerate(caveats):
+        note, sid = (cv.get("note"), cv.get("source_id")) if isinstance(cv, dict) else (None, None)
+        if (str(sid or "").startswith(DUTY_TOOL_PREFIX) or not BCD_ONLY_RE.search(str(note or ""))
+                or TABLE_II_RE.search(str(note))):
+            out.append(cv)
+            continue
+        rest = [s for s in SENTENCE_SPLIT_RE.split(str(note)) if s.strip() and coverage(s, tool_note) < RESTATING_CLAUSE]
+        if have_note:
+            changes.append(f"caveats[{i}]: the duty tool's BCD-only note, already cited to {tid}: dropped ({sid})")
+        else:
+            out.append({"note": tool_note, "source_id": tid})
+            have_note = True
+            changes.append(f"caveats[{i}]: re-cited to {tid}, the tool's BCD-only note word for word (was {sid})")
+        if rest:
+            out.append({"note": " ".join(rest), "source_id": sid})
+            changes.append(f"caveats[{i}]: kept with {sid}: {' '.join(rest)!r}")
+    data["caveats"] = out
+    return changes
+
+
 # ---------- product HS-code follow-ups (Step 7.9, problem 92) ----------
 # A follow-up about the product's own HS / tariff code ("Please confirm the HS code for aluminium window
 # frames"), as opposed to a bill-of-materials question that mentions each input's HS code.
@@ -1004,6 +1053,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += move_note_gaps(data, pack)  # KB notes put in gaps -> caveats, before the fills (G39)
     changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
     changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
+    changes += recite_duty_notes(data, pack)  # the duty tool's "BCD only" note cited to a passage (7.6k)
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
     changes += drop_hs_follow_ups(data, pack)  # "confirm the HS code" with no conflict noted (problem 92, 7.9)
     changes += drop_free_zone_follow_ups(data, pack)  # "is the factory in a free zone?" when the user said so (1c)

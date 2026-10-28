@@ -41,7 +41,7 @@ set -e
 cd ~/Projects/mansha && git fetch origin && git checkout <branch> && git pull --ff-only
 test "$(git rev-parse --short HEAD)" = "<hash>" || { echo "STOP: expected <hash>"; exit 1; }
 test "$(grep -c '^PROVIDER_TIMEOUT_OPENROUTER=210000$' ~/Projects/freellmapi/.env)" = 1 || { echo "STOP: router timeout is not 210000"; exit 1; }
-curl -s -o /dev/null -w "router %{http_code}\n" http://localhost:3001/v1/models | grep -qx "router 200" || { echo "STOP: router not answering. Start it: cd ~/Projects/freellmapi && npm run dev"; exit 1; }
+code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/v1/models || true); case "$code" in 200|401) echo "router answering ($code)";; *) echo "STOP: router not answering ($code). Start it: cd ~/Projects/freellmapi && npm run dev"; exit 1;; esac
 source .venv/bin/activate
 python3 -m scripts.router_facts --now
 rc=0; python -m scripts.eval_set --case <A> --case <B> || rc=$?
