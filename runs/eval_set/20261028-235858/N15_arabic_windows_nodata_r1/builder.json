@@ -1,0 +1,199 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 101.27,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2061,
+            "completion": 9033
+          },
+          "finish_reason": "stop",
+          "latency_s": 101.27,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": false,
+      "served_by": null,
+      "error": "LLM call failed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 3120,
+            "completion": 16000
+          },
+          "finish_reason": "length",
+          "latency_s": 182.01,
+          "ok": false,
+          "problem": "truncated (finish_reason=length)"
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 3120,
+            "completion": 16000
+          },
+          "finish_reason": "length",
+          "latency_s": 156.55,
+          "ok": false,
+          "problem": "truncated (finish_reason=length)"
+        }
+      ]
+    }
+  ],
+  "used_fallback": true,
+  "fallback_reason": "Builder call failed in round 2",
+  "review_status": "FALLBACK",
+  "problems_left": [
+    "LLM call failed: [document_builder] failed after 2 model attempt(s) and 0 cooldown wait(s). Last problem: truncated (finish_reason=length)"
+  ],
+  "untranslated": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [
+        "`classification`: the report is in Arabic, but these words are English: ['Doors', 'windows', 'and', 'their', 'frames', 'thresholds', 'for', 'doors']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+        "`origin`: the report is in Arabic, but these words are English: ['rule', 'of', 'origin', 'coming']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+        "notes[1]: the report is in Arabic, but these words are English: ['Basic', 'Customs', 'Duty', 'Agriculture', 'Infrastructure', 'and', 'Development', 'Cess']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+        "needed[0]: these words mix Arabic and Latin letters: ['التصنيع_FINAL']; write each word fully in Arabic",
+        "needed[0]: the report is in Arabic, but these words are English: ['origen']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets"
+      ],
+      "prose_qa": "APPROVED"
+    },
+    {
+      "round": 2,
+      "code_problems": [
+        "LLM call failed: [document_builder] failed after 2 model attempt(s) and 0 cooldown wait(s). Last problem: truncated (finish_reason=length)"
+      ],
+      "prose_qa": null
+    }
+  ],
+  "prose": {
+    "summary": "تنبيه: تعذّر إعداد شرح هذا التقرير باللغة العربية بجودة كافية، لذلك يظهر الشرح باللغة الإنجليزية.\n\nMansha cannot confirm the result yet, because information is missing. Estimated saving: 10000.00 AED (only if the product qualifies).",
+    "classification": "Tariff line 76101000: Doors, windows and their frames and thresholds for doors (aluminium) (Mansha's confidence: high). Confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Agreement: India-UAE CEPA. Estimated saving: 10000.00 AED (only if the product qualifies).",
+    "origin": "Rule of origin: CTSH + VA 45%. Result: the product cannot be checked yet, because information is missing. Missing a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the UAE, operations done in the UAE).",
+    "notes": [
+      {
+        "text": "The final manufacture before export must take place in the UAE.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "Non-originating materials are valued at their customs (CIF) value at import; if unknown, at the first ascertainable price paid in the UAE or India.",
+        "from": [
+          "N2"
+        ]
+      },
+      {
+        "text": "Operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says.",
+        "from": [
+          "N3"
+        ]
+      },
+      {
+        "text": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating.",
+        "from": [
+          "N4"
+        ]
+      },
+      {
+        "text": "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply.",
+        "from": [
+          "N5"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "Before applying for a certificate, the factory must be registered through the Ministry of Economy and Tourism's Factory Registration service. A producer in a free zone is likely not eligible.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The final manufacture before export must take place in the UAE.",
+      "source_id": "P-AGR-3.2-ORIGIN",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "Value addition may be calculated either by build-down or build-up. 'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "Non-originating materials are valued at their customs (CIF) value at import; if unknown, at the first ascertainable price paid in the UAE or India.",
+      "source_id": "P-AGR-3.1-NOM",
+      "mandatory": false
+    },
+    {
+      "nid": "N3",
+      "text": "Operations listed in Art. 3.5.1 (a) to (q), alone or combined, never make a product originating, whatever the product-specific rule says.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N5",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess only for lines in Table II. IGST, GST compensation cess and the Social Welfare Surcharge still apply.",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": false
+    }
+  ],
+  "conditions": []
+}

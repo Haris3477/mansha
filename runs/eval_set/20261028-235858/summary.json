@@ -1,0 +1,43 @@
+{
+  "runs": 2,
+  "passed": 0,
+  "scored": 2,
+  "verdict_correct": 2,
+  "verdict_cases": 2,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 0,
+  "qa_rejections": 0,
+  "qa_overruled": 1,
+  "router_refusals": 0,
+  "paced_wait_s": 0.0,
+  "median_seconds_reports": 377.0,
+  "slips": {
+    "G12": 1
+  },
+  "requests": {
+    "auto:qa": {
+      "requests": 2,
+      "prompt": 1424,
+      "completion": 673
+    },
+    "auto:long": {
+      "requests": 8,
+      "prompt": 33450,
+      "completion": 71526
+    },
+    "auto:judge": {
+      "requests": 9,
+      "prompt": 32335,
+      "completion": 11305
+    }
+  },
+  "failed_checks": {
+    "N15 N15_arabic_windows_nodata_r1": [
+      "language: expected Arabic, found 2171 Arabic and 3388 Latin letters"
+    ],
+    "N15 N15_arabic_windows_nodata_r2": [
+      "language: 89 English word(s) in an Arabic report: ['India', 'charges', 'duty', 'on', 'the', 'assessable', 'value', 'at', 'import', 'so']"
+    ]
+  }
+}

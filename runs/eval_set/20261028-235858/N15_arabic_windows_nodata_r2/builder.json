@@ -1,0 +1,176 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 66.03,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2015,
+            "completion": 5864
+          },
+          "finish_reason": "stop",
+          "latency_s": 66.03,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 96.23,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 3504,
+            "completion": 5687
+          },
+          "finish_reason": "content_filter",
+          "latency_s": 46.47,
+          "ok": false,
+          "problem": "invalid JSON: Expecting value (line 1, col 1)"
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 3057,
+            "completion": 9024
+          },
+          "finish_reason": "stop",
+          "latency_s": 96.23,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "untranslated": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [
+        "`classification`: these words mix Arabic and Latin letters: ['مان_ca']; write each word fully in Arabic",
+        "`classification`: the report is in Arabic, but these words are English: ['Doors', 'windows', 'and', 'their', 'frames', 'thresholds', 'for', 'doors']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+        "`origin`: these words mix Arabic and Latin letters: ['م_source', 'تsku']; write each word fully in Arabic",
+        "`origin`: the report is in Arabic, but these words are English: ['Base', 'of', 'origin', 'are']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+        "notes[0]: the report is in Arabic, but these words are English: ['confer']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+        "notes[1]: these words mix Arabic and Latin letters: ['التصنيع_FINAL']; write each word fully in Arabic",
+        "needed[0]: the report is in Arabic, but these words are English: ['Origine']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets"
+      ],
+      "prose_qa": "APPROVED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "لا يمكن لمنشآ مانشا تأكيد نتيجة الفحص بعد، نظراً لوجود معلومات مفقودة مثل فاتورة مواد وإعلان. إذا ثبت أن المنتج مستحق، ستكون الادخال 10000.00 درهم.",
+    "classification": "الرمز الجمركي هو 76101000، والوصف هو الأبواب والنوافذ وأطرافها وعتبات الأبواب (الألومنيوم). ثقة Mansha عالية، لكن يجب تأكيد الرمز مع جمرك الهند قبل الشحن.",
+    "duty": "الاتفاقية هي اتفاقية الهند والإمارات (CEPA). المعدل العادي (MFN) هو 10% ومعدل CEPA هو 0%. الادخال المتوقع هو 10000.00 درهم إذا استحق المنتج.",
+    "origin": "أساس الأصل هو CTSH + VA 45%. CTSH يعني أن كل مادة غير الأصلية يجب أن تكون مصنفة في فرع جمركي مختلف عن المنتج، أي أن رمز HS المكون من 6 أرقام يجب أن يكون مختلفاً. VA يعني أن حصة القيمة التي لا تَأْتِي من مواد غير الأصلية يجب أن تكون على الأقل 45% من سعر المنتج. لم يتم إجراء أي فحوصات بسبب غياب فاتورة المواد والإعلان المطلوبين.",
+    "notes": [
+      {
+        "text": "تجميع الأجزاء البسيطة لتكوين منتج كامل هو عملية بسيطة لا تُعْطِي الأصل؛ قد ينطبق ذلك على عملية قطع وتجميع الأجزاء المستوردة من الألومنيوم.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "التصنيع النهائي قبل تصدير المنتج يجب أن يتم في الإمارات.",
+        "from": [
+          "N2"
+        ]
+      }
+    ],
+    "product": "إطارات نوافذ الألومنيوم",
+    "needed": [
+      "يرجى تقديم فاتورة مواد (وصف كل مادة، رمز HS مكون من 6 أرقام، دولة الأصل، القيمة والعملة) وإعلان (سعر المنتج، أساسي FOB أو Ex-Works، التصنيع النهائي في الإمارات، العمليات التي تمت في الإمارات)."
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown in AED.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "Simple assembly of parts to constitute a complete article is a minimal operation that never confers origin; the processing 'cut and assembled from imported aluminium sections' may fall under this.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "The final manufacture before export must have occurred in the UAE.",
+      "source_id": "P-AGR-3.2-ORIGIN",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "Non-originating materials are valued at their customs (CIF) value at import; if unknown, at the first ascertainable price paid in the UAE or India.",
+      "source_id": "P-AGR-3.1-NOM",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is a prerequisite for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}

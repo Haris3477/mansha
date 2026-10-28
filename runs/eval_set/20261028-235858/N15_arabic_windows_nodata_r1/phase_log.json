@@ -1,0 +1,387 @@
+{
+  "status": "REPORT",
+  "verdict": "NEEDS_MORE_DATA",
+  "language": "ar",
+  "seconds": 485.4,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 0.98,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=100000 AED | language=ar",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 0.95,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 712,
+                "completion": 322
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.95,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: not given | evidence 22711 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "INSUFFICIENT_DATA",
+          "TOOL:duty:76101000": "ESTIMATED",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "INSUFFICIENT_DATA",
+          "TOOL:duty:76041010": "ESTIMATED",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "INSUFFICIENT_DATA",
+          "TOOL:duty:76151030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 39.63,
+      "summary": "line 76101000 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 39.62,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8286,
+                "completion": 4319
+              },
+              "finish_reason": "stop",
+              "latency_s": 39.62,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "procedure: 8 step(s) written by code from the knowledge base",
+          "caveats[11]: dropped, it restates the checklist step from P-AGR-3.12-DIRECT: 'Preference is given only to originating goods shipped directly from the UAE to I'",
+          "caveats[12]: dropped, it restates the checklist step from P-AGR-RECORDS-VERIFICATION: 'The exporter must keep origin records, including the cost breakdown, for at leas'",
+          "caveats[14]: dropped, it restates the checklist step from P-IN-IMPORTER: 'The Indian importer claims the CEPA rate when filing the bill of entry and must '",
+          "caveats[4]: note written from the KB (P-UAE-ISSUER)"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "OK",
+      "seconds": 3.47,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 3 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.16,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 5010,
+                "completion": 1354
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.16,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.28,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4756,
+                "completion": 1976
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.28,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 3060,
+                "completion": 668
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.0,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/3: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.16,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.28,
+            "scope": [
+              "procedure[6]",
+              "procedure[7]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 3/3: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.0,
+            "scope": [
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "FALLBACK",
+      "seconds": 439.85,
+      "summary": "code-only report (fallback): Builder call failed in round 2 | rounds: 2 | notes: 12 in (7 mandatory, verbatim) -> 12 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 101.27,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 2061,
+                "completion": 9033
+              },
+              "finish_reason": "stop",
+              "latency_s": 101.27,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": false,
+          "served_by": null,
+          "error": "LLM call failed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 3120,
+                "completion": 16000
+              },
+              "finish_reason": "length",
+              "latency_s": 182.01,
+              "ok": false,
+              "problem": "truncated (finish_reason=length)"
+            },
+            {
+              "attempt": 2,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 3120,
+                "completion": 16000
+              },
+              "finish_reason": "length",
+              "latency_s": 156.55,
+              "ok": false,
+              "problem": "truncated (finish_reason=length)"
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "LLM call failed: [document_builder] failed after 2 model attempt(s) and 0 cooldown wait(s). Last problem: truncated (finish_reason=length)"
+      ],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "`classification`: the report is in Arabic, but these words are English: ['Doors', 'windows', 'and', 'their', 'frames', 'thresholds', 'for', 'doors']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+          "`origin`: the report is in Arabic, but these words are English: ['rule', 'of', 'origin', 'coming']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+          "notes[1]: the report is in Arabic, but these words are English: ['Basic', 'Customs', 'Duty', 'Agriculture', 'Infrastructure', 'and', 'Development', 'Cess']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+          "needed[0]: these words mix Arabic and Latin letters: ['التصنيع_FINAL']; write each word fully in Arabic",
+          "needed[0]: the report is in Arabic, but these words are English: ['origen']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets"
+        ],
+        "code_problems_by_round": {
+          "1": [
+            "`classification`: the report is in Arabic, but these words are English: ['Doors', 'windows', 'and', 'their', 'frames', 'thresholds', 'for', 'doors']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+            "`origin`: the report is in Arabic, but these words are English: ['rule', 'of', 'origin', 'coming']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+            "notes[1]: the report is in Arabic, but these words are English: ['Basic', 'Customs', 'Duty', 'Agriculture', 'Infrastructure', 'and', 'Development', 'Cess']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets",
+            "needed[0]: these words mix Arabic and Latin letters: ['التصنيع_FINAL']; write each word fully in Arabic",
+            "needed[0]: the report is in Arabic, but these words are English: ['origen']; write them in Arabic. Only these terms may stay in Latin letters: HS, CEPA, MFN, FOB, CIF, Ex-Works, EXW, CTSH, CTH, CC, VA, AED, BCD, IGST, GST, SWS, CAROTAR, e-Sanchit, Mansha; an English term may also follow its Arabic word in brackets"
+          ],
+          "2": [
+            "LLM call failed: [document_builder] failed after 2 model attempt(s) and 0 cooldown wait(s). Last problem: truncated (finish_reason=length)"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 1.46,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.46,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2361,
+                "completion": 1525
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.46,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}

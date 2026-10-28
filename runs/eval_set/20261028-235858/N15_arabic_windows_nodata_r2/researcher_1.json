@@ -1,0 +1,157 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 52.57,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8287,
+        "completion": 5599
+      },
+      "finish_reason": "stop",
+      "latency_s": 52.57,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "procedure: 8 step(s) written by code from the knowledge base",
+    "caveats[11]: dropped, it restates the checklist step from P-IN-IMPORTER: 'The Indian importer must claim the CEPA rate when filing the bill of entry and h'",
+    "caveats[9]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified 'aluminium window frames' to TL-IN-76101000 (doors, windows and their frames) based on description; confidence high.",
+      "CEPA status is PREFERENTIAL; the line is not excluded.",
+      "Tariff: MFN 10%, CEPA 0% (2026 rate).",
+      "Origin rule is PSR-IN-R118 (CTSH + VA 45%); origin tool returned NEEDS_MORE_DATA due to missing bill of materials and declaration.",
+      "Duty tool estimated saving of 10000.00 AED; status ESTIMATED because origin is NEEDS_MORE_DATA.",
+      "Procedure left empty as per instructions.",
+      "Caveats compiled from tool and passage notes that affect interpretation of the result."
+    ],
+    "classification": {
+      "tariff_line": "76101000",
+      "description": "Doors, windows and their frames and thresholds for doors (aluminium)",
+      "confidence": "high",
+      "source_id": "TL-IN-76101000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "10%",
+      "preferential_rate": "0%",
+      "source_id": "TL-IN-76101000"
+    },
+    "origin_rule": {
+      "rule": "CTSH + VA 45%",
+      "source_id": "PSR-IN-R118"
+    },
+    "origin_result": {
+      "status": "NEEDS_MORE_DATA",
+      "basis": "No checks performed; missing a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the UAE, operations done in the UAE).",
+      "source_id": "TOOL:origin:76101000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "10000.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:76101000"
+    },
+    "procedure": [
+      {
+        "step": "سجّل مصنعك عبر خدمة تسجيل المصانع في وزارة الاقتصاد والسياحة (moet.gov.ae) قبل التقدم بطلب الشهادة. يجب أن يكون المصنع خارج المنطقة الحرة، وأن يحمل رخصة صناعية من وزارة الصناعة والتكنولوجيا المتقدمة وخطاباً منها يؤكد قيمة مضافة محلية بنسبة 40% (وهذا شرط للتسجيل فقط، وليس قاعدة المنشأ الخاصة بمنتجك). يستغرق التسجيل نحو 3 أيام عمل. ولا يجوز للتاجر التقدم إلا لبضائع مشتراة من مصنع مسجّل.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "قدّم الطلب عبر الخدمة الإلكترونية «شهادة المنشأ للهند» (eservices.moec.gov.ae أو التطبيق الذكي): سجّل الدخول، واختر الخدمة، واملأ النموذج، وارفع إثبات تسجيل المصنع والفاتورة التجارية (ويرفع التاجر أيضاً فاتورة الشراء من المصنع)، وادفع الرسوم إلكترونياً ثم أرسل الطلب. تستغرق المعالجة نحو يوم عمل واحد. إذا أُعيد الطلب مع ملاحظات فصحّحه، وبعد الموافقة اطبع الشهادة.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "اذكر في الطلب رمز النظام المنسق (HS) ووصف المنتج وكميته وقيمته. يجب أن يستوفي كل بند في الشهادة شروط المنشأ بمفرده. وقد تطلب جهة الإصدار كشوف تكاليف مفصلة أو تزور المصنع.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "ادفع رسوم الشهادة: 50 درهم لقيمة فاتورة تبلغ 100,000 درهم (تتراوح الرسوم بين 10 و200 درهم حسب قيمة الفاتورة).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "احرص على إصدار الشهادة قبل التصدير أو عنده أو خلال 5 أيام عمل منه. وهي صالحة لمدة 12 شهراً من تاريخ إصدارها وتغطي عملية استيراد واحدة (ويمكن أن تشمل عدة منتجات).",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "اشحن البضائع مباشرة من الإمارات إلى الهند. ولا يُسمح بالعبور عبر بلد آخر إلا تحت رقابة الجمارك، ودون أي عمليات هناك سوى التفريغ وإعادة التحميل والتخزين أو ما شابه. وإذا أصدر طرف ثالث الفاتورة، فاذكر عبارة 'third-party invoicing' (فوترة طرف ثالث).",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "يطالب المستورد الهندي بسعر الاتفاقية عند تقديم بيان الإدخال (bill of entry)، ويرفع المستورد أو وكيله الجمركي الشهادة إلى نظام e-Sanchit. وبموجب قواعد CAROTAR 2020 يجب أن يحتفظ المستورد بمعلومات المنشأ، بما فيها معيار المنشأ المطالب به، ويبقى عليه واجب العناية المعقولة، لذا قد يُطلب منك تقديم تفاصيل الإنتاج والتكاليف.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "احتفظ بسجلات المنشأ، بما فيها تفصيل التكاليف، لمدة 5 سنوات على الأقل من نهاية السنة الميلادية التي صدرت فيها الشهادة. وقد تطلب الهند من الجهة الإماراتية التحقق من الشهادة، ويُعد رفض زيارة التحقق سبباً لرفض المعاملة التفضيلية.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "India charges duty on the assessable (CIF) value at import, so actual amounts will differ from the estimate shown in AED.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only; IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:76101000"
+      },
+      {
+        "note": "Mansha interprets '+' in the rule as 'and' (both tests must pass); the agreement does not define '+'.",
+        "source_id": "TOOL:origin:76101000"
+      },
+      {
+        "note": "Simple assembly of parts to constitute a complete article is a minimal operation that never confers origin; the processing 'cut and assembled from imported aluminium sections' may fall under this.",
+        "source_id": "P-AGR-3.5-MINIMAL"
+      },
+      {
+        "note": "The final manufacture before export must have occurred in the UAE.",
+        "source_id": "P-AGR-3.2-ORIGIN"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "Non-originating materials are valued at their customs (CIF) value at import; if unknown, at the first ascertainable price paid in the UAE or India.",
+        "source_id": "P-AGR-3.1-NOM"
+      },
+      {
+        "note": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating.",
+        "source_id": "P-AGR-3.7-CUMULATION"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, which is a prerequisite for the certificate of origin for India.",
+        "source_id": "P-MOET-FACTORY-REG"
+      }
+    ],
+    "follow_up_questions": [
+      "Please provide a bill of materials (each input's description, 6-digit HS code, origin country, value and currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the UAE, operations done in the UAE)."
+    ],
+    "gaps": [],
+    "verdict": "NEEDS_MORE_DATA"
+  }
+}
