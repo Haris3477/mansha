@@ -110,3 +110,15 @@ Plan: `docs/cloud/b_arabic_chain_brief.md`. First the Mac chat (router), then a 
 - new term choices for the native review (listed in the reading).
 
 **Project docs at the next save:** llm_backend_setup (the arabic chain; routing order is global; 3.6 serves first; no failover inside the chain on a 503). CURRENT_STATE (B result). There's no agent_prompts change from B.
+
+**Decision after the reading (Haris, 29 Oct):** "yes to both recommendations, go with (a) if it's safe to do so, if not then go with (b)".
+- **r2 counts as evidence for B,** labeled "Gemini 3.5, after one 503".
+- **B is closed as holding (option a).**
+
+Claude judged (a) safe, for two reasons:
+- B's question (clean Arabic from Gemini) had a clear answer: 2 of 2 clean round-1 runs against Dots3's 0 of 3;
+- the next fix needs an N15 ×2 sitting anyway, which adds to the sample. If those runs regress, B is reopened.
+
+Option (b), a repeat sitting now, was not needed.
+
+**Next task:** the brand name "منشأة" → "منشأ", brief `docs/cloud/brand_name_brief.md`. Then the Part 2 review texts once Haris and his friend have reviewed them.
