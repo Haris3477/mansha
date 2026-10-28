@@ -143,4 +143,9 @@ Option (b), a repeat sitting now, was not needed.
   - MFN still has two names ("الأكثر رعاية" in the prose, "الأولى بالرعاية" in the table);
   - "الفرع الفرعي" again.
 - **Small observation:** r2's gap-drop label "data the user must supply" on the "+ is not defined" gap (harmless: the mandatory "+" note is printed).
-- **Closing the brand fix is Haris's call.**
+**Decision after the reading (Haris, 29 Oct):** "yes to (a)": the brand fix is **closed as holding** (Claude's recommendation; bar: 0 brand slips, met in 2 of 2 valid runs; the grader keeps counting). Option (b), a code check for the translated currency, was not taken: the currency question joins the native review instead.
+- `docs/cloud/arabic_review.md`: Part 2 gets the MFN cell ("tariff {t}, effective {e}") with an Arabic draft; a new Part 4 lists the LLM's term choices from 015311 and 022326 for the native reader.
+
+**Project docs at the next save:** CURRENT_STATE (B result and the brand fix, G17 streak 10); llm_backend_setup (as listed under B). No agent_prompts change (no prompt changed in B or the brand fix).
+
+**Next task:** the Part 2 review texts into code (and Part 4 decisions into FACTS or the prompt), once Haris and his friend have reviewed `arabic_review.md`.

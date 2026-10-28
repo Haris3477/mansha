@@ -55,6 +55,12 @@ Once reviewed, code switches to these texts. The English fallback and its notice
 | cannot be estimated without the shipment value | لا يمكن تقديره دون قيمة الشحنة |
 | not in Mansha's sources | غير موجود في مصادر منشأ |
 
+### MFN cell in the duty table (seen in 015311 r2 and 022326 r1)
+
+| English | Arabic draft |
+|---|---|
+| tariff {t}, effective {e} | النسبة في جدول التعريفة {t}، والنسبة الفعلية {e} |
+
 ### Notes printed word for word (N15 showed 5 in English)
 Today these are the Researcher's English wording of each tool or KB note. With a reviewed Arabic text, code would print the tool's own note in Arabic instead.
 
@@ -99,3 +105,13 @@ These have been in Arabic reports since earlier steps. A careful read is worth i
 - **Headings, result labels, disclaimer, cautions, checklist pointer:** `HEADINGS`, `RESULT_LABEL`, `DISCLAIMER`, `CONDITION_TEXT`, `FREE_ZONE_STEP_TEXT` and `CHECKLIST_POINTER` in `mansha/document_builder.py`.
   - **Point to check:** the title reads "فحص المنشأ من منشأ" ("origin check by Mansha", where منشأ is both the word "origin" and the product's name).
 - **Stop messages:** the Arabic stop and question messages in `mansha/orchestrator.py`.
+
+## Part 4: the LLM's term choices (Gemini, readings 015311 and 022326)
+The Builder writes these itself, so a reviewed choice would go into the prompt or FACTS. Claude's reading is marked; the native reader decides.
+- **The brand:** «منشأ», never «منشأة». Fixed in `90e2431` (FACTS give the Arabic name), with 0 slips in 022326. The grader counts it.
+- **MFN has two names in one report:** the prose writes «الدولة الأكثر رعاية», the code's table header «الدولة الأولى بالرعاية» (all 4 runs). One should be chosen.
+- **FOB:** «تسليم على متن السفينة» (015311 r2, 022326 r2) looks right. These look off: «تسليم السفينة» (015311 r1) and «السعر شامل التكاليف على ظهر السفينة» (022326 r1, which sounds like cost-included).
+- **Non-originating:** «غير وطني المنشأ» and «غير حائز على المنشأ» (both read well); «غير منشأة» (015311 r1) is wrong.
+- **Heading 7610:** «أبواب ونوافذ وأطرها وأعتابها» is right; «أجهزة الأبواب والنوافذ» (015311 r2) is wrong.
+- **Currency:** 022326 r2 wrote «درهم إماراتي» where FACTS say "AED" (the prompt says to copy currencies exactly). Should an Arabic report keep "AED" or write «درهم»? The code's fee step already writes «درهم».
+- **Smaller:** «الفرع الفرعي» (redundant, 015311 r2 and 022326 r2); «العمليات الأدنى» vs «العمليات الدنيا» (minimal operations); «الرمز المنسق» vs «رمز النظام المنسق» (HS code).
