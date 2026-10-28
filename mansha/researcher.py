@@ -583,6 +583,44 @@ def recite_duty_notes(data: dict, pack: EvidencePack) -> list[str]:
     return changes
 
 
+# ---------- the tariff lookup's notes on the user's code (Step 7.6l, problem 98) ----------
+
+def add_tariff_notes(data: dict, pack: EvidencePack) -> list[str]:
+    """Write each of the tariff lookup's report notes as a caveat citing it, word for word, and cap the
+    classification's confidence at "medium" when there is one (Step 7.6l, problem 98).
+
+    Baseline 25 Oct: N4's reason "8-digit codes are national and differ between the UAE and India" reached
+    the report in 0 of 2 runs (once left out by the Researcher, once shortened away by the Builder), and N9's
+    HS 2017 code gave no note at all, so the report said "high" confidence and nothing about the old code.
+    A caveat citing the tool that restates any of its notes (SAME_NOTE_COVERAGE) is replaced by the report
+    notes: the Builder prints TOOL:tariff_lookup notes verbatim, so a paraphrase of a Researcher-only note
+    would reach the exporter unchecked (28 Oct, N13: "No candidate matches the whole description. One
+    candidate matches only 'door' …" scored 0.54 against the report note, 0.77 against the tool's own
+    Researcher note). Other caveats citing the tool stay.
+    """
+    tl = pack.tool_results.get(TARIFF_LOOKUP_ID)
+    caveats = data.get("caveats")
+    notes = (tl or {}).get("report_notes") if isinstance(tl, dict) else None
+    if not notes or not isinstance(caveats, list):
+        return []
+    tool_notes = list(tl.get("notes") or []) + notes
+    changes = []
+    for i, cv in reversed(list(enumerate(caveats))):
+        if (isinstance(cv, dict) and cv.get("source_id") == TARIFF_LOOKUP_ID and cv.get("note") not in notes
+                and any(coverage(cv.get("note"), n) >= SAME_NOTE_COVERAGE for n in tool_notes)):
+            del caveats[i]
+            changes.append(f"caveats[{i}]: restated note of {TARIFF_LOOKUP_ID} dropped: {cv.get('note')!r}")
+    for n in notes:
+        if not any(isinstance(cv, dict) and cv.get("note") == n for cv in caveats):
+            caveats.append({"note": n, "source_id": TARIFF_LOOKUP_ID})
+            changes.append(f"caveats: note written from {TARIFF_LOOKUP_ID}: {n!r}")
+    cls = data.get("classification")
+    if isinstance(cls, dict) and str(cls.get("confidence") or "").strip().lower() == "high":
+        cls["confidence"] = "medium"
+        changes.append(f"classification.confidence: high -> medium ({TARIFF_LOOKUP_ID} has a note on the code)")
+    return changes
+
+
 # ---------- product HS-code follow-ups (Step 7.9, problem 92) ----------
 # A follow-up about the product's own HS / tariff code ("Please confirm the HS code for aluminium window
 # frames"), as opposed to a bill-of-materials question that mentions each input's HS code.
@@ -822,6 +860,66 @@ def drop_claim_caveats(data: dict, verdict: str, corridor: str = "india") -> lis
             f"({c.get('source_id')}): {c.get('note')!r}" for c in gone]
 
 
+def drop_line_notes(data: dict) -> list[str]:
+    """Keep only the tariff lookup's caveats when no line was chosen (Step 7.6m).
+
+    28 Oct (N13, the first gap reports): 19:18 printed the "'+' is read as 'and'" note of
+    TOOL:origin:76101000, a line not chosen (TOOL:origin notes are mandatory), in a report with no rule of
+    origin; the 19:43 revision also kept the furniture line's notes ("The CEPA rate on this line is
+    12.5%", value-addition and Ex-Works notes, the issuer and factory-registration notes). With no line,
+    the only thing a gap report can say is why no line fits: the tariff lookup's note.
+    """
+    caveats = data.get("caveats")
+    cls = data.get("classification")
+    if (not isinstance(caveats, list) or not isinstance(cls, dict)
+            or str(cls.get("tariff_line", "")).strip() != GAP):
+        return []
+    keep = [c for c in caveats if isinstance(c, dict) and c.get("source_id") == TARIFF_LOOKUP_ID]
+    gone = [c for c in caveats if c not in keep]
+    data["caveats"] = keep
+    return [f"caveats: dropped for a gap, no line was chosen ({c.get('source_id') if isinstance(c, dict) else '-'}): "
+            f"{(c.get('note') if isinstance(c, dict) else c)!r}" for c in gone]
+
+
+GAP_BASIS = "No tariff line in Mansha's sources describes this product, so no rule of origin could be applied."
+
+
+def fill_gap(data: dict) -> list[str]:
+    """Write the rest of a gap answer when the classification is the gap (Step 7.6n, problem 100).
+
+    28 Oct 19:43 (N13, Dots3): check 3b sent "set the classification values to REGULATORY_GAP_DETECTED";
+    round 2 did only that and kept the furniture line's tariff rates, rule, origin status (NEEDS_MORE_DATA),
+    saving (NEEDS_VALUE), 6 claim steps and its data questions: 3 code problems, CHECKS_FAILED. With no
+    line every one of these is fixed (expected_origin(None) is the gap), so code writes them, as in the
+    valid gap answer of 28 Oct 19:18. Its caveats are trimmed by drop_line_notes (7.6m).
+    """
+    cls = data.get("classification")
+    if not isinstance(cls, dict) or str(cls.get("tariff_line", "")).strip() != GAP:
+        return []
+    src = TARIFF_LOOKUP_ID
+    want = {
+        "tariff": {"agreement": GAP, "mfn_rate": GAP, "preferential_rate": GAP, "source_id": src},
+        "origin_rule": {"rule": GAP, "source_id": src},
+        "origin_result": {"status": GAP, "basis": GAP_BASIS, "source_id": src},
+        "estimated_saving": {"status": GAP, "amount": None, "currency": None, "source_id": src},
+    }
+    changes = []
+    if str(cls.get("confidence") or "").strip().lower() not in CONFIDENCE_VALUES:  # 19:43: the gap marker
+        changes.append(f"classification.confidence: {cls.get('confidence')!r} -> 'low' for a gap")
+        cls["confidence"] = "low"
+    for k, v in want.items():
+        old = data.get(k)
+        if not (isinstance(old, dict) and (old.get("status", old.get("rule", old.get("agreement"))) == GAP)):
+            data[k] = v
+            changes.append(f"{k}: written for a gap (was {old!r})")
+    for k in ("procedure", "follow_up_questions"):
+        if data.get(k):
+            changes.append(f"{k}: emptied for a gap ({len(data[k])} item(s); no line, so nothing to claim or "
+                           "supply)")
+            data[k] = []
+    return changes
+
+
 # ---------- the checks ----------
 
 def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[str], str]:
@@ -892,6 +990,13 @@ def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[st
     # 3. Classification is a candidate (or a declared gap)
     chosen, cls_problems = find_chosen(data, pack)
     problems += cls_problems
+    # 3b. No candidate matches the whole description (problem 100, N13 25 Oct: furniture for wooden doors)
+    tl = pack.tool_results.get(TARIFF_LOOKUP_ID)
+    if chosen is not None and isinstance(tl, dict) and tl.get("split_match"):
+        problems.append(f"{TARIFF_LOOKUP_ID} found no candidate that matches the whole product description "
+                        "(each matches different words), so none of them describes the product: set the "
+                        f"classification values to {GAP} and say in gaps that no tariff line in the evidence "
+                        "covers this product")
     excluded = chosen is not None and chosen["id"] in pack.excluded_ids
     line = chosen.get("tariff_line") if chosen else None
 
@@ -1054,6 +1159,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
     changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
     changes += recite_duty_notes(data, pack)  # the duty tool's "BCD only" note cited to a passage (7.6k)
+    changes += add_tariff_notes(data, pack)  # the tariff lookup's notes on the user's code, verbatim (98, 7.6l)
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
     changes += drop_hs_follow_ups(data, pack)  # "confirm the HS code" with no conflict noted (problem 92, 7.9)
     changes += drop_free_zone_follow_ups(data, pack)  # "is the factory in a free zone?" when the user said so (1c)
@@ -1061,6 +1167,8 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)
     changes += drop_caveat_gaps(data)  # caveats copied into gaps (problem 52)
+    changes += drop_line_notes(data)  # a gap: no notes from lines that were not chosen (7.6m)
+    changes += fill_gap(data)  # a gap: no line, so no rates, rule, origin, saving, steps or questions (7.6n)
     problems, warnings, verdict = check_researcher(data, pack)
     dropped = drop_follow_ups(data, verdict, pack)  # none once no CEPA rate can apply (74); ELIGIBLE: AED value only
     dropped += drop_claim_caveats(data, verdict, pack.corridor)  # nor notes about claiming it (problem 76)

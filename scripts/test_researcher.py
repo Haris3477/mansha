@@ -15,6 +15,7 @@ from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.researcher import (
     GAP,
+    add_tariff_notes,
     build_messages,
     check_researcher,
     drop_caveat_gaps,
@@ -22,6 +23,9 @@ from mansha.researcher import (
     drop_follow_ups,
     drop_free_zone_follow_ups,
     drop_hs_follow_ups,
+    drop_line_notes,
+    fill_gap,
+    GAP_BASIS,
     drop_user_data_gaps,
     plain_follow_ups,
     plain_check_names,
@@ -1094,6 +1098,110 @@ check("run_researcher: re-cited before the checks (both caveats, no problem)",
       {"note": WN_SCOPE, "source_id": "TOOL:duty:76101000"} in res.data["caveats"]
       and {"note": IGST_BASE, "source_id": "P-IN-DUTY-SCOPE"} in res.data["caveats"] and res.passed,
       (res.data["caveats"], res.problems))
+
+print("\n== Step 7.6l: the tariff lookup's notes on the user's code reach the report (problem 98)")
+w8 = build_evidence({"product_description": "aluminium window frames", "hs_code_given": "76101090",
+                     "shipment_value": {"amount": 100000, "currency": "AED"}}, "samples/windows_qualifies")
+N4_NOTE = w8.tool_results["TOOL:tariff_lookup"]["report_notes"][0]
+# 27 Oct 18:38 N4 round 1, word for word: the Builder later shortened it and the "national" reason was lost.
+N4_LIVE = ("The given HS code 76101090 has no exact match; the candidate tariff line 76101000 is under the same "
+           "6-digit code. 8-digit codes are national and differ between the UAE and India.")
+d = copy.deepcopy(GOOD_W); d["caveats"].append({"note": N4_LIVE, "source_id": "TOOL:tariff_lookup"})
+ch = add_tariff_notes(d, w8)
+check("N4 live: the restated note is replaced by the tool's note, word for word",
+      [c for c in d["caveats"] if c["source_id"] == "TOOL:tariff_lookup"]
+      == [{"note": N4_NOTE, "source_id": "TOOL:tariff_lookup"}] and len(ch) == 3, ch)
+check("... confidence high -> medium", d["classification"]["confidence"] == "medium")
+check("... idempotent (the revision round)", add_tariff_notes(d, w8) == [])
+d = copy.deepcopy(GOOD_W); d["classification"]["confidence"] = "medium"
+add_tariff_notes(d, w8)
+check("N4 (25 Oct): no caveat on it -> the note is added, confidence medium kept",
+      d["caveats"][-1] == {"note": N4_NOTE, "source_id": "TOOL:tariff_lookup"}
+      and d["classification"]["confidence"] == "medium")
+other = {"note": "The description points to another line; confirm the product.", "source_id": "TOOL:tariff_lookup"}
+d = copy.deepcopy(GOOD_W); d["caveats"].append(other)
+add_tariff_notes(d, w8)
+check("another caveat citing the tool is kept", other in d["caveats"])
+d = copy.deepcopy(GOOD_W)
+check("no code note (windows by keywords): nothing changes", add_tariff_notes(d, w) == [] and d == GOOD_W)
+res = run_researcher({"product_description": "aluminium window frames", "hs_code_given": "76101090"}, w8,
+                     llm=fake_llm(copy.deepcopy(GOOD_W)))
+check("run_researcher (N4 shape): note added, medium, ELIGIBLE, passes",
+      {"note": N4_NOTE, "source_id": "TOOL:tariff_lookup"} in res.data["caveats"]
+      and res.data["classification"]["confidence"] == "medium" and res.data["verdict"] == "ELIGIBLE"
+      and res.passed, (res.problems, res.changes))
+n9 = build_evidence(EVAL_BY_ID["N9"].intake, EVAL_BY_ID["N9"].folder)
+N9_NOTE = ("The code 85171211 you gave is India's older HS 2017 code for this product; India's current tariff "
+           "line is 85171300.")
+d = {"classification": {"tariff_line": "85171300", "confidence": "high", "source_id": "TL-IN-85171300"},
+     "caveats": []}
+add_tariff_notes(d, n9)
+check("N9: HS 2017 note added, confidence medium",
+      d["caveats"] == [{"note": N9_NOTE, "source_id": "TOOL:tariff_lookup"}]
+      and d["classification"]["confidence"] == "medium", d)
+check("N9: the tool note keeps the HS-code question (7.9)",
+      drop_hs_follow_ups({"follow_up_questions": ["Please confirm the HS code for smartphones."]}, n9) == [])
+print("\n== Check 3b: no candidate matches the whole description (problem 100)")
+n13 = build_evidence(EVAL_BY_ID["N13"].intake, EVAL_BY_ID["N13"].folder)
+check("N13: the tariff lookup marks a split match", n13.tool_results["TOOL:tariff_lookup"]["split_match"])
+SPLIT = "matches the whole product description"
+d = copy.deepcopy(GOOD_W)
+d["classification"] = {"tariff_line": "94036000", "description": "Other wooden furniture", "confidence": "medium",
+                       "source_id": "TL-IN-94036000"}
+check("N13 live pick (wooden furniture): caught", any(SPLIT in p for p in run(d, n13)[0]), run(d, n13)[0])
+d["classification"] = {k: GAP for k in ("tariff_line", "description", "confidence", "source_id")}
+check("N13 gap: no split-match problem", not any(SPLIT in p for p in run(d, n13)[0]), run(d, n13)[0])
+check("N13: the Researcher's confirm-code question is kept (7.9)",
+      drop_hs_follow_ups({"follow_up_questions": ["Please confirm the HS code for wooden doors."]}, n13) == [])
+check("windows by keywords: no split-match problem", not any(SPLIT in p for p in run(GOOD_W, w)[0]))
+print("\n== 28 Oct fixes after sitting 20261028-191831 (N13): the split note's paraphrase, notes of unchosen lines")
+N13_NOTE = n13.tool_results["TOOL:tariff_lookup"]["report_notes"][0]
+PLUS = ("'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is "
+        "Mansha's interpretation.")
+# Live, word for word: 28 Oct 19:29 N13 round 2 (round 1 had the IDs in place of "One candidate" / "Another").
+N13_LIVE = ("No candidate matches the whole description. One candidate matches only 'door' and is for aluminium "
+            "products. Another matches only 'wooden' and is for other wooden furniture.")
+gap_cls = {k: GAP for k in ("tariff_line", "description", "source_id")}
+d = {"classification": dict(gap_cls, confidence="low"),
+     "caveats": [{"note": N13_LIVE, "source_id": "TOOL:tariff_lookup"},
+                 {"note": PLUS, "source_id": "TOOL:origin:76101000"}]}
+ch = add_tariff_notes(d, n13)
+check("N13 live paraphrase of the Researcher-only note -> replaced by the report note",
+      d["caveats"][0] == {"note": PLUS, "source_id": "TOOL:origin:76101000"}
+      and d["caveats"][-1] == {"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"} and len(d["caveats"]) == 2
+      and d["classification"]["confidence"] == "low", (d["caveats"], ch))
+ch = drop_line_notes(d)
+check("7.6m: gap -> the '+' note of an unchosen line is dropped, the tool's note kept",
+      d["caveats"] == [{"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}] and len(ch) == 1, (d["caveats"], ch))
+d = copy.deepcopy(GOOD_W)
+check("7.6m: a chosen line keeps its tool notes", drop_line_notes(d) == [] and d == GOOD_W)
+print("\n== Step 7.6n: code completes a gap answer (sitting 20261028-194334, N13 round 2)")
+# Live shape: round 2 set only the classification to the gap and kept the line's fields, steps, questions
+# and notes (3 code problems, CHECKS_FAILED). Here the line kept is the windows line (a candidate in N13).
+r2 = copy.deepcopy(GOOD_W)
+r2["classification"] = {k: GAP for k in ("tariff_line", "description", "confidence")}
+r2["classification"]["source_id"] = "TOOL:tariff_lookup"
+r2["origin_result"]["status"] = "NEEDS_MORE_DATA"
+r2["follow_up_questions"] = ["Provide a bill of materials.", "Provide the shipment value in AED."]
+r2["gaps"] = [{"text": "No tariff line in the evidence covers wooden doors.", "source_id": "TOOL:tariff_lookup"}]
+check("before 7.6n: the live shape fails the checks", bool(run(r2, n13)[0]))
+res = run_researcher(EVAL_BY_ID["N13"].intake, n13, llm=fake_llm(r2))
+check("run_researcher: the gap answer is completed by code and passes",
+      res.passed and res.data["verdict"] == GAP and res.data["procedure"] == [] and res.data["follow_up_questions"] == []
+      and res.data["origin_result"] == {"status": GAP, "basis": GAP_BASIS, "source_id": "TOOL:tariff_lookup"}
+      and res.data["estimated_saving"]["status"] == GAP and res.data["tariff"]["mfn_rate"] == GAP
+      and res.data["origin_rule"]["rule"] == GAP and res.data["classification"]["confidence"] == "low",
+      (res.problems, res.changes))
+check("... only the tariff lookup's note is left in caveats (issuer, duty and line notes dropped)",
+      res.data["caveats"] == [{"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}], res.data["caveats"])
+check("... the gap text is kept", res.data["gaps"] == r2["gaps"])
+d = copy.deepcopy(GOOD_W)
+check("7.6n: a chosen line is left alone", fill_gap(d) == [] and d == GOOD_W)
+g = copy.deepcopy(res.data)
+check("7.6n: idempotent (an already complete gap)", fill_gap(g) == [])
+check("N13 report note passes the shown-text check",
+      not any("caveats" in p for p in run({**copy.deepcopy(GOOD_W), "caveats": [
+          {"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}]}, n13)[0]), run(GOOD_W, n13)[0])
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

@@ -133,6 +133,8 @@ for text, want in (("Interpretation: de minimis helps only the tariff-shift part
                    ("The defined term is used.", False), ("Checked by the ministry.", False)):
     check(f"qualifier rule: {'mandatory' if want else 'optional '} <- {text!r}",
           is_mandatory("P-AGR-3.7-CUMULATION", text) == want)
+check("tariff-lookup notes are printed verbatim (problem 98, 7.6l)",
+      is_mandatory("TOOL:tariff_lookup", "8-digit codes are national and differ between the UAE and India."))
 two_m = [{"mandatory": True}] * 6 + [{"mandatory": False}] * 3
 check("Builder keeps 2 note slots even with 6 verbatim notes", max_llm_notes(two_m) == MIN_LLM_NOTES == 2)
 check("...and no slots when there are no optional notes", max_llm_notes([{"mandatory": True}] * 6) == 0)

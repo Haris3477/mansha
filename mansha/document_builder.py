@@ -55,7 +55,8 @@ NOT_IN_SOURCES = "not in Mansha's sources"
 # D2: caveats that must always reach the reader, by the record they cite.
 # Since 8.5 they are shown verbatim by code and never rewritten by the LLM (problem 25).
 MANDATORY_IDS = {"P-UAE-ISSUER"}                      # who issues the certificate
-MANDATORY_PREFIXES = ("TOOL:duty:", "TOOL:origin:")   # duty basis (BCD, CIF); self-declaration
+MANDATORY_PREFIXES = ("TOOL:duty:", "TOOL:origin:",   # duty basis (BCD, CIF); self-declaration
+                      "TOOL:tariff_lookup")            # the user's code is not India's line (98, 7.6l)
 # Step 7.6e (problem 78, live 19 Oct 17:59 chargers): a note that says how sure a fact is, is also
 # mandatory, by its text. The Builder rewrote "Interpretation: de minimis helps only the tariff-shift
 # part of a rule" as a plain rule, and the prose check approved it (the judge misses strength-of-claim
