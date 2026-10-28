@@ -59,6 +59,14 @@ Sittings 235858 (N15 ×2) and 001258 (N2), both on `89e0d82`.
 - **G17 streak (rule A):** 6.
 - **New gap:** rejected rounds' prose is not saved in `builder.json`.
 
+## Decision after the sitting (Haris)
+"Go with the recommendation" (Claude's): **B option 1.**
+- A separate chain `auto:arabic` for Arabic Builder calls, with Gemini Flash first and Dots3 as the backup.
+- Part 2 of `arabic_review.md` is reviewed in parallel as the safety net.
+- Option 2 (Gemini first in `auto:long`) was rejected.
+
+Plan: `docs/cloud/b_arabic_chain_brief.md`. First the Mac chat (router), then a new cloud session (code and sitting).
+
 ## Gaps (recorded, not fixed)
 - **Spelling:** not checked by code ("الجمره").
 - **Faithfulness of `needed` and `product`:** only counts and numbers are checked by code, and prose QA doesn't read them.
