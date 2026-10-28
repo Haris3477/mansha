@@ -50,6 +50,15 @@ N15's Arabic report had three separate causes:
 - **N2 (English):** unchanged. The title and "still needed" stay the English originals; no `product`/`needed` in `builder.json`.
 - **B (another model for Arabic):** if N15 falls back to the English prose in both runs, that is the evidence for moving Arabic Builder calls to another model. It would be a router change, which is a ➡️ (b) job on the Mac.
 
+## Sitting result (reading `docs/cloud/readings/20261028-235858_reading.md`)
+Sittings 235858 (N15 ×2) and 001258 (N2), both on `89e0d82`.
+- **Verdicts:** 3/3 correct. N2 passes and is unchanged.
+- **N15 r1:** the round-1 Arabic was caught, and the retry was truncated twice → English fallback with the Arabic notice.
+- **N15 r2:** the round-1 Arabic was caught, and the retry passed. The Arabic title and "still needed" came through (D works live). The text still has wrong terms that code can't catch ("الادخال", "فاتورة مواد", "إعلان").
+- **Dots3's round-1 Arabic:** corrupt in 3 of 3 runs → the evidence for B.
+- **G17 streak (rule A):** 6.
+- **New gap:** rejected rounds' prose is not saved in `builder.json`.
+
 ## Gaps (recorded, not fixed)
 - **Spelling:** not checked by code ("الجمره").
 - **Faithfulness of `needed` and `product`:** only counts and numbers are checked by code, and prose QA doesn't read them.
