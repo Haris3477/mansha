@@ -912,6 +912,15 @@ def fill_gap(data: dict) -> list[str]:
         if not (isinstance(old, dict) and (old.get("status", old.get("rule", old.get("agreement"))) == GAP)):
             data[k] = v
             changes.append(f"{k}: written for a gap (was {old!r})")
+            continue
+        # Already the gap: fix each fixed key, keep the Researcher's own basis (28 Oct 20:53, N13 r2:
+        # origin_rule and estimated_saving had source_id None, 2 code problems and one wasted round)
+        for kk, vv in v.items():
+            if kk == "basis" and isinstance(old.get(kk), str) and old[kk].strip():
+                continue
+            if kk not in old or old[kk] != vv:
+                changes.append(f"{k}.{kk}: {old.get(kk)!r} -> {vv!r} for a gap")
+                old[kk] = vv
     for k in ("procedure", "follow_up_questions"):
         if data.get(k):
             changes.append(f"{k}: emptied for a gap ({len(data[k])} item(s); no line, so nothing to claim or "
