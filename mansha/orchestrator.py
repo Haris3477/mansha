@@ -581,7 +581,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         _write(out, f"prose_qa_{round_no}.json", prose_qa_record(q))
     _write(out, "builder.json", {
         "calls": calls, "used_fallback": br.used_fallback, "fallback_reason": br.fallback_reason,
-        "review_status": br.review_status, "problems_left": br.problems,
+        "review_status": br.review_status, "problems_left": br.problems, "untranslated": br.untranslated,
         "rounds": [{"round": r["round"], "code_problems": r["code_problems"],
                     "prose_qa": r["review"].status if r.get("review") else None} for r in br.rounds],
         "prose": br.prose, "notes": br.notes, "conditions": conditions})
@@ -591,6 +591,8 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         what = f"code-only report (fallback): {br.fallback_reason or 'LLM prose failed'}"
     else:
         what = "LLM prose passed the code checks" + (f"; {review_text}" if review_text else "")
+        if br.untranslated:   # N15 (D)
+            what += f"; title and still-needed kept in English ({len(br.untranslated)} problem(s) left)"
     builder_seconds = round(t() - sum(q.seconds for _, q in reviews), 2)
     round2 = next((r for r in br.rounds if r["round"] == 2), None)
     phases.append(Phase(

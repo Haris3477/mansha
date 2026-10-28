@@ -379,6 +379,8 @@ class BuilderResult:
     # FALLBACK (code-only prose, nothing to review) | SKIPPED (no review asked for)
     review_status: str = "SKIPPED"
     fallback_reason: str = ""
+    # N15 (D): problems left on `product` / `needed`, so the report shows their English originals
+    untranslated: list[str] = field(default_factory=list)
 
 
 # ---------- FACTS and NOTES (code, before the call) ----------
@@ -605,6 +607,53 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict], language: str =
     return problems
 
 
+# N15 step 3 (D): in a report not in English, the Builder also writes the product name (title) and
+# the STILL NEEDED items (the Researcher's English follow-up and gaps) in the report's language.
+# If they still fail after the retry, the report keeps the LLM prose and prints the English originals.
+TRANSLATED_KEYS = ("product", "needed")
+TRANSLATE_LANGUAGES = {"ar"}
+MAX_PRODUCT_CHARS = 100
+
+
+def check_translations(prose: dict, research: dict, intake: dict, language: str) -> list[str]:
+    """Problems with `product` and `needed` (each one becomes a correction). Pure code."""
+    if language not in TRANSLATE_LANGUAGES:
+        return []
+    problems: list[str] = []
+
+    def one(where: str, text: str, original: str) -> None:
+        extra = number_keys(text) - number_keys(original)
+        if extra:
+            problems.append(f"{where}: number(s) {sorted(extra)} are not in the original; copy numbers "
+                            "exactly as given")
+        found = ID_RE.search(text) or CODE_WORD_RE.search(text)
+        if found:
+            problems.append(f"{where}: remove {found.group(0)!r}; write plain words")
+        problems.extend(script_corrections(where, text, language))
+
+    product = prose.get("product")
+    if not isinstance(product, str) or not product.strip():
+        problems.append("`product` must be a non-empty string: the PRODUCT line of FACTS in "
+                        f"{LANGUAGE_NAMES.get(language, language)}")
+    elif len(product) > MAX_PRODUCT_CHARS:
+        problems.append(f"`product` must be a short name (at most {MAX_PRODUCT_CHARS} characters)")
+    else:
+        one("`product`", product, plain(intake.get("product_description")))
+
+    needed = still_needed(research)
+    items = prose.get("needed")
+    if not needed and not items:   # nothing needed: an empty or left-out `needed` is fine
+        return problems
+    if not isinstance(items, list) or len(items) != len(needed) or not all(
+            isinstance(x, str) and x.strip() for x in items):
+        problems.append(f"`needed` must be a list of {len(needed)} non-empty string(s), one for each "
+                        "STILL NEEDED item of FACTS, in the same order")
+    else:
+        for i, (text, original) in enumerate(zip(items, needed)):
+            one(f"needed[{i}]", text, original)
+    return problems
+
+
 # ---------- fallback (code writes the prose) ----------
 
 def fallback_prose(research: dict, notes: list[dict]) -> dict:
@@ -681,13 +730,14 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
         cautions.append(CHECKLIST_POINTER[lang])
     src = SourceList(id_sources, kb_sources)
     cls, tar = research["classification"], research["tariff"]
-    needed = still_needed(research)
+    needed = prose.get("needed") or still_needed(research)   # N15 (D): checked by run_document_builder
+    product = prose.get("product") or plain(intake.get("product_description"))
 
     def needed_section() -> list[str]:
         return [f"## {h['needed']}", "", *[f"- {n}" for n in needed], ""] if needed else []
 
     out = [
-        f"# {h['title']}: {plain(intake.get('product_description'))}",
+        f"# {h['title']}: {product}",
         "",
         f"**{h['result']}: {RESULT_LABEL[lang].get(verdict, RESULT_LABEL[lang][GAP])}**",
         "",
@@ -791,6 +841,8 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     failed_attempts: list[dict] = []
     rounds: list[dict] = []
     prose, problems = None, []
+    main_left: list[str] = []   # prose problems left: they mean the code-only prose
+    tr_left: list[str] = []     # N15 (D): `product` / `needed` problems left: English originals
     reviewed: ProseQAOutcome | None = None
     fallback_reason = ""
 
@@ -805,34 +857,45 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
             problems = [f"LLM call failed: {exc}"]
             failed_attempts = list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)
             fallback_reason = f"Builder call failed in round {round_no}"
+            main_left, tr_left = problems, []
             rounds.append({"round": round_no, "code_problems": problems, "review": None,
                            "corrections_sent": sent})
             break
         calls.append(res)
         prose = res.data
         code_problems = check_prose(prose, facts_text, notes, language or "en")
+        tr_problems = check_translations(prose, research, intake, language or "en")
         log.info("document builder checks | round=%d | served_by=%s | problems=%d",
-                 round_no, res.routed_via, len(code_problems))
-        for p in code_problems:
+                 round_no, res.routed_via, len(code_problems) + len(tr_problems))
+        for p in code_problems + tr_problems:
             log.info("document builder problem | %s", p)
 
         # 7.6: the meaning check runs even when code found problems (P1: one shared retry),
         # unless the prose is malformed (nothing to read yet).
-        reviewed = review(facts_text, prose, llm=llm) if review and reviewable(prose) else None
+        # Prose QA reads the fields it was built for; `product` / `needed` are checked by code only.
+        reviewed = (review(facts_text, {k: v for k, v in prose.items() if k not in TRANSLATED_KEYS}, llm=llm)
+                    if review and reviewable(prose) else None)
         qa_problems = []
         if reviewed is not None and reviewed.status == QA_REJECTED:
             qa_problems = [f"QA: {c}" for c in reviewed.corrections] or ["QA: rejected without corrections"]
-        rounds.append({"round": round_no, "code_problems": code_problems, "review": reviewed,
+        rounds.append({"round": round_no, "code_problems": code_problems + tr_problems, "review": reviewed,
                        "corrections_sent": sent})
-        problems = code_problems + qa_problems
+        main_left, tr_left = code_problems + qa_problems, tr_problems
+        problems = main_left + tr_left
         if not problems:
             break
         fallback_reason = ("code checks and prose QA" if code_problems and qa_problems else
                            "prose QA" if qa_problems else "code checks")
         fallback_reason += f" still failing after round {round_no}"
 
-    used_fallback = bool(problems)
+    used_fallback = bool(main_left)
+    if not used_fallback and (tr_left or language not in TRANSLATE_LANGUAGES):
+        if tr_left:
+            log.warning("document builder | title and still-needed kept in English (%d problem(s) left)",
+                        len(tr_left))
+        prose = {k: v for k, v in prose.items() if k not in TRANSLATED_KEYS}
     if used_fallback:
+        problems = main_left
         log.warning("document builder | using the code-only report (%d problem(s) left)", len(problems))
         prose = fallback_prose(research, notes)
         if language in FALLBACK_NOTICE:   # N15 step 2
@@ -848,4 +911,5 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
                          problems=problems if used_fallback else [], llm_calls=calls,
                          failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,
-                         fallback_reason=fallback_reason if used_fallback else "")
+                         fallback_reason=fallback_reason if used_fallback else "",
+                         untranslated=[] if used_fallback else tr_left)

@@ -19,9 +19,13 @@ Return JSON only:
   "classification": "string",
   "duty": "string",
   "origin": "string",
-  "notes": [{ "text": "string", "from": ["N1"] }]
+  "notes": [{ "text": "string", "from": ["N1"] }],
+  "product": "string",
+  "needed": ["string"]
 }
 ```
+
+`product` and `needed` only when you write in a language other than English; in English, leave both out.
 
 What each field says:
 
@@ -38,6 +42,8 @@ What each field says:
   - At most the number of items the NOTES header gives, 1–2 sentences each. If NOTES says none, return an empty list.
   - `from` lists the note numbers each item is based on.
   - You may merge notes that make the same point, and drop notes that do not change what the exporter should do. Never add a point that is not in the notes you list in `from`.
+- `product`: the PRODUCT line of FACTS in {language}, as a short name. Add nothing.
+- `needed`: each STILL NEEDED item of FACTS in {language}, in the same order, one string per item (an empty list if FACTS says nothing is needed). Keep every detail of the item and add none.
 
 Rules for every field:
 

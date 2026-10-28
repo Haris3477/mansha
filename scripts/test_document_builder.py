@@ -25,7 +25,9 @@ from mansha.document_builder import (
     MAX_NOTES,
     MIN_LLM_NOTES,
     SAVING_HOW_RE,
+    TRANSLATED_KEYS,
     build_facts,
+    check_translations,
     build_messages,
     check_prose,
     cite,
@@ -636,6 +638,65 @@ r = run_document_builder(research, intake, pack.id_sources, llm=llm, review=rv)
 check("malformed prose is not sent for review (nothing to read); the retry's prose is",
       len(rv.seen) == 1 and rv.seen[0][1] == good and r.rounds[0]["review"] is None
       and r.review_status == "APPROVED")
+
+print("\n8. N15 (D): the title's product and 'still needed' in Arabic")
+nd_research, nd_intake, nd_pack = cases["windows_nodata"]
+nd_ar = dict(nd_intake, language="ar")
+nd_needed = still_needed(nd_research)
+check("windows_nodata has still-needed items", len(nd_needed) >= 1, nd_needed)
+tr = {"product": "إطارات نوافذ من الألمنيوم", "needed": ["يرجى تقديم قائمة المواد."] * len(nd_needed)}
+check("D: English reports need no translations", check_translations({}, nd_research, nd_intake, "en") == [])
+check("D: good translations pass", check_translations(tr, nd_research, nd_ar, "ar") == [],
+      check_translations(tr, nd_research, nd_ar, "ar"))
+probs = check_translations({}, nd_research, nd_ar, "ar")
+check("D: none given -> both asked for", len(probs) == 2 and probs[0].startswith("`product`")
+      and probs[1].startswith("`needed`"), probs)
+for label, bad_tr, want in (
+        ("one item too many", dict(tr, needed=tr["needed"] + ["زائد"]), "`needed` must be a list of"),
+        ("an English word in the product", dict(tr, product="إطارات Window"), "['Window']"),
+        ("a number not in the item", dict(tr, needed=["قائمة المواد 999"] + tr["needed"][1:]), "['999']"),
+        ("a note number", dict(tr, product="إطارات N1"), "remove 'N1'"),
+        ("a long product", dict(tr, product="إطار " * 30), "short name")):
+    probs = check_translations(bad_tr, nd_research, nd_ar, "ar")
+    check(f"D: {label} -> {want}", any(want in x for x in probs), probs)
+
+check("D: nothing still needed -> `needed` may be left out",
+      still_needed(research) == [] and check_translations({"product": tr["product"]}, research,
+                                                          ar_intake, "ar") == [])
+
+
+def title_of(md: str) -> str:
+    return md.split("\n", 1)[0]
+
+def needed_of(md: str) -> str:
+    return md.split("## " + HEADINGS["ar"]["needed"] + "\n\n", 1)[1].split("\n## ", 1)[0]
+
+llm = fake_llm(dict(ar_good, **tr))
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("D: good translations are used: Arabic title and still-needed, one call",
+      len(llm.seen) == 1 and not r.used_fallback and r.untranslated == []
+      and title_of(r.markdown).endswith(": " + tr["product"])
+      and needed_of(r.markdown).strip() == "\n".join(f"- {x}" for x in tr["needed"])
+      and nd_needed[0] not in r.markdown, title_of(r.markdown))
+llm = fake_llm(ar_good, dict(ar_good, **tr))
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("D: missing at first -> asked for in the one retry, then used",
+      len(llm.seen) == 2 and "`needed`" in llm.seen[1][-1]["content"] and r.untranslated == []
+      and title_of(r.markdown).endswith(tr["product"]))
+llm = fake_llm(ar_good, ar_good)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("D: still missing after the retry -> Arabic prose kept, English originals printed",
+      len(llm.seen) == 2 and not r.used_fallback and len(r.untranslated) == 2
+      and ar_good["summary"] in r.markdown and nd_needed[0] in r.markdown
+      and title_of(r.markdown).endswith(nd_intake["product_description"])
+      and not set(TRANSLATED_KEYS) & set(r.prose), r.untranslated)
+r = run_document_builder(nd_research, nd_intake, nd_pack.id_sources, llm=fake_llm(dict(ar_good, **tr)))
+check("D: in an English report the keys are ignored", tr["product"] not in r.markdown
+      and nd_needed[0] in r.markdown and not set(TRANSLATED_KEYS) & set(r.prose))
+rv = scripted(ok_review())
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=fake_llm(dict(ar_good, **tr)), review=rv)
+check("D: prose QA reads only the fields it was built for", rv.seen[0][1] == ar_good
+      and r.review_status == "APPROVED" and title_of(r.markdown).endswith(tr["product"]), rv.seen[0][1].keys())
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)
