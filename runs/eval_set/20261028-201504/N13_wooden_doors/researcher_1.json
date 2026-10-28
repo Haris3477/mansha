@@ -1,0 +1,82 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 32.91,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7795,
+        "completion": 2867
+      },
+      "finish_reason": "stop",
+      "latency_s": 32.91,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "source_id: square brackets removed around 8 evidence ID(s) (classification, tariff, origin_rule, origin_result, estimated_saving, caveats[0], caveats[1], gaps[0])",
+    "caveats[0]: restated note of TOOL:tariff_lookup dropped: \"No candidate matches the whole description 'wooden doors': 'Doors, windows and their frames and thresholds for doors (aluminium)' matches only 'door', 'Other wooden furniture' matches only 'wooden'.\"",
+    "caveats: note written from TOOL:tariff_lookup: \"No tariff line in Mansha's sources matches the whole description 'wooden doors': the closest lines are 'Doors, windows and their frames and thresholds for doors (aluminium)' and 'Other wooden furniture'.\"",
+    "caveats: dropped for a gap, no line was chosen (P-IN-DUTY-SCOPE): 'The CEPA rate reduces Basic Customs Duty (BCD) only; IGST, GST compensation cess, the Social Welfare Surcharge, and any anti-dumping or safeguard duty still apply.'",
+    "tariff: written for a gap (was {'agreement': 'India-UAE CEPA', 'mfn_rate': 'REGULATORY_GAP_DETECTED', 'preferential_rate': 'REGULATORY_GAP_DETECTED', 'source_id': 'TOOL:tariff_lookup'})",
+    "follow_up_questions: emptied for a gap (1 item(s); no line, so nothing to claim or supply)"
+  ],
+  "output": {
+    "reasoning": [
+      "Step 1: The two candidates are 'Doors, windows and their frames and thresholds for doors (aluminium)' and 'Other wooden furniture'. Neither matches the full description 'wooden doors', so classification is REGULATORY_GAP_DETECTED.",
+      "Step 2: No tariff line is selected, so preference cannot be assessed.",
+      "Step 3: Tariff rates are unknown because no line matches the product.",
+      "Step 4: Origin rule and result are unknown for the same reason.",
+      "Step 5: Estimated saving cannot be calculated without a tariff line.",
+      "Step 6: Procedure is empty because origin status is REGULATORY_GAP_DETECTED.",
+      "Step 7: Caveats include the mismatch note and the general CEPA duty-scope note."
+    ],
+    "classification": {
+      "tariff_line": "REGULATORY_GAP_DETECTED",
+      "description": "No tariff line matches 'wooden doors'",
+      "confidence": "low",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "tariff": {
+      "agreement": "REGULATORY_GAP_DETECTED",
+      "mfn_rate": "REGULATORY_GAP_DETECTED",
+      "preferential_rate": "REGULATORY_GAP_DETECTED",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "origin_rule": {
+      "rule": "REGULATORY_GAP_DETECTED",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "origin_result": {
+      "status": "REGULATORY_GAP_DETECTED",
+      "basis": "No tariff line could be classified, so origin cannot be determined.",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "estimated_saving": {
+      "status": "REGULATORY_GAP_DETECTED",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "No tariff line in Mansha's sources matches the whole description 'wooden doors': the closest lines are 'Doors, windows and their frames and thresholds for doors (aluminium)' and 'Other wooden furniture'.",
+        "source_id": "TOOL:tariff_lookup"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [
+      {
+        "text": "No tariff line in Mansha's sources matches the product description 'wooden doors'. The closest candidates are for aluminium doors and other wooden furniture, neither of which describes the product accurately.",
+        "source_id": "TOOL:tariff_lookup"
+      }
+    ],
+    "verdict": "REGULATORY_GAP_DETECTED"
+  }
+}

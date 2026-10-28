@@ -1,0 +1,78 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 30.18,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1598,
+            "completion": 2763
+          },
+          "finish_reason": "stop",
+          "latency_s": 30.18,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 20.95,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1866,
+            "completion": 1322
+          },
+          "finish_reason": "stop",
+          "latency_s": 20.95,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [
+        "`duty`: 'No duty' says all duty is removed, but the CEPA rate applies to Basic Customs Duty only; IGST and other import charges are still paid, so say the CEPA rate reduces (or removes) Basic Customs Duty, never all duty"
+      ],
+      "prose_qa": "APPROVED"
+    },
+    {
+      "round": 2,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot determine if wooden doors qualify for the CEPA rate because its sources do not cover this product well enough. Specifically, no tariff line in Mansha's sources matches the product description 'wooden doors', so the origin cannot be checked.",
+    "classification": "No tariff line in Mansha's sources matches the product 'wooden doors', resulting in low confidence in any classification. The correct tariff code must be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "Because the product could not be classified, the agreement, the normal (MFN) rate, the CEPA rate, and the estimated saving are not available in Mansha's sources. The applicable duty rates and any potential saving cannot be determined.",
+    "origin": "The rule of origin is not available in Mansha's sources for wooden doors. Since no tariff line could be classified, the origin of the product cannot be determined.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No tariff line in Mansha's sources matches the whole description 'wooden doors': the closest lines are 'Doors, windows and their frames and thresholds for doors (aluminium)' and 'Other wooden furniture'.",
+      "source_id": "TOOL:tariff_lookup",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}
