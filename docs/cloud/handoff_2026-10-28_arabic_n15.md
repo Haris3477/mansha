@@ -78,3 +78,47 @@ Plan: `docs/cloud/b_arabic_chain_brief.md`. First the Mac chat (router), then a 
 2. **B:** decide from the reading.
 3. **Review:** Haris (and his friend) review `docs/cloud/arabic_review.md`; then code switches to the reviewed Part 2 texts (offline tests only).
 4. **Save progress (Mac chat):** the CURRENT_STATE addendum and the agent_prompts addendum (the prompt change above).
+
+## B: auto:arabic (session on `claude/arabic-router-chain-tvwgx1`, 28–29 Oct)
+**Router (Mac chat, Haris):** chain `arabic` (`auto:arabic`), Gemini only: 3.5 Flash (priority 23), then 3.6 Flash (priority 133); RPD 20 / RPM 10 / TPM 250000 each. Dots3 left out because the router's model order is one global setting (priority only breaks ties), so in a mixed chain Dots3 would serve.
+
+**Design (Haris: "yes to all recommendations"):** Claude's recommendations, all accepted:
+- the fallback to `auto:long` fires once per run and stays for later rounds;
+- it lives in `run_document_builder` only;
+- either Gemini at ordinal 0 counts as valid.
+
+**Commit `0ed8ac7`:**
+- **The Builder's chain by language,** with one code fallback to `auto:long` on `LLMCallError`.
+- **`builder.json`:** `chain` on every call and round, each round's raw `prose`, and `chain_fallback`.
+- **The guard:** `arabic` in `CHAIN_LIMITS` and `router_db.CHAINS`, Arabic cases sized on `arabic`, and a long + arabic shared check.
+- **`router_facts` validity by chain:** a chain fallback is not valid for B.
+- **Tests and docs:** new tests, the CLAUDE.md chain line, step 2 of the brief. All 20 suites pass.
+- **No prompt change.**
+
+**Sitting 20261029-015311 (N15 ×2):**
+- **Clean round 1:** Gemini wrote clean round-1 Arabic in 2 of 2 runs (Dots3: 0 of 3), with no retry and no chain fallback. Prose QA approved both.
+- **Speed:** the Builder took 14 s (Dots3: 66–101 s).
+- **Validity:** r1 is valid (Gemini 3.6). r2 is NOT VALID by the rule: 3.6 returned a 503, and the client's retry was then served by 3.5 at ordinal 0. Whether r2 counts as evidence for B is Haris's call.
+- **The global order is confirmed:** 3.6 is asked first.
+- **G17 streak:** 8.
+- **Full reading:** `docs/cloud/readings/20261029-015311_reading.md`.
+
+**New gaps:**
+- the brand name "منشأة" instead of "منشأ" in the LLM prose (both runs);
+- "effective N%" is code-printed English;
+- the router didn't fail over to 3.5 on the 503 (➡️ a, not blocking);
+- new term choices for the native review (listed in the reading).
+
+**Project docs at the next save:** llm_backend_setup (the arabic chain; routing order is global; 3.6 serves first; no failover inside the chain on a 503). CURRENT_STATE (B result). There's no agent_prompts change from B.
+
+**Decision after the reading (Haris, 29 Oct):** "yes to both recommendations, go with (a) if it's safe to do so, if not then go with (b)".
+- **r2 counts as evidence for B,** labeled "Gemini 3.5, after one 503".
+- **B is closed as holding (option a).**
+
+Claude judged (a) safe, for two reasons:
+- B's question (clean Arabic from Gemini) had a clear answer: 2 of 2 clean round-1 runs against Dots3's 0 of 3;
+- the next fix needs an N15 ×2 sitting anyway, which adds to the sample. If those runs regress, B is reopened.
+
+Option (b), a repeat sitting now, was not needed.
+
+**Next task:** the brand name "منشأة" → "منشأ", brief `docs/cloud/brand_name_brief.md`. Then the Part 2 review texts once Haris and his friend have reviewed them.
