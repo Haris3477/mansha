@@ -10,6 +10,7 @@ The Mac chat bills Haris's plan; the cloud session bills the $100 cloud credit (
 - **2A:** Cerebras token columns are found with `PRAGMA table_info(requests)` from a known list; if none match, the line says so instead of a number. Option B was Haris naming the columns.
 - **3A:** readings go to `docs/cloud/readings/<run>_reading.md` on the session branch; the cloud never pushes to `runs-snapshot`. Option B was a `mansha-runs` commit command after every reading.
 - **CLAUDE.md wording:** yes as written, including G (the cloud credit rules).
+- **Commit rule (Haris, 28 Oct):** his yes to an option is also the yes to commit and push that change once its offline tests pass (CLAUDE.md rule 6); a hook alone is still not a yes (rule 7). At the end of every step Claude asks what the next step should be, with options and a recommendation (rule 8).
 
 ## What changed
 - `scripts/router_db.py` (new): `ROUTER_DB`, `CHAINS`, `DAY_MS`, `utc_text`, `counts_attempts`, `chain_capacity` moved from `eval_set.py` by script (no retyping, guard behaviour unchanged), plus `connect_ro`: `mode=ro` and an SQLite authorizer that refuses any read of `settings` / `api_keys`, including PRAGMA on them (problem 84). The guard now reads through it too.
