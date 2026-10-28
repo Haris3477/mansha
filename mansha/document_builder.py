@@ -296,6 +296,24 @@ DISCLAIMER = {
     "ar": "هذا التقرير للعلم فقط وليس قرارًا رسميًا بشأن المنشأ. يرجى التحقق من جميع التفاصيل "
           "مع الجهة المصدرة للشهادة ومع الجمارك قبل الشحن.",
 }
+# N15 step 2: the checklist's `Authority:` line in an Arabic report. Keyed by the KB record's `actor`
+# (copied by code, Step 6.4g); an actor not listed stays in English. Ministry names are the official
+# Arabic names; the role words are those of the KB's Arabic step texts (S3). docs/cloud/arabic_review.md.
+AUTHORITY_TEXT = {
+    "ar": {
+        "the exporter": "المُصدِّر",
+        "the competent authority": "السلطة المختصة",
+        "the issuing authority": "جهة الإصدار",
+        "the ministry of foreign trade": "وزارة التجارة الخارجية",
+        "the ministry of economy and tourism": "وزارة الاقتصاد والسياحة",
+        "the indian importer": "المستورد الهندي",
+    },
+}
+# N15 step 2: the code-only prose is English (its Arabic version waits for review, arabic_review.md),
+# so an Arabic report that falls back to it says so in Arabic first.
+FALLBACK_NOTICE = {
+    "ar": "تنبيه: تعذّر إعداد شرح هذا التقرير باللغة العربية بجودة كافية، لذلك يظهر الشرح باللغة الإنجليزية.",
+}
 # Problem 97 (fix round, 26 Oct): a condition that decides whether the result can be used reached the
 # reader only as a note (N2 free-zone factory in 4 of 4 runs; N5 Indian resin). The origin tool's notes
 # are mandatory, so the Builder never sees them and cannot put them in the summary. Code adds one fixed
@@ -702,6 +720,7 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
         out += [f"## {h['checklist']}", ""]
         for st in steps:
             authority = plain(st.get("authority"))
+            authority = AUTHORITY_TEXT.get(lang, {}).get(authority.strip().lower(), authority)
             nums = src.refs(st.get("source_id"))
             line = (f"- [ ] {str(st.get('step', '')).strip()}  \n"
                     f"  *{h['authority']}: {cap(authority)}.*{cite(nums)}")
@@ -816,6 +835,8 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     if used_fallback:
         log.warning("document builder | using the code-only report (%d problem(s) left)", len(problems))
         prose = fallback_prose(research, notes)
+        if language in FALLBACK_NOTICE:   # N15 step 2
+            prose["summary"] = FALLBACK_NOTICE[language] + "\n\n" + prose["summary"]
         review_status = "FALLBACK"
     elif review is None:
         review_status = "SKIPPED"

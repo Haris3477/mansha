@@ -8,11 +8,14 @@ Also saves the code-only (fallback) report of each case to runs/<case>/report_fa
 
 import copy
 import json
+import re
 import sys
 from pathlib import Path
 
 from mansha.document_builder import (
+    AUTHORITY_TEXT,
     CHECKLIST_POINTER,
+    FALLBACK_NOTICE,
     HEADINGS,
     CONDITION_TEXT,
     ESTIMATE_NOTE_START,
@@ -368,6 +371,21 @@ ar_intake = dict(intake, language="ar")
 md_ar = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
 check("Arabic headings and disclaimer", "## الملخص" in md_ar and "ليس قرارًا رسميًا" in md_ar)
 check("Arabic checklist label is 'الجهة المختصة'", "*الجهة المختصة: " in md_ar)
+# N15 step 2: the authority itself in Arabic; an actor not in AUTHORITY_TEXT stays as the KB has it.
+auth_ar = re.findall(r"\*الجهة المختصة: ([^*]*)\.\*", md_ar)
+check("N15: every Arabic authority line names an Arabic authority",
+      auth_ar and all(a in AUTHORITY_TEXT["ar"].values() for a in auth_ar), auth_ar)
+odd = copy.deepcopy(research)
+odd["procedure"][0]["authority"] = "the Port Authority"
+check("N15: an actor with no Arabic name stays in English",
+      "*الجهة المختصة: The Port Authority.*" in render_report(odd, ar_intake, good, notes, pack.id_sources,
+                                                             kb_sources))
+kb_actors = {p["actor"].strip().lower() for p in load_corridor("india")["passages"]["passages"] if p.get("actor")}
+check("N15: every actor in the KB has an Arabic name", kb_actors and kb_actors <= set(AUTHORITY_TEXT["ar"]),
+      sorted(kb_actors - set(AUTHORITY_TEXT["ar"])))
+md_en = render_report(research, intake, good, notes, pack.id_sources, kb_sources)
+check("N15: English reports keep the English authority",
+      not any(a in md_en for a in AUTHORITY_TEXT["ar"].values()))
 
 print("\n3a. Deciding conditions: code cautions in the summary (problem 97, fix round 26 Oct)")
 
@@ -470,6 +488,11 @@ r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("bad twice: code-only report", r.used_fallback and r.problems and "40,000" not in r.markdown)
 check("code-only report keeps the mandatory notes verbatim",
       all(f"- {t}" in notes_section(r.markdown) for t in mand_texts))
+check("N15: an English code-only report has no Arabic notice", FALLBACK_NOTICE["ar"] not in r.markdown)
+r = run_document_builder(research, ar_intake, pack.id_sources, llm=fake_llm(bad, bad))
+check("N15: an Arabic code-only report says first, in Arabic, that its prose is English",
+      r.used_fallback and summary_of(r.markdown).startswith(FALLBACK_NOTICE["ar"] + "\n\n"),
+      summary_of(r.markdown)[:120])
 
 failed = [{"attempt": 1, "ok": False, "http_status": 502, "problem": "HTTP 502",
            "waited_before_retry_s": 30}, {"attempt": 2, "ok": False, "problem": "empty reply"}]
