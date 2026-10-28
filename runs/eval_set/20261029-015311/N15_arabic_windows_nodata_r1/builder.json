@@ -1,0 +1,156 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.6-flash",
+      "latency_s": 13.93,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:arabic",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.6-flash",
+          "usage": {
+            "prompt": 1927,
+            "completion": 619
+          },
+          "finish_reason": "stop",
+          "latency_s": 13.93,
+          "ok": true
+        }
+      ],
+      "chain": "auto:arabic"
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "untranslated": [],
+  "chain_fallback": null,
+  "rounds": [
+    {
+      "round": 1,
+      "chain": "auto:arabic",
+      "code_problems": [],
+      "prose_qa": "APPROVED",
+      "prose": {
+        "summary": "لا يمكن لمنصة منشأة تأكيد نتيجة المنشأ حالياً لعدم اكتمال المعلومات المطلوبة. في حال تأهل المنتج، تبلغ الوفورات الجمركية المقدرة 10000.00 AED عند الاستيراد في الهند بموجب اتفاقية الشراكة الاقتصادية الشاملة.",
+        "classification": "يُصنف المنتج تحت البند الجمركي 76101000 للأبواب والنوافذ وأطرها وأعتابها من ألمنيوم، وذلك بدرجة ثقة عالية من منشأة. ينبغي تأكيد هذا الرمز الجمركي مع الجمارك الهندية أو مخلص جمركي قبل الشحن.",
+        "duty": "بموجب اتفاقية الشراكة الاقتصادية الشاملة بين الإمارات والهند، يبلغ المعدل العادي (رسوم الدولة الأكثر رعاية) 10%، بينما يبلغ معدل الاتفاقية 0%. وتبلغ الوفورات التقديرية 10000.00 AED في حال استيفاء المنتج لشروط المنشأ.",
+        "origin": "تشترط قاعدة المنشأ تغيير الفرع الجمركي (CTSH، أي تصنيف كل مدخل غير منشأ في بند فرعي مختلف مكون من 6 أرقام عن المنتج) بالإضافة إلى تحقيق قيمة مضافة (VA، وهي نسبة سعر المنتج التي لا تعود لمواد غير منشأة) بنسبة 45%. ولم يتم التحقق من المنشأ بعد نظراً لغياب قائمة المواد وإقرار التصنيع.",
+        "notes": [
+          {
+            "text": "لا توضح الاتفاقية ما إذا كانت طريقة الحساب التنازلية والتصاعدية تستخدمان نفس الحد الأدنى، باستثناء تعديل 5 نقاط لسعر تسليم المصنع.",
+            "from": [
+              "N1"
+            ]
+          },
+          {
+            "text": "يحدد قانون دولة الإمارات حداً أدنى يبلغ 3 سنوات، إلا أن مدة 5 سنوات المنصوص عليها في اتفاقية الشراكة الاقتصادية الشاملة هي التي تطبق على مطالبات الاتفاقية.",
+            "from": [
+              "N2"
+            ]
+          }
+        ],
+        "product": "إطارات النوافذ الألمنيوم",
+        "needed": [
+          "يرجى تقديم قائمة المواد لإطارات النوافذ الألمنيوم، تتضمن وصف كل مدخل، ورمز النظام المنسق المكون من 6 أرقام، وبلد المنشأ، والقيمة والعملة، وإقراراً يوضح سعر المنتج، وما إذا كان تسليم السفينة (FOB) أو تسليم المصنع (Ex-Works)، وأن التصنيع النهائي تم في دولة الإمارات، والعمليات التي جرت في الإمارات."
+        ]
+      }
+    }
+  ],
+  "prose": {
+    "summary": "لا يمكن لمنصة منشأة تأكيد نتيجة المنشأ حالياً لعدم اكتمال المعلومات المطلوبة. في حال تأهل المنتج، تبلغ الوفورات الجمركية المقدرة 10000.00 AED عند الاستيراد في الهند بموجب اتفاقية الشراكة الاقتصادية الشاملة.",
+    "classification": "يُصنف المنتج تحت البند الجمركي 76101000 للأبواب والنوافذ وأطرها وأعتابها من ألمنيوم، وذلك بدرجة ثقة عالية من منشأة. ينبغي تأكيد هذا الرمز الجمركي مع الجمارك الهندية أو مخلص جمركي قبل الشحن.",
+    "duty": "بموجب اتفاقية الشراكة الاقتصادية الشاملة بين الإمارات والهند، يبلغ المعدل العادي (رسوم الدولة الأكثر رعاية) 10%، بينما يبلغ معدل الاتفاقية 0%. وتبلغ الوفورات التقديرية 10000.00 AED في حال استيفاء المنتج لشروط المنشأ.",
+    "origin": "تشترط قاعدة المنشأ تغيير الفرع الجمركي (CTSH، أي تصنيف كل مدخل غير منشأ في بند فرعي مختلف مكون من 6 أرقام عن المنتج) بالإضافة إلى تحقيق قيمة مضافة (VA، وهي نسبة سعر المنتج التي لا تعود لمواد غير منشأة) بنسبة 45%. ولم يتم التحقق من المنشأ بعد نظراً لغياب قائمة المواد وإقرار التصنيع.",
+    "notes": [
+      {
+        "text": "لا توضح الاتفاقية ما إذا كانت طريقة الحساب التنازلية والتصاعدية تستخدمان نفس الحد الأدنى، باستثناء تعديل 5 نقاط لسعر تسليم المصنع.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "يحدد قانون دولة الإمارات حداً أدنى يبلغ 3 سنوات، إلا أن مدة 5 سنوات المنصوص عليها في اتفاقية الشراكة الاقتصادية الشاملة هي التي تطبق على مطالبات الاتفاقية.",
+        "from": [
+          "N2"
+        ]
+      }
+    ],
+    "product": "إطارات النوافذ الألمنيوم",
+    "needed": [
+      "يرجى تقديم قائمة المواد لإطارات النوافذ الألمنيوم، تتضمن وصف كل مدخل، ورمز النظام المنسق المكون من 6 أرقام، وبلد المنشأ، والقيمة والعملة، وإقراراً يوضح سعر المنتج، وما إذا كان تسليم السفينة (FOB) أو تسليم المصنع (Ex-Works)، وأن التصنيع النهائي تم في دولة الإمارات، والعمليات التي جرت في الإمارات."
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The estimate is based on the shipment value given; India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "M9",
+      "text": "Anti-dumping and safeguard duties likely still apply (no CEPA exemption from them was found).",
+      "source_id": "P-IN-DUTY-SCOPE",
+      "mandatory": true
+    },
+    {
+      "nid": "N2",
+      "text": "UAE law sets a shorter 3-year minimum; the CEPA's 5 years govern CEPA claims.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    }
+  ],
+  "conditions": []
+}

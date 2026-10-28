@@ -1,0 +1,46 @@
+{
+  "runs": 2,
+  "passed": 0,
+  "scored": 2,
+  "verdict_correct": 2,
+  "verdict_cases": 2,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 0,
+  "qa_rejections": 0,
+  "qa_overruled": 0,
+  "router_refusals": 0,
+  "paced_wait_s": 0.0,
+  "median_seconds_reports": 91.1,
+  "slips": {},
+  "requests": {
+    "auto:qa": {
+      "requests": 2,
+      "prompt": 1424,
+      "completion": 640
+    },
+    "auto:long": {
+      "requests": 2,
+      "prompt": 16573,
+      "completion": 11213
+    },
+    "auto:judge": {
+      "requests": 6,
+      "prompt": 24139,
+      "completion": 8608
+    },
+    "auto:arabic": {
+      "requests": 3,
+      "prompt": 3929,
+      "completion": 1203
+    }
+  },
+  "failed_checks": {
+    "N15 N15_arabic_windows_nodata_r1": [
+      "language: 110 English word(s) in an Arabic report: ['The', 'estimate', 'is', 'based', 'on', 'the', 'shipment', 'value', 'given', 'India']"
+    ],
+    "N15 N15_arabic_windows_nodata_r2": [
+      "language: 61 English word(s) in an Arabic report: ['effective', 'Estimate', 'on', 'the', 'shipment', 'value', 'given', 'India', 'charges', 'duty']"
+    ]
+  }
+}

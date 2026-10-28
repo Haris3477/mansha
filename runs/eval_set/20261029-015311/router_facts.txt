@@ -1,0 +1,73 @@
+Router facts (run runs/eval_set/20261029-015311), read-only from freeapi.db (settings and api_keys refused)
+Window (UTC): 2026-10-28 21:48:11 to 2026-10-28 22:01:13 (folder start and last log file, padded 5 min)
+
+a) Router requests in the window (13)
+  #1522 21:53:12 groq/openai/gpt-oss-120b success 854 ms  <- N15_arabic_windows_nodata_r1 Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 844 ms
+  #1523 21:53:52 openrouter/dots-studio/dots-3-note-preview:free success 40839 ms  <- N15_arabic_windows_nodata_r1 Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 40839 ms
+  #1524 21:53:54 cerebras/gpt-oss-120b success 1481 ms  <- N15_arabic_windows_nodata_r1 QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1479 ms
+  #1525 21:53:55 cerebras/gpt-oss-120b success 1218 ms  <- N15_arabic_windows_nodata_r1 QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1215 ms
+  #1526 21:54:09 google/gemini-3.6-flash success 13927 ms  <- N15_arabic_windows_nodata_r1 Document Builder attempt 1
+      0 google/gemini-3.6-flash ok 13924 ms
+  #1527 21:54:10 cerebras/gpt-oss-120b success 1163 ms  <- N15_arabic_windows_nodata_r1 Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1163 ms
+  #1528 21:54:12 groq/openai/gpt-oss-120b success 1228 ms  <- N15_arabic_windows_nodata_r2 Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1226 ms
+  #1529 21:55:13 openrouter/dots-studio/dots-3-note-preview:free success 61563 ms  <- N15_arabic_windows_nodata_r2 Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 61557 ms
+  #1530 21:55:14 cerebras/gpt-oss-120b success 1249 ms  <- N15_arabic_windows_nodata_r2 QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1245 ms
+  #1531 21:55:16 cerebras/gpt-oss-120b success 1369 ms  <- N15_arabic_windows_nodata_r2 QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1365 ms
+  #1532 21:55:27 google/gemini-3.6-flash error 11550 ms  <- N15_arabic_windows_nodata_r2 Document Builder attempt 1
+      0 google/gemini-3.6-flash upstream_error 11554 ms  "Google API error 503: This model is currently experiencing high demand. Spikes in demand …"
+  #1533 21:56:12 google/gemini-3.5-flash success 14387 ms  <- N15_arabic_windows_nodata_r2 Document Builder attempt 2
+      0 google/gemini-3.5-flash ok 14383 ms
+  #1534 21:56:13 cerebras/gpt-oss-120b success 1043 ms  <- N15_arabic_windows_nodata_r2 Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1040 ms
+
+b) Per platform (attempts in the window, by outcome)
+  cerebras: 6 attempts (ok 6)
+  google: 3 attempts (ok 2, upstream_error 1)
+  groq: 2 attempts (ok 2)
+  openrouter: 2 attempts (ok 2)
+  non-success requests: #1532 google/gemini-3.6-flash error
+
+  Long-chain calls (Researcher / Builder): served model at the serving attempt's ordinal
+  N15_arabic_windows_nodata_r1 Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N15_arabic_windows_nodata_r1 Document Builder (auto:arabic): google/gemini-3.6-flash at ordinal 0
+  N15_arabic_windows_nodata_r2 Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N15_arabic_windows_nodata_r2 Document Builder: router request #1532 error (no serving attempt)
+  N15_arabic_windows_nodata_r2 Document Builder (auto:arabic): google/gemini-3.5-flash at ordinal 0
+
+  Validity (every Researcher/Builder call at ordinal 0 on openrouter (auto:long) or Gemini (auto:arabic); no chain fallback)
+  N15_arabic_windows_nodata_r1: valid (2 long calls)
+  N15_arabic_windows_nodata_r2: NOT VALID: Document Builder attempt 1 failed at the client (3 long calls)
+
+  Client calls not matched in the router: none
+
+c) Cooldowns set or expiring in the window (1)
+  google/gemini-3.6-flash: set 21:55:27, expires 21:56:57 (90 s, heuristic)
+
+d) Router state at 2026-10-28 21:56:13 UTC
+  active cooldowns: google/gemini-3.6-flash 0.7 min left (heuristic)
+  capacity (router 24 h successes = rate_limit_usage; OpenRouter :free used = max with UTC-day attempts):
+    long  google/gemini-3.5-flash: router 24 h 2; used 2/20; left 18
+    long  google/gemini-3.6-flash: router 24 h 1; used 1/20; left 0 (benched 0.7 min, heuristic)
+    long  openrouter/dots-studio/dots-3-note-preview:free: router 24 h 58, UTC-day attempts 59; used 59/1000; left 941
+    qa    groq/openai/gpt-oss-120b: router 24 h 23; used 23/1000; left 977
+    judge cerebras/gpt-oss-120b: router 24 h 77; used 77/2400; left 2323
+    arabic google/gemini-3.5-flash: router 24 h 2; used 2/20; left 18
+    arabic google/gemini-3.6-flash: router 24 h 1; used 1/20; left 0 (benched 0.7 min, heuristic)
+  OpenRouter attempts since 00:00 UTC (04:00 Dubai): dots-studio/dots-3-note-preview:free 59 (error 1, ok 58)
+  OpenRouter timeouts in the window: none
+  Cerebras last 24 h: 84 requests, 318376 input + 97712 output tokens, about $0.18 at $0.35/$0.75 per 1M
+
+e) Chains (enabled models, order as stored; rpd_limit with overrides)
+  long: google/gemini-3.5-flash (rpd 20), google/gemini-3.6-flash (rpd 20), openrouter/dots-studio/dots-3-note-preview:free (rpd 1000)
+  qa: groq/openai/gpt-oss-120b (rpd 1000)
+  judge: cerebras/gpt-oss-120b (rpd 2400)
+  arabic: google/gemini-3.5-flash (rpd 20), google/gemini-3.6-flash (rpd 20)

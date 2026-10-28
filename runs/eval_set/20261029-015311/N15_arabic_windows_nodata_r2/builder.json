@@ -1,0 +1,156 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.5-flash",
+      "latency_s": 14.4,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:arabic",
+          "max_tokens": 16000,
+          "latency_s": 11.57,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 1 routed attempt(s) failed with upstream provider errors (upstream_error ×1). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: google/gemini-3.6-flash key1: upstream_error. Last error: Google API error 503: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': 'ff71e2ec-9c23-4e56-9598-9bddc27e83fa'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:arabic",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.5-flash",
+          "usage": {
+            "prompt": 2002,
+            "completion": 584
+          },
+          "finish_reason": "stop",
+          "latency_s": 14.4,
+          "ok": true
+        }
+      ],
+      "chain": "auto:arabic"
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "untranslated": [],
+  "chain_fallback": null,
+  "rounds": [
+    {
+      "round": 1,
+      "chain": "auto:arabic",
+      "code_problems": [],
+      "prose_qa": "APPROVED",
+      "prose": {
+        "summary": "لا يمكن لمنصة منشأة تأكيد نتيجة تأهل المنتج بعد بسبب نقص المعلومات المطلوبة. وفي حال استيفاء المنتج لشروط المنشأ، تبلغ الوفورات الجمركية التقديرية 10000.00 AED.",
+        "classification": "البند الجمركي للمنتج هو 76101000 ويشمل أجهزة الأبواب والنوافذ وأطرها وأعتاب الأبواب (من ألمنيوم)، ومستوى ثقة منشأة في هذا التصنيف مرتفع. يجب تأكيد هذا الرمز الجمركي دائماً مع الجمارك الهندية أو مخلص جمركي قبل الشحن.",
+        "duty": "بموجب اتفاقية الشراكة الاقتصادية الشاملة بين الإمارات والهند (CEPA)، يبلغ معدل الرسوم الجمركية العادي (MFN) نسبة 10% (والفعلية 10%)، بينما يبلغ معدل الاتفاقية المخفض 0%. وتبلغ الوفورات التقديرية 10000.00 AED في حال تأهل المنتج.",
+        "origin": "تتطلب قاعدة المنشأ تغيير الفرع الفرعي للتعريفة الجمركية (CTSH)، أي تصنيف كل مدخل غير وطني المنشأ في فرع فرعي مختلف بمستوى 6 أرقام عن المنتج، مع تحقيق قيمة مضافة (VA) بنسبة 45%. ولا يمكن التحقق من نتيجة المنشأ حالياً لعدم توفر قائمة المواد والإقرار المطلوب.",
+        "notes": [
+          {
+            "text": "يجب أن تكون عملية التصنيع النهائية قبل التصدير قد تمت في الدولة المصدّرة، علماً بأن العمليات الأدنى فقط لا تمنح المنتج صفة المنشأ.",
+            "from": [
+              "N1",
+              "N2"
+            ]
+          },
+          {
+            "text": "تبلغ رسوم الشهادة 50 AED لقيمة الفاتورة التي تصل إلى 100000 AED.",
+            "from": [
+              "N3"
+            ]
+          }
+        ],
+        "product": "إطارات نوافذ ألمنيوم",
+        "needed": [
+          "يرجى تقديم قائمة المواد (وصف كل مدخل، الرمز الجمركي المكون من 6 أرقام، بلد المنشأ، القيمة والعملة) وإقرار (سعر المنتج، أساس تسليم على متن السفينة FOB أو تسليم المصنع Ex-Works، التصنيع النهائي في الإمارات، والعمليات المجراة في الإمارات)."
+        ]
+      }
+    }
+  ],
+  "prose": {
+    "summary": "لا يمكن لمنصة منشأة تأكيد نتيجة تأهل المنتج بعد بسبب نقص المعلومات المطلوبة. وفي حال استيفاء المنتج لشروط المنشأ، تبلغ الوفورات الجمركية التقديرية 10000.00 AED.",
+    "classification": "البند الجمركي للمنتج هو 76101000 ويشمل أجهزة الأبواب والنوافذ وأطرها وأعتاب الأبواب (من ألمنيوم)، ومستوى ثقة منشأة في هذا التصنيف مرتفع. يجب تأكيد هذا الرمز الجمركي دائماً مع الجمارك الهندية أو مخلص جمركي قبل الشحن.",
+    "duty": "بموجب اتفاقية الشراكة الاقتصادية الشاملة بين الإمارات والهند (CEPA)، يبلغ معدل الرسوم الجمركية العادي (MFN) نسبة 10% (والفعلية 10%)، بينما يبلغ معدل الاتفاقية المخفض 0%. وتبلغ الوفورات التقديرية 10000.00 AED في حال تأهل المنتج.",
+    "origin": "تتطلب قاعدة المنشأ تغيير الفرع الفرعي للتعريفة الجمركية (CTSH)، أي تصنيف كل مدخل غير وطني المنشأ في فرع فرعي مختلف بمستوى 6 أرقام عن المنتج، مع تحقيق قيمة مضافة (VA) بنسبة 45%. ولا يمكن التحقق من نتيجة المنشأ حالياً لعدم توفر قائمة المواد والإقرار المطلوب.",
+    "notes": [
+      {
+        "text": "يجب أن تكون عملية التصنيع النهائية قبل التصدير قد تمت في الدولة المصدّرة، علماً بأن العمليات الأدنى فقط لا تمنح المنتج صفة المنشأ.",
+        "from": [
+          "N1",
+          "N2"
+        ]
+      },
+      {
+        "text": "تبلغ رسوم الشهادة 50 AED لقيمة الفاتورة التي تصل إلى 100000 AED.",
+        "from": [
+          "N3"
+        ]
+      }
+    ],
+    "product": "إطارات نوافذ ألمنيوم",
+    "needed": [
+      "يرجى تقديم قائمة المواد (وصف كل مدخل، الرمز الجمركي المكون من 6 أرقام، بلد المنشأ، القيمة والعملة) وإقرار (سعر المنتج، أساس تسليم على متن السفينة FOB أو تسليم المصنع Ex-Works، التصنيع النهائي في الإمارات، والعمليات المجراة في الإمارات)."
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+      "source_id": "TOOL:rule_lookup:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The final manufacture before export must have occurred in the Party of export.",
+      "source_id": "P-AGR-3.2-ORIGIN",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "A product that only undergoes minimal operations does not originate, even if it meets its product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is needed before applying for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "The certificate fee is AED 50 for invoice value up to AED 100000.",
+      "source_id": "TOOL:coo_fee",
+      "mandatory": false
+    }
+  ],
+  "conditions": []
+}

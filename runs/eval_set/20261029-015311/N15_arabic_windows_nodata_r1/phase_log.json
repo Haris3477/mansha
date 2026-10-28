@@ -1,0 +1,292 @@
+{
+  "status": "REPORT",
+  "verdict": "NEEDS_MORE_DATA",
+  "language": "ar",
+  "seconds": 59.65,
+  "warnings": [],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 0.94,
+      "summary": "product='aluminium window frames' | destination='India' | role=manufacturer | value=100000 AED | language=ar",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 0.9,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 712,
+                "completion": 322
+              },
+              "finish_reason": "stop",
+              "latency_s": 0.9,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [
+          "hs_code_given"
+        ],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000, TL-IN-76041010, TL-IN-76151030 | bill of materials: not given | evidence 22711 chars, 34 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "INSUFFICIENT_DATA",
+          "TOOL:duty:76101000": "ESTIMATED",
+          "TOOL:rule_lookup:76041010": "RULE_FOUND",
+          "TOOL:origin:76041010": "INSUFFICIENT_DATA",
+          "TOOL:duty:76041010": "ESTIMATED",
+          "TOOL:rule_lookup:76151030": "RULE_FOUND",
+          "TOOL:origin:76151030": "INSUFFICIENT_DATA",
+          "TOOL:duty:76151030": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 40.88,
+      "summary": "line 76101000 (high) | origin NEEDS_MORE_DATA | verdict NEEDS_MORE_DATA | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 40.87,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 8286,
+                "completion": 4395
+              },
+              "finish_reason": "stop",
+              "latency_s": 40.87,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "procedure: 8 step(s) written by code from the knowledge base",
+          "caveats[10]: restated P-AGR-RECORDS-VERIFICATION step cut to its KB note"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "OK",
+      "seconds": 2.72,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.49,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 5079,
+                "completion": 1475
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.49,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.22,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4570,
+                "completion": 1808
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.22,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/2: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.49,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/2: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.22,
+            "scope": [
+              "procedure[6]",
+              "procedure[7]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]",
+              "caveats[10]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "OK",
+      "seconds": 13.94,
+      "summary": "LLM prose passed the code checks; prose QA approved | rounds: 1 | notes: 11 in (9 mandatory, verbatim) -> 11 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "google/gemini-3.6-flash",
+          "latency_s": 13.93,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:arabic",
+              "max_tokens": 16000,
+              "routed_via": "google/gemini-3.6-flash",
+              "usage": {
+                "prompt": 1927,
+                "completion": 619
+              },
+              "finish_reason": "stop",
+              "latency_s": 13.93,
+              "ok": true
+            }
+          ],
+          "chain": "auto:arabic"
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "OK",
+      "seconds": 1.17,
+      "summary": "APPROVED | factuality 1, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.17,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2205,
+                "completion": 1225
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.17,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "0 problem(s), 0 warning(s)",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}
