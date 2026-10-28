@@ -122,3 +122,11 @@ Claude judged (a) safe, for two reasons:
 Option (b), a repeat sitting now, was not needed.
 
 **Next task:** the brand name "منشأة" → "منشأ", brief `docs/cloud/brand_name_brief.md`. Then the Part 2 review texts once Haris and his friend have reviewed them.
+
+## Brand name «منشأة» → «منشأ» (brief `docs/cloud/brand_name_brief.md`, 29 Oct)
+**Decision (Haris):** option (a), 1 + 3b, Claude's recommendation: "yes to (a), go ahead with step 2".
+- **1, FACTS (code, Arabic only):** in an Arabic report, `build_facts` opens FACTS with a NAME line ("in Arabic this report's product is called «منشأ» (origin); write it exactly so, never «منشأة»") and writes "منشأ" for every "Mansha" in FACTS. NOTES keep their official text. English FACTS are unchanged (tested).
+- **3b, grader only:** `brand_slips` (in `document_builder.py`) counts "منشأة" only in brand-only phrases ("منصة منشأة", "ثقة … منشأة", "مصادر منشأة"). `eval_grade.language_problems` reports them for Arabic cases, so a brand slip fails the case's language grade. The Builder's own checks don't use it, so a slip never costs the Arabic prose (a check left failing after the retry → English code-only report).
+- **Re-grade of 015311:** finds 2 brand slips per run, as the reading did; "مواد غير منشأة" is correctly not flagged.
+- **No prompt change.** All 20 suites pass.
+- **Sitting:** N15 ×2. Targets: 0 brand slips; B again (Gemini at ordinal 0 on `auto:arabic`, clean round 1, no chain fallback); the 015311 wrong-term list.

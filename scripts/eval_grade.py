@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from mansha.document_builder import saving_how, script_problems
+from mansha.document_builder import brand_slips, saving_how, script_problems
 from mansha.evidence import build_evidence, is_excluded
 from mansha.kb import corridor_for
 from mansha.researcher import HS_QUESTION_RE, NOT_PRODUCT_CODE_RE, ORIGIN_MAP
@@ -444,6 +444,8 @@ def language_problems(case: EvalCase, run: Run) -> list[str]:
         out.append(f"{len(found['mixed'])} word(s) mixing Arabic and Latin letters: {found['mixed'][:6]}")
     if found.get("english"):
         out.append(f"{len(found['english'])} English word(s) in an Arabic report: {found['english'][:10]}")
+    if want == "ar" and (slips := brand_slips(body)):
+        out.append(f"{len(slips)} brand slip(s), «منشأة» for «منشأ»: {slips[:6]}")
     return out
 
 

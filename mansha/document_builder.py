@@ -193,6 +193,19 @@ GLOSS_RE = re.compile(r"\([^()]*\)|«[^«»]*»|\"[^\"]*\"|“[^”]*”|'[^']*'
 DOMAIN_RE = re.compile(r"https?://\S+|\b[\w-]+(?:\.[\w-]+)*\.(?:ae|in|gov|com|org|net)\b")
 
 
+# The brand in Arabic is "منشأ" (origin), never "منشأة" (establishment, an ordinary word that may
+# appear in a report). Only phrases where "منشأة" can only be the brand are counted; the grader
+# reports them (015311), the Builder's checks don't, so a slip never costs the Arabic prose.
+BRAND_AR = "منشأ"
+BRAND_LINE_AR = "NAME: in Arabic this report's product is called «منشأ» (origin); write it exactly so, never «منشأة»."
+BRAND_SLIP_RE = re.compile(r"(?:منص[ةه]\s+[وفلب]?|ثق[ةه](?:\s+\S+)?\s+(?:من\s+|لدى\s+)?[لب]?|مصادر\s+)منش[أا]ة")
+
+
+def brand_slips(text: str) -> list[str]:
+    """The brand written "منشأة" in a brand-only phrase ("منصة منشأة", "ثقة … منشأة", "مصادر منشأة")."""
+    return [m.group(0) for m in BRAND_SLIP_RE.finditer(text)]
+
+
 def script_problems(text: str, language: str) -> dict[str, list[str]]:
     """Letters that do not belong in a report in `language` ("ar" or "en"). Pure code.
 
@@ -541,6 +554,10 @@ def build_facts(research: dict, intake: dict, corridor: str = "india") -> tuple[
                       + "\n".join(f"{n['nid']}: {n['text']}" for n in sent))
     else:
         notes_text = "NOTES: none (return an empty `notes` list)"
+    if intake.get("language") == "ar":
+        # Brand (015311): seeing only "Mansha", Gemini wrote it "منشأة" (establishment). FACTS give the
+        # Arabic name instead; NOTES keep their official text.
+        lines = [BRAND_LINE_AR] + [x.replace("Mansha", BRAND_AR) for x in lines]
     return "FACTS:\n" + "\n".join(lines) + "\n\n" + notes_text, notes
 
 

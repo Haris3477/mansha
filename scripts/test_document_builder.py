@@ -38,6 +38,8 @@ from mansha.document_builder import (
     render_report,
     run_document_builder,
     script_problems,
+    BRAND_LINE_AR,
+    brand_slips,
     sent_notes,
     still_needed,
 )
@@ -341,6 +343,27 @@ p["summary"] += " 估算"
 check("N15: another script fails an English report too",
       any("another script (估算)" in x for x in check_prose(p, facts, notes)), check_prose(p, facts, notes))
 check("N15: accented Latin letters are Latin", script_problems("café naïve", "en")["other"] == [])
+
+# Brand (015311): Arabic FACTS carry "منشأ"; English FACTS and all NOTES are unchanged.
+w_research, w_intake, _ = cases["windows"]
+en_facts, en_notes = build_facts(w_research, w_intake)
+ar_facts, ar_notes = build_facts(w_research, {**w_intake, "language": "ar"})
+ar_head, en_head = ar_facts.split("\n\nNOTES")[0], en_facts.split("\n\nNOTES")[0]
+check("brand: Arabic FACTS open with the NAME line", ar_facts.startswith("FACTS:\n" + BRAND_LINE_AR + "\n"))
+check("brand: Arabic FACTS say منشأ, never Mansha", "Mansha" not in ar_head and "(منشأ's confidence:" in ar_head,
+      ar_head)
+check("brand: Arabic FACTS are the English ones with only the name changed",
+      ar_head == en_head.replace("FACTS:\n", "FACTS:\n" + BRAND_LINE_AR + "\n").replace("Mansha", "منشأ"))
+check("brand: NOTES are the same in both languages",
+      ar_facts.split("\n\nNOTES")[1] == en_facts.split("\n\nNOTES")[1] and ar_notes == en_notes)
+check("brand: English FACTS keep Mansha and get no NAME line",
+      "(Mansha's confidence:" in en_facts and "NAME:" not in en_facts)
+check("brand: the 015311 slips are found",
+      brand_slips("لا يمكن لمنصة منشأة تأكيد ذلك، بدرجة ثقة عالية من منشأة، ومستوى ثقة منشأة متوسط.")
+      == ["منصة منشأة", "ثقة عالية من منشأة", "ثقة منشأة"])
+check("brand: the ordinary word and the right name are not flagged",
+      brand_slips("صُنع المنتج في منشأة صناعية في الإمارات، ومنشأة المصدّر مسجلة. بدرجة ثقة عالية من منشأ، "
+                  "وفق مصادر منشأ.") == [])
 
 print("\n3. Code-only report for each verdict")
 kb_sources = load_corridor("india")["sources"]
