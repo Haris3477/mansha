@@ -201,6 +201,11 @@ probs = language_problems(AR_CASE, SimpleNamespace(
     output=AR_OK.replace("السعر العادي", "Done للx وال迈尔斯")))
 check("N15: English words, mixed words and another script are each reported",
       len(probs) == 3 and "迈尔斯" in probs[0] and "للx" in probs[1] and "['Done']" in probs[2], probs)
+probs = language_problems(AR_CASE, SimpleNamespace(output=AR_OK.replace("السعر العادي", "بدرجة ثقة عالية من منشأة، السعر العادي")))
+check("brand: «منشأة» for the brand is reported", len(probs) == 1 and "brand slip" in probs[0], probs)
+check("brand: the ordinary «منشأة» is not",
+      language_problems(AR_CASE, SimpleNamespace(output=AR_OK.replace("السعر العادي", "من منشأة صناعية، السعر العادي")))
+      == [])
 
 print("\n4. Global anchors count known open problems as slips; they don't fail a case (D1 = A)")
 f = planted(C1, "slip72", lambda d: append(d / "report.md",

@@ -122,3 +122,30 @@ Claude judged (a) safe, for two reasons:
 Option (b), a repeat sitting now, was not needed.
 
 **Next task:** the brand name "منشأة" → "منشأ", brief `docs/cloud/brand_name_brief.md`. Then the Part 2 review texts once Haris and his friend have reviewed them.
+
+## Brand name «منشأة» → «منشأ» (brief `docs/cloud/brand_name_brief.md`, 29 Oct)
+**Decision (Haris):** option (a), 1 + 3b, Claude's recommendation: "yes to (a), go ahead with step 2".
+- **1, FACTS (code, Arabic only):** in an Arabic report, `build_facts` opens FACTS with a NAME line ("in Arabic this report's product is called «منشأ» (origin); write it exactly so, never «منشأة»") and writes "منشأ" for every "Mansha" in FACTS. NOTES keep their official text. English FACTS are unchanged (tested).
+- **3b, grader only:** `brand_slips` (in `document_builder.py`) counts "منشأة" only in brand-only phrases ("منصة منشأة", "ثقة … منشأة", "مصادر منشأة"). `eval_grade.language_problems` reports them for Arabic cases, so a brand slip fails the case's language grade. The Builder's own checks don't use it, so a slip never costs the Arabic prose (a check left failing after the retry → English code-only report).
+- **Re-grade of 015311:** finds 2 brand slips per run, as the reading did; "مواد غير منشأة" is correctly not flagged.
+- **No prompt change.** All 20 suites pass.
+- **Sitting:** N15 ×2. Targets: 0 brand slips; B again (Gemini at ordinal 0 on `auto:arabic`, clean round 1, no chain fallback); the 015311 wrong-term list.
+
+**Sitting 20261029-022326 (N15 ×2, `90e2431`; reading `docs/cloud/readings/20261029-022326_reading.md`):**
+- **Brand:** 0 «منشأة» brand slips in 2 of 2 runs (015311: 2 per run). The name is written «منشأ» 2–3 times per report.
+- **Validity:** both runs valid (Gemini 3.6 at ordinal 0 on `auto:arabic`, no failed attempt, no chain fallback).
+- **B holds:** round 1 clean in both, prose QA approved round 1. Gemini sample: 4 of 4 clean.
+- **G17 streak:** 10. Slips: none.
+- **New (for `arabic_review.md` / Part 2):**
+  - r1's FOB as "السعر شامل التكاليف على ظهر السفينة";
+  - r2 translated "AED" as "درهم إماراتي" (digits exact, so no check caught it);
+  - the MFN cell "tariff 10%, effective 10%" is code-printed English;
+  - MFN still has two names ("الأكثر رعاية" in the prose, "الأولى بالرعاية" in the table);
+  - "الفرع الفرعي" again.
+- **Small observation:** r2's gap-drop label "data the user must supply" on the "+ is not defined" gap (harmless: the mandatory "+" note is printed).
+**Decision after the reading (Haris, 29 Oct):** "yes to (a)": the brand fix is **closed as holding** (Claude's recommendation; bar: 0 brand slips, met in 2 of 2 valid runs; the grader keeps counting). Option (b), a code check for the translated currency, was not taken: the currency question joins the native review instead.
+- `docs/cloud/arabic_review.md`: Part 2 gets the MFN cell ("tariff {t}, effective {e}") with an Arabic draft; a new Part 4 lists the LLM's term choices from 015311 and 022326 for the native reader.
+
+**Project docs at the next save:** CURRENT_STATE (B result and the brand fix, G17 streak 10); llm_backend_setup (as listed under B). No agent_prompts change (no prompt changed in B or the brand fix).
+
+**Next task:** the Part 2 review texts into code (and Part 4 decisions into FACTS or the prompt), once Haris and his friend have reviewed `arabic_review.md`.
