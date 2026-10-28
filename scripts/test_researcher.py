@@ -1199,6 +1199,35 @@ d = copy.deepcopy(GOOD_W)
 check("7.6n: a chosen line is left alone", fill_gap(d) == [] and d == GOOD_W)
 g = copy.deepcopy(res.data)
 check("7.6n: idempotent (an already complete gap)", fill_gap(g) == [])
+# 28 Oct 20:53 (N13 r2, Dots3): round 1 wrote the gap but left two source_ids None and its own basis;
+# fill_gap skipped both fields (status/rule already the gap): 2 code problems and a wasted round.
+R2_BASIS = "No tariff line matched the product description, so origin cannot be assessed."
+r2b = copy.deepcopy(res.data)
+r2b.pop("verdict", None)
+r2b["origin_rule"]["source_id"] = None
+r2b["estimated_saving"]["source_id"] = None
+r2b["origin_result"]["basis"] = R2_BASIS
+g = copy.deepcopy(r2b)
+ch = fill_gap(g)
+check("7.6n: a gap with source_id None gets both filled (2 changes)",
+      len(ch) == 2 and g["origin_rule"]["source_id"] == "TOOL:tariff_lookup"
+      and g["estimated_saving"]["source_id"] == "TOOL:tariff_lookup", ch)
+check("... the Researcher's own gap basis is kept", g["origin_result"]["basis"] == R2_BASIS)
+check("... idempotent", fill_gap(g) == [])
+g = copy.deepcopy(r2b)
+g["estimated_saving"]["amount"] = 0
+g["tariff"]["mfn_rate"] = "5%"
+ch = fill_gap(g)
+check("7.6n: other wrong fixed keys in a gap object are written too",
+      g["estimated_saving"]["amount"] is None and g["tariff"]["mfn_rate"] == GAP and len(ch) == 4, ch)
+g = copy.deepcopy(r2b)
+g["origin_result"]["basis"] = " "
+fill_gap(g)
+check("7.6n: an empty gap basis gets the code's sentence", g["origin_result"]["basis"] == GAP_BASIS)
+res2 = run_researcher(EVAL_BY_ID["N13"].intake, n13, llm=fake_llm(r2b))
+check("run_researcher: the r2 shape passes in round 1 with no problems",
+      res2.passed and not res2.problems and res2.data["origin_result"]["basis"] == R2_BASIS,
+      (res2.problems, res2.changes))
 check("N13 report note passes the shown-text check",
       not any("caveats" in p for p in run({**copy.deepcopy(GOOD_W), "caveats": [
           {"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}]}, n13)[0]), run(GOOD_W, n13)[0])
