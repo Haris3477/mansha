@@ -53,17 +53,14 @@ def flip_failed_check(d):      # problem 30: a check's meaning reversed
         "Final manufacture did not take place in the UAE.", "Final manufacture took place in the UAE.")
 
 
-def merged_step(d):            # G8: a fact from another passage in a step (P-AGR-COO-RULES)
-    d["procedure"][0]["step"] += " The certificate is then issued within five working days of export."
-
-
 def dropped_qualifier(d):      # problem 6: "likely" dropped (KB batch, 27 Oct: was "reportedly" on the
     # e-certificate step, which P-IN-IMPORTER now states plainly)
     d["caveats"][5]["note"] = d["caveats"][5]["note"].replace("are likely not eligible", "are not eligible")
 
 
 def invented_timeline(d):      # a number the record does not give (code warns; QA must judge it REAL)
-    d["procedure"][1]["step"] += " Processing takes 14 working days."
+    # Step shield (S3, 28 Oct): was in procedure[1]; code writes the steps now, so in the registration note.
+    d["caveats"][5]["note"] += " Registration takes 14 working days."
 
 
 def bom_already_given(d):      # problem 55: asks for a bill of materials the check already used
@@ -90,10 +87,6 @@ def nodata_dropped_qualifier(d):   # problem 6 inside a big (split) review
         "outside a free zone, and registration is needed before applying for the certificate of origin for India.")
 
 
-def nodata_merged_step(d):     # G8 inside a big (split) review: a fact from P-AGR-3.17-APPLICATION
-    d["procedure"][4]["step"] += " The issuing authority may also visit the factory before issuing it."
-
-
 @dataclass
 class Case:
     name: str
@@ -110,16 +103,15 @@ CASES = [
     Case("clean_windows_nodata", "windows_nodata", note="NEEDS_MORE_DATA, 13 caveats"),
     Case("clean_plastic", "plastic", note="NO_PREFERENCE"),
     Case("flip_failed_check", "chargers", flip_failed_check, ("origin_result", "origin_result.basis"), "problem 30"),
-    Case("merged_step", "windows", merged_step, ("procedure[0]", "procedure"), "G8"),
     Case("dropped_qualifier", "windows", dropped_qualifier, ("caveats[5]", "caveats"), "problem 6"),
-    Case("invented_timeline", "windows", invented_timeline, ("procedure[1]", "procedure"), "code warning"),
+    Case("invented_timeline", "windows", invented_timeline, ("caveats[5]", "caveats"), "code warning"),
     Case("bom_already_given", "chargers", bom_already_given, ("follow_up_questions", "follow_up_questions[0]"), "problem 55"),
     Case("irrelevant_caveat", "chargers", irrelevant_caveat, ("caveats", "caveats[6]"), "G12"),
     Case("useless_gap", "chargers", useless_gap, ("gaps", "gaps[0]"), "17 Oct live run"),
     Case("nodata_dropped_qualifier", "windows_nodata", nodata_dropped_qualifier,
          ("caveats[10]", "caveats"), "problem 6, split review; code since 7.8", code_catches=True),
-    Case("nodata_merged_step", "windows_nodata", nodata_merged_step,
-         ("procedure[4]", "procedure"), "G8, split review"),
+    # Step shield (S3, 28 Oct): merged_step and nodata_merged_step (G8 in a step) retired: code writes the
+    # steps from the KB and QA corrections on them are not counted.
 ]
 BY_NAME = {c.name: c for c in CASES}
 

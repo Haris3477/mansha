@@ -52,13 +52,40 @@ def check_note_wording(kb: dict) -> list[str]:
     return problems
 
 
+# Step shield (S3, 28 Oct): code prints each claim step's KB text word for word in the checklist, so every
+# listed record has the text in English and Arabic, no evidence IDs, and no number its summary lacks
+# (a later summary edit cannot leave a step stale unnoticed).
+def check_steps(kb: dict, corridor: str = "india") -> list[str]:
+    from mansha.researcher import CLAIM_STEPS, EVIDENCE_ID_RE, PROCEDURE_TOOL_IDS, number_keys
+    problems = []
+    by_id = {p["id"]: p for p in kb["passages"]["passages"]}
+    for pid in CLAIM_STEPS[corridor]:
+        if pid in PROCEDURE_TOOL_IDS:
+            continue
+        p = by_id.get(pid)
+        if p is None:
+            problems.append(f"{pid}: claim step record missing from passages")
+            continue
+        for lang in ("en", "ar"):
+            text = (p.get("step") or {}).get(lang, "")
+            if not text.strip():
+                problems.append(f"{pid}: no {lang} step text")
+                continue
+            if EVIDENCE_ID_RE.search(text):
+                problems.append(f"{pid}: evidence ID in the {lang} step text")
+            extra = number_keys(text) - number_keys(p.get("summary", ""))
+            if extra:
+                problems.append(f"{pid}: {lang} step has number(s) {sorted(extra)} not in its summary")
+    return problems
+
+
 def main() -> int:
     try:
         kb = load_corridor("india")
     except KBError as e:
         print(f"FAILED\n{e}")
         return 1
-    problems = check_corridors() + check_note_wording(kb)
+    problems = check_corridors() + check_note_wording(kb) + check_steps(kb)
     if problems:
         print("FAILED\n- " + "\n- ".join(problems))
         return 1

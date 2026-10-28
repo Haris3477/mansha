@@ -388,9 +388,9 @@ def drop_user_data_gaps(data: dict, pack: EvidencePack) -> list[str]:
 
 
 def plain_check_names(data: dict) -> list[str]:
-    """Write the origin calculator's check names in plain words in exporter text (Step 7.6j).
+    """Write the origin calculator's check names and results in plain words in exporter text (Step 7.6j, F2).
 
-    "final_manufacture_in_uae: PASS - ..." -> "final manufacture check: PASS - ...". A fixed
+    "final_manufacture_in_uae: PASS - ..." -> "final manufacture check: passed - ...". A fixed
     mapping, so code does it instead of spending the revision; any other raw name is a problem
     in check_researcher (RAW_NAME_RE).
     """
@@ -402,6 +402,10 @@ def plain_check_names(data: dict) -> list[str]:
         new = text
         for raw, words in CHECK_NAME_WORDS.items():
             new = re.sub(rf"\b{raw}\b", words, new)
+        # F2 (sitting 20261028-215427, N4): the code-only report printed "final manufacture check: PASS"
+        # and the report check flagged the status code; a check's result is written in plain words too.
+        new = re.sub(r":\s*PASS(?:ED)?\b", ": passed", new)
+        new = re.sub(r":\s*FAIL(?:S|ED)?\b", ": failed", new)
         if new != text:
             changes.append(f"{where}: check names written in plain words")
         return new
@@ -929,6 +933,114 @@ def fill_gap(data: dict) -> list[str]:
     return changes
 
 
+# Step shield (S3, Haris 28 Oct): code writes the claim checklist from each record's KB `step` text,
+# in this order. The model's actor-first steps ("The Ministry of Economy and Tourism registers the
+# factory", G14), requirements and facts written as steps (slip 94) and wrong actors (72) reached every
+# report: the checklist prints the steps word for word. All 8 records were in the evidence of 33 of 33
+# claim runs since 27 Oct, so the list is fixed. Left out (Haris): retrospective issue and amendment.
+CLAIM_STEPS = {"india": ["P-MOET-FACTORY-REG", "P-MOET-COO-INDIA", "P-AGR-3.17-APPLICATION", "TOOL:coo_fee",
+                         "P-AGR-COO-RULES", "P-AGR-3.12-DIRECT", "P-IN-IMPORTER", "P-AGR-RECORDS-VERIFICATION"]}
+FEE_STEP = {
+    "en": {"ESTIMATED": "Pay the certificate fee: AED {fee} for an invoice value of AED {value} (fees run from "
+                        "AED {min} to AED {max} by invoice value).",
+           "range": "Pay the certificate fee: from AED {min} to AED {max}, depending on the invoice value in AED."},
+    "ar": {"ESTIMATED": "ادفع رسوم الشهادة: {fee} درهم لقيمة فاتورة تبلغ {value} درهم (تتراوح الرسوم بين {min} "
+                        "و{max} درهم حسب قيمة الفاتورة).",
+           "range": "ادفع رسوم الشهادة: من {min} إلى {max} درهم حسب قيمة الفاتورة بالدرهم."},
+}
+
+
+def fee_step(fee: dict | None, lang: str) -> str | None:
+    """The certificate-fee step from the fee tool's result; None when the tool has no fee (GAP)."""
+    rng = (fee or {}).get("fee_range_aed")
+    if not rng or fee.get("status") not in ("ESTIMATED", "NEEDS_VALUE", "CURRENCY_NOT_AED"):
+        return None
+    t = FEE_STEP.get(lang, FEE_STEP["en"])
+    if fee["status"] == "ESTIMATED":
+        value = f"{Decimal(str(fee['invoice_value'])):,.2f}".removesuffix(".00")
+        return t["ESTIMATED"].format(fee=fee["fee_aed"], value=value, min=rng["min"], max=rng["max"])
+    return t["range"].format(min=rng["min"], max=rng["max"])
+
+
+def claim_steps(pack: EvidencePack, lang: str) -> list[dict]:
+    """The claim checklist: each listed record in the evidence that has a step text, in order."""
+    out = []
+    for sid in CLAIM_STEPS.get(pack.corridor, []):
+        if sid in PROCEDURE_TOOL_IDS:
+            text = fee_step(pack.tool_results.get(sid), lang)
+        else:
+            step = pack.steps.get(sid) or {}
+            text = step.get(lang) or step.get("en")
+        if text and sid in pack.allowed_ids:
+            out.append({"step": text, "source_id": sid})
+    return out
+
+
+def fill_steps(data: dict, pack: EvidencePack, lang: str = "en") -> list[str]:
+    """Write `procedure` as the code's claim checklist (step shield, S3), or empty it.
+
+    Steps only when the chosen line's origin status (from the tool, as check 6) is QUALIFIES or
+    NEEDS_MORE_DATA; whatever the model wrote is replaced. The issuer caveat stays the model's to cite
+    (check 6); fill_fixed_notes writes its text.
+    """
+    if not isinstance(data.get("classification"), dict) or not isinstance(data.get("procedure", []), list):
+        return []
+    try:
+        chosen, problems = find_chosen(data, pack)
+    except (KeyError, TypeError):
+        return []
+    status = expected_origin(chosen, pack) if not problems else None
+    want = claim_steps(pack, lang) if status in PROCEDURE_STATUSES else []
+    if status is None or data.get("procedure") == want:
+        return []
+    had = data.get("procedure") or []
+    data["procedure"] = want
+    return [f"procedure: {len(want)} step(s) written by code from the knowledge base"
+            + (f" (replaced {len(had)} written by the model)" if had else "")]
+
+
+STEP_NOTE_COVERAGE = 0.6   # F1: a caveat that is mostly one of the step record's own KB notes
+STEP_NOTE_INSIDE = 0.8     # F1: ...or that carries one inside a restatement
+
+
+def drop_step_caveats(data: dict, pack: EvidencePack) -> list[str]:
+    """With the checklist written by code, drop caveats that restate a step record (F1, S3).
+
+    Sitting 20261028-215427: with `procedure` empty the Researcher cited the step records in caveats
+    instead (N10 6 of 16, N2 4 of 16), so Notes repeated the checklist, twice with the retrospective
+    box-9 sentence Haris left out of it. A caveat citing a step record stays only when it is one of
+    that record's KB notes (e.g. the free-zone note); a restatement that carries such a note becomes
+    the note, once.
+    """
+    steps = {st.get("source_id") for st in data.get("procedure") or [] if isinstance(st, dict)}
+    caveats = data.get("caveats")
+    if not steps or not isinstance(caveats, list):
+        return []
+    notes = record_notes(pack)
+    kept, changes, seen = [], [], set()
+    for i, cv in enumerate(caveats):
+        sid = cv.get("source_id") if isinstance(cv, dict) else None
+        if sid not in steps or sid in PROCEDURE_TOOL_IDS:
+            kept.append(cv)
+            continue
+        text = str(cv.get("note") or "")
+        best = max(notes.get(sid, []), key=lambda n: coverage(n, text), default=None)
+        inside = best is not None and coverage(best, text) >= STEP_NOTE_INSIDE
+        if inside or (best and coverage(text, best) >= STEP_NOTE_COVERAGE):
+            if best in seen:
+                changes.append(f"caveats[{i}]: dropped, {sid}'s note is already a caveat")
+                continue
+            seen.add(best)
+            if inside and text != best:
+                cv["note"] = best
+                changes.append(f"caveats[{i}]: restated {sid} step cut to its KB note")
+            kept.append(cv)
+            continue
+        changes.append(f"caveats[{i}]: dropped, it restates the checklist step from {sid}: {text[:80]!r}")
+    data["caveats"] = kept
+    return changes
+
+
 # ---------- the checks ----------
 
 def check_researcher(data: dict, pack: EvidencePack) -> tuple[list[str], list[str], str]:
@@ -1135,11 +1247,9 @@ def build_messages(intake: dict, pack: EvidencePack, *, previous: dict | None = 
         {"role": "user", "content": user},
     ]
     if corrections:
-        # Send back what the model wrote: no code-filled verdict or step authorities.
+        # Send back what the model wrote: no code-filled verdict or steps.
         prev = copy.deepcopy({k: v for k, v in (previous or {}).items() if k != "verdict"})
-        for step in prev.get("procedure") or []:
-            if isinstance(step, dict):
-                step.pop("authority", None)
+        prev["procedure"] = []  # code writes the steps (S3); the model leaves them empty
         messages.append({"role": "assistant", "content": json.dumps(prev, ensure_ascii=False)})
         messages.append({"role": "user", "content":
                          "CORRECTIONS (apply all of them, then return the full corrected JSON only):\n"
@@ -1172,6 +1282,8 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
     changes += drop_hs_follow_ups(data, pack)  # "confirm the HS code" with no conflict noted (problem 92, 7.9)
     changes += drop_free_zone_follow_ups(data, pack)  # "is the factory in a free zone?" when the user said so (1c)
+    changes += fill_steps(data, pack, intake.get("language") or "en")  # the claim checklist, from the KB (S3)
+    changes += drop_step_caveats(data, pack)  # and no caveats repeating it (F1)
     fill_authorities(data, pack)  # so is who acts in each step
     fill_tariff_line(data, pack)  # and the tariff code's format
     changes += fill_fixed_notes(data, pack)  # and fixed notes such as the issuer note (problem 79)

@@ -49,7 +49,8 @@ class EvidencePack:
     excluded_ids: set[str] = field(default_factory=set)  # candidate IDs with no CEPA preference
     actors: dict[str, str] = field(default_factory=dict)  # evidence ID -> who acts (code copies it into steps)
     fixed_notes: dict[str, str] = field(default_factory=dict)  # evidence ID -> KB note code prints verbatim (7.6f)
-    corridor: str = "india"                # whose KB the evidence came from (Step 7.6d: claim passages)
+    steps: dict[str, dict] = field(default_factory=dict)  # evidence ID -> its claim step {en, ar} (step shield)
+    corridor: str = "india"               # whose KB the evidence came from (Step 7.6d: claim passages)
 
 
 # ---------- formatting helpers ----------
@@ -356,6 +357,7 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
     psr_rules: dict[str, dict] = {}
     actors: dict[str, str] = {}
     fixed_notes: dict[str, str] = {}
+    steps: dict[str, dict] = {}
 
     tl = tariff_lookup(product_description=intake.get("product_description"),
                        hs_code_given=intake.get("hs_code_given"), corridor=corridor).to_dict()
@@ -419,6 +421,8 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
             actors[p["id"]] = p["actor"]
         if p["id"] in FIXED_NOTE_IDS and p.get("notes"):
             fixed_notes[p["id"]] = " ".join(p["notes"])
+        if p.get("step"):
+            steps[p["id"]] = p["step"]
 
     return EvidencePack(
         text="\n\n".join(b.parts),
@@ -429,5 +433,6 @@ def build_evidence(intake: dict, case_folder: str | Path | None = None,
         excluded_ids=excluded,
         actors=actors,
         fixed_notes=fixed_notes,
+        steps=steps,
         corridor=corridor,
     )

@@ -254,7 +254,7 @@ for case in ev.CASES:
         check(f"{case.name}: the seed changed exactly one part", len(changed) == 1, changed)
 check("invented_timeline: code warns, QA must judge it",
       ev.prepare(ev.BY_NAME["invented_timeline"])[2].warnings ==
-      ["procedure[1]: number(s) ['14'] not found in P-MOET-COO-INDIA"])
+      ["caveats[5]: number(s) ['14'] not found in P-MOET-FACTORY-REG"])
 
 
 def spy(reply_for):
@@ -297,14 +297,14 @@ def rejects_field(field):
     return reply
 
 
-llm, seen = spy(rejects_field("procedure[0].step"))
-code = ev.main(["merged_step", "--chain", "trial"], llm=llm, runs_root=tmp)
+llm, seen = spy(rejects_field("caveats[5].note"))
+code = ev.main(["dropped_qualifier", "--chain", "trial"], llm=llm, runs_root=tmp)
 check("right field: CAUGHT, exit 0", code == 0, code)
 check("--chain trial: QA on auto:trial with QA's 3000-token budget",
       seen and all(c == "auto:trial" for _, c, _ in seen))
 check("trial chain budget = judge budget", CHAIN_LIMITS["auto:trial"]["default"] == 3000)
-llm, _ = spy(rejects_field("procedure[3].step"))
-check("wrong step rejected: WRONG FIELD, exit 1", ev.main(["merged_step"], llm=llm, runs_root=tmp) == 1)
+llm, _ = spy(rejects_field("caveats[3].note"))
+check("wrong note rejected: WRONG FIELD, exit 1", ev.main(["dropped_qualifier"], llm=llm, runs_root=tmp) == 1)
 llm, _ = spy(rejects_field("caveats[0].note"))
 check("clean case rejected: FALSE REJECTION, exit 1", ev.main(["clean_plastic"], llm=llm, runs_root=tmp) == 1)
 slept = []
@@ -351,8 +351,8 @@ for name, want in (("clean_chargers", 1), ("clean_plastic", 1), ("clean_windows"
 ti, tp, tr = ev.prepare(ev.BY_NAME["invented_timeline"])
 tparts = plan_parts(ti, tp, tr.data, tr.warnings)
 owner = [p for p in tparts if p.warnings]
-check("a code warning goes to the part holding its field (procedure[1])",
-      len(owner) == 1 and "procedure[1]" in owner[0].scope and owner[0].warnings[0][0] == "W1",
+check("a code warning goes to the part holding its field (caveats[5])",
+      len(owner) == 1 and "caveats[5]" in owner[0].scope and owner[0].warnings[0][0] == "W1",
       [(p.label, p.warnings) for p in tparts])
 wi, wp, wr = ev.prepare(ev.BY_NAME["clean_windows"])
 wwarn = ["origin_result: number(s) ['3'] not found in TOOL:origin:76101000",
@@ -364,7 +364,7 @@ check("warnings keep their global numbers: W1 (origin) in part 1, W2 (caveats[5]
       [(p.label, p.warnings) for p in wparts])
 
 later = wparts[-1]
-item = next(k for k in later.scope if k != "findings")
+item = "caveats[3]"  # a tool note (no KB shield); steps are code's (S3), QA's step fixes don't count
 judged_here = [(w, "NOISE") for w, _ in later.warnings]
 ok = answer(judged_here, [{**FIX, "field": f"{item}.note" if item.startswith("caveats") else f"{item}.step",
                            "source_id": None}], c=0)
@@ -390,7 +390,7 @@ def scripted(*replies):
 
 
 wres = ResearcherResult(data=wr.data, problems=[], warnings=[])
-fix0 = {**FIX, "field": "procedure[0].step", "source_id": None}
+fix0 = {**FIX, "field": "origin_result.basis", "source_id": None}  # part 1 holds findings and steps
 q = run_qa(wi, wp, wres, llm=scripted(answer(), answer()))
 check("merge: every part approves -> APPROVED, '2 parts' in the note, both parts logged",
       q.status == QA_APPROVED and "2 parts" in q.note and len(q.parts) == 2 and len(q.llm_calls) == 2, q.note)
@@ -408,6 +408,22 @@ q = run_qa(wi, wp, wres, llm=scripted(err, answer(corrections=[{**FIX, "field": 
                                                   c=0)))
 check("merge: a part fails but another rejects -> REJECTED (a known mistake is still fixed)",
       q.status == QA_REJECTED and len(q.corrections) == 1, (q.status, q.corrections))
+
+# Step shield (S3, 28 Oct): code writes the steps from the KB, so a QA correction on a step is not sent
+# to the Researcher (it could not apply it); it is logged as not counted.
+from mansha.qa import QA_OVERRULED, is_step_correction, overruled_text
+step_fix = {**FIX, "field": "procedure[0].step", "problem": "Should say 'must register'.", "source_id": None}
+q = run_qa(wi, wp, wres, llm=scripted(answer(corrections=[step_fix], f=0), answer()))
+check("S3: a rejection on a step only -> OVERRULED, nothing sent to the Researcher",
+      q.status == QA_OVERRULED and q.corrections == [] and [o["why"] for o in q.overruled] == ["code step"],
+      (q.status, q.corrections, q.overruled))
+check("S3: the phase log line says why", "not counted: the claim steps are written by code"
+      in overruled_text(q.overruled[0]), overruled_text(q.overruled[0]))
+q = run_qa(wi, wp, wres, llm=scripted(answer(corrections=[step_fix, fix0], f=0), answer()))
+check("S3: a step correction next to a real one -> REJECTED with the real one only",
+      q.status == QA_REJECTED and q.corrections == [correction_text(fix0)], (q.status, q.corrections))
+check("S3: is_step_correction", is_step_correction({"field": "procedure"}) and
+      is_step_correction({"field": "procedure[3].step"}) and not is_step_correction({"field": "caveats[0].note"}))
 
 
 print("\n1d. Round 2: corrections on items round 1 passed and left unchanged are not counted")

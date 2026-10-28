@@ -27,13 +27,7 @@ Work in this order, and write one string per step in `reasoning`: one or two sho
    - duty NO_PREFERENCE → status NO_PREFERENCE, `amount` and `currency` null
    - duty NEEDS_VALUE → status NEEDS_VALUE, `amount` and `currency` null, and add a follow-up question asking for the shipment value
    - duty REGULATORY_GAP_DETECTED → status REGULATORY_GAP_DETECTED, `amount` and `currency` null, and add a gap
-6. **Procedure.** Only if the origin status is QUALIFIES or NEEDS_MORE_DATA: the steps to claim the CEPA rate, in order, taken from the `P-...` passages (who issues the certificate, prerequisites, how to apply, what the importer does, what records to keep). Rules for each step:
-   - It cites the passage that states its facts. If a step needs facts from two passages, split it into two steps.
-   - In the `step` text, name who acts only as the cited record's `actor:` line does. Do not write an `authority` field: code fills it from the cited record.
-   - Keep qualifiers such as "unconfirmed" or "reportedly" from the passage.
-   - Include a timeline only if the cited passage gives it.
-   - Put the certificate fee in its own step citing `TOOL:coo_fee`: give its fee if its status is ESTIMATED, otherwise the fee range it reports. Never pick a fee band yourself.
-     When `procedure` is not empty, also add the `P-UAE-ISSUER` note to `caveats`: who issues the certificate, and what no source confirms. For any other status, `procedure` is an empty list.
+6. **Procedure.** Always write `procedure` as an empty list: code writes the steps to claim the CEPA rate from the knowledge base. If the origin status is QUALIFIES or NEEDS_MORE_DATA, add the `P-UAE-ISSUER` note to `caveats`: who issues the certificate, and what no source confirms.
 7. **Caveats.** Copy the tool and passage notes that change how this result should be read (for example: duty estimated on BCD only, India charges duty on the CIF value, the result relies on the exporter's own declaration, free-zone factories, an interpretation of a rule), each with its source. Include each point once, and skip notes that do not apply to this result.
 
 Return JSON only:
@@ -73,7 +67,7 @@ Return JSON only:
     "currency": "string | null",
     "source_id": "string"
   },
-  "procedure": [{ "step": "string", "source_id": "string" }],
+  "procedure": [],
   "caveats": [{ "note": "string", "source_id": "string" }],
   "follow_up_questions": ["string"],
   "gaps": [{ "text": "string", "source_id": "string | null" }]
@@ -86,5 +80,5 @@ Rules:
 - `gaps` lists only what this check needed and the evidence does not give. Each gap has a `source_id`: the record that shows the gap (for example the origin tool result when the rule is missing from Mansha's data), or null when no record covers it. Never copy a caveat or a note into `gaps`: notes belong in `caveats` only, once. A record's `notes` (for example "X is not defined in the agreement") are notes: put them in `caveats`, citing that record. Data the user must supply (a bill of materials, a declaration, the shipment value) goes in `follow_up_questions` only, never in `gaps`.
 - Every number you write must appear in the record you cite. Copy numbers as given; never compute, round or convert them.
 - If the status is NEEDS_MORE_DATA, list in `follow_up_questions` exactly what the user must provide, based on the `missing` items in `TOOL:origin:<line>`, in plain words. Ask only for those items (e.g., if `missing` names one input's 6-digit HS code, ask for that input's code, not for a new bill of materials); ask for a whole bill of materials only when `missing` asks for one.
-- `origin_result.basis`, the `procedure` steps, `caveats`, `follow_up_questions` and `gaps` are shown to the exporter. Write them in plain words: cite records only in `source_id`, never in the text (no `PSR-IN-...`, `P-...`, `TOOL:...`), and never use internal words such as "intake".
+- `origin_result.basis`, `caveats`, `follow_up_questions` and `gaps` are shown to the exporter. Write them in plain words: cite records only in `source_id`, never in the text (no `PSR-IN-...`, `P-...`, `TOOL:...`), and never use internal words such as "intake".
 - If you receive corrections (from code checks or QA), apply them and return the full corrected JSON. A correction may name the record to cite: put it in `source_id`, never in the text.

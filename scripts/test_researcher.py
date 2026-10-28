@@ -26,6 +26,13 @@ from mansha.researcher import (
     drop_line_notes,
     fill_gap,
     GAP_BASIS,
+    CLAIM_STEPS,
+    build_messages,
+    claim_steps,
+    fee_step,
+    fill_steps,
+    drop_step_caveats,
+    record_notes,
     drop_user_data_gaps,
     plain_follow_ups,
     plain_check_names,
@@ -532,7 +539,8 @@ res = run_researcher(ci_, c, llm=fake_llm(leak))
 check("...but no stale problem once code has dropped it (checked again)", res.passed, res.problems)
 res = run_researcher(wi, wn, llm=fake_llm(GOOD_WN))
 check("run_researcher NEEDS_MORE_DATA: follow-ups kept, no change",
-      res.passed and res.data["follow_up_questions"] == GOOD_WN["follow_up_questions"] and res.changes == [],
+      res.passed and res.data["follow_up_questions"] == GOOD_WN["follow_up_questions"]
+      and [x for x in res.changes if not x.startswith("procedure:")] == [],  # S3: code writes the steps
       (res.problems, res.changes))
 
 # ---------------- no claim notes when no CEPA rate can apply (Step 7.6d, problem 76) ----------------
@@ -587,7 +595,8 @@ res = run_researcher(ci_, c, llm=fake_llm(leak))
 check("...but no stale problem once code has dropped it", res.passed, res.problems)
 res = run_researcher(wi, w, llm=fake_llm(GOOD_W))
 check("run_researcher ELIGIBLE: caveats untouched, no change",
-      res.passed and res.data["caveats"] == GOOD_W["caveats"] and res.changes == [], (res.problems, res.changes))
+      res.passed and res.data["caveats"] == GOOD_W["caveats"]
+      and [x for x in res.changes if not x.startswith("procedure:")] == [], (res.problems, res.changes))
 check("pack knows its corridor", c.corridor == "india")
 
 # ---------------- fixed notes written from the KB (Step 7.6f, problem 79) ----------------
@@ -696,8 +705,17 @@ BASIS_0359 = ("final_manufacture_in_uae: PASS - final manufacture took place in 
 d = copy.deepcopy(GOOD_W); d["origin_result"]["basis"] = BASIS_0359
 ch = plain_check_names(d)
 check("03:59 replay: check names written in plain words",
-      d["origin_result"]["basis"].startswith("final manufacture check: PASS")
-      and "minimal operations check: PASS" in d["origin_result"]["basis"] and "_" not in d["origin_result"]["basis"],
+      d["origin_result"]["basis"].startswith("final manufacture check: passed")   # F2: results in plain words too
+      and "minimal operations check: passed" in d["origin_result"]["basis"] and "_" not in d["origin_result"]["basis"],
+      d["origin_result"]["basis"])
+from mansha.report_check import TOOL_CODE_RE
+check("F2: no status code left in the 03:59 basis (CTSH: passed, VA: passed)",
+      not TOOL_CODE_RE.search(d["origin_result"]["basis"]) and "VA: passed - build-down 49.0%" in d["origin_result"]["basis"],
+      d["origin_result"]["basis"])
+d = copy.deepcopy(GOOD_W); d["origin_result"]["basis"] = "CTH: FAILS - one input; VA: FAIL - 30%; minimal operations check: PASSED."
+plain_check_names(d)
+check("F2: FAIL / FAILS / PASSED after a colon too",
+      d["origin_result"]["basis"] == "CTH: failed - one input; VA: failed - 30%; minimal operations check: passed.",
       d["origin_result"]["basis"])
 check("03:59 replay: the change is logged", ch == ["origin_result.basis: check names written in plain words"], ch)
 check("03:59 replay: no raw-name problem after the rewrite",
@@ -1231,6 +1249,117 @@ check("run_researcher: the r2 shape passes in round 1 with no problems",
 check("N13 report note passes the shown-text check",
       not any("caveats" in p for p in run({**copy.deepcopy(GOOD_W), "caveats": [
           {"note": N13_NOTE, "source_id": "TOOL:tariff_lookup"}]}, n13)[0]), run(GOOD_W, n13)[0])
+
+# ---------------- step shield: code writes the claim checklist from the KB (S3, 28 Oct) ----------------
+print("\n== fill_steps (step shield, S3)")
+kb_steps = {p["id"]: p["step"] for p in load_corridor("india")["passages"]["passages"] if p.get("step")}
+d = copy.deepcopy(GOOD_W)
+d["procedure"] = [{"step": "The Ministry of Economy and Tourism registers the factory.", "source_id": "P-MOET-FACTORY-REG"}]
+ch = fill_steps(d, w)
+check("ELIGIBLE: the 8 claim steps, in order, the model's actor-first step replaced",
+      [st["source_id"] for st in d["procedure"]] == CLAIM_STEPS["india"]
+      and ch == ["procedure: 8 step(s) written by code from the knowledge base (replaced 1 written by the model)"],
+      ([st["source_id"] for st in d["procedure"]], ch))
+check("... each record's step is its KB text word for word",
+      all(st["step"] == kb_steps[st["source_id"]]["en"] for st in d["procedure"] if st["source_id"] in kb_steps))
+check("... no step starts with a ministry or authority (G14)",
+      not any(st["step"].startswith(("The Ministry", "The issuing", "The competent")) for st in d["procedure"]))
+check("... idempotent", fill_steps(d, w) == [])
+fee = w.tool_results["TOOL:coo_fee"]
+check("... the fee step is the fee tool's band",
+      d["procedure"][3]["step"] == fee_step(fee, "en") and f"AED {fee['fee_aed']} " in d["procedure"][3]["step"],
+      d["procedure"][3])
+check("... it passes the checks (numbers, actors, shown text)", run(d, w)[0] == [] and not any(
+      x.startswith("procedure") for x in run(d, w)[1]), run(d, w))
+d_ar = copy.deepcopy(GOOD_W)
+fill_steps(d_ar, w, "ar")
+check("Arabic: the Arabic texts, the same records",
+      [st["source_id"] for st in d_ar["procedure"]] == CLAIM_STEPS["india"]
+      and d_ar["procedure"][0]["step"] == kb_steps["P-MOET-FACTORY-REG"]["ar"]
+      and d_ar["procedure"][3]["step"].startswith("ادفع رسوم الشهادة"), d_ar["procedure"][3])
+d = copy.deepcopy(GOOD_WN)
+fill_steps(d, wn)
+check("NEEDS_MORE_DATA: the 8 steps too", len(d["procedure"]) == 8)
+d = copy.deepcopy(GOOD_C)
+d["procedure"] = [{"step": "Apply for the certificate.", "source_id": "P-MOET-COO-INDIA"}]
+ch = fill_steps(d, c)
+check("NOT_ELIGIBLE: the model's steps emptied", d["procedure"] == [] and len(ch) == 1, (d["procedure"], ch))
+check("NOT_ELIGIBLE without steps: no change", fill_steps(copy.deepcopy(GOOD_C), c) == [])
+g = copy.deepcopy(r2b)
+g["procedure"] = [{"step": "Register the factory.", "source_id": "P-MOET-FACTORY-REG"}]
+fill_steps(g, n13)
+check("a gap: no steps", g["procedure"] == [])
+bad = copy.deepcopy(GOOD_W)
+bad["classification"]["tariff_line"] = "99999999"
+check("a classification code rejects: steps left for the checks", fill_steps(bad, w) == []
+      and bad["procedure"] == GOOD_W["procedure"])
+check("fee_step: no value -> the range",
+      fee_step({"status": "NEEDS_VALUE", "fee_range_aed": {"min": 10, "max": 200}}, "en")
+      == "Pay the certificate fee: from AED 10 to AED 200, depending on the invoice value in AED.")
+check("fee_step: a currency other than AED -> the range",
+      "from AED 10 to AED 200" in fee_step({"status": "CURRENCY_NOT_AED", "fee_range_aed": {"min": 10, "max": 200}}, "en"))
+check("fee_step: no fee (gap) -> no step",
+      fee_step({"status": GAP, "fee_range_aed": {"min": 10, "max": 200}}, "en") is None and fee_step(None, "en") is None)
+check("fee_step: top band, thousands shown",
+      "AED 200 for an invoice value of AED 750,000.50 " in fee_step(
+          {"status": "ESTIMATED", "fee_aed": 200, "invoice_value": "750000.50",
+           "fee_range_aed": {"min": 10, "max": 200}}, "en"))
+import dataclasses
+short = dataclasses.replace(w, allowed_ids=[i for i in w.allowed_ids if i != "P-AGR-3.12-DIRECT"])
+check("a record missing from the evidence: its step is left out",
+      [st["source_id"] for st in claim_steps(short, "en")] == [i for i in CLAIM_STEPS["india"] if i != "P-AGR-3.12-DIRECT"])
+res = run_researcher(wi, w, llm=fake_llm(GOOD_W))
+check("run_researcher: passes with the code's steps, authorities from the records",
+      res.passed and [st["source_id"] for st in res.data["procedure"]] == CLAIM_STEPS["india"]
+      and res.data["procedure"][0]["authority"] == "the Ministry of Economy and Tourism"
+      and res.data["procedure"][3]["authority"] == "the Ministry of Foreign Trade", (res.problems, res.changes))
+empty = copy.deepcopy(GOOD_W)
+empty["procedure"] = []
+res = run_researcher(wi, w, llm=fake_llm(empty))
+check("run_researcher: the model leaves procedure empty (new prompt) -> steps written, passes",
+      res.passed and len(res.data["procedure"]) == 8, (res.problems, res.changes))
+msgs = build_messages(wi, w, previous=res.data, corrections=["x: y"])
+check("a revision shows the model an empty procedure (code writes it)",
+      json.loads(msgs[-2]["content"])["procedure"] == [])
+
+# ---------------- F1: no caveats repeating the checklist (sitting 20261028-215427, N2 and N10) ----------------
+print("\n== drop_step_caveats (F1)")
+FZ = record_notes(w)["P-MOET-FACTORY-REG"][0]
+d = copy.deepcopy(GOOD_W)
+fill_steps(d, w)
+base = copy.deepcopy(d["caveats"])
+d["caveats"] = base + [
+    {"note": "Preference is given only to originating goods shipped directly from the UAE to India.", "source_id": "P-AGR-3.12-DIRECT"},
+    {"note": ("A certificate of origin is valid for 12 months from issue, covers one import, and can be issued "
+              "retrospectively up to 12 months from shipment with 'ISSUED RETROSPECTIVELY' in box 9."), "source_id": "P-AGR-COO-RULES"},
+    {"note": FZ, "source_id": "P-MOET-FACTORY-REG"},
+    {"note": FZ, "source_id": "P-MOET-FACTORY-REG"},
+]
+ch = drop_step_caveats(d, w)
+check("restatements of step records dropped (direct shipment, the box-9 certificate note)",
+      not any(c["source_id"] in ("P-AGR-3.12-DIRECT", "P-AGR-COO-RULES") for c in d["caveats"])
+      and "box 9" not in json.dumps(d["caveats"]), ch)
+check("... the record's own KB note kept once (free zone), every other caveat untouched",
+      [c for c in d["caveats"] if c["source_id"] == "P-MOET-FACTORY-REG"] == [{"note": FZ, "source_id": "P-MOET-FACTORY-REG"}]
+      and [c for c in d["caveats"] if c["source_id"] != "P-MOET-FACTORY-REG"]
+      == [c for c in base if c["source_id"] != "P-MOET-FACTORY-REG"], d["caveats"])
+check("... each drop logged", len(ch) == 3 and sum("restates the checklist step" in c for c in ch) == 2, ch)
+d = copy.deepcopy(GOOD_W)
+fill_steps(d, w)
+d["caveats"] = [c for c in d["caveats"] if c["source_id"] != "P-MOET-FACTORY-REG"] + [{"note": (
+    "Factory registration through the Ministry of Economy and Tourism is a prerequisite; it requires the factory "
+    "to be outside a free zone. " + FZ), "source_id": "P-MOET-FACTORY-REG"}]   # N10's shape
+ch = drop_step_caveats(d, w)
+check("a restatement carrying the KB note is cut to the note (N10)",
+      d["caveats"][-1] == {"note": FZ, "source_id": "P-MOET-FACTORY-REG"} and len(ch) == 1, (ch, d["caveats"][-1]))
+d = copy.deepcopy(GOOD_C)
+d["caveats"].append({"note": "Preference requires direct shipment.", "source_id": "P-AGR-3.12-DIRECT"})
+check("no checklist (NOT_ELIGIBLE): caveats left alone", drop_step_caveats(d, c) == [])
+res = run_researcher(wi, w, llm=fake_llm({**copy.deepcopy(GOOD_W), "procedure": [], "caveats": GOOD_W["caveats"] + [
+    {"note": "Preference is given only to originating goods shipped directly from the UAE to India.",
+     "source_id": "P-AGR-3.12-DIRECT"}]}))
+check("run_researcher: the restating caveat dropped, still passes",
+      res.passed and not any(c["source_id"] == "P-AGR-3.12-DIRECT" for c in res.data["caveats"]), (res.problems, res.changes))
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)

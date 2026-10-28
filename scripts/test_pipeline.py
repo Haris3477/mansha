@@ -302,7 +302,7 @@ check("pass-through: nothing in the phase log says APPROVED",
       "APPROVED" not in (res.out_dir / "phase_log.json").read_text())
 
 warn = research_fixture("windows")
-warn["procedure"][0]["step"] += " It costs AED 777."   # a number not in the cited record -> warning
+warn["caveats"][3]["note"] += " It costs AED 777."   # a number not in the cited record -> warning (S3: steps are code's)
 res = run("windows", fake_for("windows", researcher=[warn]), qa=qa_passthrough)
 check("code warnings with QA skipped: pipeline warns they were not reviewed",
       any("not reviewed by QA" in w for w in res.warnings), res.warnings)
@@ -311,8 +311,9 @@ print("\n4b. The real QA Evaluator (run_qa) with a fake LLM")
 llm = fake_for("windows", researcher=[warn])
 res = run("windows", llm)
 qp = phase(res, "QA (round 1)")
-check("code warning sent to QA as W1", "W1: procedure[0]: number(s) ['777']"
-      in llm.seen[2][1][1]["content"], llm.seen[2][1][1]["content"][:300])
+qa_msgs = [m[1][1]["content"] for m in llm.seen if m[0] == "qa"]
+check("code warning sent to QA as W1", any("W1: caveats[3]: number(s) ['777']" in m for m in qa_msgs),
+      [m[:300] for m in qa_msgs])
 check("QA judged it: shown in the phase log", "Code warnings judged by QA:" in
       (res.out_dir / "phase_log.md").read_text() and qp.details["warning_judgements"][0]["id"] == "W1")
 check("judged warnings: no 'not reviewed' warning", not any("not reviewed" in w for w in res.warnings),
