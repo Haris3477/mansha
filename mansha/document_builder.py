@@ -25,11 +25,12 @@ import copy
 import json
 import logging
 import re
+import unicodedata
 from dataclasses import dataclass, field
 
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
-from mansha.prompts import build_system_prompt
+from mansha.prompts import LANGUAGE_NAMES, build_system_prompt
 from mansha.prose_qa import QA_ERROR, QA_REJECTED, ProseQAOutcome
 from mansha.researcher import (  # noqa: F401  (NO_CEPA_RATE_VERDICTS is re-exported for report_check)
     EVIDENCE_ID_RE,
@@ -177,6 +178,63 @@ ID_RE = re.compile(EVIDENCE_ID_RE.pattern + r"|\b[NM]\d+\b")   # evidence IDs an
 CODE_WORD_RE = re.compile(
     r"\b(?:REGULATORY_GAP_DETECTED|NOT_ELIGIBLE|ELIGIBLE|NEEDS_MORE_DATA|NO_PREFERENCE|"
     r"NOT_APPLICABLE|NEEDS_VALUE|DOES_NOT_QUALIFY|QUALIFIES|MANDATORY)\b")
+
+# N15 (222746): Dots3's Arabic prose had Chinese letters ("وال迈尔斯"), Arabic+Latin words
+# ("للproduct") and English words ("Rule of origin هي"). Code finds all three (A1); the grader
+# uses the same check on the whole report (A4). Spelling is not checked.
+ARABIC_CHARS = "؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿"
+ARABIC_RE = re.compile(f"[{ARABIC_CHARS}]")
+# Trade terms and names that may stay in Latin letters in an Arabic report (lower case, one word each).
+LATIN_TERMS = ("HS", "CEPA", "MFN", "FOB", "CIF", "Ex-Works", "EXW", "CTSH", "CTH", "CC", "VA", "AED",
+               "BCD", "IGST", "GST", "SWS", "CAROTAR", "e-Sanchit", "Mansha")
+LATIN_OK = {w.lower() for t in LATIN_TERMS for w in re.findall(r"[A-Za-z]+", t)}
+# A bracket or quote holding no Arabic is a gloss of the word before it ("(bill of entry)"): allowed.
+GLOSS_RE = re.compile(r"\([^()]*\)|«[^«»]*»|\"[^\"]*\"|“[^”]*”|'[^']*'")
+DOMAIN_RE = re.compile(r"https?://\S+|\b[\w-]+(?:\.[\w-]+)*\.(?:ae|in|gov|com|org|net)\b")
+
+
+def script_problems(text: str, language: str) -> dict[str, list[str]]:
+    """Letters that do not belong in a report in `language` ("ar" or "en"). Pure code.
+
+    other: letters of a third script (neither Arabic nor Latin), in any report.
+    Arabic reports only: mixed (one word with Arabic and Latin letters) and english (Latin
+    words outside LATIN_TERMS, glosses and web addresses)."""
+    out: dict[str, list[str]] = {"other": list(dict.fromkeys(
+        c for c in text if c.isalpha() and not ARABIC_RE.match(c)
+        and not unicodedata.name(c, "").startswith("LATIN")))}
+    if language != "ar":
+        return out
+    mixed, english = [], []
+    plain = DOMAIN_RE.sub(" ", text)
+    plain = GLOSS_RE.sub(lambda m: m.group(0) if ARABIC_RE.search(m.group(0)) else " ", plain)
+    for word in re.findall(r"\w+", plain):
+        latin = re.findall(r"[A-Za-z]+", word)
+        if latin and ARABIC_RE.search(word):
+            mixed.append(word)
+        else:
+            english += [w for w in latin if w.lower() not in LATIN_OK]
+    out["mixed"] = list(dict.fromkeys(mixed))
+    out["english"] = list(dict.fromkeys(english))
+    return out
+
+
+def script_corrections(where: str, text: str, language: str) -> list[str]:
+    """script_problems as corrections for the Builder's retry."""
+    found = script_problems(text, language)
+    name = LANGUAGE_NAMES.get(language, "the report's language")
+    out = []
+    if found["other"]:
+        out.append(f"{where}: remove the letters of another script ({''.join(found['other'][:12])}); "
+                   f"write only in {name}")
+    if found.get("mixed"):
+        out.append(f"{where}: these words mix Arabic and Latin letters: {found['mixed'][:8]}; "
+                   "write each word fully in Arabic")
+    if found.get("english"):
+        out.append(f"{where}: the report is in Arabic, but these words are English: "
+                   f"{found['english'][:8]}; write them in Arabic. Only these terms may stay in Latin "
+                   f"letters: {', '.join(LATIN_TERMS)}; an English term may also follow its Arabic "
+                   "word in brackets")
+    return out
 
 HEADINGS = {
     "en": {
@@ -466,8 +524,10 @@ def build_facts(research: dict, intake: dict, corridor: str = "india") -> tuple[
 
 # ---------- checks (code, after the call) ----------
 
-def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
-    """Return problems (each one becomes a correction). Pure code."""
+def check_prose(prose: dict, facts_text: str, notes: list[dict], language: str = "en") -> list[str]:
+    """Return problems (each one becomes a correction). Pure code.
+
+    language: the report's language ("ar" or "en"), for the script check (N15)."""
     problems: list[str] = []
     facts_numbers = number_keys(facts_text.split("\n\nNOTES")[0])
     by_nid = {n["nid"]: n for n in sent_notes(notes)}
@@ -498,6 +558,7 @@ def check_prose(prose: dict, facts_text: str, notes: list[dict]) -> list[str]:
             for m in saving_how(text):            # problem 67, 7.6h
                 problems.append(f"{where}: {m.group(0)!r} explains how the saving is worked out, "
                                 f"which FACTS does not say; {SAVING_HOW_FIX}")
+        problems.extend(script_corrections(where, text, language))   # N15
 
     for k in TEXT_KEYS:
         text_problems(f"`{k}`", prose[k], facts_numbers)
@@ -730,7 +791,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
             break
         calls.append(res)
         prose = res.data
-        code_problems = check_prose(prose, facts_text, notes)
+        code_problems = check_prose(prose, facts_text, notes, language or "en")
         log.info("document builder checks | round=%d | served_by=%s | problems=%d",
                  round_no, res.routed_via, len(code_problems))
         for p in code_problems:

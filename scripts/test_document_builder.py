@@ -32,6 +32,8 @@ from mansha.document_builder import (
     max_llm_notes,
     render_report,
     run_document_builder,
+    script_problems,
+    sent_notes,
     still_needed,
 )
 from mansha.evidence import build_evidence
@@ -304,6 +306,36 @@ check("67: a note item may repeat it when its own note says it",
 p = copy.deepcopy(good)
 p["summary"] = p["summary"].replace("AED 10,000", "AED 10000")
 check("thousands separators are the same number", check_prose(p, facts, notes) == [])
+
+# N15 (222746): the script check. Arabic prose with Dots3's faults, then clean Arabic (215427 style).
+ar_good = {"summary": "لا يمكن لـ Mansha تأكيد النتيجة بعد، لأن قائمة المواد ناقصة.",
+           "classification": "الرمز الجمركي HS للمنتج مذكور أعلاه (رمز النظام المنسق).",
+           "duty": "السعر العادي MFN أعلى من سعر الاتفاقية CEPA، ويُحسب على أساس FOB أو Ex-Works.",
+           "origin": "تشترط القاعدة تغيير البند الفرعي CTSH مع قيمة مضافة VA، وتُقدَّم الشهادة عبر e-Sanchit "
+                     "وفق قواعد CAROTAR، ويطالب المستورد بالسعر عند تقديم بيان الإدخال (bill of entry) "
+                     "عبر eservices.moec.gov.ae.",
+           "notes": []}
+check("N15: clean Arabic prose passes the script check", check_prose(ar_good, facts, notes, "ar") == [],
+      check_prose(ar_good, facts, notes, "ar"))
+bad = {"summary": "وال迈尔斯 الم估算", "classification": "الرمز للproduct", "duty": "ال_AGREEMENT هي",
+       "origin": "Rule of origin هي CTSH (يتم including التحقق)"}
+for key, want in (("summary", "another script (迈尔斯估算)"), ("classification", "['للproduct']"),
+                  ("duty", "['ال_AGREEMENT']"), ("origin", "['Rule', 'of', 'origin', 'including']")):
+    p = copy.deepcopy(ar_good)
+    p[key] = bad[key]
+    probs = check_prose(p, facts, notes, "ar")
+    check(f"N15: {key} {bad[key]!r} -> {want}", len(probs) == 1 and probs[0].startswith(f"`{key}`")
+          and want in probs[0], probs)
+p = copy.deepcopy(ar_good)
+p["notes"] = [{"text": "عملية بسيطة أوucceeding لا تمنح المنشأ.", "from": [n["nid"] for n in sent_notes(notes)][:1]}]
+check("N15: a note item is checked too", any(x.startswith("notes[0]") and "أوucceeding" in x
+                                              for x in check_prose(p, facts, notes, "ar")))
+check("N15: English prose is not held to the Arabic rules", check_prose(good, facts, notes, "en") == [])
+p = copy.deepcopy(good)
+p["summary"] += " 估算"
+check("N15: another script fails an English report too",
+      any("another script (估算)" in x for x in check_prose(p, facts, notes)), check_prose(p, facts, notes))
+check("N15: accented Latin letters are Latin", script_problems("café naïve", "en")["other"] == [])
 
 print("\n3. Code-only report for each verdict")
 kb_sources = load_corridor("india")["sources"]

@@ -185,6 +185,22 @@ check("... but without the tool figure it would be flagged", value_leaks(BY_ID["
 check("... and another input amount still is", value_leaks(BY_ID["N5"], "Titanium dioxide 25,000 AED", "", figs))
 f = planted(C1, "arabic", lambda d: append(d / "report.md", "\nملاحظة\n"))
 check("Arabic letters in an English report -> language fails", "language" in failed_names(f))
+f = planted(C1, "cjk", lambda d: (d / "report.md").write_text(   # above the sources list, which is skipped
+    (d / "report.md").read_text(encoding="utf-8").replace("\n## Summary\n", "\n## Summary\n\nthe 估算 saving\n", 1),
+    encoding="utf-8"))
+check("N15: another script in a report -> language fails", "language" in failed_names(f))
+# N15 (A4): the Builder's script check on a whole Arabic report; the sources list and [n] are skipped.
+from types import SimpleNamespace
+from scripts.eval_grade import language_problems
+AR_CASE = SimpleNamespace(intake={"language": "ar"})
+AR_OK = ("# فحص المنشأ\n\n## الملخص\n\nالسعر العادي MFN هو 10% وسعر الاتفاقية CEPA هو 0%. [1][2]\n\n"
+         "## المصادر\n\n1. [CBIC Customs Tariff of India](https://www.cbic.gov.in/x)\n")
+check("N15: a clean Arabic report passes", language_problems(AR_CASE, SimpleNamespace(output=AR_OK)) == [],
+      language_problems(AR_CASE, SimpleNamespace(output=AR_OK)))
+probs = language_problems(AR_CASE, SimpleNamespace(
+    output=AR_OK.replace("السعر العادي", "Done للx وال迈尔斯")))
+check("N15: English words, mixed words and another script are each reported",
+      len(probs) == 3 and "迈尔斯" in probs[0] and "للx" in probs[1] and "['Done']" in probs[2], probs)
 
 print("\n4. Global anchors count known open problems as slips; they don't fail a case (D1 = A)")
 f = planted(C1, "slip72", lambda d: append(d / "report.md",
