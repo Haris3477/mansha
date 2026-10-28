@@ -41,7 +41,7 @@ def main(argv: list[str] | None = None, *, llm=lc.call_llm, runs_root: Path = Pa
 
     short = args.chain.removeprefix("auto:")
     chain = f"auto:{short}"
-    if chain in ("auto:long", "auto:qa", "auto:judge", "auto:auto") or not short:
+    if chain in ("auto:long", "auto:qa", "auto:judge", "auto:arabic", "auto:auto") or not short:
         parser.error(f"{args.chain!r} is a pipeline chain (or empty): give a separate trial chain")
     top = max(v["ceiling"] for v in lc.CHAIN_LIMITS.values())
     lc.CHAIN_LIMITS.setdefault(chain, {"default": top, "ceiling": top})

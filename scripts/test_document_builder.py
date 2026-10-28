@@ -698,5 +698,65 @@ r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=fake_llm(di
 check("D: prose QA reads only the fields it was built for", rv.seen[0][1] == ar_good
       and r.review_status == "APPROVED" and title_of(r.markdown).endswith(tr["product"]), rv.seen[0][1].keys())
 
+print("\n9. B (28 Oct): the chain by language, the one code fallback to auto:long, every round's prose")
+
+
+def chain_llm(*replies):
+    """fake_llm that also records the chain of each call."""
+    inner = fake_llm(*replies)
+
+    def llm(agent, chain, messages, **kwargs):
+        llm.chains.append(chain)
+        return inner(agent, chain, messages, **kwargs)
+    llm.chains, llm.seen = [], inner.seen
+    return llm
+
+
+ar_ok = dict(ar_good, **tr)
+ar_bad = dict(ar_ok, summary=ar_good["summary"] + " 中文")
+down = [{"attempt": 1, "ok": False, "problem": "connection error", "chain": "auto:arabic"}]
+check("B: the bad Arabic used here is caught by the code checks",
+      check_prose(ar_bad, build_facts(nd_research, nd_ar, "india")[0], build_facts(nd_research, nd_ar, "india")[1], "ar"))
+llm = chain_llm(good)
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("B: English -> auto:long, no fallback", llm.chains == ["auto:long"] and r.chain_fallback is None
+      and r.rounds[0]["chain"] == "auto:long", llm.chains)
+llm = chain_llm(ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: Arabic -> auto:arabic, no fallback", llm.chains == ["auto:arabic"] and r.chain_fallback is None
+      and r.rounds[0]["chain"] == "auto:arabic" and not r.used_fallback, llm.chains)
+llm = chain_llm(ar_bad, ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: Arabic round 2 stays on auto:arabic when round 1 only failed the checks",
+      llm.chains == ["auto:arabic", "auto:arabic"] and r.chain_fallback is None, llm.chains)
+check("B: every round's prose is saved (the rejected round 1 too)",
+      r.rounds[0]["prose"] == ar_bad and r.rounds[1]["prose"] == ar_ok, [x["prose"] for x in r.rounds])
+llm = chain_llm(LLMCallError("gemini down", down), ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: auto:arabic fails in round 1 -> the same round on auto:long, its prose used",
+      llm.chains == ["auto:arabic", "auto:long"] and not r.used_fallback and r.rounds[0]["chain"] == "auto:long"
+      and ar_good["summary"] in r.markdown, llm.chains)
+check("B: the fallback is recorded by name, with the failed attempts",
+      r.chain_fallback == {"from": "auto:arabic", "to": "auto:long", "round": 1, "reason": "gemini down"}
+      and r.failed_attempts == down, r.chain_fallback)
+llm = chain_llm(LLMCallError("gemini down", down), ar_bad, ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: after a fallback, round 2 stays on auto:long (once per run)",
+      llm.chains == ["auto:arabic", "auto:long", "auto:long"] and r.chain_fallback["round"] == 1, llm.chains)
+llm = chain_llm(ar_bad, LLMCallError("gemini down", down), ar_ok)
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: auto:arabic fails in round 2 -> round 2 on auto:long",
+      llm.chains == ["auto:arabic", "auto:arabic", "auto:long"] and r.chain_fallback["round"] == 2
+      and [x["chain"] for x in r.rounds] == ["auto:arabic", "auto:long"] and not r.used_fallback, llm.chains)
+llm = chain_llm(LLMCallError("gemini down", down), LLMCallError("router down", failed[:1]))
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=llm)
+check("B: auto:long fails too -> code-only report, both chains' failed attempts kept, no second fallback",
+      llm.chains == ["auto:arabic", "auto:long"] and r.used_fallback and r.failed_attempts == down + failed[:1]
+      and r.chain_fallback["to"] == "auto:long" and r.rounds[0]["prose"] is None, llm.chains)
+llm = chain_llm(LLMCallError("router down", failed[:1]))
+r = run_document_builder(research, intake, pack.id_sources, llm=llm)
+check("B: an English auto:long failure has no chain fallback", llm.chains == ["auto:long"]
+      and r.chain_fallback is None and r.used_fallback)
+
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

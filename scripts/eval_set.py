@@ -67,15 +67,23 @@ def dry_run(cases: list[EvalCase], verbose: bool = False) -> int:
 
 # Worst case per run, in requests: both Researcher and Builder rounds plus one retry each (long),
 # Intake plus a retry (qa), and up to 3 QA parts x (2 rounds + format retry/re-judge) + prose QA (judge).
-WORST = {"REPORT": {"long": 5, "qa": 2, "judge": 14}, "STOP": {"long": 0, "qa": 2, "judge": 0}}
-TYPICAL = {"REPORT": {"long": 3, "qa": 1, "judge": 4}, "STOP": {"long": 0, "qa": 1, "judge": 0}}
+# B (28 Oct): an Arabic report's Builder rounds (2 + one retry) ask auto:arabic; long keeps its full worst
+# case, because a failed Arabic call falls back once to auto:long.
+WORST = {"REPORT": {"long": 5, "qa": 2, "judge": 14}, "STOP": {"long": 0, "qa": 2, "judge": 0},
+         "REPORT_AR": {"long": 5, "qa": 2, "judge": 14, "arabic": 3}}
+TYPICAL = {"REPORT": {"long": 3, "qa": 1, "judge": 4}, "STOP": {"long": 0, "qa": 1, "judge": 0},
+           "REPORT_AR": {"long": 1, "qa": 1, "judge": 4, "arabic": 2}}
+# Chains that share models: long + qa (Step 9), long + arabic (Gemini 3.5; Google's daily quota is project-wide).
+SHARED = (("long", "qa"), ("long", "arabic"))
 WARN_MIN_ATTEMPTS = 2
 
 
 def need(cases: list[EvalCase], repeat: int, table: dict) -> dict[str, int]:
     tot = {c: 0 for c in CHAINS}
     for case in cases:
-        for ch, n in table["REPORT" if case.status == "REPORT" else "STOP"].items():
+        kind = "STOP" if case.status != "REPORT" else (
+            "REPORT_AR" if (case.intake or {}).get("language") == "ar" else "REPORT")
+        for ch, n in table[kind].items():
             tot[ch] += n * repeat
     return tot
 
@@ -111,7 +119,7 @@ def upstream_warnings(cap: dict[str, list[dict]]) -> list[str]:
 
 
 def budget_check(cases: list[EvalCase], repeat: int, cap: dict[str, list[dict]]) -> tuple[bool, list[str]]:
-    """True when the worst case fits every chain and the models chains share (long + qa)."""
+    """True when the worst case fits every chain and the models chains share (SHARED)."""
     worst, typical = need(cases, repeat, WORST), need(cases, repeat, TYPICAL)
     lines, ok = [], True
     for ch in CHAINS:
@@ -120,11 +128,12 @@ def budget_check(cases: list[EvalCase], repeat: int, cap: dict[str, list[dict]])
         ok &= fits
         models = ", ".join(model_text(m) for m in cap[ch]) or "no models"
         lines.append(f"  {ch:6} need {typical[ch]}-{worst[ch]}, left {cap_ch:g}  {'OK' if fits else 'SHORT'}  ({models})")
-    shared = {m["model"]: m for ch in ("long", "qa") for m in cap[ch]}
-    both = worst["long"] + worst["qa"]
-    if both > left(list(shared.values())):
-        ok = False
-        lines.append(f"  long+qa share models: need up to {both}, left {left(list(shared.values())):g}  SHORT")
+    for a, b in SHARED:
+        shared = {m["model"]: m for ch in (a, b) for m in cap[ch]}
+        both = worst[a] + worst[b]
+        if worst[b] and both > left(list(shared.values())):
+            ok = False
+            lines.append(f"  {a}+{b} share models: need up to {both}, left {left(list(shared.values())):g}  SHORT")
     return ok, lines + upstream_warnings(cap)
 
 
@@ -138,10 +147,12 @@ def grade_line(g: Grade) -> str:
     r = g.run
     long_n = (g.cost.get("auto:long") or {}).get("requests", 0)
     judge_n = (g.cost.get("auto:judge") or {}).get("requests", 0)
+    arabic_n = (g.cost.get("auto:arabic") or {}).get("requests", 0)
     mark = "PASS" if g.passed else ("XFAIL" if g.case.expected_fail else "FAIL")
     slips = ",".join(sorted(g.slips)) or "-"
     return (f"{g.case.id:4} {g.case.name:22} {mark:5} {r.status or '-':13} {r.verdict or '-':24} "
-            f"{r.seconds:6.1f}s long {long_n} judge {judge_n} slips {slips}")
+            f"{r.seconds:6.1f}s long {long_n}" + (f" arabic {arabic_n}" if arabic_n else "")
+            + f" judge {judge_n} slips {slips}")
 
 
 def live(cases: list[EvalCase], repeat: int, root: Path) -> list[Grade]:
@@ -218,11 +229,12 @@ def summary_md(grades: list[Grade], s: dict, root: Path) -> str:
              f"LLM_ERROR {s['llm_error']}; QA rejections {s['qa_rejections']}, overruled {s['qa_overruled']}; "
              f"router refusals {s['router_refusals']}; pacing waits {s['paced_wait_s']} s; "
              f"median report time {s['median_seconds_reports']} s.", "",
-             "| Case | Result | Status | Verdict | Seconds | long | judge | Slips |", "|---|---|---|---|---|---|---|---|"]
+             "| Case | Result | Status | Verdict | Seconds | long | arabic | judge | Slips |", "|---|---|---|---|---|---|---|---|---|"]
     for g in grades:
         mark = "PASS" if g.passed else ("XFAIL" if g.case.expected_fail else "FAIL")
         lines.append(f"| {g.run.folder.name} | {mark} | {g.run.status} | {g.run.verdict or '-'} | {g.run.seconds:.1f} | "
-                     f"{(g.cost.get('auto:long') or {}).get('requests', 0)} | {(g.cost.get('auto:judge') or {}).get('requests', 0)} | "
+                     f"{(g.cost.get('auto:long') or {}).get('requests', 0)} | {(g.cost.get('auto:arabic') or {}).get('requests', 0)} | "
+                     f"{(g.cost.get('auto:judge') or {}).get('requests', 0)} | "
                      f"{', '.join(f'{k} ×{len(v)}' for k, v in sorted(g.slips.items())) or '-'} |")
     if s["failed_checks"]:
         lines += ["", "## Failed code checks"]

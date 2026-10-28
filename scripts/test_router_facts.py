@@ -90,11 +90,11 @@ CREATE TABLE requests (id INTEGER PRIMARY KEY, created_at TEXT, platform TEXT, m
                        latency_ms INTEGER, prompt_tokens INTEGER, completion_tokens INTEGER);
 CREATE TABLE request_attempts (id INTEGER PRIMARY KEY, request_id INTEGER, ordinal INTEGER, platform TEXT,
                                model_id TEXT, outcome TEXT, duration_ms INTEGER, error_summary TEXT);
-INSERT INTO profiles VALUES (3, 'long'), (4, 'qa'), (6, 'judge');
+INSERT INTO profiles VALUES (3, 'long'), (4, 'qa'), (6, 'judge'), (7, 'arabic');
 INSERT INTO models VALUES (1, 'openrouter', 'dots3:free', 1000, 1), (2, 'google', 'gemini-3.6-flash', 20, 1),
                           (3, 'google', 'gemini-3.5-flash', 20, 1), (4, 'groq', 'openai/gpt-oss-120b', 1000, 1),
                           (5, 'cerebras', 'gpt-oss-120b', 2400, 1);
-INSERT INTO profile_models VALUES (3, 1, 1), (3, 2, 1), (3, 3, 1), (4, 4, 1), (6, 5, 1);
+INSERT INTO profile_models VALUES (3, 1, 1), (3, 2, 1), (3, 3, 1), (4, 4, 1), (6, 5, 1), (7, 3, 1), (7, 2, 1);
 """)
 
 
@@ -181,6 +181,10 @@ check("d) Cerebras tokens and cost estimate",
       has("  Cerebras last 24 h: 5 requests, 500 input + 250 output tokens, about $0.00 at $0.35/$0.75 per 1M"), text)
 check("e) chains", has("  long: openrouter/dots3:free (rpd 1000), google/gemini-3.6-flash (rpd 20), "
                        "google/gemini-3.5-flash (rpd 20)"))
+check("e) the arabic chain (B) is listed", has("  arabic: google/gemini-3.5-flash (rpd 20), google/gemini-3.6-flash (rpd 20)"),
+      "\n".join(x for x in lines if x.startswith("  arabic")))
+check("d) capacity: the arabic chain sees Gemini 3.6's use by the long chain (counted per model)",
+      has("    arabic google/gemini-3.6-flash: router 24 h 3; used 3/20; left 17"), text)
 
 print("\n2. Matching never guesses")
 calls = router_facts.client_calls(run)
@@ -246,6 +250,39 @@ check("no database -> exit 2 with a plain message", rc == 2 and "cannot read the
 with redirect_stdout(StringIO()) as out:
     rc = router_facts.main([str(TMP / "no_such_run"), "--db", str(db)])
 check("no run folder -> exit 2", rc == 2)
+
+print("\n6. B (28 Oct): validity by chain, and the chain fallback")
+
+
+def b_call(case, phase, chain, served, ordinal_models, ok=True):
+    att = [{"ordinal": i, "model": name(m), "outcome": "ok" if i == len(ordinal_models) - 1 else "timeout",
+            "duration_ms": 1000, "error": None} for i, m in enumerate(ordinal_models)]
+    req = {"id": 1, "status": "success" if ok else "error", "attempts": att} if ordinal_models else None
+    return {"case": case, "phase": phase, "attempt": 1, "chain": chain, "served": served, "latency_s": 1.0,
+            "ok": ok, "req": req}
+
+
+good = [b_call("N15_r1", "Researcher (round 1)", "auto:long", name(DOTS), [DOTS]),
+        b_call("N15_r1", "Document Builder", "auto:arabic", name(G35), [G35]),
+        b_call("N15_r1", "Document Builder", "auto:arabic", name(G36), [G36])]
+v = router_facts.validity(good)
+check("arabic Builder on Gemini 3.5 or 3.6 at ordinal 0: valid", v == ["  N15_r1: valid (3 long calls)"], v)
+check("the long-chain line names the arabic chain",
+      router_facts.long_line(good[1]) == "  N15_r1 Document Builder (auto:arabic): google/gemini-3.5-flash at ordinal 0",
+      router_facts.long_line(good[1]))
+v = router_facts.validity([b_call("N15_r1", "Document Builder", "auto:arabic", name(DOTS), [DOTS])])
+check("arabic Builder served by Dots3: not valid", v[0].startswith("  N15_r1: NOT VALID: Document Builder "
+                                                                   "openrouter/dots3:free ordinal 0"), v)
+v = router_facts.validity([b_call("N15_r1", "Document Builder", "auto:arabic", name(G36), [G35, G36])])
+check("arabic Builder on Gemini 3.6 after a 3.5 timeout (ordinal 1): not valid", "ordinal 1" in v[0], v)
+fell = [b_call("N15_r2", "Researcher (round 1)", "auto:long", name(DOTS), [DOTS]),
+        b_call("N15_r2", "Document Builder", "auto:long", name(DOTS), [DOTS]),
+        b_call("N15_r2", "Document Builder", "auto:arabic", None, [], ok=False)]
+v = router_facts.validity(fell)
+check("chain fallback: NOT VALID for judging B, even with Dots3 at ordinal 0",
+      "chain fallback auto:arabic -> auto:long (not valid for judging B)" in v[0] and "NOT VALID" in v[0], v)
+check("an English case on auto:long is unchanged (Dots3 at ordinal 0: valid)",
+      router_facts.validity(good[:1]) == ["  N15_r1: valid (1 long calls)"])
 
 shutil.rmtree(TMP, ignore_errors=True)
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))

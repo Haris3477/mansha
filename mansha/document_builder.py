@@ -381,6 +381,8 @@ class BuilderResult:
     fallback_reason: str = ""
     # N15 (D): problems left on `product` / `needed`, so the report shows their English originals
     untranslated: list[str] = field(default_factory=list)
+    # B (28 Oct): None, or {from, to, round, reason} when the Arabic chain failed and auto:long took over
+    chain_fallback: dict | None = None
 
 
 # ---------- FACTS and NOTES (code, before the call) ----------
@@ -824,6 +826,16 @@ def reviewable(prose: dict) -> bool:
                                            for i in items)
 
 
+# B (Haris, 28 Oct): Arabic reports go to auto:arabic (Gemini only). The router orders every chain by
+# one global score, so Dots3 cannot be Gemini's backup inside a chain: the backup is here, in code.
+BUILDER_CHAIN = "auto:long"
+BUILDER_CHAINS = {"ar": "auto:arabic"}
+
+
+def builder_chain(language: str | None) -> str:
+    return BUILDER_CHAINS.get(language or "en", BUILDER_CHAIN)
+
+
 def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dict[str, str]],
                          *, corridor: str = "india", llm=call_llm, review=None,
                          conditions: list[str] | None = None) -> BuilderResult:
@@ -845,21 +857,34 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     tr_left: list[str] = []     # N15 (D): `product` / `needed` problems left: English originals
     reviewed: ProseQAOutcome | None = None
     fallback_reason = ""
+    chain = builder_chain(language)
+    chain_fallback: dict | None = None
 
     for round_no in (1, 2):   # first pass, then at most one correction round
         sent = problems if round_no == 2 else []
+        messages = build_messages(facts_text, language, previous=prose, corrections=sent or None)
         try:
-            res = llm("document_builder", "auto:long",
-                      build_messages(facts_text, language, previous=prose, corrections=sent or None),
-                      expect_json=True, required_keys=REQUIRED_KEYS)
+            try:
+                res = llm("document_builder", chain, messages, expect_json=True, required_keys=REQUIRED_KEYS)
+            except LLMCallError as exc:
+                if chain == BUILDER_CHAIN:
+                    raise
+                # B: the Arabic chain failed after the client's own retries. Once per run, this round
+                # goes to auto:long, and so does any later round. Such a run is not valid for judging B.
+                chain_fallback = {"from": chain, "to": BUILDER_CHAIN, "round": round_no, "reason": str(exc)}
+                log.warning("document builder | chain fallback: %s -> %s (round %d: %s)",
+                            chain, BUILDER_CHAIN, round_no, exc)
+                failed_attempts = list(exc.attempts)
+                chain = BUILDER_CHAIN
+                res = llm("document_builder", chain, messages, expect_json=True, required_keys=REQUIRED_KEYS)
         except LLMCallError as exc:
             log.warning("document builder | LLM call failed: %s", exc)
             problems = [f"LLM call failed: {exc}"]
-            failed_attempts = list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)
+            failed_attempts += list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)
             fallback_reason = f"Builder call failed in round {round_no}"
             main_left, tr_left = problems, []
-            rounds.append({"round": round_no, "code_problems": problems, "review": None,
-                           "corrections_sent": sent})
+            rounds.append({"round": round_no, "chain": chain, "code_problems": problems, "review": None,
+                           "corrections_sent": sent, "prose": None})
             break
         calls.append(res)
         prose = res.data
@@ -878,8 +903,8 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
         qa_problems = []
         if reviewed is not None and reviewed.status == QA_REJECTED:
             qa_problems = [f"QA: {c}" for c in reviewed.corrections] or ["QA: rejected without corrections"]
-        rounds.append({"round": round_no, "code_problems": code_problems + tr_problems, "review": reviewed,
-                       "corrections_sent": sent})
+        rounds.append({"round": round_no, "chain": chain, "code_problems": code_problems + tr_problems,
+                       "review": reviewed, "corrections_sent": sent, "prose": copy.deepcopy(prose)})
         main_left, tr_left = code_problems + qa_problems, tr_problems
         problems = main_left + tr_left
         if not problems:
@@ -912,4 +937,4 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
                          problems=problems if used_fallback else [], llm_calls=calls,
                          failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,
                          fallback_reason=fallback_reason if used_fallback else "",
-                         untranslated=[] if used_fallback else tr_left)
+                         untranslated=[] if used_fallback else tr_left, chain_fallback=chain_fallback)

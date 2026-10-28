@@ -50,6 +50,8 @@ CHAIN_LIMITS: dict[str, dict[str, int]] = {
     "auto:qa": {"default": 1000, "ceiling": 1000},
     "auto:long": {"default": 16000, "ceiling": 16000},
     "auto:judge": {"default": 3000, "ceiling": 6000},
+    # B (28 Oct): Arabic Builder calls only (Gemini 3.5 / 3.6 Flash); the same room as auto:long.
+    "auto:arabic": {"default": 16000, "ceiling": 16000},
 }
 
 # The router's own fallback budget is 45 s; leave headroom on top of it.

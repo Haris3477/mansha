@@ -89,7 +89,7 @@ class FakeLLM:
             raise r
         return LLMResult(text=json.dumps(r), data=copy.deepcopy(r), routed_via=f"fake/{agent}",
                          finish_reason="stop", latency_s=0.1,
-                         attempts=[{"attempt": 1, "ok": True, "routed_via": f"fake/{agent}"}])
+                         attempts=[{"attempt": 1, "chain": chain, "ok": True, "routed_via": f"fake/{agent}"}])
 
     def agents(self) -> list[str]:
         return [a for a, _ in self.seen]
@@ -445,6 +445,26 @@ check("prose_qa_1.json and prose_qa_2.json saved", (res.out_dir / "prose_qa_1.js
 saved = json.loads((res.out_dir / "builder.json").read_text())
 check("builder.json records the rounds and the review status", saved["review_status"] == "APPROVED"
       and [r["prose_qa"] for r in saved["rounds"]] == ["REJECTED", "APPROVED"], saved.get("rounds"))
+check("B: builder.json saves each round's prose and chain; English on auto:long, no chain fallback",
+      [r["chain"] for r in saved["rounds"]] == ["auto:long"] * 2 and saved["chain_fallback"] is None
+      and all(r["prose"] == builder_prose("windows") for r in saved["rounds"])
+      and [c["chain"] for c in saved["calls"]] == ["auto:long"] * 2, saved.get("rounds"))
+
+ar_in = dict(INTAKES["windows"][0], language="ar")
+llm = fake_for("windows", intake=[ar_in], document_builder=[ERR, builder_prose("windows"), builder_prose("windows")])
+res = run("windows", llm)
+saved = json.loads((res.out_dir / "builder.json").read_text())
+b = phase(res, "Document Builder")
+check("B: an Arabic report whose auto:arabic call fails: the fallback is in builder.json",
+      saved["chain_fallback"] and saved["chain_fallback"]["from"] == "auto:arabic"
+      and saved["chain_fallback"]["to"] == "auto:long" and saved["chain_fallback"]["round"] == 1
+      and [r["chain"] for r in saved["rounds"]] == ["auto:long"] * 2, saved.get("chain_fallback"))
+check("B: ... the failed auto:arabic attempts and the auto:long calls, each with its chain",
+      any(not c["ok"] and c["attempts"] == ERR.attempts for c in saved["calls"])
+      and [c["chain"] for c in saved["calls"] if c["ok"]] == ["auto:long"] * 2, saved["calls"])
+check("B: ... and named in the phase log", "chain fallback: auto:arabic -> auto:long (round 1:" in b.summary
+      and "chain fallback: auto:arabic -> auto:long" in (res.out_dir / "phase_log.md").read_text(encoding="utf-8"),
+      b.summary)
 
 llm = fake_for("windows", document_builder=[builder_prose("windows")] * 2,
                prose_qa=[PROSE_REJECTS, PROSE_REJECTS])
