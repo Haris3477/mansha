@@ -1,0 +1,71 @@
+Router facts (run runs/eval_set/20261028-205332), read-only from freeapi.db (settings and api_keys refused)
+Window (UTC): 2026-10-28 16:48:32 to 2026-10-28 17:02:17 (folder start and last log file, padded 5 min)
+
+a) Router requests in the window (14)
+  #1427 16:53:33 groq/openai/gpt-oss-120b success 997 ms  <- N13_wooden_doors_r1 Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 991 ms
+  #1428 16:54:45 openrouter/dots-studio/dots-3-note-preview:free success 72111 ms  <- N13_wooden_doors_r1 Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 72116 ms
+  #1429 16:54:47 cerebras/gpt-oss-120b success 1523 ms  <- N13_wooden_doors_r1 QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 1515 ms
+  #1430 16:54:58 openrouter/dots-studio/dots-3-note-preview:free success 11295 ms  <- N13_wooden_doors_r1 Researcher (round 2) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 11294 ms
+  #1431 16:54:59 cerebras/gpt-oss-120b success 875 ms  <- N13_wooden_doors_r1 QA (round 2) attempt 1
+      0 cerebras/gpt-oss-120b ok 869 ms
+  #1432 16:55:27 openrouter/dots-studio/dots-3-note-preview:free success 28108 ms  <- N13_wooden_doors_r1 Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 28105 ms
+  #1433 16:55:28 cerebras/gpt-oss-120b success 707 ms  <- N13_wooden_doors_r1 Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 702 ms
+  #1434 16:55:29 groq/openai/gpt-oss-120b success 1158 ms  <- N13_wooden_doors_r2 Intake attempt 1
+      0 groq/openai/gpt-oss-120b ok 1156 ms
+  #1435 16:56:14 openrouter/dots-studio/dots-3-note-preview:free success 44312 ms  <- N13_wooden_doors_r2 Researcher (round 1) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 44313 ms
+  #1436 16:56:15 cerebras/gpt-oss-120b success 994 ms  <- N13_wooden_doors_r2 QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 988 ms
+  #1437 16:56:35 openrouter/dots-studio/dots-3-note-preview:free success 20497 ms  <- N13_wooden_doors_r2 Researcher (round 2) attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 20492 ms
+  #1438 16:56:36 cerebras/gpt-oss-120b success 721 ms  <- N13_wooden_doors_r2 QA (round 2) attempt 1
+      0 cerebras/gpt-oss-120b ok 718 ms
+  #1439 16:57:16 openrouter/dots-studio/dots-3-note-preview:free success 40147 ms  <- N13_wooden_doors_r2 Document Builder attempt 1
+      0 openrouter/dots-studio/dots-3-note-preview:free ok 40147 ms
+  #1440 16:57:17 cerebras/gpt-oss-120b success 701 ms  <- N13_wooden_doors_r2 Prose QA (round 1) attempt 1
+      0 cerebras/gpt-oss-120b ok 681 ms
+
+b) Per platform (attempts in the window, by outcome)
+  cerebras: 6 attempts (ok 6)
+  groq: 2 attempts (ok 2)
+  openrouter: 6 attempts (ok 6)
+  non-success requests: none
+
+  Long-chain calls (Researcher / Builder): served model at the serving attempt's ordinal
+  N13_wooden_doors_r1 Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N13_wooden_doors_r1 Researcher (round 2): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N13_wooden_doors_r1 Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N13_wooden_doors_r2 Researcher (round 1): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N13_wooden_doors_r2 Researcher (round 2): openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+  N13_wooden_doors_r2 Document Builder: openrouter/dots-studio/dots-3-note-preview:free at ordinal 0
+
+  Validity (every Researcher/Builder call on openrouter at ordinal 0)
+  N13_wooden_doors_r1: valid (3 long calls)
+  N13_wooden_doors_r2: valid (3 long calls)
+
+  Client calls not matched in the router: none
+
+c) Cooldowns set or expiring in the window (0)
+
+d) Router state at 2026-10-28 16:57:17 UTC
+  active cooldowns: none
+  capacity (router 24 h successes = rate_limit_usage; OpenRouter :free used = max with UTC-day attempts):
+    long  google/gemini-3.5-flash: router 24 h 0; used 0/20; left 20
+    long  google/gemini-3.6-flash: router 24 h 0; used 0/20; left 20
+    long  openrouter/dots-studio/dots-3-note-preview:free: router 24 h 31, UTC-day attempts 31; used 31/1000; left 969
+    qa    groq/openai/gpt-oss-120b: router 24 h 11; used 11/1000; left 989
+    judge cerebras/gpt-oss-120b: router 24 h 31; used 31/2400; left 2369
+  OpenRouter attempts since 00:00 UTC (04:00 Dubai): dots-studio/dots-3-note-preview:free 31 (ok 31)
+  OpenRouter timeouts in the window: none
+  Cerebras last 24 h: 35 requests, 126914 input + 36686 output tokens, about $0.07 at $0.35/$0.75 per 1M
+
+e) Chains (enabled models, order as stored; rpd_limit with overrides)
+  long: google/gemini-3.5-flash (rpd 20), google/gemini-3.6-flash (rpd 20), openrouter/dots-studio/dots-3-note-preview:free (rpd 1000)
+  qa: groq/openai/gpt-oss-120b (rpd 1000)
+  judge: cerebras/gpt-oss-120b (rpd 2400)

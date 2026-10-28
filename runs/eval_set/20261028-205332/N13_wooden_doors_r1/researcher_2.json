@@ -1,0 +1,79 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 11.32,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 8430,
+        "completion": 967
+      },
+      "finish_reason": "stop",
+      "latency_s": 11.32,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [],
+  "output": {
+    "reasoning": [
+      "Classification: The product description 'wooden doors' does not match any candidate tariff line; the closest are aluminium doors and other wooden furniture, so classification is REGULATORY_GAP_DETECTED.",
+      "Preference: Not applicable because no tariff line could be classified.",
+      "Tariff: Cannot be determined due to the classification gap.",
+      "Origin: Not applicable.",
+      "Saving: Not applicable.",
+      "Procedure: Empty because origin status is not QUALIFIES or NEEDS_MORE_DATA.",
+      "Caveats: Included the note from the tariff lookup about no matching candidate and the need for the correct HS code."
+    ],
+    "classification": {
+      "tariff_line": "REGULATORY_GAP_DETECTED",
+      "description": "REGULATORY_GAP_DETECTED",
+      "confidence": "low",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "tariff": {
+      "agreement": "REGULATORY_GAP_DETECTED",
+      "mfn_rate": "REGULATORY_GAP_DETECTED",
+      "preferential_rate": "REGULATORY_GAP_DETECTED",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "origin_rule": {
+      "rule": "REGULATORY_GAP_DETECTED",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "origin_result": {
+      "status": "REGULATORY_GAP_DETECTED",
+      "basis": "No tariff line could be classified, so origin cannot be assessed.",
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "estimated_saving": {
+      "status": "REGULATORY_GAP_DETECTED",
+      "amount": null,
+      "currency": null,
+      "source_id": "TOOL:tariff_lookup"
+    },
+    "procedure": [],
+    "caveats": [
+      {
+        "note": "No HS code was provided, so classification relied solely on the product description.",
+        "source_id": "TOOL:tariff_lookup"
+      },
+      {
+        "note": "No tariff line in Mansha's sources matches the whole description 'wooden doors': the closest lines are 'Doors, windows and their frames and thresholds for doors (aluminium)' and 'Other wooden furniture'.",
+        "source_id": "TOOL:tariff_lookup"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [
+      {
+        "text": "No tariff line in the evidence matches the product description 'wooden doors'. The candidate lines are for aluminium doors and other wooden furniture, neither of which describes wooden doors. Therefore, the classification is a regulatory gap.",
+        "source_id": "TOOL:tariff_lookup"
+      }
+    ],
+    "verdict": "REGULATORY_GAP_DETECTED"
+  }
+}

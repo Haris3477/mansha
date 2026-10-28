@@ -1,0 +1,51 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 40.16,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1590,
+            "completion": 3772
+          },
+          "finish_reason": "stop",
+          "latency_s": 40.16,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha's sources do not cover this product well enough to give a result. The tariff line and rule of origin for wooden doors are missing.",
+    "classification": "The tariff line for wooden doors is not available in Mansha's sources, and Mansha's confidence in any classification is low. The code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "The agreement, normal (MFN) rate, and CEPA rate are not available in Mansha's sources, so no saving can be estimated.",
+    "origin": "The rule of origin for wooden doors is not available in Mansha's sources, so it cannot be described. Because no tariff line matches the product description, the origin cannot be assessed. As a result, the product cannot be checked for eligibility.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No tariff line in Mansha's sources matches the whole description 'wooden doors': the closest lines are 'Doors, windows and their frames and thresholds for doors (aluminium)' and 'Other wooden furniture'.",
+      "source_id": "TOOL:tariff_lookup",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}

@@ -1,0 +1,57 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 28.13,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 1601,
+            "completion": 2698
+          },
+          "finish_reason": "stop",
+          "latency_s": 28.13,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether wooden doors qualify for preferential duty because its sources do not cover this product well enough to give a result. The missing part is the tariff line classification, as no evidence matches the product description 'wooden doors'.",
+    "classification": "The tariff line for wooden doors is not in Mansha's sources, and Mansha's confidence in any classification is low. The correct tariff code should be confirmed with Indian customs or a customs broker before shipping.",
+    "duty": "The agreement details, normal (MFN) rate, and CEPA rate are not in Mansha's sources. No estimated saving can be provided because the tariff classification is missing.",
+    "origin": "The rule of origin is not in Mansha's sources, so it cannot be explained. The product cannot be checked because no tariff line could be classified, and therefore the origin cannot be assessed.",
+    "notes": []
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "No HS code was provided, so classification relied solely on the product description.",
+      "source_id": "TOOL:tariff_lookup",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "No tariff line in Mansha's sources matches the whole description 'wooden doors': the closest lines are 'Doors, windows and their frames and thresholds for doors (aluminium)' and 'Other wooden furniture'.",
+      "source_id": "TOOL:tariff_lookup",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}
