@@ -49,3 +49,15 @@ Branch `claude/fix-source-id-fill-gap-86nr8m`, from main at de658a8 (7.6n merged
 - The `Authority:` line stays in English in Arabic reports: it is copied from the record's English `actor` (pre-existing).
 - The grader's N4 must-say "Ex-Works threshold of 40%" also matches the factory step's "40% domestic value added" (pre-existing: the model's steps said it too). The reading checks the 40% by eye.
 - QA still sees the steps (its prompt is unchanged), so it may spend words on them; only the counting changed.
+
+## Sitting 20261028-215427 and fix round F1 + F2 (Haris: option 1)
+- Reading: `docs/cloud/readings/20261028-215427_reading.md`. The checklist is right in 4 of 4 runs. Side effect: notes restated the steps (N2 ×2, N10 ×3, twice with the retrospective / box-9 sentence).
+- **F1, `drop_step_caveats`:** once code has written the steps, a caveat citing a step record stays only if it is one of that record's KB notes (coverage 0.6). A restatement carrying the whole note (0.8) is cut to the note, which is kept once.
+  - Replay of 84 saved outputs: 53 change and none breaks.
+  - Live N2 and N10: the 4 and 5 restatements are dropped and the free-zone note is kept.
+  - No KB note is ever dropped (none of the drops contain "likely", the UAE 3-year note or the fee-band note).
+- **F2, `plain_check_names`:** "check: PASS / FAIL(S) / PASSED / FAILED" after a colon is written "passed" / "failed". This fixes N4's code-only report flag.
+- **Next sitting:** N2, N10 (the duplication cases) and N15 (re-run; 215427 was not valid because of the outage).
+
+## Task list addition (Haris, 28 Oct)
+- **Arabic gap (own task, after this one):** N15's report is not fully Arabic. Notes (mandatory KB and tool notes are English, printed verbatim), "What's still needed" (the Researcher's follow-ups), the `Authority:` lines (record actors), the product name in the title and the duty-table cells are English. Must-say "report fully in Arabic" is not met.

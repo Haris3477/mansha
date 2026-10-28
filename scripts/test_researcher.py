@@ -31,6 +31,8 @@ from mansha.researcher import (
     claim_steps,
     fee_step,
     fill_steps,
+    drop_step_caveats,
+    record_notes,
     drop_user_data_gaps,
     plain_follow_ups,
     plain_check_names,
@@ -703,8 +705,17 @@ BASIS_0359 = ("final_manufacture_in_uae: PASS - final manufacture took place in 
 d = copy.deepcopy(GOOD_W); d["origin_result"]["basis"] = BASIS_0359
 ch = plain_check_names(d)
 check("03:59 replay: check names written in plain words",
-      d["origin_result"]["basis"].startswith("final manufacture check: PASS")
-      and "minimal operations check: PASS" in d["origin_result"]["basis"] and "_" not in d["origin_result"]["basis"],
+      d["origin_result"]["basis"].startswith("final manufacture check: passed")   # F2: results in plain words too
+      and "minimal operations check: passed" in d["origin_result"]["basis"] and "_" not in d["origin_result"]["basis"],
+      d["origin_result"]["basis"])
+from mansha.report_check import TOOL_CODE_RE
+check("F2: no status code left in the 03:59 basis (CTSH: passed, VA: passed)",
+      not TOOL_CODE_RE.search(d["origin_result"]["basis"]) and "VA: passed - build-down 49.0%" in d["origin_result"]["basis"],
+      d["origin_result"]["basis"])
+d = copy.deepcopy(GOOD_W); d["origin_result"]["basis"] = "CTH: FAILS - one input; VA: FAIL - 30%; minimal operations check: PASSED."
+plain_check_names(d)
+check("F2: FAIL / FAILS / PASSED after a colon too",
+      d["origin_result"]["basis"] == "CTH: failed - one input; VA: failed - 30%; minimal operations check: passed.",
       d["origin_result"]["basis"])
 check("03:59 replay: the change is logged", ch == ["origin_result.basis: check names written in plain words"], ch)
 check("03:59 replay: no raw-name problem after the rewrite",
@@ -1310,6 +1321,45 @@ check("run_researcher: the model leaves procedure empty (new prompt) -> steps wr
 msgs = build_messages(wi, w, previous=res.data, corrections=["x: y"])
 check("a revision shows the model an empty procedure (code writes it)",
       json.loads(msgs[-2]["content"])["procedure"] == [])
+
+# ---------------- F1: no caveats repeating the checklist (sitting 20261028-215427, N2 and N10) ----------------
+print("\n== drop_step_caveats (F1)")
+FZ = record_notes(w)["P-MOET-FACTORY-REG"][0]
+d = copy.deepcopy(GOOD_W)
+fill_steps(d, w)
+base = copy.deepcopy(d["caveats"])
+d["caveats"] = base + [
+    {"note": "Preference is given only to originating goods shipped directly from the UAE to India.", "source_id": "P-AGR-3.12-DIRECT"},
+    {"note": ("A certificate of origin is valid for 12 months from issue, covers one import, and can be issued "
+              "retrospectively up to 12 months from shipment with 'ISSUED RETROSPECTIVELY' in box 9."), "source_id": "P-AGR-COO-RULES"},
+    {"note": FZ, "source_id": "P-MOET-FACTORY-REG"},
+    {"note": FZ, "source_id": "P-MOET-FACTORY-REG"},
+]
+ch = drop_step_caveats(d, w)
+check("restatements of step records dropped (direct shipment, the box-9 certificate note)",
+      not any(c["source_id"] in ("P-AGR-3.12-DIRECT", "P-AGR-COO-RULES") for c in d["caveats"])
+      and "box 9" not in json.dumps(d["caveats"]), ch)
+check("... the record's own KB note kept once (free zone), every other caveat untouched",
+      [c for c in d["caveats"] if c["source_id"] == "P-MOET-FACTORY-REG"] == [{"note": FZ, "source_id": "P-MOET-FACTORY-REG"}]
+      and [c for c in d["caveats"] if c["source_id"] != "P-MOET-FACTORY-REG"]
+      == [c for c in base if c["source_id"] != "P-MOET-FACTORY-REG"], d["caveats"])
+check("... each drop logged", len(ch) == 3 and sum("restates the checklist step" in c for c in ch) == 2, ch)
+d = copy.deepcopy(GOOD_W)
+fill_steps(d, w)
+d["caveats"] = [c for c in d["caveats"] if c["source_id"] != "P-MOET-FACTORY-REG"] + [{"note": (
+    "Factory registration through the Ministry of Economy and Tourism is a prerequisite; it requires the factory "
+    "to be outside a free zone. " + FZ), "source_id": "P-MOET-FACTORY-REG"}]   # N10's shape
+ch = drop_step_caveats(d, w)
+check("a restatement carrying the KB note is cut to the note (N10)",
+      d["caveats"][-1] == {"note": FZ, "source_id": "P-MOET-FACTORY-REG"} and len(ch) == 1, (ch, d["caveats"][-1]))
+d = copy.deepcopy(GOOD_C)
+d["caveats"].append({"note": "Preference requires direct shipment.", "source_id": "P-AGR-3.12-DIRECT"})
+check("no checklist (NOT_ELIGIBLE): caveats left alone", drop_step_caveats(d, c) == [])
+res = run_researcher(wi, w, llm=fake_llm({**copy.deepcopy(GOOD_W), "procedure": [], "caveats": GOOD_W["caveats"] + [
+    {"note": "Preference is given only to originating goods shipped directly from the UAE to India.",
+     "source_id": "P-AGR-3.12-DIRECT"}]}))
+check("run_researcher: the restating caveat dropped, still passes",
+      res.passed and not any(c["source_id"] == "P-AGR-3.12-DIRECT" for c in res.data["caveats"]), (res.problems, res.changes))
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
