@@ -1,0 +1,122 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "google/gemini-3.5-flash",
+      "latency_s": 15.54,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "latency_s": 0.01,
+          "ok": false,
+          "http_status": 502,
+          "problem": "HTTP 502: Error code: 502 - {'error': {'message': 'All 2 routed attempt(s) failed with upstream provider errors (error ×2). This is a provider-side failure, not a problem with your request; retry, or check provider status. Attempt trail: openrouter/dots-studio/dots-3-note-preview:free key1: error; google/gemini-3.6-flash key2: error. Last error: fetch failed (ENOTFOUND generativelanguage.googleapis.com)', 'type': 'provider_error', 'code': 'upstream_failed'}, 'execution_id': '3afd5c1b-b271-469d-887e-00f8053aa098'}",
+          "waited_before_retry_s": 30
+        },
+        {
+          "attempt": 2,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "google/gemini-3.5-flash",
+          "usage": {
+            "prompt": 1899,
+            "completion": 525
+          },
+          "finish_reason": "stop",
+          "latency_s": 15.54,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "ERROR",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "ERROR"
+    }
+  ],
+  "prose": {
+    "summary": "لا يمكن لمنصة منشأة تأكيد ما إذا كانت إطارات النوافذ الألومنيوم مؤهلة للاستفادة من المعاملة التفضيلية حتى الآن نظرًا لنقص البيانات المطلوبة. وفي حال تبين أن المنتج مؤهل، يُقدر الوفر المالي المحتمل في الرسوم الجمركية بمبلغ 10000.00 درهم إماراتي.",
+    "classification": "تم تصنيف المنتج تحت بند التعريفة الجمركية 76101000 الخاص بـ \"أبواب ونوافذ وأطرها وأعتابها للأبواب (من ألومنيوم)\" بمستوى ثقة مرتفع. ويجب تأكيد هذا البند الجمركي مع الجمارك الهندية أو مع مخلص جمركي قبل البدء بعملية الشحن.",
+    "duty": "وفقًا لاتفاقية الشراكة الاقتصادية الشاملة بين الإمارات والهند، يبلغ معدل الدولة الأكثر رعاية MFN (معدل الرسم الجمركي العادي) 10%، بينما يبلغ معدل الاتفاقية CEPA (المعدل المخفض) 0%. ويصل الوفر المالي المقدر إلى 10000.00 درهم إماراتي في حال استيفاء المنتج لشروط التأهل.",
+    "origin": "تنص قاعدة المنشأ على شرط تغيير الفرع الجمركي الفرعي CTSH (أي تصنيف كل المدخلات غير الوطنية في بند فرعي مختلف من 6 أرقام عن بند المنتج) مع تحقيق قيمة مضافة VA لا تقل عن 45% (وهي نسبة سعر المنتج التي لا تعود لمواد غير وطنية). ولم يتسنَّ إجراء التحقق من المنشأ نظرًا لعدم اكتمال البيانات الخاصة بقائمة المواد وإقرار التصنيع.",
+    "notes": [
+      {
+        "text": "يجب أن تتم عمليات التصنيع النهائي قبل التصدير داخل دولة الإمارات العربية المتحدة.",
+        "from": [
+          "N1"
+        ]
+      },
+      {
+        "text": "يُعد التجميع البسيط لأجزاء المنتجات لتشكيل صنف كامل من العمليات الأدنى التي لا تمنح صفة المنشأ بأي حال.",
+        "from": [
+          "N2"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 45%' is interpreted as 'and' (both tests must pass), as the agreement does not define '+'.",
+      "source_id": "TOOL:origin:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The duty estimate is based on the shipment value given (100,000 AED). India charges duty on the assessable (CIF) value at import, so actual amounts will differ.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:76101000",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The final manufacture before export must take place in the UAE.",
+      "source_id": "P-AGR-3.2-ORIGIN",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Simple assembly of parts of articles to constitute a complete article is a minimal operation that never confers origin.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M5",
+      "text": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement, and it is unclear if the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "M6",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M7",
+      "text": "A producer in a free zone is likely not eligible for Factory Registration, which is a prerequisite for applying for the certificate of origin for India.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    }
+  ],
+  "conditions": []
+}

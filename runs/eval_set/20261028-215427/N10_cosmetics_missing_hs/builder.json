@@ -1,0 +1,154 @@
+{
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+      "latency_s": 76.13,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:long",
+          "max_tokens": 16000,
+          "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+          "usage": {
+            "prompt": 2002,
+            "completion": 7731
+          },
+          "finish_reason": "stop",
+          "latency_s": 76.13,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "used_fallback": false,
+  "fallback_reason": "",
+  "review_status": "APPROVED",
+  "problems_left": [],
+  "rounds": [
+    {
+      "round": 1,
+      "code_problems": [],
+      "prose_qa": "APPROVED"
+    }
+  ],
+  "prose": {
+    "summary": "Mansha cannot confirm whether the cosmetic skin creams are eligible for preferential customs duty under the India-UAE CEPA yet, because the required information is missing. To complete the check, please provide the 6-digit HS code for the emollients used in the product. If the product is eligible, the estimated saving on duty would be 12000.00 AED.",
+    "classification": "The product is classified under tariff line 33049990, which is described as Other beauty or make-up preparations. Mansha's confidence in this classification is high, but you should confirm the code with Indian customs or a customs broker before shipping.",
+    "duty": "Under the India-UAE CEPA, the normal (MFN) rate, which is the normal import duty rate charged when no trade-agreement preference is claimed, is 20%, and the CEPA rate is 0%. The CEPA rate applies to Basic Customs Duty only, so other import charges such as IGST are still paid even when the CEPA rate is 0%. The estimated saving is 12000.00 AED, which applies only if the product is eligible.",
+    "origin": "The rule of origin requires a change in tariff subheading (CTSH), meaning each non-originating input must be classified in a different 6-digit subheading than the product, and a value addition (VA) of at least 40%. The value addition is the share of the product's price that does not come from non-originating materials. No checks could be performed because the origin tool reports missing data: a 6-digit HS code is required for the non-originating input 'Emollients'. As a result, the origin of the product cannot be checked yet.",
+    "notes": [
+      {
+        "text": "You must keep origin records, including a cost breakdown, for at least five years from the end of the calendar year of issue.",
+        "from": [
+          "N6"
+        ]
+      },
+      {
+        "text": "A certificate of origin is valid for 12 months from issue, covers one import, and must be issued before, at, or within 5 working days of export; it can be issued retrospectively up to 12 months from shipment with 'ISSUED RETROSPECTIVELY' marked.",
+        "from": [
+          "N7"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "nid": "M1",
+      "text": "The '+' in the rule 'CTSH + VA 40%' is interpreted as 'and' (both tests must pass); the agreement does not define '+'.",
+      "source_id": "TOOL:origin:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M2",
+      "text": "The estimate is on the shipment value given; India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M3",
+      "text": "The CEPA rate reduces Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M4",
+      "text": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+      "source_id": "TOOL:duty:33049990",
+      "mandatory": true
+    },
+    {
+      "nid": "M5",
+      "text": "Direct labour cost and direct overhead cost are not defined in the agreement.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": true
+    },
+    {
+      "nid": "N1",
+      "text": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+      "source_id": "P-AGR-3.2.2-VA",
+      "mandatory": false
+    },
+    {
+      "nid": "N2",
+      "text": "Minimal operations listed in Article 3.5.1 (a) to (q), alone or combined, never confer origin, regardless of the product-specific rule.",
+      "source_id": "P-AGR-3.5-MINIMAL",
+      "mandatory": false
+    },
+    {
+      "nid": "M6",
+      "text": "By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+      "source_id": "P-AGR-3.4-DEMINIMIS",
+      "mandatory": true
+    },
+    {
+      "nid": "N3",
+      "text": "Cumulation is bilateral only: originating materials from India used in production in the UAE may be counted as originating, but the last production process in the UAE must still go beyond minimal operations.",
+      "source_id": "P-AGR-3.7-CUMULATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N4",
+      "text": "Preference requires direct consignment from the UAE to India; transit through another country is allowed only under customs control with no operations other than unloading, reloading, storage or similar.",
+      "source_id": "P-AGR-3.12-DIRECT",
+      "mandatory": false
+    },
+    {
+      "nid": "M7",
+      "text": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+      "source_id": "P-UAE-ISSUER",
+      "mandatory": true
+    },
+    {
+      "nid": "M8",
+      "text": "Factory registration through the Ministry of Economy and Tourism is a prerequisite for applying for a certificate of origin for India; it requires the factory to be located outside a free zone, an industrial licence, and a letter confirming 40% domestic value added. A producer in a free zone is likely not eligible.",
+      "source_id": "P-MOET-FACTORY-REG",
+      "mandatory": true
+    },
+    {
+      "nid": "N5",
+      "text": "The Indian importer claims the CEPA rate when filing the bill of entry and must hold origin information; the exporter may be asked for production and cost details.",
+      "source_id": "P-IN-IMPORTER",
+      "mandatory": false
+    },
+    {
+      "nid": "N6",
+      "text": "The exporter must keep origin records, including a cost breakdown, for at least five years from the end of the calendar year of issue.",
+      "source_id": "P-AGR-RECORDS-VERIFICATION",
+      "mandatory": false
+    },
+    {
+      "nid": "N7",
+      "text": "A certificate of origin is valid for 12 months from issue, covers one import, and must be issued before, at, or within 5 working days of export; it can be issued retrospectively up to 12 months from shipment with 'ISSUED RETROSPECTIVELY' marked.",
+      "source_id": "P-AGR-COO-RULES",
+      "mandatory": false
+    },
+    {
+      "nid": "N8",
+      "text": "The issuing authority may ask for detailed cost sheets and conduct a factory visit; each item on the certificate must qualify separately.",
+      "source_id": "P-AGR-3.17-APPLICATION",
+      "mandatory": false
+    }
+  ],
+  "conditions": []
+}

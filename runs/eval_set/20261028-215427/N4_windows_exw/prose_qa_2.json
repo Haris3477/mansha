@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "origin: It states that the rule of origin requires a value addition of at least 45% and that a 43.0% value addition satisfies the required threshold, which contradicts the FACTS (VA threshold is 40%). Fix: The rule of origin requires CTSH and a value addition that together meet the 45% requirement; the product meets this because CTSH passed and the VA check passed with 43.0% value addition, which exceeds the VA threshold of 40% on an EXW basis. (see FACTS)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 2.58,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2180,
+            "completion": 1699
+          },
+          "finish_reason": "stop",
+          "latency_s": 2.58,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "runs": 4,
+  "passed": 2,
+  "scored": 4,
+  "verdict_correct": 4,
+  "verdict_cases": 4,
+  "expected_failures": [],
+  "checks_failed": 0,
+  "llm_error": 0,
+  "qa_rejections": 1,
+  "qa_overruled": 0,
+  "router_refusals": 6,
+  "paced_wait_s": 26.7,
+  "median_seconds_reports": 166.7,
+  "slips": {},
+  "requests": {
+    "auto:qa": {
+      "requests": 4,
+      "prompt": 2812,
+      "completion": 1277
+    },
+    "auto:long": {
+      "requests": 11,
+      "prompt": 49533,
+      "completion": 51416
+    },
+    "auto:judge": {
+      "requests": 25,
+      "prompt": 63126,
+      "completion": 22528
+    }
+  },
+  "failed_checks": {
+    "N4": [
+      "report check: 1 problem(s): status code 'PASS' in the report: …ule of origin. final manufacture check: PASS; minimal operations check: PASS; CTSH:…"
+    ],
+    "N15": [
+      "QA: QA (round 2) FAILED; QA (round 2): NOT reviewed",
+      "prose QA: Prose QA (round 1) FAILED; Prose QA (round 1): NOT reviewed"
+    ]
+  }
+}

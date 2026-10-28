@@ -1,0 +1,176 @@
+{
+  "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+  "latency_s": 83.57,
+  "attempts": [
+    {
+      "attempt": 1,
+      "chain": "auto:long",
+      "max_tokens": 16000,
+      "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "usage": {
+        "prompt": 7173,
+        "completion": 8544
+      },
+      "finish_reason": "stop",
+      "latency_s": 83.57,
+      "ok": true
+    }
+  ],
+  "problems": [],
+  "warnings": [],
+  "normalized_by_code": [
+    "follow_up_questions[0]: HS-code confirmation dropped, the tariff lookup found no conflict: 'Please confirm the HS code for hardwood bedroom furniture is 94036000.'",
+    "follow_up_questions[0]: free-zone question dropped, the user already said the factory is in a free zone: 'Is the manufacturing facility located in a free zone? This affects eligibility for factory registration required for the certificate of origin.'",
+    "procedure: 8 step(s) written by code from the knowledge base",
+    "caveats[6]: note written from the KB (P-UAE-ISSUER)"
+  ],
+  "output": {
+    "reasoning": [
+      "Classified hardwood bedroom furniture to TL-IN-94036000 'Other wooden furniture' as the only candidate, confidence high.",
+      "CEPA status is PREFERENTIAL, so preference applies.",
+      "Tariff: MFN 20%, CEPA 12.5%.",
+      "Origin rule PSR-IN-R136 CTH + VA 40%; origin check MEETS, all tests passed.",
+      "Duty estimate: saving 7500.00 AED.",
+      "Procedure list left empty; added caveat about issuer.",
+      "Collected caveats and follow-up questions."
+    ],
+    "classification": {
+      "tariff_line": "94036000",
+      "description": "Other wooden furniture",
+      "confidence": "high",
+      "source_id": "TL-IN-94036000"
+    },
+    "tariff": {
+      "agreement": "India-UAE CEPA",
+      "mfn_rate": "tariff 20%, effective 20%",
+      "preferential_rate": "12.5%",
+      "source_id": "TL-IN-94036000"
+    },
+    "origin_rule": {
+      "rule": "CTH + VA 40%",
+      "source_id": "PSR-IN-R136"
+    },
+    "origin_result": {
+      "status": "QUALIFIES",
+      "basis": "Final manufacture in UAE: PASS. Minimal operations: PASS. CTH: PASS - all 2 non-originating inputs are classified outside heading 9403. VA: PASS - build-down 52.0% against a threshold of 40%, FOB basis. Totals: price basis FOB; 3 inputs, of which 2 non-originating; non-originating inputs are 48% of the price. Missing: none.",
+      "source_id": "TOOL:origin:94036000"
+    },
+    "estimated_saving": {
+      "status": "ESTIMATED",
+      "amount": "7500.00",
+      "currency": "AED",
+      "source_id": "TOOL:duty:94036000"
+    },
+    "procedure": [
+      {
+        "step": "Register your factory through the Ministry of Economy and Tourism's Factory Registration service (moet.gov.ae) before you apply for the certificate. The factory must be outside a free zone and hold a MoIAT industrial licence and a MoIAT letter confirming 40% domestic value added (a registration condition only, not your product's rule of origin). Registration takes about 3 working days. A trader can apply only for goods bought from a registered factory.",
+        "source_id": "P-MOET-FACTORY-REG",
+        "authority": "the Ministry of Economy and Tourism"
+      },
+      {
+        "step": "Apply through the 'Certificate of Origin for India' e-service (eservices.moec.gov.ae or the smart app): log in, choose the service, fill in the form, upload proof of factory registration and the commercial invoice (a trader also uploads the factory's purchase invoice), pay the fee online and submit. Processing takes about one working day. If the application is returned with comments, correct it; once approved, print the certificate.",
+        "source_id": "P-MOET-COO-INDIA",
+        "authority": "the exporter"
+      },
+      {
+        "step": "In the application, give the HS code, description, quantity and value of the product. Each item on the certificate must qualify separately. The issuing authority may ask for detailed cost sheets or visit the factory.",
+        "source_id": "P-AGR-3.17-APPLICATION",
+        "authority": "the issuing authority"
+      },
+      {
+        "step": "Pay the certificate fee: AED 50 for an invoice value of AED 100,000 (fees run from AED 10 to AED 200 by invoice value).",
+        "source_id": "TOOL:coo_fee",
+        "authority": "the Ministry of Foreign Trade"
+      },
+      {
+        "step": "Have the certificate issued before, at, or within 5 working days of export. It is valid for 12 months from issue and covers one import (it can list several products).",
+        "source_id": "P-AGR-COO-RULES",
+        "authority": "the competent authority"
+      },
+      {
+        "step": "Ship the goods directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations there other than unloading, reloading, storage or similar. If a third party issues the invoice, indicate 'third-party invoicing'.",
+        "source_id": "P-AGR-3.12-DIRECT",
+        "authority": "the exporter"
+      },
+      {
+        "step": "Your Indian importer claims the CEPA rate when filing the bill of entry, and the importer or their customs broker uploads the certificate to e-Sanchit. Under CAROTAR 2020 the importer must hold origin information, including which origin criterion is claimed, and still has a duty of reasonable care, so you may be asked for production and cost details.",
+        "source_id": "P-IN-IMPORTER",
+        "authority": "the Indian importer"
+      },
+      {
+        "step": "Keep your origin records, including the cost breakdown, for at least 5 years from the end of the calendar year in which the certificate was issued. India may ask the UAE authority to verify the certificate, and refusing a verification visit is grounds for denying the preference.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION",
+        "authority": "the exporter"
+      }
+    ],
+    "caveats": [
+      {
+        "note": "'+' in a rule is read as 'and' (both tests must pass). The agreement does not define '+', so this is Mansha's interpretation.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Operations and final manufacture are the exporter's own declaration.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Factory declared in a free zone: likely not eligible for the ministry's factory registration; confirm with the ministry.",
+        "source_id": "TOOL:origin:94036000"
+      },
+      {
+        "note": "Estimate on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ. Shown in the shipment's own currency; never converted.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare Surcharge (SWS) and any anti-dumping or safeguard duty still apply.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "The CEPA rate applies only if the product qualifies under the rules of origin and a valid certificate of origin is presented.",
+        "source_id": "TOOL:duty:94036000"
+      },
+      {
+        "note": "No official page read names the Ministry of Foreign Trade as the issuer of the India CEPA certificate specifically: its service page covers preferential certificates in general, and the India-specific page is still on moet.gov.ae.",
+        "source_id": "P-UAE-ISSUER"
+      },
+      {
+        "note": "A producer in a free zone is likely not eligible for Factory Registration, because it requires a factory outside a free zone, and registration is needed before applying for the certificate of origin for India. Confirm with the Ministry of Economy and Tourism.",
+        "source_id": "P-MOET-FACTORY-REG"
+      },
+      {
+        "note": "The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was found).",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "Anti-dumping and safeguard duties likely still apply (no CEPA exemption from them was found).",
+        "source_id": "P-IN-DUTY-SCOPE"
+      },
+      {
+        "note": "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "The agreement does not say whether the build-down and build-up methods use the same threshold, apart from the 5-point Ex-Works adjustment.",
+        "source_id": "P-AGR-3.2.2-VA"
+      },
+      {
+        "note": "Preference is given only to originating goods shipped directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations other than unloading, reloading, storage or similar. An invoice issued by a third party does not by itself cause the claim to be denied; the exporter must indicate 'third-party invoicing'.",
+        "source_id": "P-AGR-3.12-DIRECT"
+      },
+      {
+        "note": "A certificate of origin is valid for 12 months from issue and covers one import (it may list several products). It should be issued before, at, or within 5 working days of export. A certificate may be issued retrospectively up to 12 months from the date of shipment, marked 'ISSUED RETROSPECTIVELY' in box 9 (Remarks) of India's certificate form. Minor typing or formatting errors are tolerated; discrepancies in signature or seal are not. A lost certificate can be replaced by a certified true copy.",
+        "source_id": "P-AGR-COO-RULES"
+      },
+      {
+        "note": "The exporter must keep origin records, including the cost breakdown, for at least 5 years; counting from the end of the calendar year of issue satisfies both of the agreement's clocks. India may ask the UAE authority to verify a certificate; the authority answers an origin verification request within 90 days, extendable by 60. Refusing a verification visit is grounds for denying the preference.",
+        "source_id": "P-AGR-RECORDS-VERIFICATION"
+      },
+      {
+        "note": "The application, which can be submitted electronically, must include the HS code, description, quantity and value of the exported product. Each item on the certificate must qualify separately. The issuing authority may apply risk management, including asking for detailed cost sheets and visiting the factory.",
+        "source_id": "P-AGR-3.17-APPLICATION"
+      }
+    ],
+    "follow_up_questions": [],
+    "gaps": [],
+    "verdict": "ELIGIBLE"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED",
+  "scores": {
+    "factuality": 0,
+    "completeness": 1
+  },
+  "corrections": [
+    "origin: The origin text says \"which is above the 40% threshold\", which is not stated in FACTS or the notes. Fix: The rule of origin requires a change in tariff subheading (CTSH) and value addition (VA) of at least 45%. The product meets this rule because the final manufacture check passed, the minimal operations check passed, the CTSH check passed, and the VA check passed with 43.0% value addition on an EXW basis, satisfying the required threshold. (see FACTS)"
+  ],
+  "note": "REJECTED | factuality 0, completeness 1",
+  "answer_problems": [],
+  "served_by": "cerebras/gpt-oss-120b",
+  "calls": [
+    {
+      "ok": true,
+      "served_by": "cerebras/gpt-oss-120b",
+      "latency_s": 1.54,
+      "attempts": [
+        {
+          "attempt": 1,
+          "chain": "auto:judge",
+          "max_tokens": 2000,
+          "routed_via": "cerebras/gpt-oss-120b",
+          "usage": {
+            "prompt": 2245,
+            "completion": 1672
+          },
+          "finish_reason": "stop",
+          "latency_s": 1.54,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,351 @@
+{
+  "status": "REPORT",
+  "verdict": "ELIGIBLE",
+  "language": "en",
+  "seconds": 116.72,
+  "warnings": [
+    "Report check: 1 problem(s) in the report shown to the user (flag only): read report.md"
+  ],
+  "phases": [
+    {
+      "name": "Intake",
+      "status": "OK",
+      "seconds": 1.48,
+      "summary": "product='aluminium windows' | destination='India' | role=manufacturer | value=100000 AED | language=en",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "groq/openai/gpt-oss-120b",
+          "latency_s": 1.44,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:qa",
+              "max_tokens": 1000,
+              "routed_via": "groq/openai/gpt-oss-120b",
+              "usage": {
+                "prompt": 707,
+                "completion": 323
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.44,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "missing_fields": [],
+        "normalized_by_code": []
+      }
+    },
+    {
+      "name": "Coverage check",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "India -> corridor 'india'",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Tools + evidence",
+      "status": "OK",
+      "seconds": 0.0,
+      "summary": "candidates: TL-IN-76101000 | bill of materials: given | evidence 19525 chars, 26 IDs",
+      "calls": [],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "tool_status": {
+          "TOOL:tariff_lookup": "CANDIDATES",
+          "TOOL:rule_lookup:76101000": "RULE_FOUND",
+          "TOOL:origin:76101000": "MEETS",
+          "TOOL:duty:76101000": "ESTIMATED",
+          "TOOL:coo_fee": "ESTIMATED"
+        }
+      }
+    },
+    {
+      "name": "Researcher (round 1)",
+      "status": "OK",
+      "seconds": 58.06,
+      "summary": "line 76101000 (medium) | origin QUALIFIES | verdict ELIGIBLE | problems 0 | warnings 0",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 58.05,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 7225,
+                "completion": 6380
+              },
+              "finish_reason": "stop",
+              "latency_s": 58.05,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "normalized_by_code": [
+          "origin_result.basis: check names written in plain words",
+          "caveats[0]: restated note of TOOL:tariff_lookup dropped: \"The 8-digit HS code 76101090 you gave is not a line in India's tariff; Mansha matched it on its first 6 digits (761010). 8-digit codes are national and differ between the UAE and India.\"",
+          "caveats: note written from TOOL:tariff_lookup: \"The 8-digit code 76101090 you gave is not a line in India's tariff; Mansha matched it on its first 6 digits (761010). 8-digit codes are national and differ between the UAE and India.\"",
+          "procedure: 8 step(s) written by code from the knowledge base"
+        ]
+      }
+    },
+    {
+      "name": "QA (round 1)",
+      "status": "OK",
+      "seconds": 3.84,
+      "summary": "APPROVED | factuality 1, completeness 1, formatting_safety 1 | code warnings judged: 0 (0 real) | 2 parts",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.92,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4994,
+                "completion": 1574
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.92,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.9,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 3000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 4878,
+                "completion": 1836
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.9,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "warnings": [],
+      "details": {
+        "qa_parts": [
+          {
+            "label": "part 1/2: findings + steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.92,
+            "scope": [
+              "findings",
+              "procedure[0]",
+              "procedure[1]",
+              "procedure[2]",
+              "procedure[3]",
+              "procedure[4]",
+              "procedure[5]"
+            ],
+            "warnings": [],
+            "note": ""
+          },
+          {
+            "label": "part 2/2: steps and notes",
+            "status": "APPROVED",
+            "scores": {
+              "factuality": 1,
+              "completeness": 1,
+              "formatting_safety": 1
+            },
+            "served_by": "cerebras/gpt-oss-120b",
+            "seconds": 1.9,
+            "scope": [
+              "procedure[6]",
+              "procedure[7]",
+              "caveats[0]",
+              "caveats[1]",
+              "caveats[2]",
+              "caveats[3]",
+              "caveats[4]",
+              "caveats[5]",
+              "caveats[6]",
+              "caveats[7]",
+              "caveats[8]",
+              "caveats[9]",
+              "caveats[10]",
+              "caveats[11]"
+            ],
+            "warnings": [],
+            "note": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "Document Builder",
+      "status": "FALLBACK",
+      "seconds": 49.21,
+      "summary": "code-only report (fallback): prose QA still failing after round 2 | rounds: 2 | notes: 12 in (11 mandatory, verbatim) -> 12 in the report",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 27.0,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 1867,
+                "completion": 2572
+              },
+              "finish_reason": "stop",
+              "latency_s": 27.0,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": true,
+          "served_by": "openrouter/dots-studio/dots-3-note-preview:free",
+          "latency_s": 22.21,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:long",
+              "max_tokens": 16000,
+              "routed_via": "openrouter/dots-studio/dots-3-note-preview:free",
+              "usage": {
+                "prompt": 2415,
+                "completion": 2112
+              },
+              "finish_reason": "stop",
+              "latency_s": 22.21,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "QA: origin: It states that the rule of origin requires a value addition of at least 45% and that a 43.0% value addition satisfies the required threshold, which contradicts the FACTS (VA threshold is 40%). Fix: The rule of origin requires CTSH and a value addition that together meet the 45% requirement; the product meets this because CTSH passed and the VA check passed with 43.0% value addition, which exceeds the VA threshold of 40% on an EXW basis. (see FACTS)"
+      ],
+      "warnings": [],
+      "details": {
+        "corrections_sent": [
+          "QA: origin: The origin text says \"which is above the 40% threshold\", which is not stated in FACTS or the notes. Fix: The rule of origin requires a change in tariff subheading (CTSH) and value addition (VA) of at least 45%. The product meets this rule because the final manufacture check passed, the minimal operations check passed, the CTSH check passed, and the VA check passed with 43.0% value addition on an EXW basis, satisfying the required threshold. (see FACTS)"
+        ]
+      }
+    },
+    {
+      "name": "Prose QA (round 1)",
+      "status": "REJECTED",
+      "seconds": 1.54,
+      "summary": "REJECTED | factuality 0, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 1.54,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2245,
+                "completion": 1672
+              },
+              "finish_reason": "stop",
+              "latency_s": 1.54,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "origin: The origin text says \"which is above the 40% threshold\", which is not stated in FACTS or the notes. Fix: The rule of origin requires a change in tariff subheading (CTSH) and value addition (VA) of at least 45%. The product meets this rule because the final manufacture check passed, the minimal operations check passed, the CTSH check passed, and the VA check passed with 43.0% value addition on an EXW basis, satisfying the required threshold. (see FACTS)"
+      ],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Prose QA (round 2)",
+      "status": "REJECTED",
+      "seconds": 2.58,
+      "summary": "REJECTED | factuality 0, completeness 1",
+      "calls": [
+        {
+          "ok": true,
+          "served_by": "cerebras/gpt-oss-120b",
+          "latency_s": 2.58,
+          "attempts": [
+            {
+              "attempt": 1,
+              "chain": "auto:judge",
+              "max_tokens": 2000,
+              "routed_via": "cerebras/gpt-oss-120b",
+              "usage": {
+                "prompt": 2180,
+                "completion": 1699
+              },
+              "finish_reason": "stop",
+              "latency_s": 2.58,
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "problems": [
+        "origin: It states that the rule of origin requires a value addition of at least 45% and that a 43.0% value addition satisfies the required threshold, which contradicts the FACTS (VA threshold is 40%). Fix: The rule of origin requires CTSH and a value addition that together meet the 45% requirement; the product meets this because CTSH passed and the VA check passed with 43.0% value addition, which exceeds the VA threshold of 40% on an EXW basis. (see FACTS)"
+      ],
+      "warnings": [],
+      "details": {}
+    },
+    {
+      "name": "Report check",
+      "status": "FLAGGED",
+      "seconds": 0.0,
+      "summary": "1 problem(s), 0 warning(s) | report shown anyway (flag only)",
+      "calls": [],
+      "problems": [
+        "status code 'PASS' in the report: …ule of origin. final manufacture check: PASS; minimal operations check: PASS; CTSH:…"
+      ],
+      "warnings": [],
+      "details": {}
+    }
+  ]
+}
