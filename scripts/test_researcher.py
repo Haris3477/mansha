@@ -26,6 +26,8 @@ from mansha.researcher import (
     plain_follow_ups,
     plain_check_names,
     qualifier_drops,
+    BCD_ONLY_RE,
+    recite_duty_notes,
     record_notes,
     record_sentences,
     restore_qualified_notes,
@@ -1034,6 +1036,64 @@ check("no FREE_ZONE (windows): a free-zone question is kept",
 d = {"follow_up_questions": ["Please give the 6-digit HS code for hardwood."]}
 check("N2: a question without 'free zone' is kept",
       drop_free_zone_follow_ups(d, fz) == [] and len(d["follow_up_questions"]) == 1)
+
+print("\n== Step 7.6k: the duty tool's 'BCD only' note cited to P-IN-DUTY-SCOPE (N5 duty-note re-cite)")
+WN_SCOPE = next(n for n in wn.tool_results["TOOL:duty:76101000"]["notes"] if "only. IGST" in n)
+PAINT_SCOPE = next(n for n in paint.tool_results["TOOL:duty:32091010"]["notes"] if "only. IGST" in n)
+# Live wordings, word for word: 27 Oct 19:10 N5 round 1; 24 Oct 19:09 C1 (with the record's IGST-base sentence).
+N5_LIVE = ("CEPA rates reduce Basic Customs Duty (BCD) only. IGST, GST compensation cess, the Social Welfare "
+           "Surcharge (SWS) and any anti-dumping or safeguard duty still apply.")
+C1_LIVE = ("The CEPA rate reduces Basic Customs Duty only; IGST, GST compensation cess, Social Welfare Surcharge and "
+           "any anti-dumping or safeguard duties still apply. Because the IGST base includes BCD, a lower BCD also "
+           "lowers the IGST amount.")
+IGST_BASE = "Because the IGST base includes BCD, a lower BCD also lowers the IGST amount."
+d = copy.deepcopy(GOOD_WN)
+d["classification"]["tariff_line"] = "32091010"
+d["caveats"] = [{"note": N5_LIVE, "source_id": "P-IN-DUTY-SCOPE"}]
+ch = recite_duty_notes(d, paint)
+check("N5 live: re-cited to TOOL:duty:32091010, the tool's note word for word",
+      d["caveats"] == [{"note": PAINT_SCOPE, "source_id": "TOOL:duty:32091010"}] and len(ch) == 1, (d["caveats"], ch))
+d = with_caveats(("P-IN-DUTY-SCOPE", C1_LIVE))
+n = len(d["caveats"])
+ch = recite_duty_notes(d, wn)
+check("C1 live: the tool's note re-cited in place, the IGST-base sentence kept with P-IN-DUTY-SCOPE",
+      d["caveats"][n - 1:] == [{"note": WN_SCOPE, "source_id": "TOOL:duty:76101000"},
+                               {"note": IGST_BASE, "source_id": "P-IN-DUTY-SCOPE"}] and len(ch) == 2, (d["caveats"], ch))
+check("... and the result passes the Researcher checks", run(d, wn)[0] == [], run(d, wn)[0])
+d = with_caveats(("TOOL:duty:76101000", WN_SCOPE), ("P-IN-DUTY-SCOPE", N5_LIVE))
+ch = recite_duty_notes(d, wn)
+check("the tool's note already cited to the tool: the passage copy is dropped (one note, not two)",
+      [c["note"] for c in d["caveats"]].count(WN_SCOPE) == 1
+      and not any(c["source_id"] == "P-IN-DUTY-SCOPE" for c in d["caveats"]) and len(ch) == 1, (d["caveats"], ch))
+unchanged = [("AIDC / Table II wording", "P-IN-DUTY-SCOPE",
+              "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess "
+              "only for lines in Table II."),
+             ("SWS note", "P-IN-DUTY-SCOPE", SWS), ("anti-dumping note", "P-IN-DUTY-SCOPE", AD),
+             ("already cited to the tool", "TOOL:duty:76101000", N5_LIVE)]
+for label, sid, text in unchanged:
+    d = with_caveats((sid, text))
+    before = copy.deepcopy(d["caveats"])
+    check(f"left as written: {label}", recite_duty_notes(d, wn) == [] and d["caveats"] == before)
+no_note = copy.deepcopy(wn)   # a Table II line: the duty result has no "BCD only" note (no such line in the KB yet)
+no_note.tool_results["TOOL:duty:76101000"]["notes"].remove(WN_SCOPE)
+d = with_caveats(("P-IN-DUTY-SCOPE", N5_LIVE))
+check("no 'BCD only' note in the duty result (Table II line): left to the checks and QA",
+      recite_duty_notes(d, no_note) == [] and d["caveats"][-1]["source_id"] == "P-IN-DUTY-SCOPE")
+plastic = build_evidence({"product_description": "plastic packing articles", "hs_code_given": "39239090",
+                          "shipment_value": {"amount": 50000, "currency": "AED"}}, None)
+check("excluded line (plastic): its duty result has no 'BCD only' note",
+      not any(BCD_ONLY_RE.search(x) for x in plastic.tool_results["TOOL:duty:39239090"]["notes"]))
+d = copy.deepcopy(GOOD_P); d["caveats"] = [{"note": N5_LIVE, "source_id": "P-IN-DUTY-SCOPE"}]
+check("excluded line (plastic): left as written", recite_duty_notes(d, plastic) == [] and
+      d["caveats"][0]["source_id"] == "P-IN-DUTY-SCOPE")
+d = with_caveats(("P-IN-DUTY-SCOPE", N5_LIVE)); d["classification"]["tariff_line"] = GAP
+check("no tariff line chosen: left as written", recite_duty_notes(d, wn) == [])
+res = run_researcher({"product_description": "aluminium window frames"}, wn,
+                     llm=fake_llm(with_caveats(("P-IN-DUTY-SCOPE", C1_LIVE))))
+check("run_researcher: re-cited before the checks (both caveats, no problem)",
+      {"note": WN_SCOPE, "source_id": "TOOL:duty:76101000"} in res.data["caveats"]
+      and {"note": IGST_BASE, "source_id": "P-IN-DUTY-SCOPE"} in res.data["caveats"] and res.passed,
+      (res.data["caveats"], res.problems))
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
