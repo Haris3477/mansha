@@ -380,8 +380,16 @@ def kb_shield(corrections: list[dict], research: dict, notes: dict[str, list[str
     return kept, overruled
 
 
+def is_step_correction(c: dict) -> bool:
+    """A correction on the claim steps, which code writes from the KB (step shield, S3)."""
+    return str(c.get("field") or "").startswith("procedure")
+
+
 def overruled_text(o: dict) -> str:
     """One line for the phase log: why code overruled this correction."""
+    if o.get("why") == "code step":
+        return (f"{o.get('field')}: {str(o.get('problem')).strip()} (not counted: the claim steps are "
+                "written by code from the knowledge base)")
     if o.get("why") == "verbatim":
         return (f"{o.get('field')}: fix {o.get('fix')!r} rejects text that is {o['record']}'s own KB note "
                 f"{o['kb_note']!r}")
@@ -557,7 +565,8 @@ def _review(intake: dict, pack: EvidencePack, data: dict, part: Part, llm) -> QA
                                  overruled=overruled, rejudged=rejudged)
             retried, first_problems, previous = True, problems, answer
             continue
-        kept, over = kb_shield(answer["corrections"], data, notes)
+        steps = [{**c, "why": "code step"} for c in answer["corrections"] if is_step_correction(c)]
+        kept, over = kb_shield([c for c in answer["corrections"] if not is_step_correction(c)], data, notes)
         rejected = 0 in [_score(answer["scores"][m]) for m in METRICS]
         if rejected and over and not kept and not rejudged:
             # Every correction contradicts the KB: one re-judge with the notes shown (option iii).
@@ -565,7 +574,7 @@ def _review(intake: dict, pack: EvidencePack, data: dict, part: Part, llm) -> QA
             rejudged, previous, problems = True, answer, rejudge_problems(over)
             log.info("qa | %s | %d correction(s) overruled by the KB: re-judge", part.label, len(over))
             continue
-        overruled += over
+        overruled += over + steps
         break
 
     scores = {m: _score(answer["scores"][m]) for m in METRICS}

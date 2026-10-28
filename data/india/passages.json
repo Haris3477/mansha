@@ -251,6 +251,10 @@
       "id": "P-AGR-3.12-DIRECT",
       "actor": "the exporter",
       "title": "Direct consignment and third-party invoicing",
+      "step": {
+        "en": "Ship the goods directly from the UAE to India. Transit through another country is allowed only under customs control, with no operations there other than unloading, reloading, storage or similar. If a third party issues the invoice, indicate 'third-party invoicing'.",
+        "ar": "اشحن البضائع مباشرة من الإمارات إلى الهند. ولا يُسمح بالعبور عبر بلد آخر إلا تحت رقابة الجمارك، ودون أي عمليات هناك سوى التفريغ وإعادة التحميل والتخزين أو ما شابه. وإذا أصدر طرف ثالث الفاتورة، فاذكر عبارة 'third-party invoicing' (فوترة طرف ثالث)."
+      },
       "kind": "procedure",
       "tags": [
         "shipping",
@@ -273,6 +277,10 @@
       "id": "P-AGR-COO-RULES",
       "actor": "the competent authority",
       "title": "Certificate of origin: validity, timing and form",
+      "step": {
+        "en": "Have the certificate issued before, at, or within 5 working days of export. It is valid for 12 months from issue and covers one import (it can list several products).",
+        "ar": "احرص على إصدار الشهادة قبل التصدير أو عنده أو خلال 5 أيام عمل منه. وهي صالحة لمدة 12 شهراً من تاريخ إصدارها وتغطي عملية استيراد واحدة (ويمكن أن تشمل عدة منتجات)."
+      },
       "kind": "procedure",
       "tags": [
         "certificate",
@@ -308,6 +316,10 @@
       "id": "P-AGR-3.17-APPLICATION",
       "actor": "the issuing authority",
       "title": "What the certificate application must contain",
+      "step": {
+        "en": "In the application, give the HS code, description, quantity and value of the product. Each item on the certificate must qualify separately. The issuing authority may ask for detailed cost sheets or visit the factory.",
+        "ar": "اذكر في الطلب رمز النظام المنسق (HS) ووصف المنتج وكميته وقيمته. يجب أن يستوفي كل بند في الشهادة شروط المنشأ بمفرده. وقد تطلب جهة الإصدار كشوف تكاليف مفصلة أو تزور المصنع."
+      },
       "kind": "procedure",
       "tags": ["certificate", "application", "cost_sheet", "factory_visit"],
       "source_keys": ["AGR"],
@@ -329,6 +341,10 @@
       "id": "P-AGR-RECORDS-VERIFICATION",
       "actor": "the exporter",
       "title": "Record keeping and verification",
+      "step": {
+        "en": "Keep your origin records, including the cost breakdown, for at least 5 years from the end of the calendar year in which the certificate was issued. India may ask the UAE authority to verify the certificate, and refusing a verification visit is grounds for denying the preference.",
+        "ar": "احتفظ بسجلات المنشأ، بما فيها تفصيل التكاليف، لمدة 5 سنوات على الأقل من نهاية السنة الميلادية التي صدرت فيها الشهادة. وقد تطلب الهند من الجهة الإماراتية التحقق من الشهادة، ويُعد رفض زيارة التحقق سبباً لرفض المعاملة التفضيلية."
+      },
       "kind": "procedure",
       "tags": ["records", "verification", "audit", "denial"],
       "source_keys": ["AGR", "R39"],
@@ -382,6 +398,10 @@
     {
       "id": "P-MOET-COO-INDIA",
       "title": "UAE e-service: Certificate of Origin for India",
+      "step": {
+        "en": "Apply through the 'Certificate of Origin for India' e-service (eservices.moec.gov.ae or the smart app): log in, choose the service, fill in the form, upload proof of factory registration and the commercial invoice (a trader also uploads the factory's purchase invoice), pay the fee online and submit. Processing takes about one working day. If the application is returned with comments, correct it; once approved, print the certificate.",
+        "ar": "قدّم الطلب عبر الخدمة الإلكترونية «شهادة المنشأ للهند» (eservices.moec.gov.ae أو التطبيق الذكي): سجّل الدخول، واختر الخدمة، واملأ النموذج، وارفع إثبات تسجيل المصنع والفاتورة التجارية (ويرفع التاجر أيضاً فاتورة الشراء من المصنع)، وادفع الرسوم إلكترونياً ثم أرسل الطلب. تستغرق المعالجة نحو يوم عمل واحد. إذا أُعيد الطلب مع ملاحظات فصحّحه، وبعد الموافقة اطبع الشهادة."
+      },
       "kind": "procedure",
       "actor": "the exporter",
       "tags": ["certificate", "e_service", "fees", "steps", "uae"],
@@ -422,6 +442,10 @@
     {
       "id": "P-MOET-FACTORY-REG",
       "title": "Prerequisite: Factory Registration",
+      "step": {
+        "en": "Register your factory through the Ministry of Economy and Tourism's Factory Registration service (moet.gov.ae) before you apply for the certificate. The factory must be outside a free zone and hold a MoIAT industrial licence and a MoIAT letter confirming 40% domestic value added (a registration condition only, not your product's rule of origin). Registration takes about 3 working days. A trader can apply only for goods bought from a registered factory.",
+        "ar": "سجّل مصنعك عبر خدمة تسجيل المصانع في وزارة الاقتصاد والسياحة (moet.gov.ae) قبل التقدم بطلب الشهادة. يجب أن يكون المصنع خارج المنطقة الحرة، وأن يحمل رخصة صناعية من وزارة الصناعة والتكنولوجيا المتقدمة وخطاباً منها يؤكد قيمة مضافة محلية بنسبة 40% (وهذا شرط للتسجيل فقط، وليس قاعدة المنشأ الخاصة بمنتجك). يستغرق التسجيل نحو 3 أيام عمل. ولا يجوز للتاجر التقدم إلا لبضائع مشتراة من مصنع مسجّل."
+      },
       "kind": "procedure",
       "actor": "the Ministry of Economy and Tourism",
       "tags": [
@@ -470,6 +494,10 @@
       "id": "P-IN-IMPORTER",
       "actor": "the Indian importer",
       "title": "What the Indian importer must do",
+      "step": {
+        "en": "Your Indian importer claims the CEPA rate when filing the bill of entry, and the importer or their customs broker uploads the certificate to e-Sanchit. Under CAROTAR 2020 the importer must hold origin information, including which origin criterion is claimed, and still has a duty of reasonable care, so you may be asked for production and cost details.",
+        "ar": "يطالب المستورد الهندي بسعر الاتفاقية عند تقديم بيان الإدخال (bill of entry)، ويرفع المستورد أو وكيله الجمركي الشهادة إلى نظام e-Sanchit. وبموجب قواعد CAROTAR 2020 يجب أن يحتفظ المستورد بمعلومات المنشأ، بما فيها معيار المنشأ المطالب به، ويبقى عليه واجب العناية المعقولة، لذا قد يُطلب منك تقديم تفاصيل الإنتاج والتكاليف."
+      },
       "kind": "procedure",
       "tags": ["importer", "india", "carotar", "e_sanchit", "records"],
       "source_keys": ["CAROTAR-BLR", "CBIC-INSTR-28", "N22"],
