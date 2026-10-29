@@ -280,13 +280,15 @@ def normalize_gaps(data: dict) -> list[str]:
         gaps[i] = {"text": gaps[i], "source_id": None}
     if not plain:
         return []
-    return [f"gaps: {len(plain)} plain-text item(s) given without a source_id, read as source null "
-            f"({', '.join(f'gaps[{i}]' for i in plain)})"]
+    return [f"gaps: {len(plain)} plain-text item(s) given without a source_id, read as source null ({', '.join(f'gaps[{i}]' for i in plain)})"]
 
 
 NOTE_STOPWORDS = frozenset(
-    "the a an of and or to in on for is are be by it its this that with as at from not no any which "
-    "was were has have does do".split())
+    [
+        "the", "a", "an", "of", "and", "or", "to", "in", "on", "for", "is",
+        "are", "be", "by", "it", "its", "this", "that", "with", "as", "at",
+        "from", "not", "no", "any", "which", "was", "were", "has", "have", "does", "do",
+    ])
 
 
 def content_words(text) -> set[str]:
@@ -522,7 +524,7 @@ def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
             # 23 Oct 19:56, left to the revision).
             clauses = [c for c in CLAUSE_SPLIT_RE.split(cv.get("note")) if c.strip()]
 
-            def kept(u: str) -> bool:
+            def kept(u: str, clauses: list[str] = clauses) -> bool:
                 core = SOURCE_QUALIFIER_RE.sub(" ", u)
                 return any(coverage(c, core) >= RESTATING_CLAUSE and KEPT_QUALIFIER_RE.search(c) for c in clauses)
 
