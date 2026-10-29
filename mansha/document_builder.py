@@ -45,8 +45,11 @@ from mansha.researcher import (
 from mansha.tools.duty_estimate import (
     CEPA_APPLIES_NOTE,
     ESTIMATE_NOTE,
+    EXCLUDED_NOTE,
+    NO_VALUE_NOTE,
     reduces_bcd_only,
 )
+from mansha.tools.origin_calculator import FREE_ZONE_NOTE, INDIAN_INPUTS_NOTE, OWN_DECLARATION_NOTE
 
 log = logging.getLogger("mansha.document_builder")
 
@@ -481,6 +484,16 @@ NOTE_AR_DRAFTS = {
     "free_zone": 'يُرجَّح أن المنتِج الموجود في منطقة حرة غير مؤهل لتسجيل المصانع، لأن التسجيل يشترط أن يكون المصنع خارج المنطقة الحرة، والتسجيل مطلوب قبل التقدم بطلب شهادة المنشأ الخاصة بالهند. تحقّق من ذلك مع وزارة الاقتصاد والسياحة.',
     "sws": 'يُرجَّح أن رسم الرعاية الاجتماعية الإضافي (SWS) يُحتسب على الرسوم الجمركية الأساسية (BCD) بعد تخفيضها (لم نجد نصًا خاصًا بالاتفاقية بشأن ذلك).',
     "anti_dumping": 'يُرجَّح أن رسوم مكافحة الإغراق والرسوم الوقائية تبقى مستحقة (لم نجد في الاتفاقية إعفاءً منها).',
+    # Remaining fixed qualified notes (29 Oct night, A1): KB, origin tool, duty tool, tariff-line notes.
+    # Review PDF items 99-106. Templated tool notes (codes, rates, descriptions) stay English: gaps register (A2).
+    "deminimis": 'بحسب التفسير، لا تفيد قاعدة الحد الأدنى (de minimis) إلا في جزء تغيير التصنيف الجمركي من القاعدة، لا في نسبة القيمة المضافة (VA).',
+    "own_declaration": 'العمليات والتصنيع النهائي مأخوذة من إقرار المُصدِّر نفسه.',
+    "origin_free_zone": 'المصنع مُعلَن أنه في منطقة حرة: يُرجَّح أنه غير مؤهل لتسجيل المصانع لدى الوزارة؛ تحقّق من ذلك مع الوزارة.',
+    "indian_inputs": 'لا تُعدّ المدخلات القادمة من الهند مدخلاتٍ ذات منشأ إلا بإثبات صفتها المنشئية (التراكم الثنائي، المادة 3.7).',
+    "no_value": 'لا توجد قيمة شحنة صالحة للاستخدام (مبلغ موجب مع عملته)، لذلك تُعرض النسب فقط.',
+    "excluded": 'هذا البند مستثنى من تنازلات الهند بموجب الاتفاقية: لا يوجد سعر تفضيلي، ويُطبَّق السعر العادي (MFN) أيًّا كان منشأ المنتج.',
+    "footnote": 'يضع جدول التعريفة الهندي على نسبة 30% هذه حاشية لم يتحقق منها منشأ؛ أكّد السعر العادي (MFN) مع الجمارك الهندية أو مع مخلّص جمركي.',
+    "ad_unchecked": 'لم يتحقق منشأ مما إذا كانت الهند تفرض رسوم مكافحة إغراق على هذا المنتج؛ تحقّق من ذلك مع الجمارك الهندية أو مع مخلّص جمركي.',
 }
 # The Researcher merges consecutive notes of one record into one caveat (VA's two notes, often after the
 # summary clause; DUTY-SCOPE's two notes): a caveat may match a run of consecutive keys of a group, and
@@ -495,7 +508,10 @@ VA_METHODS_EN = "Value addition may be calculated by build-down or build-up."
 # currency; never converted."). Replay over 221 saved outputs: 2 drops, both such fragments; without the
 # same-source condition, at 0.6, SWS / anti-dumping notes were wrongly dropped against the BCD draft.
 FRAGMENT_COVERED = 0.8
-NOTE_MATCH_OF_ORIGINAL = 0.55  # share of the original's content words the note has (partial copies count)
+# F2 (29 Oct night): 0.55 -> 0.5. The replay over 1,522 saved mandatory notes gained 13 matches (the short
+# free-zone paraphrase of 183256 r1) and changed none wrongly; at 0.45 a VA note on FOB / Ex-Works got the
+# 3-part VA draft (test_document_builder pins it as must-not-match).
+NOTE_MATCH_OF_ORIGINAL = 0.5   # share of the original's content words the note has (partial copies count)
 NOTE_MATCH_OF_NOTE = 0.6       # share of the note's content words the original has (no extra facts lost)
 
 
@@ -503,12 +519,17 @@ def note_originals(corridor: str = "india") -> dict[str, str]:
     """The English originals of the notes with an Arabic draft, from the KB and the duty tool."""
     kb = load_corridor(corridor)
     notes = {p["id"]: list(p.get("notes") or []) + ["", ""] for p in kb["passages"]["passages"]}
+    line_notes = {ln["id"]: list(ln.get("notes") or []) + ["", ""] for ln in kb["tariff"]["lines"]}
     return {"plus": (kb["psr"]["metadata"].get("interpretations") or [""])[0], "estimate": ESTIMATE_NOTE,
             "bcd": kb["tariff"]["metadata"].get("duty_scope", ""), "applies": CEPA_APPLIES_NOTE,
             "issuer": notes["P-UAE-ISSUER"][0],
             "va_methods": VA_METHODS_EN, "va_undefined": notes["P-AGR-3.2.2-VA"][0],
             "va_threshold": notes["P-AGR-3.2.2-VA"][1], "free_zone": notes["P-MOET-FACTORY-REG"][0],
-            "sws": notes["P-IN-DUTY-SCOPE"][0], "anti_dumping": notes["P-IN-DUTY-SCOPE"][1]}
+            "sws": notes["P-IN-DUTY-SCOPE"][0], "anti_dumping": notes["P-IN-DUTY-SCOPE"][1],
+            "deminimis": notes["P-AGR-3.4-DEMINIMIS"][0], "own_declaration": OWN_DECLARATION_NOTE,
+            "origin_free_zone": FREE_ZONE_NOTE, "indian_inputs": INDIAN_INPUTS_NOTE, "no_value": NO_VALUE_NOTE,
+            "excluded": EXCLUDED_NOTE, "footnote": line_notes["TL-IN-19053100"][0],
+            "ad_unchecked": line_notes["TL-IN-85044030"][1]}
 
 
 def note_candidates(corridor: str = "india") -> dict[tuple[str, ...], str]:

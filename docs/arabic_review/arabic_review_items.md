@@ -102,3 +102,12 @@ The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (
 | 96 | 4 | NOTE_AR_DRAFTS free_zone (P-MOET-FACTORY-REG note) | Report note, printed by the app: A producer in a free zone is likely not eligible for Fact… |
 | 97 | 4 | NOTE_AR_DRAFTS sws (P-IN-DUTY-SCOPE note 1) | Report note, printed by the app: The Social Welfare Surcharge (SWS) is likely charged on t… |
 | 98 | 4 | NOTE_AR_DRAFTS anti_dumping (P-IN-DUTY-SCOPE note 2) | Report note, printed by the app: Anti-dumping and safeguard duties likely still apply (no … |
+| 99 | 4 | NOTE_AR_DRAFTS deminimis (P-AGR-3.4-DEMINIMIS note) | Report note, printed by the app: By interpretation, de minimis helps only the tariff-shift… |
+| 100 | 4 | NOTE_AR_DRAFTS own_declaration (origin_calculator OWN_DECLARATION_NOTE) | Report note, printed by the app: Operations and final manufacture are the exporter's own d… |
+| 101 | 4 | NOTE_AR_DRAFTS origin_free_zone (origin_calculator FREE_ZONE_NOTE) | Report note, printed by the app: Factory declared in a free zone: likely not eligible for … |
+| 102 | 4 | NOTE_AR_DRAFTS indian_inputs (origin_calculator INDIAN_INPUTS_NOTE) | Report note, printed by the app: Indian inputs count as originating only with proof of the… |
+| 103 | 4 | NOTE_AR_DRAFTS no_value (duty_estimate NO_VALUE_NOTE) | Report note, printed by the app: No usable shipment value (positive amount and currency), … |
+| 104 | 4 | NOTE_AR_DRAFTS excluded (duty_estimate EXCLUDED_NOTE) | Report note, printed by the app: This line is excluded from India's CEPA concessions: no p… |
+| 105 | 4 | NOTE_AR_DRAFTS footnote (TL-IN-19053100 note, data/india/tariff_lines.json) | Report note, printed by the app: India's tariff schedule marks this 30% rate with a footno… |
+| 106 | 4 | NOTE_AR_DRAFTS ad_unchecked (TL-IN-85044030 note 2, data/india/tariff_lines.json) | Report note, printed by the app: Mansha has not checked whether India charges anti-dumping… |
+| 107 | 4 | Term check (183256 r2): build-down / build-up | Which names for the two value-addition methods, build-down and build-up? a = items 93 and … |

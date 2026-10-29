@@ -50,6 +50,7 @@ from mansha.document_builder import (
     mfn_text,
     note_candidates,
     note_match,
+    NOTE_MATCH_OF_ORIGINAL,
     note_originals,
     render_report,
     run_document_builder,
@@ -828,7 +829,7 @@ for text, key in (   # live rewordings, word for word
 for text in (   # different facts: stay English (the SWS and direct-cost notes have drafts since 29 Oct evening)
         ("The Ministry of Foreign Trade offers the e-service that issues preferential and non-preferential "
         "certificates of origin for locally made products, but no page names it for India."),
-        "A producer in a free zone is likely not eligible for Factory Registration."):
+        ):
     check(f"other note stays English: {text[:45]}...", arabic_note(text) is None, arabic_note(text))
 md_ar2 = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
 md_en2 = render_report(research, intake, good, notes, pack.id_sources, kb_sources)
@@ -931,6 +932,59 @@ check("B1 result: an Arabic run records the fragment it left out, by note number
 check("B1 result: ... and its report does not print it", frag not in br_ar.markdown)
 check("B1 result: an English run leaves nothing out and prints it", br_en.fragments_dropped == {}
       and f"- {frag}" in br_en.markdown)
+
+print("\n== Remaining fixed notes (29 Oct night): A1 drafts, F2 bar 0.50")
+from mansha.tools import duty_estimate as de_mod, origin_calculator as oc_mod   # noqa: E402
+tl_notes = {x["id"]: x.get("notes") or [] for x in kb_ia["tariff"]["lines"]}
+for key, want in (("deminimis", kb_p["P-AGR-3.4-DEMINIMIS"]["notes"][0]),
+                  ("own_declaration", oc_mod.OWN_DECLARATION_NOTE), ("origin_free_zone", oc_mod.FREE_ZONE_NOTE),
+                  ("indian_inputs", oc_mod.INDIAN_INPUTS_NOTE), ("no_value", de_mod.NO_VALUE_NOTE),
+                  ("excluded", de_mod.EXCLUDED_NOTE), ("footnote", tl_notes["TL-IN-19053100"][0]),
+                  ("ad_unchecked", tl_notes["TL-IN-85044030"][1])):
+    check(f"{key}: original is the source text word for word", orig.get(key) == want and bool(want))
+oc_src = Path("mansha/tools/origin_calculator.py").read_text(encoding="utf-8")
+de_src = Path("mansha/tools/duty_estimate.py").read_text(encoding="utf-8")
+check("the tools print their named notes (no second copy of the wording)",
+      all(f"res.notes.append({n})" in oc_src for n in ("INDIAN_INPUTS_NOTE", "OWN_DECLARATION_NOTE", "FREE_ZONE_NOTE"))
+      and all(f"res.notes.append({n})" in de_src for n in ("EXCLUDED_NOTE", "NO_VALUE_NOTE")))
+no_val = duty_estimate("76101000", None)
+check("duty tool, no value: still writes NO_VALUE_NOTE", de_mod.NO_VALUE_NOTE in no_val.notes, no_val.notes)
+check("every A1 draft is Arabic with English only in brackets",
+      all(not script_problems(NOTE_AR_DRAFTS[k], "ar")["english"] for k in
+          ("deminimis", "own_declaration", "origin_free_zone", "indian_inputs", "no_value", "excluded",
+           "footnote", "ad_unchecked")))
+check("F2: the bar is 0.5", NOTE_MATCH_OF_ORIGINAL == 0.5)
+for text, keys in (   # live caveats, word for word (runs/)
+        ("By interpretation, de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+         ("deminimis",)),                                                                   # 183256 r1
+        ("Interpretation: de minimis helps only the tariff-shift part of a rule, not the VA percentage.",
+         ("deminimis",)),
+        (("A producer in a free zone is likely not eligible for Factory Registration, which is a prerequisite for "
+          "obtaining a certificate of origin for India."), ("free_zone",)),                 # 183256 r1 (F2)
+        ("Operations and final manufacture are the exporter's own declaration.", ("own_declaration",)),
+        ("The operations and final manufacture are the exporter's own declaration.", ("own_declaration",)),
+        (("Factory declared in a free zone: likely not eligible for the ministry's factory registration; confirm "
+          "with the ministry."), ("origin_free_zone",)),
+        (("Indian inputs count as originating only with proof of their originating status under bilateral "
+          "cumulation."), ("indian_inputs",)),
+        ("No usable shipment value (positive amount and currency), so only rates are given.", ("no_value",)),
+        (("Mansha has not checked whether India charges anti-dumping duty on battery chargers; check with Indian "
+          "customs or a customs broker."), ("ad_unchecked",)),
+        (("India's tariff schedule marks the 30% MFN rate with a footnote that Mansha has not checked; confirm the "
+          "normal rate with Indian customs or a customs broker."), ("footnote",))):
+    check(f"live caveat -> {'+'.join(keys)}: {text[:40]}...", note_match(text) == keys, note_match(text))
+short_fz = "A producer in a free zone is likely not eligible for Factory Registration."
+check("F2: the short free-zone sentence gets a free-zone draft (it says no more than the draft)",
+      note_match(short_fz) in (("free_zone",), ("origin_free_zone",)), note_match(short_fz))
+for text in (   # must not match: at 0.45 this got the 3-part VA draft (different facts)
+        ("The value-addition percentage is on an FOB basis; on an Ex-Works basis the threshold is 5 percentage points "
+         "lower. 'Direct labour cost' and 'direct overhead cost' are not defined in the agreement."),
+        # templated tool notes stay English (A2 in the gaps register)
+        ("The 8-digit code 76101090 you gave is not a line in India's tariff; Mansha matched it on its first 6 "
+         "digits (761010). 8-digit codes are national and differ between the UAE and India."),
+        ("The tariff schedule prints 15%, but an exemption notification lowers the duty actually charged to 10%; "
+         "the effective rate is used.")):
+    check(f"stays English: {text[:45]}...", note_match(text) is None, note_match(text))
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

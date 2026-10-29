@@ -17,6 +17,9 @@ ESTIMATE_NOTE = ("Estimate on the shipment value given. India charges duty on th
                  "import, so actual amounts will differ. Shown in the shipment's own currency; never converted.")
 CEPA_APPLIES_NOTE = ("The CEPA rate applies only if the product qualifies under the rules of origin and a valid "
                      "certificate of origin is presented.")
+EXCLUDED_NOTE = ("This line is excluded from India's CEPA concessions: no preferential rate, the normal "
+                 "(MFN) duty applies whatever the origin.")
+NO_VALUE_NOTE = "No usable shipment value (positive amount and currency), so only rates are given."
 
 TOOL_PREFIX = "TOOL:duty"
 CENT = Decimal("0.01")
@@ -96,8 +99,7 @@ def duty_estimate(tariff_line: str, shipment_value: dict | None = None, corridor
     res.cepa_rate_pct = None if excluded else _num(cepa_rate)
     res.rate_difference_pts = _num(mfn_rate - cepa_rate)
     if excluded:
-        res.notes.append("This line is excluded from India's CEPA concessions: no preferential rate, the normal "
-                         "(MFN) duty applies whatever the origin.")
+        res.notes.append(EXCLUDED_NOTE)
     elif cepa.get("table") == "II":
         res.notes.append("Table II line: the CEPA also changes the Agriculture Infrastructure and Development "
                          "Cess (AIDC), which this estimate does not include.")
@@ -110,7 +112,7 @@ def duty_estimate(tariff_line: str, shipment_value: dict | None = None, corridor
     currency = str((shipment_value or {}).get("currency") or "").strip().upper()
     if amount is None or amount <= 0 or not currency:
         res.status = "NO_PREFERENCE" if excluded else "NEEDS_VALUE"
-        res.notes.append("No usable shipment value (positive amount and currency), so only rates are given.")
+        res.notes.append(NO_VALUE_NOTE)
     else:
         without = amount * mfn_rate / 100
         with_cepa = amount * cepa_rate / 100

@@ -19,6 +19,12 @@ from mansha.kb import load_corridor
 from mansha.tools.rule_lookup import rule_lookup
 
 TOOL_PREFIX = "TOOL:origin"
+# The tool's fixed notes (named so the Arabic report can match them: document_builder.NOTE_AR_DRAFTS).
+INDIAN_INPUTS_NOTE = ("Indian inputs count as originating only with proof of their originating status "
+                      "(bilateral cumulation, Art. 3.7).")
+OWN_DECLARATION_NOTE = "Operations and final manufacture are the exporter's own declaration."
+FREE_ZONE_NOTE = ("Factory declared in a free zone: likely not eligible for the ministry's factory "
+                  "registration; confirm with the ministry.")
 PARTIES = {"AE", "IN"}  # bilateral cumulation: UAE and India inputs count as originating
 NOM_BASES = {"CIF", "FIRST_PRICE"}  # Art. 3.1: CIF, else first price paid in a Party
 BOM_COLUMNS = ("input_description", "hs_code", "origin_country", "value", "currency", "value_basis")
@@ -307,15 +313,13 @@ def calculate_origin(tariff_line: str, bom_rows: list[dict] | None = None,
                   "nom_valuation_source_id": P_NOM}
 
     if any(it["origin"] == "IN" for it in items):
-        res.notes.append("Indian inputs count as originating only with proof of their originating status "
-                         "(bilateral cumulation, Art. 3.7).")
+        res.notes.append(INDIAN_INPUTS_NOTE)
         res.conditions.append("INDIAN_INPUTS")
     if dec["labour"] is not None:
         res.notes.append("'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.")
-    res.notes.append("Operations and final manufacture are the exporter's own declaration.")
+    res.notes.append(OWN_DECLARATION_NOTE)
     if dec["free_zone"]:
-        res.notes.append("Factory declared in a free zone: likely not eligible for the ministry's factory "
-                         "registration; confirm with the ministry.")
+        res.notes.append(FREE_ZONE_NOTE)
         res.conditions.append("FREE_ZONE")
     return res
 
