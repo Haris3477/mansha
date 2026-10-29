@@ -516,6 +516,8 @@ SUMMARY_HEADER = "summary:"
 QUALIFIED_MATCH = 0.6
 # A clause of the Researcher's text restates a qualified sentence when this share of its words comes from it.
 RESTATING_CLAUSE = 0.5
+# C2 (29 Oct night): a caveat cut into whole sentences ("." or ";"), never inside one (", and" also joins lists).
+SENTENCE_PIECE_RE = re.compile(r"(?<=[.;])\s+")
 
 
 def record_sentences(pack: EvidencePack) -> dict[str, list[tuple[str, str]]]:
@@ -575,6 +577,7 @@ def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
     if not isinstance(caveats, list):
         return changes
     sents = record_sentences(pack)
+    splits: dict[int, list[dict]] = {}   # C2: caveat index -> the caveats it becomes
     for i, cv in enumerate(caveats):
         if not isinstance(cv, dict):
             continue
@@ -604,7 +607,62 @@ def restore_qualified_notes(data: dict, pack: EvidencePack) -> list[str]:
                          for c in CLAUSE_SPLIT_RE.split(cv.get("note")) if c.strip()):
             cv["note"] = " ".join(notes)
             changes.append(f"caveats[{i}]: note written from the KB, qualifier kept ({sid})")
+        elif notes:
+            parts = split_qualified(cv, units, notes)
+            if parts:
+                splits[i] = parts
+                changes.append(f"caveats[{i}]: qualified KB note split out word for word ({sid}); the rest kept")
+    if splits:
+        caveats[:] = [x for i, cv in enumerate(caveats) for x in splits.get(i, [cv])]
     return changes
+
+
+def split_qualified(cv: dict, units: list[tuple[str, str]], notes: list[str]) -> list[dict] | None:
+    """C2 (29 Oct night, 221636 r2): a caveat that also says other things, with a qualified KB note restated
+    bare in whole sentences of its own -> the caveat's pieces in order: each run of other sentences kept as
+    written (capital first letter, full stop), each restating sentence replaced by its KB note word for word,
+    once. None when a note is restated only inside a sentence that also says other things (left to the
+    revision, as before, so nothing is lost).
+
+    r2's "A small amount ... is tolerated under de minimis: up to 10% of the FOB value or Ex-Works price.
+    De minimis helps only the tariff-shift part of a rule, ..." lost "By interpretation"; the revision moved
+    it onto the first sentence and the run stopped (CHECKS_FAILED). Same class: N5, 26 Oct."""
+    sid, text = cv.get("source_id"), cv.get("note") or ""
+    plain = [u for _, u in units if not SOURCE_QUALIFIER_RE.search(u)]
+    cores = {n: SOURCE_QUALIFIER_RE.sub(" ", n) for n in notes}
+
+    def restated(piece: str) -> str | None:
+        best = max(notes, key=lambda n: coverage(piece, cores[n]))
+        c = coverage(piece, cores[best])
+        if c >= RESTATING_CLAUSE and c > max((coverage(piece, q) for q in plain), default=0.0) \
+                and not KEPT_QUALIFIER_RE.search(piece):
+            return best
+        return None
+
+    pieces = [x.strip() for x in SENTENCE_PIECE_RE.split(text) if x.strip()]
+    tagged = [(p, restated(p)) for p in pieces]
+    if {n for _, n in tagged if n} != set(notes) or all(n for _, n in tagged):
+        return None
+    out: list[dict] = []
+    rest: list[str] = []
+    done: set[str] = set()
+
+    def flush() -> None:
+        if rest:
+            t = " ".join(rest).rstrip(" ;")
+            t = t[0].upper() + t[1:]
+            out.append(dict(cv, note=t if t.endswith((".", "!", "?")) else t + "."))
+            rest.clear()
+
+    for piece, note in tagged:
+        if note is None:
+            rest.append(piece)
+        elif note not in done:
+            flush()
+            out.append({**cv, "note": note, "source_id": sid})
+            done.add(note)
+    flush()
+    return out
 
 
 # ---------- the duty tool's "BCD only" note cited to a passage (Step 7.6k, N5 duty-note re-cite) ----------

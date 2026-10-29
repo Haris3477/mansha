@@ -939,6 +939,62 @@ extra = ("Inference: SWS is charged on the reduced BCD (no CEPA-specific text fo
 note, ch = restored("P-IN-DUTY-SCOPE", extra, paint)
 check("merged notes plus another claim: left as written, for check 10 (nothing lost)", note == extra and ch == [])
 
+print("\n== C2 (29 Oct night): a qualified KB note split out of a caveat that says other things too")
+DEMIN = next(u for k, u in record_sentences(wn)["P-AGR-3.4-DEMINIMIS"] if k == "note")
+R2 = ("A small amount of non-originating material is tolerated under de minimis: up to 10% of the FOB value or "
+      "Ex-Works price. De minimis helps only the tariff-shift part of a rule, not the value-addition percentage.")
+d = with_caveats(("P-AGR-3.4-DEMINIMIS", R2))
+n0 = len(d["caveats"])
+ch = restore_qualified_notes(d, wn)
+check("221636 r2 wording: split in two, plain fact first, then the KB note word for word",
+      [c["note"] for c in d["caveats"][-2:]] == [
+          "A small amount of non-originating material is tolerated under de minimis: up to 10% of the FOB value or "
+          "Ex-Works price.", DEMIN]
+      and all(c["source_id"] == "P-AGR-3.4-DEMINIMIS" for c in d["caveats"][-2:]) and len(d["caveats"]) == n0 + 1,
+      d["caveats"][-2:])
+check("... logged as a split", ch == [f"caveats[{n0 - 1}]: qualified KB note split out word for word "
+                                      "(P-AGR-3.4-DEMINIMIS); the rest kept"], ch)
+check("... and check 10 is clean", not any("plain fact" in x and "caveats" in x for x in check_researcher(d, wn)[0]),
+      check_researcher(d, wn)[0])
+R2b = ("By interpretation, a small amount of non-originating material is tolerated under de minimis: up to 10% of "
+       "the FOB value or Ex-Works price. De minimis helps only the tariff-shift part of a rule, not the "
+       "value-addition percentage.")   # 221636 r2 round 2: the qualifier moved onto the wrong sentence
+d = with_caveats(("P-AGR-3.4-DEMINIMIS", R2b))
+restore_qualified_notes(d, wn)
+check("221636 r2 round 2 wording: the bare sentence becomes the KB note, the other sentence kept as written",
+      [c["note"] for c in d["caveats"][-2:]] == [R2b.split(". De minimis")[0] + ".", DEMIN], d["caveats"][-2:])
+d = with_caveats(("P-AGR-3.4-DEMINIMIS", "Up to 10% of the FOB value is tolerated, and de minimis helps only the "
+                  "tariff-shift part of a rule, not the VA percentage."))
+before = copy.deepcopy(d)
+check("a note restated only inside a sentence (', and') is left to the revision, unchanged",
+      restore_qualified_notes(d, wn) == [] and d == before)
+d = with_caveats(("P-AGR-3.4-DEMINIMIS", DEMIN), ("P-AGR-3.4-DEMINIMIS", "Up to 10% of the FOB value is tolerated."))
+before = copy.deepcopy(d)
+check("caveats that already pass are not touched", restore_qualified_notes(d, wn) == [] and d == before)
+first = ("SWS is charged on the reduced BCD (no CEPA-specific text found); IGST is charged on the assessable "
+         "value plus BCD.")
+d = with_caveats(("P-IN-DUTY-SCOPE", first), base=GOOD_WN)
+restore_qualified_notes(d, paint)
+check("the KB note keeps its place (first here); the rest gets a capital letter and a full stop",
+      [c["note"] for c in d["caveats"][-2:]] == [DUTY_NOTES[0], "IGST is charged on the assessable value plus BCD."],
+      d["caveats"][-2:])
+for folder, name in (("20261029-221636/N15_arabic_windows_nodata_r2", "researcher_1.json"),
+                     ("20261029-221636/N15_arabic_windows_nodata_r2", "researcher_2.json"),
+                     ("20261026-213601/N5_paint_indian_resin", "researcher_1.json")):
+    f = RUNS.parent / "eval_set" / folder / name
+    if not f.exists():
+        print(f"  SKIP  replay {folder}/{name} (run folder not on this machine)")
+        continue
+    intake = json.loads((f.parent / "intake.json").read_text())["output"]
+    pk = dataclasses.replace(build_evidence(intake, None), text=(f.parent / "evidence.txt").read_text())
+    d = copy.deepcopy(json.loads(f.read_text())["output"])
+    for k in ("caveats", "procedure", "gaps"):
+        d.setdefault(k, [])
+    ch = restore_qualified_notes(d, pk)
+    check(f"replay {folder}/{name}: split, then check 10 clean",
+          any("split out" in c for c in ch)
+          and not any("plain fact" in x and "caveats" in x for x in check_researcher(d, pk)[0]), ch)
+
 print("\n== Step 7.9: HS-code follow-ups without a tariff-lookup conflict (problem 92)")
 check("no HS code given: the tariff lookup notes nothing (windows, windows_nodata)",
       w.tool_results["TOOL:tariff_lookup"]["notes"] == [] and wn.tool_results["TOOL:tariff_lookup"]["notes"] == [])
