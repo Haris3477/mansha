@@ -44,7 +44,11 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from mansha.document_builder import CHECKLIST_VERDICTS, BuilderResult, run_document_builder
+from mansha.document_builder import (
+    CHECKLIST_VERDICTS,
+    BuilderResult,
+    run_document_builder,
+)
 from mansha.evidence import EvidencePack, build_evidence
 from mansha.intake import IntakeResult, detect_language, run_intake
 from mansha.kb import CORRIDORS, corridor_for

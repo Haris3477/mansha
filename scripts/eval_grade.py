@@ -128,7 +128,7 @@ def value_pattern(v: float) -> re.Pattern:
     return re.compile(rf"(?<![\d.,])(?:{alt})(?:\.0+)?(?![\d,]|\.\d)")
 
 
-TOOL_FIGURES_RE = re.compile(r"^\[TOOL:(?:duty:[^\]\n]+|coo_fee)\]\n(.*?)(?=^\[|^===|\Z)", re.M | re.S)
+TOOL_FIGURES_RE = re.compile(r"^\[TOOL:(?:duty:[^\]\n]+|coo_fee)\]\n(.*?)(?=^\[|^===|\Z)", re.MULTILINE | re.DOTALL)
 AMOUNT_RE = re.compile(r"(?<![\d.,])\d[\d,]*(?:\.\d+)?")
 
 
@@ -208,18 +208,18 @@ GLOBAL_ANCHORS = {  # open problem -> pattern on the report (counted as slips, D
     # reports, 0 false alarms, 1 known miss (a claim spread over two sentences, left to reading).
     "72": re.compile(r"Ministry of Foreign Trade(?:'s)?\b[^.\n]{0,160}?'?Certificate of Origin for India"
                      r"|Certificate of Origin for India'?[^.\n]{0,60}?\b(?:via|through|on|at) the Ministry of Foreign Trade"),
-    "86": re.compile(r"\bCEPA (?:provides|sets|gives|has|specifies) (?:a|the) normal", re.I),
+    "86": re.compile(r"\bCEPA (?:provides|sets|gives|has|specifies) (?:a|the) normal", re.IGNORECASE),
     "93": re.compile(r"exchange rate|(?:in|into) (?:a different|another|a second) currency|"
-                     r"\bconvert(?:ed|ing)? (?:the |your )?(?:value|amount|shipment|price)", re.I),
+                     r"\bconvert(?:ed|ing)? (?:the |your )?(?:value|amount|shipment|price)", re.IGNORECASE),
     "94": re.compile(r"^- \[ \] (?:\*\*)?The Ministry of [^:\n]{3,50}:\s|requires the applicant to log in|"
-                     r"\*Authority: Not in Mansha's sources", re.I | re.M),
+                     r"\*Authority: Not in Mansha's sources", re.IGNORECASE | re.MULTILINE),
     # 95: a pointer to a checklist that isn't where it says. Widened 26 Oct: "checklist and details below"
     # (N7) and any report with no checklist section (C4 NO_PREFERENCE): 90 saved reports, those 2 new hits,
     # 0 false alarms. Widened again 26 Oct: "see / refer to / consult / check / review / follow the (claim)
     # checklist" without "below" (N10 "Please see the checklist for the required information"): 1 new hit, 0 false alarms.
     "95": re.compile(r"checklist\b[^.\n]{0,20}?\bbelow|\b(?:see|refer to|consult|check|review|follow)\s+the (?:claim )?checklist\b|"
-                     r"bill of materials[^.\n]{0,60}needed to estimate the (?:duty )?saving", re.I),
-    "G12": re.compile(r"\bAIDC\b|Agricultur\w* Infrastructure", re.I),
+                     r"bill of materials[^.\n]{0,60}needed to estimate the (?:duty )?saving", re.IGNORECASE),
+    "G12": re.compile(r"\bAIDC\b|Agricultur\w* Infrastructure", re.IGNORECASE),
     # 96: the box-8/9 KB note turned into an instruction to the exporter (added 25 Oct: 10 of 63 saved
     # reports, 0 false alarms). The KB's own "India's form say/use box 9" and the descriptive "require
     # box 9" stay unflagged (reading).
@@ -227,20 +227,20 @@ GLOBAL_ANCHORS = {  # open problem -> pattern on the report (counted as slips, D
                      r"\bbox 9 (?:to be completed|must be used|should be used)\b|"
                      # KB batch (27 Oct): "you must follow India's form" (163642 N5) and "…; follow India's
                      # form." (183851 N1) were missed.
-                     r"\b(?:you (?:must|should|need to) )?follow India['\u2019]?s (?:certificate )?form\b", re.I),
+                     r"\b(?:you (?:must|should|need to) )?follow India['\u2019]?s (?:certificate )?form\b", re.IGNORECASE),
 }
 NEEDS_MORE_DATA_ONLY = {"95"}      # "checklist below" is right in an ELIGIBLE report (it has one); also counted
                                    # in any report with no checklist section
-CHECKLIST_RE = re.compile(r"^## .*(?:checklist|قائمة)", re.I | re.M)
+CHECKLIST_RE = re.compile(r"^## .*(?:checklist|قائمة)", re.IGNORECASE | re.MULTILINE)
 TABLE_RE = re.compile(r"\(table (I{1,3}), S\.No\.")
 
 
 def tariff_notes_from_evidence(evidence: str) -> str | None:
     """The tariff lookup record's notes ('none' when it wrote none), from the saved evidence."""
-    m = re.search(r"^\[TOOL:tariff_lookup\]\n(.*?)(?=^\[|^===|\Z)", evidence, re.M | re.S)
+    m = re.search(r"^\[TOOL:tariff_lookup\]\n(.*?)(?=^\[|^===|\Z)", evidence, re.MULTILINE | re.DOTALL)
     if not m:
         return None
-    n = re.search(r"^notes:(.*)", m.group(1), re.M | re.S)
+    n = re.search(r"^notes:(.*)", m.group(1), re.MULTILINE | re.DOTALL)
     return n.group(1).strip() if n else None
 
 
@@ -249,7 +249,7 @@ def chosen_table(run: Run) -> str | None:
     rid = ((run.research or {}).get("classification") or {}).get("source_id")
     if not rid:
         return None
-    m = re.search(rf"^\[{re.escape(rid)}\]\n(.*?)(?=^\[|^===|\Z)", run.evidence, re.M | re.S)
+    m = re.search(rf"^\[{re.escape(rid)}\]\n(.*?)(?=^\[|^===|\Z)", run.evidence, re.MULTILINE | re.DOTALL)
     t = TABLE_RE.search(m.group(1)) if m else None
     return t.group(1) if t else None
 
@@ -290,26 +290,26 @@ CASE_ANCHORS: dict[str, list[tuple[str, str, re.Pattern]]] = {
     # saved reports: 2 negated, 0 plain)
     "N2": [("duty removed wording", "not",
             re.compile(r"duty[- ]free|(?<!not )(?<!n't )\beliminat\w*|\bno (?:customs |import )?duty\b|"
-                       r"\bcannot claim\b", re.I)),
+                       r"\bcannot claim\b", re.IGNORECASE)),
            # problem 97 (Haris option ii, 25 Oct): the free-zone doubt must reach the summary, not only a note
            ("the free-zone caution in the summary", "must",
-            re.compile(r"^## (?:Summary|الملخص)[^\S\n]*\n(?:(?!## )[^\n]*\n)*?(?!## )[^\n]*free[- ]zone", re.I | re.M))],
+            re.compile(r"^## (?:Summary|الملخص)[^\S\n]*\n(?:(?!## )[^\n]*\n)*?(?!## )[^\n]*free[- ]zone", re.IGNORECASE | re.MULTILINE))],
     # problem 97 (25 Oct, same class as N2): the verdict depends on the Indian resin counting as
     # originating, so the proof condition must reach the summary, not only a note
     "N5": [("the Indian-origin proof condition in the summary", "must",
             re.compile(r"^## (?:Summary|الملخص)[^\S\n]*\n(?:(?!## )[^\n]*\n)*?(?!## )[^\n]*"
                        r"(?:\bproof\b|\bcumulat\w*|\bIndian[- ](?:input|resin|material|origin)|"
                        r"\b(?:resin|inputs?|materials?) (?:bought|sourced|made|purchased) (?:in|from) India|"
-                       r"\boriginat\w* in India)", re.I | re.M))],
+                       r"\boriginat\w* in India)", re.IGNORECASE | re.MULTILINE))],
     # G9 (fix round, 26 Oct; Haris: re-mark A): the user attached the BOM and only row 2's HS code is
     # missing, so a whole bill of materials must not be asked for (3 of 3 repeats, baseline clean).
     # N10 only: the same ask is right when no BOM was given (C3 windows_nodata, 18 saved reports).
     "N10": [("a whole bill of materials asked for", "not",
              re.compile(r"\bbill of materials (?:with|showing|listing|including|giving) [^.\n]{0,80}?\beach input|"
-                        r"\b(?:a |the )?(?:full|complete|whole|new) bill of materials", re.I))],
+                        r"\b(?:a |the )?(?:full|complete|whole|new) bill of materials", re.IGNORECASE))],
     "N3": [("a saving from the 15% tariff rate", "not", re.compile(r"(?<![\d,])15,?000(?:\.00)?(?![\d,])"))],
     "N4": [("45% applied as the threshold", "not",
-            re.compile(r"against (?:a |the )?(?:threshold of |minimum of )?45\s?%|45\s?% threshold (?:applied|used)", re.I)),
+            re.compile(r"against (?:a |the )?(?:threshold of |minimum of )?45\s?%|45\s?% threshold (?:applied|used)", re.IGNORECASE)),
            ("the Ex-Works threshold of 40%", "must", re.compile(r"\b40\s?%"))],
     "S3": [("the Ministry of Foreign Trade's CEPA list link", "must", re.compile(r"trade\.gov\.ae"))],
 }

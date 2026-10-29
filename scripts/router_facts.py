@@ -23,7 +23,14 @@ import sys
 import time
 from pathlib import Path
 
-from scripts.router_db import CHAINS, DAY_MS, ROUTER_DB, chain_capacity, connect_ro, utc_text
+from scripts.router_db import (
+    CHAINS,
+    DAY_MS,
+    ROUTER_DB,
+    chain_capacity,
+    connect_ro,
+    utc_text,
+)
 
 PAD_S = 300
 OUT_NAME = "router_facts.txt"
@@ -199,8 +206,8 @@ def section_platforms(calls: list[dict], reqs: list[dict]) -> list[str]:
     out.append("  non-success requests: " + (", ".join(f"#{r['id']} {r['model']} {r['status']}" for r in bad) or "none"))
     out += ["", "  Long-chain calls (Researcher / Builder): served model at the serving attempt's ordinal"]
     out += [long_line(c) for c in calls if is_long(c)] or ["  none"]
-    out += ["", f"  Validity (every Researcher/Builder call at ordinal 0 on {EXPECTED_LONG_PLATFORM} (auto:long) "
-                "or Gemini (auto:arabic); no chain fallback)"]
+    out += ["", (f"  Validity (every Researcher/Builder call at ordinal 0 on {EXPECTED_LONG_PLATFORM} (auto:long) "
+                "or Gemini (auto:arabic); no chain fallback)")]
     out += validity(calls) or ["  no cases"]
     lost = [c for c in calls if c["req"] is None]
     out += ["", "  Client calls not matched in the router: " + (", ".join(label(c) for c in lost) or "none")]
@@ -292,8 +299,8 @@ def facts(run: Path | None, db: Path | None = None, now_ms: float | None = None)
     db, now_ms = Path(db or ROUTER_DB), now_ms or time.time() * 1000
     con = connect_ro(db)
     try:
-        lines = [f"Router facts ({'run ' + str(run) if run else 'now'}), read-only from {db.name} "
-                 "(settings and api_keys refused)"]
+        lines = [(f"Router facts ({'run ' + str(run) if run else 'now'}), read-only from {db.name} "
+                 "(settings and api_keys refused)")]
         window = None
         if run is not None:
             window = run_window(run)

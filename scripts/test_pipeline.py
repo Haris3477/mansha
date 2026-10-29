@@ -20,7 +20,12 @@ import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 
-from mansha.document_builder import CONDITION_TEXT, build_facts, fallback_prose, max_llm_notes
+from mansha.document_builder import (
+    CONDITION_TEXT,
+    build_facts,
+    fallback_prose,
+    max_llm_notes,
+)
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.orchestrator import (
     MOFT_CEPA_URL,
@@ -33,9 +38,9 @@ from mansha.orchestrator import (
     same_model_warning,
 )
 from mansha.researcher import number_keys
+from scripts import run_pipeline as runner
 from scripts.pipeline_cases import DEV_INTAKES as INTAKES
 from scripts.pipeline_cases import PIPELINE_CASES
-from scripts import run_pipeline as runner
 from scripts.run_pipeline import main as runner_main
 from scripts.try_chain import main as try_chain_main
 

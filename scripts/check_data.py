@@ -56,7 +56,12 @@ def check_note_wording(kb: dict) -> list[str]:
 # listed record has the text in English and Arabic, no evidence IDs, and no number its summary lacks
 # (a later summary edit cannot leave a step stale unnoticed).
 def check_steps(kb: dict, corridor: str = "india") -> list[str]:
-    from mansha.researcher import CLAIM_STEPS, EVIDENCE_ID_RE, PROCEDURE_TOOL_IDS, number_keys
+    from mansha.researcher import (
+        CLAIM_STEPS,
+        EVIDENCE_ID_RE,
+        PROCEDURE_TOOL_IDS,
+        number_keys,
+    )
     problems = []
     by_id = {p["id"]: p for p in kb["passages"]["passages"]}
     for pid in CLAIM_STEPS[corridor]:

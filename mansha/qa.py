@@ -58,7 +58,6 @@ from dataclasses import dataclass, field
 from mansha.evidence import EvidencePack
 from mansha.llm_client import CHAIN_LIMITS, LLMCallError, LLMResult, call_llm
 from mansha.prompts import build_system_prompt
-from mansha.researcher import content_words, coverage, record_notes
 from mansha.qa_evidence import (
     CODE_OWNED,
     FINDINGS_KEYS,
@@ -67,6 +66,7 @@ from mansha.qa_evidence import (
     qa_evidence,
     research_for_qa,
 )
+from mansha.researcher import content_words, coverage, record_notes
 
 log = logging.getLogger("mansha.qa")
 

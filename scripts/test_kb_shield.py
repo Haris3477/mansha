@@ -33,6 +33,8 @@ from mansha.qa import (
 )
 from mansha.researcher import (
     build_messages as researcher_messages,
+)
+from mansha.researcher import (
     check_researcher,
     move_note_gaps,
     normalize_gaps,
@@ -145,8 +147,8 @@ out = copy.deepcopy(base)
 out["caveats"] = [c for c in out["caveats"] if c["source_id"] != "P-AGR-3.2.2-VA"]
 out["gaps"] = [{"text": "The agreement does not define 'direct labour cost' and 'direct overhead cost'.",
                 "source_id": "[P-AGR-3.2.2-VA]"},
-               "No official confirmation is available that a free-zone factory cannot obtain Factory "
-               "Registration."]
+               ("No official confirmation is available that a free-zone factory cannot obtain Factory "
+               "Registration.")]
 res = run_researcher(intake, pack, llm=fake_llm(out))
 check("run_researcher: bracketed gap ID fixed, note-gap moved, plain gap kept as source null; passes",
       res.passed and res.data["gaps"] == [{"text": out["gaps"][1], "source_id": None}]

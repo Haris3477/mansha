@@ -66,13 +66,13 @@ check("unrelated product -> NOT_FOUND", r.status == "NOT_FOUND", ids(r))
 # problem 98: notes on the user's own code that the report prints word for word
 r = tariff_lookup("aluminium windows", hs_code_given="76101090")
 check("N4: no exact 8-digit match -> one report note, also in notes",
-      r.report_notes == ["The 8-digit code 76101090 you gave is not a line in India's tariff; Mansha matched it "
+      r.report_notes == [("The 8-digit code 76101090 you gave is not a line in India's tariff; Mansha matched it "
                          "on its first 6 digits (761010). 8-digit codes are national and differ between the UAE "
-                         "and India."] and r.report_notes[0] in r.notes, r.report_notes)
+                         "and India.")] and r.report_notes[0] in r.notes, r.report_notes)
 r = tariff_lookup("smartphones", hs_code_given="85171211")
 check("N9: HS 2017 code -> report note naming the current line",
-      r.report_notes == ["The code 85171211 you gave is India's older HS 2017 code for this product; India's "
-                         "current tariff line is 85171300."] and r.notes == r.report_notes, r.notes)
+      r.report_notes == [("The code 85171211 you gave is India's older HS 2017 code for this product; India's "
+                         "current tariff line is 85171300.")] and r.notes == r.report_notes, r.notes)
 for code in ("76101000", "85171300", "39239090"):
     r = tariff_lookup(hs_code_given=code)
     check(f"current 8-digit line {code}: no report note", r.report_notes == [], r.report_notes)
@@ -89,9 +89,9 @@ for desc, expect in [("wooden doors", ["TL-IN-76101000", "TL-IN-94036000"]), ("s
           and not any("TL-IN-" in n for n in r.notes) and (expect is None or ids(r) == expect), (ids(r), r.notes))
 r = tariff_lookup("wooden doors")
 check("N13: the report note in plain words, no IDs (28 Oct fix)",
-      r.report_notes == ["No tariff line in Mansha's sources matches the whole description 'wooden doors': the "
+      r.report_notes == [("No tariff line in Mansha's sources matches the whole description 'wooden doors': the "
                          "closest lines are 'Doors, windows and their frames and thresholds for doors "
-                         "(aluminium)' and 'Other wooden furniture'."], r.report_notes)
+                         "(aluminium)' and 'Other wooden furniture'.")], r.report_notes)
 # Every product description in the saved runs and eval cases up to 28 Oct: none is a split match.
 for desc in ("acrylic paint", "acrylic paint (resin)", "aluminium cookware", "aluminium window frames",
              "aluminium windows", "aluminium wire rods", "battery chargers", "cosmetic skin creams",

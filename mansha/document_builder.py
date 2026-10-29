@@ -32,10 +32,10 @@ from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
 from mansha.prompts import LANGUAGE_NAMES, build_system_prompt
 from mansha.prose_qa import QA_ERROR, QA_REJECTED, ProseQAOutcome
-from mansha.researcher import (  # noqa: F401  (NO_CEPA_RATE_VERDICTS is re-exported for report_check)
+from mansha.researcher import (
     EVIDENCE_ID_RE,
     GAP,
-    NO_CEPA_RATE_VERDICTS,
+    NO_CEPA_RATE_VERDICTS,  # not used here: re-exported for report_check
     claim_source_ids,
     gap_text,
     is_claim_note,
@@ -531,8 +531,8 @@ def build_facts(research: dict, intake: dict, corridor: str = "india") -> tuple[
         f"DESTINATION: {plain(intake.get('destination_country'))}",
         f"EXPORTER ROLE: {intake.get('exporter_role') or 'not given'}",
         f"SHIPMENT VALUE: {shipment_text(intake)}",
-        f"TARIFF LINE: {plain(cls.get('tariff_line'))}, {plain(cls.get('description'))} "
-        f"(Mansha's confidence: {cls.get('confidence') or 'not given'})",
+        (f"TARIFF LINE: {plain(cls.get('tariff_line'))}, {plain(cls.get('description'))} "
+        f"(Mansha's confidence: {cls.get('confidence') or 'not given'})"),
         f"AGREEMENT: {plain(tar.get('agreement'))}",
         f"NORMAL (MFN) RATE: {plain(tar.get('mfn_rate'))}",
         f"CEPA RATE: {pref}",

@@ -23,7 +23,7 @@ from pathlib import Path
 os.environ["TZ"] = "Asia/Dubai"     # the run folder's name is Mac local time (Dubai, UTC+4)
 time.tzset()
 
-from scripts import router_db, router_facts  # noqa: E402
+from scripts import router_db, router_facts
 
 failures: list[str] = []
 TMP = Path(tempfile.mkdtemp(prefix="mansha_router_facts_"))
@@ -217,7 +217,7 @@ except sqlite3.OperationalError as exc:
 for f in ("scripts/router_facts.py", "scripts/router_db.py"):
     src = Path(f).read_text(encoding="utf-8")
     check(f"{f}: no query names settings/api_keys",
-          not re.search(r"\b(FROM|JOIN|INTO|UPDATE|TABLE)\s+(settings|api_keys)\b", src, re.I))
+          not re.search(r"\b(FROM|JOIN|INTO|UPDATE|TABLE)\s+(settings|api_keys)\b", src, re.IGNORECASE))
     check(f"{f}: no .env path in a string", not re.search(r"[\"'/]\.env", src))
 
 print("\n4. Break test: without the authorizer the key would be readable (the guard is what stops it)")

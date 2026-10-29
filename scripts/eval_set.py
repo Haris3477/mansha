@@ -160,7 +160,7 @@ def grade_line(g: Grade) -> str:
 
 
 def live(cases: list[EvalCase], repeat: int, root: Path) -> list[Grade]:
-    from mansha.llm_client import call_llm      # only the live run needs the router
+    from mansha.llm_client import call_llm  # only the live run needs the router
     from mansha.orchestrator import run_pipeline
     grades = []
     for r in range(1, repeat + 1):
@@ -228,11 +228,11 @@ def summarize(grades: list[Grade]) -> dict:
 
 def summary_md(grades: list[Grade], s: dict, root: Path) -> str:
     lines = [f"# Evaluation set run {root.name}", "",
-             f"**{s['passed']}/{s['scored']} runs pass every code check** (expected failures not counted); "
+             (f"**{s['passed']}/{s['scored']} runs pass every code check** (expected failures not counted); "
              f"verdicts correct {s['verdict_correct']}/{s['verdict_cases']}; CHECKS_FAILED {s['checks_failed']}; "
              f"LLM_ERROR {s['llm_error']}; QA rejections {s['qa_rejections']}, overruled {s['qa_overruled']}; "
              f"router refusals {s['router_refusals']}; pacing waits {s['paced_wait_s']} s; "
-             f"median report time {s['median_seconds_reports']} s.", "",
+             f"median report time {s['median_seconds_reports']} s."), "",
              "| Case | Result | Status | Verdict | Seconds | long | arabic | judge | Slips |", "|---|---|---|---|---|---|---|---|---|"]
     for g in grades:
         mark = "PASS" if g.passed else ("XFAIL" if g.case.expected_fail else "FAIL")

@@ -23,7 +23,14 @@ from mansha.llm_client import LLMResult
 from mansha.orchestrator import run_pipeline
 from scripts import eval_set
 from scripts.eval_cases import BY_ID, CASES
-from scripts.eval_grade import case_anchor_problems, compare, derive, grade, load_run, slips
+from scripts.eval_grade import (
+    case_anchor_problems,
+    compare,
+    derive,
+    grade,
+    load_run,
+    slips,
+)
 
 TMP = Path(tempfile.mkdtemp(prefix="mansha_eval_"))
 FIXTURES = Path("samples/researcher_outputs")
@@ -171,6 +178,7 @@ f = planted(C1, "amount", lambda d: append(d / "evidence.txt", "\nprofiles cost 
 check("an input amount in the evidence -> privacy fails", failed_names(f) == {"privacy"}, str(failed_names(f)))
 # 25 Oct: an amount the duty/fee tools printed is no leak (N5: saving 10000.00 AED = an input's value)
 from scripts.eval_grade import tool_figures, value_leaks
+
 EV = ("[TOOL:coo_fee]\nstatus: ESTIMATED\ncertificate fee: AED 50 (band: invoice value up to AED 100000)\n"
       "invoice value used: 100000.00 AED\nnotes:\n- Fee bands 208/2025.\n\n"
       "[TOOL:duty:32091010]\nshipment value: 100000.00 AED\n"
@@ -191,7 +199,9 @@ f = planted(C1, "cjk", lambda d: (d / "report.md").write_text(   # above the sou
 check("N15: another script in a report -> language fails", "language" in failed_names(f))
 # N15 (A4): the Builder's script check on a whole Arabic report; the sources list and [n] are skipped.
 from types import SimpleNamespace
+
 from scripts.eval_grade import language_problems
+
 AR_CASE = SimpleNamespace(intake={"language": "ar"})
 AR_OK = ("# فحص المنشأ\n\n## الملخص\n\nالسعر العادي MFN هو 10% وسعر الاتفاقية CEPA هو 0%. [1][2]\n\n"
          "## المصادر\n\n1. [CBIC Customs Tariff of India](https://www.cbic.gov.in/x)\n")
@@ -230,19 +240,19 @@ for w in ("The Ministry of Foreign Trade issues the certificate of origin for In
 for w in ("Since India's form governs entry into the country, you must use box 9 on your certificate.",
           "For the retrospective mark, use box 9 on the certificate as per India's form.",
           "India's certificate form requires box 9 to be completed for entry into India.",
-          "The agreement refers to box 8, but India's origin rules and certificate form use box 9; you must follow "
-          "India's form when entering the country.",   # 163642 N5 (KB batch, 27 Oct)
-          "For a retrospective certificate, the agreement specifies box 8 for the 'ISSUED RETROSPECTIVELY' mark, but "
-          "India's form uses box 9; follow India's form.",   # 183851 N1
-          "For retrospective certificate issuance, use box 9 for the 'ISSUED RETROSPECTIVELY' mark, as India's form "
-          "governs entry into India."):   # 183851 N2
+          ("The agreement refers to box 8, but India's origin rules and certificate form use box 9; you must follow "
+          "India's form when entering the country."),   # 163642 N5 (KB batch, 27 Oct)
+          ("For a retrospective certificate, the agreement specifies box 8 for the 'ISSUED RETROSPECTIVELY' mark, but "
+          "India's form uses box 9; follow India's form."),   # 183851 N1
+          ("For retrospective certificate issuance, use box 9 for the 'ISSUED RETROSPECTIVELY' mark, as India's form "
+          "governs entry into India.")):   # 183851 N2
     run.output = w
     check(f"96: {w[:45]}...", "96" in slips(run), str(slips(run)))
 for w in ("The agreement says box 8, but India's origin rules and certificate form say box 9; India's form governs entry into India.",
           "The agreement refers to box 8, but India's origin rules and certificate form use box 9.",
           "It may be issued retrospectively, marked 'ISSUED RETROSPECTIVELY' in box 9 of India's certificate form.",
-          "Only for a certificate issued retrospectively: the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' "
-          "mark, but India's origin rules and certificate form say box 9; India's form governs entry into India."):
+          ("Only for a certificate issued retrospectively: the agreement says box 8 for the 'ISSUED RETROSPECTIVELY' "
+          "mark, but India's origin rules and certificate form say box 9; India's form governs entry into India.")):
     run.output = w
     check(f"no 96: {w[:45]}...", "96" not in slips(run), str(slips(run)))
 f = planted(clean["C3"], "slip95", lambda d: append(d / "report.md", "\nSee the checklist below.\n"))
@@ -311,8 +321,8 @@ run.output = ("## Summary\n\nThe product meets the rule of origin, so the CEPA r
 check("N5: proof only in the notes is caught (problem 97)",
       "must say the Indian-origin proof condition in the summary" in case_anchor_problems(BY_ID["N5"], run))
 # G9 in N10 (fix round, 26 Oct): only row 2's HS code may be asked for, not a whole bill of materials
-for w in ("Provide a bill of materials with the origin, 6-digit HS code and value of each input, especially "
-          "for BOM row 2 (Emollients).",
+for w in (("Provide a bill of materials with the origin, 6-digit HS code and value of each input, especially "
+          "for BOM row 2 (Emollients)."),
           "Please send a complete bill of materials."):
     run.output = "## What's still needed\n\n- " + w + "\n"
     check(f"N10: whole-BOM ask caught: {w[:40]}...",

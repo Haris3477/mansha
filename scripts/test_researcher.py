@@ -14,38 +14,36 @@ from mansha.evidence import build_evidence, fmt_num, passages_of
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.researcher import (
+    BCD_ONLY_RE,
+    CLAIM_STEPS,
     GAP,
+    GAP_BASIS,
     add_tariff_notes,
     build_messages,
     check_researcher,
+    claim_steps,
     drop_caveat_gaps,
     drop_claim_caveats,
     drop_follow_ups,
     drop_free_zone_follow_ups,
     drop_hs_follow_ups,
     drop_line_notes,
-    fill_gap,
-    GAP_BASIS,
-    CLAIM_STEPS,
-    build_messages,
-    claim_steps,
-    fee_step,
-    fill_steps,
     drop_step_caveats,
-    record_notes,
     drop_user_data_gaps,
-    plain_follow_ups,
+    fee_step,
+    fill_authorities,
+    fill_fixed_notes,
+    fill_gap,
+    fill_steps,
+    fill_tariff_line,
+    number_keys,
     plain_check_names,
+    plain_follow_ups,
     qualifier_drops,
-    BCD_ONLY_RE,
     recite_duty_notes,
     record_notes,
     record_sentences,
     restore_qualified_notes,
-    fill_authorities,
-    fill_fixed_notes,
-    fill_tariff_line,
-    number_keys,
     run_researcher,
     strip_list_markers,
     unbracket_ids,
@@ -474,11 +472,11 @@ check("brackets removed before code fills the tariff line and the step authoriti
 
 # ---------------- no follow-ups when no CEPA rate can apply (Step 7.6c, problem 74) ----------------
 print("\n== drop_follow_ups (problem 74)")
-LIVE_74 = ["What manufacturing operations were performed on these battery chargers in the UAE, "
-           "beyond repacking and relabeling?",
+LIVE_74 = [("What manufacturing operations were performed on these battery chargers in the UAE, "
+           "beyond repacking and relabeling?"),
            "Where was the final manufacture of these battery chargers completed?",
-           "What is the FOB value of this shipment and the customs (CIF) value of any "
-           "non-originating materials used?"]
+           ("What is the FOB value of this shipment and the customs (CIF) value of any "
+           "non-originating materials used?")]
 asks = copy.deepcopy(GOOD_C); asks["follow_up_questions"] = list(LIVE_74)
 d = copy.deepcopy(asks)
 changes = drop_follow_ups(d, "NOT_ELIGIBLE")
@@ -494,10 +492,10 @@ for v in ("NEEDS_MORE_DATA", GAP):
 
 # ELIGIBLE (27 Oct, C1 live, Dots3): only an AED-value question, or an HS-code question when the tariff
 # lookup wrote a note (N4), is kept.
-LIVE_C1 = ["Is your factory located in a free zone? (Free-zone factories may not be eligible for the required "
-           "factory registration.)",
-           "Can you confirm that the final manufacture in the UAE went beyond the minimal operations listed in "
-           "Article 3.5.1 of the agreement? (This is based on your declaration.)"]
+LIVE_C1 = [("Is your factory located in a free zone? (Free-zone factories may not be eligible for the required "
+           "factory registration.)"),
+           ("Can you confirm that the final manufacture in the UAE went beyond the minimal operations listed in "
+           "Article 3.5.1 of the agreement? (This is based on your declaration.)")]
 d = copy.deepcopy(GOOD_W); d["follow_up_questions"] = list(LIVE_C1)
 changes = drop_follow_ups(d, "ELIGIBLE", w)
 check("ELIGIBLE (C1 27 Oct): both follow-ups dropped, one change each",
@@ -709,6 +707,7 @@ check("03:59 replay: check names written in plain words",
       and "minimal operations check: passed" in d["origin_result"]["basis"] and "_" not in d["origin_result"]["basis"],
       d["origin_result"]["basis"])
 from mansha.report_check import TOOL_CODE_RE
+
 check("F2: no status code left in the 03:59 basis (CTSH: passed, VA: passed)",
       not TOOL_CODE_RE.search(d["origin_result"]["basis"]) and "VA: passed - build-down 49.0%" in d["origin_result"]["basis"],
       d["origin_result"]["basis"])
@@ -774,10 +773,10 @@ LIVE_DROPS = [
      DEMIN, "18 Oct 16:50 (problem 71)"),
     ("P-IN-DUTY-SCOPE", "SWS is charged on the reduced BCD (no CEPA-specific text found).", SWS, "24 Oct 15:58 #7"),
     ("P-IN-DUTY-SCOPE", "Anti-dumping and safeguard duties still apply (no exemption found).", AD, "24 Oct 15:58 #8"),
-    ("P-AGR-3.4-DEMINIMIS", "The de minimis tolerance applies only to the tariff-shift part of a rule, not to the "
-     "value-addition percentage.", DEMIN, "16 Oct 17:46 chargers (reworded most)"),
-    ("P-IN-DUTY-SCOPE", "SWS is charged on the reduced BCD (no CEPA-specific text found); anti-dumping and safeguard "
-     "duties still apply (no exemption found).", f"{SWS} {AD}", "two notes in one caveat"),
+    ("P-AGR-3.4-DEMINIMIS", ("The de minimis tolerance applies only to the tariff-shift part of a rule, not to the "
+     "value-addition percentage."), DEMIN, "16 Oct 17:46 chargers (reworded most)"),
+    ("P-IN-DUTY-SCOPE", ("SWS is charged on the reduced BCD (no CEPA-specific text found); anti-dumping and safeguard "
+     "duties still apply (no exemption found)."), f"{SWS} {AD}", "two notes in one caveat"),
     ("TOOL:origin:76101000", "The agreement does not define '+' in the rule; read as 'and' (both tests must pass).",
      None, "the '+' note keeps 'does not define'"),
 ]
@@ -791,17 +790,17 @@ for sid, text, want, label in LIVE_DROPS:
 
 # The ways the model rewords a qualifier it kept (saved runs 16-24 Oct): never rewritten, never a problem.
 KEPT = [
-    ("TOOL:origin:76101000", "The agreement does not define '+' in the rule 'CTSH + VA 45%'; Mansha interprets it as "
-     "'and' (both tests must pass).", wn),
-    ("P-AGR-3.2.2-VA", "The agreement does not specify whether the build-down and build-up methods use the same "
-     "threshold apart from the 5-point Ex-Works adjustment.", wn),
-    ("P-AGR-3.2.2-VA", "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement, and it is "
+    ("TOOL:origin:76101000", ("The agreement does not define '+' in the rule 'CTSH + VA 45%'; Mansha interprets it as "
+     "'and' (both tests must pass)."), wn),
+    ("P-AGR-3.2.2-VA", ("The agreement does not specify whether the build-down and build-up methods use the same "
+     "threshold apart from the 5-point Ex-Works adjustment."), wn),
+    ("P-AGR-3.2.2-VA", ("'Direct labour cost' and 'direct overhead cost' are not defined in the agreement, and it is "
      "unclear whether the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works "
-     "adjustment.", wn),
-    ("TL-IN-85044030", "Whether India charges anti-dumping duty on battery chargers has not been checked; confirm with "
-     "Indian customs or a customs broker.", c),
-    ("P-IN-IMPORTER", "Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but "
-     "this is seen only in secondary sources (CBIC Instruction 28/2022).", wn),
+     "adjustment."), wn),
+    ("TL-IN-85044030", ("Whether India charges anti-dumping duty on battery chargers has not been checked; confirm with "
+     "Indian customs or a customs broker."), c),
+    ("P-IN-IMPORTER", ("Electronic certificates are reportedly accepted and uploaded to India's e-Sanchit system, but "
+     "this is seen only in secondary sources (CBIC Instruction 28/2022)."), wn),
 ]
 for sid, text, pack in KEPT:
     got, ch = restored(sid, text, pack)
@@ -918,11 +917,11 @@ DUTY_NOTES = [u for k, u in record_sentences(paint)["P-IN-DUTY-SCOPE"] if k == "
 check("P-IN-DUTY-SCOPE has the two qualified notes ('likely')", len(DUTY_NOTES) == 2
       and all(" likely " in n for n in DUTY_NOTES), DUTY_NOTES)
 for text, label in (
-        ("Inference: the Social Welfare Surcharge (SWS) is charged on the reduced BCD (no CEPA-specific text "
-         "found); anti-dumping and safeguard duties still apply (no exemption found).",
+        (("Inference: the Social Welfare Surcharge (SWS) is charged on the reduced BCD (no CEPA-specific text "
+         "found); anti-dumping and safeguard duties still apply (no exemption found)."),
          "N5 round 2, word for word: one leading qualifier"),
-        ("SWS is charged on the reduced BCD (no CEPA-specific text found), and anti-dumping and safeguard "
-         "duties still apply (no exemption found).", "both as plain fact")):
+        (("SWS is charged on the reduced BCD (no CEPA-specific text found), and anti-dumping and safeguard "
+         "duties still apply (no exemption found)."), "both as plain fact")):
     note, ch = restored("P-IN-DUTY-SCOPE", text, paint)
     d = with_caveats(("P-IN-DUTY-SCOPE", text))
     restore_qualified_notes(d, paint)
@@ -943,12 +942,12 @@ HS_LIVE = ["Please confirm the HS code for aluminium window frames.",
            "Confirm the HS code for aluminium window frames (proposed 76101000).",
            "Please provide the HS code for aluminium window frames (if different from 76101000).",
            "Please confirm the HS code for aluminium window frames (candidate 76101000) or provide the correct code.",
-           "Confirm that HS code 76101000 is correct for aluminium window frames (the code was not provided in "
-           "the intake)."]
-BOM_Q = ["Please provide a bill of materials with each input's description, 6-digit HS code, origin country, "
-         "value and currency.",
-         "Provide a declaration with the product price, FOB or Ex-Works basis, final manufacture in the UAE, "
-         "and operations done in the UAE.",
+           ("Confirm that HS code 76101000 is correct for aluminium window frames (the code was not provided in "
+           "the intake).")]
+BOM_Q = [("Please provide a bill of materials with each input's description, 6-digit HS code, origin country, "
+         "value and currency."),
+         ("Provide a declaration with the product price, FOB or Ex-Works basis, final manufacture in the UAE, "
+         "and operations done in the UAE."),
          "Please provide the shipment value in AED."]
 for q in HS_LIVE:
     d = copy.deepcopy(GOOD_WN); d["follow_up_questions"] = BOM_Q[:1] + [q] + BOM_Q[1:]
@@ -982,8 +981,8 @@ cos = build_evidence({"product_description": "cosmetic skin creams", "hs_code_gi
 check("N10: the tariff lookup notes nothing, the origin tool lists BOM row 2 (Emollients)",
       cos.tool_results["TOOL:tariff_lookup"]["notes"] == []
       and any(m.startswith("BOM row 2 (Emollients):") for m in cos.tool_results["TOOL:origin:33049990"]["missing"]))
-for q in ("Please provide the 6-digit HS code for Emollients (BOM row 2) so that compliance with the CTSH rule "
-          "can be determined.",   # N10 round 1, Gemini 3.6, word for word: dropped before this fix
+for q in (("Please provide the 6-digit HS code for Emollients (BOM row 2) so that compliance with the CTSH rule "
+          "can be determined."),   # N10 round 1, Gemini 3.6, word for word: dropped before this fix
           "Please give the HS code for Emollients.",
           "Please provide the 6-digit HS code of row 2."):
     d = {"follow_up_questions": [q]}
@@ -1088,8 +1087,8 @@ check("the tool's note already cited to the tool: the passage copy is dropped (o
       [c["note"] for c in d["caveats"]].count(WN_SCOPE) == 1
       and not any(c["source_id"] == "P-IN-DUTY-SCOPE" for c in d["caveats"]) and len(ch) == 1, (d["caveats"], ch))
 unchanged = [("AIDC / Table II wording", "P-IN-DUTY-SCOPE",
-              "The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess "
-              "only for lines in Table II."),
+              ("The CEPA rate reduces Basic Customs Duty (BCD), and the Agriculture Infrastructure and Development Cess "
+              "only for lines in Table II.")),
              ("SWS note", "P-IN-DUTY-SCOPE", SWS), ("anti-dumping note", "P-IN-DUTY-SCOPE", AD),
              ("already cited to the tool", "TOOL:duty:76101000", N5_LIVE)]
 for label, sid, text in unchanged:
@@ -1305,6 +1304,7 @@ check("fee_step: top band, thousands shown",
           {"status": "ESTIMATED", "fee_aed": 200, "invoice_value": "750000.50",
            "fee_range_aed": {"min": 10, "max": 200}}, "en"))
 import dataclasses
+
 short = dataclasses.replace(w, allowed_ids=[i for i in w.allowed_ids if i != "P-AGR-3.12-DIRECT"])
 check("a record missing from the evidence: its step is left out",
       [st["source_id"] for st in claim_steps(short, "en")] == [i for i in CLAIM_STEPS["india"] if i != "P-AGR-3.12-DIRECT"])

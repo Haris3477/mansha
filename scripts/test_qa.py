@@ -24,13 +24,13 @@ from mansha.qa import (
     QA_CHAIN,
     QA_ERROR,
     QA_REJECTED,
+    QA_SETTLED,
     SPLIT_LIMIT,
+    QAOutcome,
     build_messages,
     check_qa,
     correction_text,
     estimate_tokens,
-    QA_SETTLED,
-    QAOutcome,
     plan_parts,
     run_qa,
     settle_round_2,
@@ -412,6 +412,7 @@ check("merge: a part fails but another rejects -> REJECTED (a known mistake is s
 # Step shield (S3, 28 Oct): code writes the steps from the KB, so a QA correction on a step is not sent
 # to the Researcher (it could not apply it); it is logged as not counted.
 from mansha.qa import QA_OVERRULED, is_step_correction, overruled_text
+
 step_fix = {**FIX, "field": "procedure[0].step", "problem": "Should say 'must register'.", "source_id": None}
 q = run_qa(wi, wp, wres, llm=scripted(answer(corrections=[step_fix], f=0), answer()))
 check("S3: a rejection on a step only -> OVERRULED, nothing sent to the Researcher",

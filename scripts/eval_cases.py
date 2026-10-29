@@ -81,8 +81,8 @@ CASES: list[EvalCase] = [
                         "CTH": "FAIL", "VA": "FAIL"},
              "mfn_effective": 20, "cepa": 0},
         saving_status="NOT_APPLICABLE", repeat=True,
-        must_say=["does not qualify", "every failed check named (final manufacture, minimal operations, "
-                  "heading change, value added)"],
+        must_say=["does not qualify", ("every failed check named (final manufacture, minimal operations, "
+                  "heading change, value added)")],
         must_not_say=["claim steps", "a saving", "a useless 'what's still needed' item (problem 56)"]),
     EvalCase(
         "C3", "windows_nodata", "core",
@@ -154,10 +154,10 @@ CASES: list[EvalCase] = [
              "origin_notes_contain": ["free zone"]},
         saving_status="ESTIMATED", repeat=True,
         must_say=["duty reduced (20% to 12.5%), not removed",
-                  "likely not eligible for factory registration; confirm with the Ministry of Economy "
-                  "and Tourism (problem 57)",
-                  "the summary says the free-zone factory may not be able to register, so the claim is in "
-                  "doubt (problem 97; case anchor)"],
+                  ("likely not eligible for factory registration; confirm with the Ministry of Economy "
+                  "and Tourism (problem 57)"),
+                  ("the summary says the free-zone factory may not be able to register, so the claim is in "
+                  "doubt (problem 97; case anchor)")],
         must_not_say=["duty-free", "eliminates", "no duty", "that the free zone factory cannot claim"]),
     EvalCase(
         "N3", "steel_structures", "new",
@@ -195,8 +195,8 @@ CASES: list[EvalCase] = [
              "origin_notes_contain": ["Indian inputs count as originating only with proof"]},
         saving_status="ESTIMATED",
         must_say=["Indian inputs count as originating only with proof of their origin",
-                  "the summary says the result depends on proof that the Indian resin is originating "
-                  "(problem 97; case anchor)"],
+                  ("the summary says the result depends on proof that the Indian resin is originating "
+                  "(problem 97; case anchor)")],
         must_not_say=["that Indian inputs count automatically"]),
     EvalCase(
         "N7", "wire_rods", "new",
@@ -242,8 +242,8 @@ CASES: list[EvalCase] = [
         "samples/eval/cosmetics_missing_hs", "REPORT", "NEEDS_MORE_DATA",
         intake("cosmetic skin creams", processing=None, value={"amount": 60000, "currency": "AED"}),
         key={"line": "33049990", "origin": "INSUFFICIENT_DATA",
-             "origin_missing": ["BOM row 2 (Emollients): a 6-digit HS code is needed for every "
-                                "non-originating input"]},
+             "origin_missing": [("BOM row 2 (Emollients): a 6-digit HS code is needed for every "
+                                "non-originating input")]},
         saving_status="ESTIMATED", repeat=True,
         must_say=["asks only for the 6-digit HS code of BOM row 2 (G9)"],
         must_not_say=["asks for a whole bill of materials"]),
