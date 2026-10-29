@@ -65,14 +65,14 @@ class FakeClient:
         return r
 
 
-def run(*replies, call_s: float = 0.0):
+def run(*replies, call_s: float = 0.0, chain: str = "auto:long"):
     """Call call_llm against scripted replies. Returns (result or error, fake client, waits)."""
     slept.clear()
     clock["t"] = NOW
     fake = FakeClient(*replies, call_s=call_s)
     lc._client = fake
     try:
-        out = lc.call_llm("test", "auto:long", [{"role": "user", "content": "hi"}])
+        out = lc.call_llm("test", chain, [{"role": "user", "content": "hi"}])
     except lc.LLMCallError as e:
         out = e
     return out, fake, list(slept)
@@ -217,7 +217,27 @@ check("the retry's answer is used", isinstance(out, lc.LLMResult) and fake.calls
 
 lc._client = None
 
-print("\n6. Pre-flight: router_answering() (guard health check, 29 Oct)")
+print("\n6. Fast failover on auto:arabic (router 502 after one Gemini's 503, 015311 r2)")
+ROUTER_502 = ("All 1 routed attempt(s) failed with upstream provider errors (upstream_error x1). Last error: "
+              "Google API error 503: This model is currently experiencing high demand.")
+out, fake, waits = run(http_error(502, {"message": ROUTER_502}), ok_reply(), chain="auto:arabic")
+check("arabic 502 then OK: the retry's answer is used", isinstance(out, lc.LLMResult) and fake.calls == 2, out)
+check("arabic 502: waits 3 s, not 30 s", waits == [lc.FAST_FAILOVER_WAIT_S["auto:arabic"]] == [3.0], waits)
+check("arabic 502: the 3 s is recorded for the phase log",
+      isinstance(out, lc.LLMResult) and out.attempts[0].get("waited_before_retry_s") == 3.0, out)
+out, fake, waits = run(http_error(502, {"message": ROUTER_502}), ok_reply())
+check("long 502: still waits 30 s", waits == [lc.UPSTREAM_WAIT_S] == [30], waits)
+out, fake, waits = run(http_error(503, {"message": "x"}), ok_reply(), chain="auto:arabic")
+check("arabic 503 (not the router's 502): still 30 s", waits == [lc.UPSTREAM_WAIT_S], waits)
+out, fake, waits = run(busy_429(25), ok_reply(), chain="auto:arabic")
+check("arabic 429 with the router's time: that time wins (26 s)", waits == [26.0], waits)
+out, fake, waits = run(*[http_error(502, {"message": ROUTER_502})] * lc.MAX_BUSY_ATTEMPTS, ok_reply(),
+                       chain="auto:arabic")
+check(f"both Geminis busy: stops after {lc.MAX_BUSY_ATTEMPTS} model attempts (LLMCallError -> code fallback)",
+      isinstance(out, lc.LLMCallError) and fake.calls == lc.MAX_BUSY_ATTEMPTS
+      and waits == [3.0] * (lc.MAX_BUSY_ATTEMPTS - 1), (type(out).__name__, fake.calls, waits))
+
+print("\n7. Pre-flight: router_answering() (guard health check, 29 Oct)")
 
 
 class FakeReply:

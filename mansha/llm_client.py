@@ -21,6 +21,8 @@ call_llm() wraps every model call so each agent gets the same behaviour:
   that would be one too many, the client waits until the oldest send leaves the window. The
   router refuses the extra request otherwise, and its escalating cooldown (5-9 min on 24 Oct)
   left QA parts unreviewed. Counts sends from this process only.
+- FAST FAILOVER (29 Oct): on auto:arabic a router 502 is retried after FAST_FAILOVER_WAIT_S, not
+  UPSTREAM_WAIT_S (see the constant for why).
 - PRE-FLIGHT (guard health check, 29 Oct): router_answering() asks the router for its model
   list (GET <base>/models; no model runs, no quota). eval_set and run_pipeline call it before
   anything else, so a stopped router gives one clear line instead of LLM_ERRORs at Intake.
@@ -66,6 +68,11 @@ REQUEST_TIMEOUT_S = 300  # Nemotron (reasoning model) needs ~100-200 s for long 
 RETRY_WAIT_CAP_S = 90      # longest wait we accept; a longer cooldown fails at once
 UPSTREAM_WAIT_S = 30       # wait after 502/503/504, or a 429 without a time hint
                            # (our choice: the router's cooldown resets seen on 15 Oct were ~25 s)
+# Chains whose models all sit on one provider (auto:arabic = Gemini 3.5 + 3.6). After one model's
+# 5xx the router rules the whole provider out for that request (freellmapi #788) and answers 502,
+# although Google's "high demand" 503 is per model. It has already benched the failed model
+# (90 s), so a quick resend reaches the other one; a 30 s wait buys nothing (015311 r2, 29 Oct).
+FAST_FAILOVER_WAIT_S = {"auto:arabic": 3.0}
 WAIT_MARGIN_S = 1.0        # added to the router's retryAtMs, so we arrive just after the reset
 BUSY_STATUSES = {429, 502, 503, 504}
 MAX_COOLDOWN_WAITS = 2     # cooldown replies (429 + retry time) waited out per call; they ask no model
@@ -189,12 +196,14 @@ def _router_wait_hint(e: APIStatusError) -> float | None:
         return None
 
 
-def _wait_before_retry(status: int | None, hint_s: float | None) -> float:
+def _wait_before_retry(status: int | None, hint_s: float | None, chain: str | None = None) -> float:
     """Seconds to wait before the retry (0 = retry now). May exceed the cap; the caller checks."""
     if status not in BUSY_STATUSES:
         return 0.0
     if hint_s is not None:
         return hint_s
+    if status == 502 and chain in FAST_FAILOVER_WAIT_S:
+        return FAST_FAILOVER_WAIT_S[chain]
     return UPSTREAM_WAIT_S
 
 
@@ -326,7 +335,7 @@ def call_llm(
             )
 
         # How long to wait before sending again (cooldown: the router's time; busy: fixed).
-        wait_s = _wait_before_retry(status, hint_s)
+        wait_s = _wait_before_retry(status, hint_s, chain)
         busy = status in BUSY_STATUSES and not cooldown   # provider side busy; a model was tried
         if wait_s > RETRY_WAIT_CAP_S:
             record["retry_skipped"] = f"router busy for ~{wait_s:.0f}s (> {RETRY_WAIT_CAP_S}s cap)"
