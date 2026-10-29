@@ -477,12 +477,23 @@ n15 = BY_ID["N15"]
 check("N15 is an Arabic case", (n15.intake or {}).get("language") == "ar")
 w = eval_set.need([n15], 2, eval_set.WORST)
 check("N15 x2: arabic 6 worst, long keeps 10 (a fallback lands there)", (w["arabic"], w["long"]) == (6, 10), str(w))
+n16, c1 = BY_ID["N16"], BY_ID["C1"]
+check("N16 is the Arabic twin of C1: same folder, verdict, key and saving status; Intake as C1's but Arabic",
+      (n16.intake or {}).get("language") == "ar" and n16.folder == c1.folder and n16.verdict == c1.verdict == "ELIGIBLE"
+      and n16.key == c1.key and n16.saving_status == c1.saving_status
+      and dict(n16.intake, language="en") == c1.intake and not n16.repeat)
+check("N16 writes its value in Arabic-Indic digits (G19)", "١٠٠٬٠٠٠" in n16.message)
+w2 = eval_set.need([n15, n16], 2, eval_set.WORST)
+check("N15 + N16 x2: arabic 12 worst", w2["arabic"] == 12, str(w2))
 check("an English case asks auto:arabic nothing", eval_set.need([BY_ID["N5"]], 1, eval_set.WORST)["arabic"] == 0)
 base = {"long": [m3("openrouter/dots:free", 50, 0), m3("google/g35", 20, 0)], "qa": [m3("groq/q", 1000, 0)],
         "judge": [m3("cerebras/j", 2400, 0)], "arabic": [m3("google/g35", 20, 0), m3("google/g36", 20, 0)]}
 ok3, lines3 = eval_set.budget_check([n15], 2, base)
 check("N15 x2 fits 40 Gemini requests a day", ok3 and any(x.startswith("  arabic need 4-6, left 40  OK") for x in lines3),
       "\n".join(lines3))
+ok4, lines4 = eval_set.budget_check([n15, n16], 2, base)
+check("N15 + N16 x2 fits 40 Gemini requests a day", ok4 and any(x.startswith("  arabic need") and "left 40  OK" in x
+                                                                 for x in lines4), "\n".join(lines4))
 benched = dict(base, arabic=[m3("google/g35", 20, 0, 600.0), m3("google/g36", 20, 0, 600.0)])
 ok3, lines3 = eval_set.budget_check([n15], 2, benched)
 check("Google benched (project-wide quota): an Arabic sitting refuses", not ok3

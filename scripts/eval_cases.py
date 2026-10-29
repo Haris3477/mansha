@@ -287,6 +287,21 @@ CASES: list[EvalCase] = [
         saving_status="ESTIMATED",
         must_say=["the report fully in Arabic", "digits 0-9 (G19)", "value read as 100,000 AED"],
         must_not_say=["English fallback text"]),
+    EvalCase(
+        # The Arabic twin of C1 (Haris, 29 Oct night: O1): the demo answer in Arabic. Same bill of materials,
+        # same key; Arabic-Indic digits as in N15 (G19); "cut and assemble" as in C1.
+        "N16", "arabic_windows", "new",
+        "ندير مصنعًا في الشارقة. نقصّ ونجمّع إطارات نوافذ من الألمنيوم من مقاطع ألمنيوم مستوردة ونريد تصديرها إلى الهند. قيمة الشحنة ١٠٠٬٠٠٠ درهم.",
+        "samples/windows_qualifies", "REPORT", "ELIGIBLE",
+        intake("aluminium window frames", processing="cut and assembled from imported aluminium profiles",
+               value=AED_100K, language="ar"),  # Intake writes product and processing in English (prompt rule)
+        key={"line": "76101000", "origin": "MEETS", "checks": {"CTSH": "PASS", "VA": "PASS"},
+             "va_build_down": 49.0, "va_threshold": 45, "mfn_effective": 10, "cepa": 0,
+             "duty_status": "ESTIMATED", "saving": 10000, "currency": "AED", "fee_status": "ESTIMATED"},
+        saving_status="ESTIMATED",
+        must_say=["qualifies: value added 49% against 45%", "saving 10,000 AED, on Basic Customs Duty only",
+                  "steps to claim", "the report fully in Arabic", "digits 0-9 (G19)"],
+        must_not_say=["all customs duty removed", "English fallback text"]),
 
     # ---------- D. Reserves (approved; not run by default) ----------
     EvalCase(
