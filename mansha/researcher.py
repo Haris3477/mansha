@@ -75,6 +75,14 @@ RAW_NAME_RE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 # Builder's TERMS). They reached `origin_result.basis` in 8 of 71 saved Researcher answers (17-24 Oct).
 CHECK_NAME_WORDS = {"final_manufacture_in_uae": "final manufacture check",
                     "minimal_operations": "minimal operations check"}
+# Problem 99 (29 Oct): rule and tariff-line IDs in exporter text (12 of 161 saved round-1 answers, last
+# 28 Oct) spent the one revision, and once the rewrite itself was wrong (N15 25 Oct: CTSH explained as a
+# "change in tariff heading"). Both have one fixed plain form, so code writes it (plain_evidence_ids).
+PSR_ID_RE = re.compile(
+    r"(?P<pre>\b(?:[Tt]he\s+)?(?:origin\s+)?[Rr]ule:?\s+)?"
+    r"(?P<id>\bPSR-[A-Z]{2}-R\d+\b)"
+    r"(?P<post>\s*[(\"'\u201c]\s*(?P<txt>[^)\"'\u201d]+?)\s*[)\"'\u201d])?")
+TL_ID_RE = re.compile(r"(?P<pre>\b(?:[Tt]he\s+)?(?:[Tt]ariff\s+)?[Ll]ine\s+)?\bTL-[A-Z]{2}-(?P<code>\d{8})\b")
 # Step 7.6j: the classification's confidence is one of these (or the gap marker with the line).
 CONFIDENCE_VALUES = ("high", "medium", "low")
 
@@ -386,6 +394,65 @@ def drop_user_data_gaps(data: dict, pack: EvidencePack) -> list[str]:
             continue
         keep.append(g)
     data["gaps"] = keep
+    return changes
+
+
+def _sentence_case(text: str, start: int, new: str) -> str:
+    """Capitalize `new` when it starts the text or a sentence."""
+    before = text[:start].rstrip()
+    return new[:1].upper() + new[1:] if not before or before[-1] in ".!?" else new
+
+
+def _plain_ids_in(text: str, rules: dict[str, str]) -> str:
+    """One text with its rule and tariff-line IDs in plain words (problem 99). Unknown rule IDs stay."""
+    def psr(m: re.Match) -> str:
+        txt = rules.get(m.group("id"))
+        if not txt:
+            return m.group(0)
+        pre, quoted = m.group("pre") or "", f'"{txt}"'
+        if m.group("post") and m.group("txt").strip() == txt:      # 'PSR-IN-R118 "CTSH + VA 45%"'
+            new = (pre or "the rule ") + quoted
+        elif txt in text:                                           # the rule text is already in the sentence
+            new = pre.rstrip() if pre else "the rule"
+            new += m.group("post") or ""
+        else:
+            new = (pre or "the rule ") + quoted + (m.group("post") or "")
+        return _sentence_case(text, m.start(), new) if not pre else new
+
+    def tl(m: re.Match) -> str:
+        pre = m.group("pre") or ""
+        new = (pre if "line" in pre.lower() else "tariff line ") + m.group("code")
+        return _sentence_case(text, m.start(), new) if not pre else new
+
+    return TL_ID_RE.sub(tl, PSR_ID_RE.sub(psr, text))
+
+
+def plain_evidence_ids(data: dict, pack: EvidencePack) -> list[str]:
+    """Write rule IDs (PSR-...) as their rule text and tariff-line IDs (TL-...) as their code, in the text
+    the exporter reads (problem 99): "the rule PSR-IN-R118" -> 'the rule "CTSH + VA 45%"', "TL-IN-76101000"
+    -> "tariff line 76101000". source_id fields are never touched; other IDs are left to check_researcher.
+    """
+    rules = {r["id"]: r["rule_text"] for r in load_corridor(pack.corridor)["psr"]["rules"]}
+    changes: list[str] = []
+
+    def fix(where: str, text):
+        if not isinstance(text, str):
+            return text
+        new = _plain_ids_in(text, rules)
+        if new != text:
+            changes.append(f"{where}: rule / tariff-line IDs written in plain words")
+        return new
+
+    res = data.get("origin_result")
+    if isinstance(res, dict):
+        res["basis"] = fix("origin_result.basis", res.get("basis"))
+    for k, key in (("procedure", "step"), ("caveats", "note"), ("gaps", "text")):
+        for i, item in enumerate(data.get(k) if isinstance(data.get(k), list) else []):
+            if isinstance(item, dict):
+                item[key] = fix(f"{k}[{i}].{key}", item.get(key))
+    qs = data.get("follow_up_questions")
+    if isinstance(qs, list):
+        data["follow_up_questions"] = [fix(f"follow_up_questions[{i}]", q) for i, q in enumerate(qs)]
     return changes
 
 
@@ -1279,6 +1346,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += move_note_gaps(data, pack)  # KB notes put in gaps -> caveats, before the fills (G39)
     changes += drop_user_data_gaps(data, pack)  # missing user data repeated as gaps (problem 85)
     changes += plain_check_names(data)  # "final_manufacture_in_uae" -> "final manufacture check" (7.6j)
+    changes += plain_evidence_ids(data, pack)  # "PSR-IN-R118" -> its rule text, "TL-IN-..." -> its code (99)
     changes += recite_duty_notes(data, pack)  # the duty tool's "BCD only" note cited to a passage (7.6k)
     changes += add_tariff_notes(data, pack)  # the tariff lookup's notes on the user's code, verbatim (98, 7.6l)
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)

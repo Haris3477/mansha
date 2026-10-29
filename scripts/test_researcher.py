@@ -5,7 +5,9 @@ Run: python -m scripts.test_researcher
 
 import copy
 import dataclasses
+import glob
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -16,8 +18,10 @@ from mansha.llm_client import LLMCallError, LLMResult
 from mansha.researcher import (
     BCD_ONLY_RE,
     CLAIM_STEPS,
+    EVIDENCE_ID_RE,
     GAP,
     GAP_BASIS,
+    _plain_ids_in,
     add_tariff_notes,
     build_messages,
     check_researcher,
@@ -38,6 +42,7 @@ from mansha.researcher import (
     fill_tariff_line,
     number_keys,
     plain_check_names,
+    plain_evidence_ids,
     plain_follow_ups,
     qualifier_drops,
     recite_duty_notes,
@@ -1360,6 +1365,84 @@ res = run_researcher(wi, w, llm=fake_llm({**copy.deepcopy(GOOD_W), "procedure": 
      "source_id": "P-AGR-3.12-DIRECT"}]}))
 check("run_researcher: the restating caveat dropped, still passes",
       res.passed and not any(c["source_id"] == "P-AGR-3.12-DIRECT" for c in res.data["caveats"]), (res.problems, res.changes))
+
+print("\n== Problem 99: rule and tariff-line IDs written in plain words by code")
+
+RULES = {"PSR-IN-R118": "CTSH + VA 45%", "PSR-IN-R126": "CTH + VA 40%"}
+REAL_99 = [   # round-1 text from saved runs, word for word -> what code writes
+    ("The '+' in the rule PSR-IN-R126 is read as 'and' (both tests must pass).",   # 24 Oct C2
+     "The '+' in the rule \"CTH + VA 40%\" is read as 'and' (both tests must pass)."),
+    ('rule: PSR-IN-R118 "CTSH + VA 45%"; checks: none; missing: a bill of materials',   # 25 Oct N15 (problem 99)
+     'rule: "CTSH + VA 45%"; checks: none; missing: a bill of materials'),
+    ("No checks were run. The rule PSR-IN-R118 requires 'CTSH + VA 45%' (both tests must pass).",   # 18 Oct
+     "No checks were run. The rule requires 'CTSH + VA 45%' (both tests must pass)."),
+    ("are missing, so the checks under PSR-IN-R118 cannot be run.",   # 23 Oct 20:08
+     "are missing, so the checks under the rule \"CTSH + VA 45%\" cannot be run."),
+    ("so the origin rule PSR-IN-R118 cannot be evaluated.",   # 23 Oct 20:08 gap
+     "so the origin rule \"CTSH + VA 45%\" cannot be evaluated."),
+    ("the description best matches TL-IN-76101000, which was not returned",   # 25 Oct N14
+     "the description best matches tariff line 76101000, which was not returned"),
+    (("No tariff line in the evidence describes 'wooden doors'. TL-IN-76101000 covers aluminium doors and "
+      "TL-IN-94036000 covers other wooden furniture."),   # 28 Oct N13
+     ("No tariff line in the evidence describes 'wooden doors'. Tariff line 76101000 covers aluminium doors and "
+      "tariff line 94036000 covers other wooden furniture.")),
+]
+for before, after in REAL_99:
+    got = _plain_ids_in(before, RULES)
+    check(f"99 real: {before[:50]}...", got == after and not EVIDENCE_ID_RE.search(got), got)
+for before, after in (("PSR-IN-R118 applies here.", 'The rule "CTSH + VA 45%" applies here.'),
+                      ("Under PSR-IN-R118 (CTSH + VA 45%), both tests apply.",
+                       'Under the rule "CTSH + VA 45%", both tests apply.'),
+                      ("the tariff line TL-IN-76101000 is chosen", "the tariff line 76101000 is chosen"),
+                      ("See PSR-IN-R999 for details.", "See PSR-IN-R999 for details."),   # unknown: left to the check
+                      ("No ID here (CTSH + VA 45%).", "No ID here (CTSH + VA 45%).")):
+    got = _plain_ids_in(before, RULES)
+    check(f"99 edge: {before[:45]}", got == after, got)
+
+d = copy.deepcopy(GOOD_W)
+d["caveats"].append({"note": "The '+' in the rule PSR-IN-R118 is read as 'and'.", "source_id": "PSR-IN-R118"})
+d["gaps"] = [{"text": "TL-IN-76101000 is the only candidate.", "source_id": "TL-IN-76101000"}]
+ch = plain_evidence_ids(d, w)   # the real KB's rule texts
+check("99: caveat and gap rewritten from the KB, source_id untouched",
+      d["caveats"][-1] == {"note": "The '+' in the rule \"CTSH + VA 45%\" is read as 'and'.", "source_id": "PSR-IN-R118"}
+      and d["gaps"][0] == {"text": "Tariff line 76101000 is the only candidate.", "source_id": "TL-IN-76101000"},
+      (d["caveats"][-1], d["gaps"]))
+check("99: each change logged", ch == [f"caveats[{len(d['caveats']) - 1}].note: rule / tariff-line IDs written in plain words",
+                                       "gaps[0].text: rule / tariff-line IDs written in plain words"], ch)
+d = copy.deepcopy(GOOD_W)
+check("99: an answer without IDs is not touched", plain_evidence_ids(d, w) == [] and d == GOOD_W)
+leaky99 = copy.deepcopy(GOOD_W)
+leaky99["caveats"].append({"note": "The '+' in the rule PSR-IN-R118 is read as 'and'.",
+                           "source_id": "TOOL:origin:76101000"})
+res = run_researcher(wi, w, llm=fake_llm(leaky99))
+check("99 wired in: the rule ID costs no revision (no ID problem), change logged",
+      not any("evidence IDs" in p for p in res.problems)
+      and any("rule / tariff-line IDs written in plain words" in c for c in res.changes), (res.problems, res.changes))
+
+# Replay over every saved round-1 answer (Haris's Mac; skipped where runs/ is absent)
+
+KB_RULES = {r["id"]: r["rule_text"] for r in load_corridor("india")["psr"]["rules"]}
+saved = sorted(glob.glob("runs/eval_set/*/*/researcher_1.json") + glob.glob("runs/pipeline/*/researcher_1.json"))
+had, left, touched_clean = 0, [], []
+for f in saved:
+    out = json.loads(Path(f).read_text(encoding="utf-8")).get("output") or {}
+    texts = [(out.get("origin_result") or {}).get("basis")]
+    texts += [c.get("note") for c in out.get("caveats", []) if isinstance(c, dict)]
+    texts += [g.get("text") if isinstance(g, dict) else g for g in out.get("gaps", [])]
+    texts += [s.get("step") for s in out.get("procedure", []) if isinstance(s, dict)]
+    texts += [q for q in out.get("follow_up_questions", []) if isinstance(q, str)]
+    for tx in (x for x in texts if isinstance(x, str)):
+        new = _plain_ids_in(tx, KB_RULES)
+        if re.search(r"\b(?:PSR|TL)-[A-Z]{2}-", tx):
+            had += 1
+            if re.search(r"\b(?:PSR|TL)-[A-Z]{2}-", new):
+                left.append((f, new))
+        elif new != tx:
+            touched_clean.append((f, tx))
+if saved:
+    print(f"  (replay: {len(saved)} saved round-1 answers, {had} texts with a rule or tariff-line ID)")
+    check("99 replay: no rule or tariff-line ID left in any saved round-1 text", not left, left[:2])
+    check("99 replay: text without such IDs is never changed", not touched_clean, touched_clean[:2])
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
