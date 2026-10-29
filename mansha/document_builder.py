@@ -37,11 +37,16 @@ from mansha.researcher import (
     GAP,
     NO_CEPA_RATE_VERDICTS,  # not used here: re-exported for report_check
     claim_source_ids,
+    coverage,
     gap_text,
     is_claim_note,
     number_keys,
 )
-from mansha.tools.duty_estimate import reduces_bcd_only
+from mansha.tools.duty_estimate import (
+    CEPA_APPLIES_NOTE,
+    ESTIMATE_NOTE,
+    reduces_bcd_only,
+)
 
 log = logging.getLogger("mansha.document_builder")
 
@@ -322,11 +327,6 @@ AUTHORITY_TEXT = {
         "the indian importer": "المستورد الهندي",
     },
 }
-# N15 step 2: the code-only prose is English (its Arabic version waits for review, arabic_review.md),
-# so an Arabic report that falls back to it says so in Arabic first.
-FALLBACK_NOTICE = {
-    "ar": "تنبيه: تعذّر إعداد شرح هذا التقرير باللغة العربية بجودة كافية، لذلك يظهر الشرح باللغة الإنجليزية.",
-}
 # Problem 97 (fix round, 26 Oct): a condition that decides whether the result can be used reached the
 # reader only as a note (N2 free-zone factory in 4 of 4 runs; N5 Indian resin). The origin tool's notes
 # are mandatory, so the Builder never sees them and cannot put them in the summary. Code adds one fixed
@@ -406,19 +406,112 @@ def plain(x) -> str:
     return NOT_IN_SOURCES if not s or s == GAP else s
 
 
-def saving_text(research: dict) -> str:
+def saving_text(research: dict, lang: str = "en") -> str:
     s = research["estimated_saving"]
     status = s.get("status")
     if status == "ESTIMATED":
         text = f"{s.get('amount')} {s.get('currency')}"
         if research["verdict"] != "ELIGIBLE":
-            text += " (only if the product qualifies)"
+            text += " " + SAVING_AR["only_if"] if lang == "ar" else " (only if the product qualifies)"
         return text
+    if lang == "ar":
+        return SAVING_AR.get(status, NOT_IN_SOURCES_AR)
     return {
         "NOT_APPLICABLE": "none, because the product does not qualify",
         "NO_PREFERENCE": "none, because the tariff line is excluded from CEPA preference",
         "NEEDS_VALUE": "cannot be estimated without the shipment value",
     }.get(status, NOT_IN_SOURCES)
+
+# ---------- Arabic report text printed by code (Part 2 of docs/cloud/arabic_review.md) ----------
+# Drafts by Claude, in the code before the native review (Haris, 29 Oct: option A); the reader's
+# corrections (docs/arabic_review/, items 10-35) replace them as text edits. English reports are unchanged.
+NOT_IN_SOURCES_AR = 'غير موجود في مصادر منشأ'
+SAVING_AR = {
+    "only_if": '(فقط إذا كان المنتج مؤهلًا)',
+    "NOT_APPLICABLE": 'لا يوجد، لأن المنتج غير مؤهل',
+    "NO_PREFERENCE": 'لا يوجد، لأن البند الجمركي مستثنى من التفضيل بموجب الاتفاقية',
+    "NEEDS_VALUE": 'لا يمكن تقديره دون قيمة الشحنة',
+}
+# The Researcher copies the tool's "tariff 15%, effective 10%" into the MFN cell (022326 r1), sometimes
+# without "tariff" (015311 r2: "10%, effective 10%").
+MFN_SPLIT_RE = re.compile(r"^(?:tariff\s+)?(\S+),\s*effective\s+(\S+)$")
+MFN_SPLIT_AR = 'النسبة في جدول التعريفة {t}، والنسبة الفعلية {e}'
+VERDICT_TEXT_AR = {
+    "ELIGIBLE": 'المنتج يستوفي قاعدة المنشأ، لذلك يمكن المطالبة بسعر الاتفاقية',
+    "NOT_ELIGIBLE": 'المنتج لا يستوفي قاعدة المنشأ، لذلك يُطبَّق السعر العادي (MFN)',
+    "NEEDS_MORE_DATA": 'لا يمكن لمنشأ تأكيد النتيجة بعد، لأن بعض المعلومات ناقصة',
+    "NO_PREFERENCE": 'هذا البند الجمركي مستثنى من التفضيل بموجب الاتفاقية، لذلك يُطبَّق السعر العادي (MFN) أيًّا كان منشأ المنتج',
+    GAP: 'مصادر منشأ لا تغطي هذا المنتج بما يكفي لإعطاء نتيجة',
+}
+ORIGIN_TEXT_AR = {
+    "QUALIFIES": 'يستوفي قاعدة المنشأ',
+    "DOES_NOT_QUALIFY": 'لا يستوفي قاعدة المنشأ',
+    "NEEDS_MORE_DATA": 'لا يمكن فحصه بعد، لأن بعض المعلومات ناقصة',
+    "NOT_APPLICABLE": 'لا يُفحص، لأن البند مستثنى من التفضيل بموجب الاتفاقية',
+    GAP: 'لا يمكن فحصه، لأن القاعدة غير موجودة في مصادر منشأ',
+}
+FALLBACK_AR = {
+    "failed": 'الفحوص التي لم يجتزها المنتج مذكورة تحت قاعدة المنشأ أدناه.',
+    "saving": 'التوفير التقديري: {x}.',
+    # F-a (Haris, 29 Oct): English details from the KB and the tools stay, in brackets.
+    "classification": 'البند الجمركي {line}: {description} (درجة ثقة منشأ: {c}). أكّد الرمز مع الجمارك الهندية أو مع مخلّص جمركي قبل الشحن.'
+                      .replace("{line}: {description}", "{line} ({description})"),
+    "agreement": 'الاتفاقية: {agreement}.'.replace("{agreement}", "({agreement})"),
+    "origin": 'قاعدة المنشأ: {rule}. النتيجة: المنتج {origin text}. {basis}'
+              .replace("{origin text}", "{origin}"),
+}
+RULE_EXCLUDED_AR = "لا تنطبق، " + ORIGIN_TEXT_AR["NOT_APPLICABLE"].split("، ", 1)[1]   # new, for the review
+CONFIDENCE_AR = {"high": "عالية", "medium": "متوسطة", "low": "منخفضة"}   # new words, for the review
+# Notes printed word for word: the tool's or KB's own note -> its Arabic draft. The Researcher rewords
+# notes (022326: "The duty estimate is based on the shipment value given (100000.00 AED)..."), so a note
+# matches by content words both ways (arabic_note). An unmatched note stays English.
+NOTE_AR_DRAFTS = {
+    "plus": "علامة '+' في القاعدة تُقرأ بمعنى 'و' (يجب اجتياز الاختبارين معًا). لا تعرّف الاتفاقية علامة '+'، لذلك هذا تفسير منشأ.",
+    "estimate": 'تقدير مبني على قيمة الشحنة المذكورة. تحتسب الهند الرسوم على القيمة الخاضعة للتقييم (CIF) عند الاستيراد، لذلك ستختلف المبالغ الفعلية. يُعرض المبلغ بعملة الشحنة نفسها، دون تحويل.',
+    "bcd": 'تخفّض أسعار الاتفاقية الرسوم الجمركية الأساسية (BCD) فقط. وتبقى مستحقة ضريبة السلع والخدمات المتكاملة (IGST)، ورسم التعويض عن ضريبة السلع والخدمات، ورسم الرعاية الاجتماعية الإضافي (SWS)، وأي رسوم لمكافحة الإغراق أو رسوم وقائية.',
+    "applies": 'لا يُطبَّق سعر الاتفاقية إلا إذا استوفى المنتج قواعد المنشأ وقُدِّمت شهادة منشأ سارية.',
+    "issuer": 'لا تذكر أي صفحة رسمية اطّلعنا عليها أن وزارة التجارة الخارجية هي الجهة المصدرة لشهادة المنشأ الخاصة باتفاقية الهند تحديدًا: فصفحة خدمتها تتناول شهادات المنشأ التفضيلية بشكل عام، ولا تزال الصفحة الخاصة بالهند منشورة على موقع moet.gov.ae.',
+}
+NOTE_MATCH_OF_ORIGINAL = 0.55  # share of the original's content words the note has (partial copies count)
+NOTE_MATCH_OF_NOTE = 0.6       # share of the note's content words the original has (no extra facts lost)
+
+
+def note_originals(corridor: str = "india") -> dict[str, str]:
+    """The English originals of the notes with an Arabic draft, from the KB and the duty tool."""
+    kb = load_corridor(corridor)
+    issuer = next((p.get("notes") or [""])[0] for p in kb["passages"]["passages"] if p["id"] == "P-UAE-ISSUER")
+    return {"plus": (kb["psr"]["metadata"].get("interpretations") or [""])[0], "estimate": ESTIMATE_NOTE,
+            "bcd": kb["tariff"]["metadata"].get("duty_scope", ""), "applies": CEPA_APPLIES_NOTE, "issuer": issuer}
+
+
+def arabic_note(text: str, corridor: str = "india") -> str | None:
+    """The Arabic draft of a note printed word for word, or None when it is no known note."""
+    best, score = None, 0.0
+    for key, original in note_originals(corridor).items():
+        of_original, of_note = coverage(original, text), coverage(text, original)
+        if of_original >= NOTE_MATCH_OF_ORIGINAL and of_note >= NOTE_MATCH_OF_NOTE and of_original + of_note > score:
+            best, score = key, of_original + of_note
+    return NOTE_AR_DRAFTS[best] if best else None
+
+
+def bracketed(text: str) -> str:
+    """An English detail in brackets inside Arabic text (F-a); inner brackets become square ones, so the
+    script check (GLOSS_RE, innermost brackets only) reads the whole detail as one gloss."""
+    return "(" + text.replace("(", "[").replace(")", "]") + ")"
+
+
+def plain_ar(x) -> str:
+    s = plain(x)
+    return NOT_IN_SOURCES_AR if s == NOT_IN_SOURCES else s
+
+
+def mfn_text(value, lang: str = "en") -> str:
+    """The normal-rate cell: in Arabic, "tariff t, effective e" in Arabic words."""
+    s = plain(value)
+    if lang != "ar":
+        return s
+    m = MFN_SPLIT_RE.match(s)
+    return MFN_SPLIT_AR.replace("{t}", m.group(1)).replace("{e}", m.group(2)) if m else plain_ar(value)
 
 
 def still_needed(research: dict) -> list[str]:
@@ -430,8 +523,10 @@ def still_needed(research: dict) -> list[str]:
     return [str(n).replace(GAP, NOT_IN_SOURCES) for n in items]
 
 
-def rule_text(research: dict) -> str:
+def rule_text(research: dict, lang: str = "en") -> str:
     r = plain(research["origin_rule"].get("rule"))
+    if lang == "ar":   # the "excluded" clause is the reviewed-draft wording of ORIGIN_TEXT_AR["NOT_APPLICABLE"]
+        return (RULE_EXCLUDED_AR if r == "NOT_APPLICABLE" else NOT_IN_SOURCES_AR if r == NOT_IN_SOURCES else r)
     return "does not apply, because the line is excluded from CEPA preference" if r == "NOT_APPLICABLE" else r
 
 
@@ -675,13 +770,36 @@ def check_translations(prose: dict, research: dict, intake: dict, language: str)
 
 # ---------- fallback (code writes the prose) ----------
 
-def fallback_prose(research: dict, notes: list[dict]) -> dict:
+def fallback_prose(research: dict, notes: list[dict], language: str | None = "en",
+                   corridor: str = "india") -> dict:
     """Prose built from the facts alone, used when the LLM's text fails its checks.
 
     `notes` holds the optional notes verbatim; render_report adds the mandatory ones.
+    Arabic (29 Oct): the Part 2 drafts, with English KB and tool details in brackets (F-a).
     """
     cls, tar = research["classification"], research["tariff"]
     res, verdict = research["origin_result"], research["verdict"]
+    if language == "ar":
+        summary = VERDICT_TEXT_AR.get(verdict, VERDICT_TEXT_AR[GAP]) + "."
+        if verdict == "NOT_ELIGIBLE":
+            summary += " " + FALLBACK_AR["failed"]
+        if research["estimated_saving"].get("status") == "ESTIMATED":
+            summary += " " + FALLBACK_AR["saving"].replace("{x}", saving_text(research, "ar"))
+        conf = str(cls.get("confidence") or "").strip().lower()
+        basis = plain(res.get("basis"))
+        return {
+            "summary": summary,
+            "classification": FALLBACK_AR["classification"].replace("{line}", plain_ar(cls.get("tariff_line")))
+            .replace("({description})", bracketed(plain_ar(cls.get("description"))))
+            .replace("{c}", CONFIDENCE_AR.get(conf, NOT_IN_SOURCES_AR)),
+            "duty": (FALLBACK_AR["agreement"].replace("({agreement})", bracketed(plain_ar(tar.get("agreement")))) + " "
+                     + FALLBACK_AR["saving"].replace("{x}", saving_text(research, "ar"))),
+            "origin": FALLBACK_AR["origin"].replace("{rule}", rule_text(research, "ar"))
+            .replace("{origin}", ORIGIN_TEXT_AR.get(res.get("status"), NOT_IN_SOURCES_AR))
+            .replace("{basis}", bracketed(basis) if basis != NOT_IN_SOURCES else "").strip(),
+            "notes": [{"text": arabic_note(n["text"], corridor) or n["text"], "from": [n["nid"]]}
+                      for n in notes if not n["mandatory"]],
+        }
     summary = VERDICT_TEXT.get(verdict, VERDICT_TEXT[GAP])
     summary = summary[0].upper() + summary[1:] + "."
     if verdict == "NOT_ELIGIBLE":
@@ -740,7 +858,7 @@ def cap(s: str) -> str:
 
 def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
                   id_sources: dict[str, dict[str, str]], kb_sources: dict[str, dict],
-                  conditions: list[str] | None = None) -> str:
+                  conditions: list[str] | None = None, corridor: str = "india") -> str:
     lang = "ar" if intake.get("language") == "ar" else "en"
     h, verdict = HEADINGS[lang], research["verdict"]
     cautions = condition_sentences(conditions, verdict, lang)   # problem 97
@@ -768,13 +886,13 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
     out += [f"## {h['classification']}", "",
             prose["classification"].strip() + cite(src.refs(cls.get("source_id"))), ""]
 
-    pref = plain(tar.get("preferential_rate"))
+    pref = plain(tar.get("preferential_rate")) if lang == "en" else plain_ar(tar.get("preferential_rate"))
     if pref == "EXCLUDED":
         pref = "Excluded" if lang == "en" else "مستثنى"
     out += [f"## {h['duty']}", "",
             f"| {h['mfn']} | {h['cepa']} | {h['saving']} |",
             "|---|---|---|",
-            f"| {plain(tar.get('mfn_rate'))} | {pref} | {saving_text(research)} |",
+            f"| {mfn_text(tar.get('mfn_rate'), lang)} | {pref} | {saving_text(research, lang)} |",
             "",
             prose["duty"].strip() + cite(src.refs(tar.get("source_id"),
                                                  research["estimated_saving"].get("source_id"))),
@@ -804,7 +922,8 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
     if mandatory or prose.get("notes"):
         out += [f"## {h['notes']}", ""]
         for n in mandatory:
-            out.append(f"- {n['text']}{cite(src.refs(n['source_id']))}")
+            text = (arabic_note(n["text"], corridor) or n["text"]) if lang == "ar" else n["text"]
+            out.append(f"- {text}{cite(src.refs(n['source_id']))}")
         for item in prose.get("notes") or []:
             nums = src.refs(*[by_nid[s]["source_id"] for s in item.get("from", []) if s in by_nid])
             out.append(f"- {item['text'].strip()}{cite(nums)}")
@@ -939,9 +1058,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     if used_fallback:
         problems = main_left
         log.warning("document builder | using the code-only report (%d problem(s) left)", len(problems))
-        prose = fallback_prose(research, notes)
-        if language in FALLBACK_NOTICE:   # N15 step 2
-            prose["summary"] = FALLBACK_NOTICE[language] + "\n\n" + prose["summary"]
+        prose = fallback_prose(research, notes, language, corridor)
         review_status = "FALLBACK"
     elif review is None:
         review_status = "SKIPPED"
@@ -949,7 +1066,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
         review_status = reviewed.status if reviewed is not None else QA_ERROR
 
     kb_sources = load_corridor(corridor)["sources"]
-    md = render_report(research, intake, prose, notes, id_sources, kb_sources, conditions)
+    md = render_report(research, intake, prose, notes, id_sources, kb_sources, conditions, corridor)
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
                          problems=problems if used_fallback else [], llm_calls=calls,
                          failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,

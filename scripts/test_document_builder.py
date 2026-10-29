@@ -20,13 +20,19 @@ from mansha.document_builder import (
     ESTIMATE_NOTE_START,
     EVIDENCE_ID_RE,
     FACTORY_REG_ID,
-    FALLBACK_NOTICE,
     FREE_ZONE_STEP_TEXT,
     HEADINGS,
     MAX_NOTES,
+    MFN_SPLIT_AR,
     MIN_LLM_NOTES,
+    NOT_IN_SOURCES_AR,
+    NOTE_AR_DRAFTS,
+    ORIGIN_TEXT_AR,
+    SAVING_AR,
     SAVING_HOW_RE,
     TRANSLATED_KEYS,
+    VERDICT_TEXT_AR,
+    arabic_note,
     brand_slips,
     build_facts,
     build_messages,
@@ -37,8 +43,11 @@ from mansha.document_builder import (
     fallback_prose,
     is_mandatory,
     max_llm_notes,
+    mfn_text,
+    note_originals,
     render_report,
     run_document_builder,
+    saving_text,
     script_problems,
     sent_notes,
     still_needed,
@@ -513,11 +522,12 @@ r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("bad twice: code-only report", r.used_fallback and r.problems and "40,000" not in r.markdown)
 check("code-only report keeps the mandatory notes verbatim",
       all(f"- {t}" in notes_section(r.markdown) for t in mand_texts))
-check("N15: an English code-only report has no Arabic notice", FALLBACK_NOTICE["ar"] not in r.markdown)
+check("an English code-only report has no Arabic in it", not re.search("[\u0600-\u06ff]", r.markdown))
 r = run_document_builder(research, ar_intake, pack.id_sources, llm=fake_llm(bad, bad))
-check("N15: an Arabic code-only report says first, in Arabic, that its prose is English",
-      r.used_fallback and summary_of(r.markdown).startswith(FALLBACK_NOTICE["ar"] + "\n\n"),
-      summary_of(r.markdown)[:120])
+ar_sum = summary_of(r.markdown)
+check("Part 2: an Arabic code-only report is written in Arabic (no English-prose notice)",
+      r.used_fallback and ar_sum.startswith(VERDICT_TEXT_AR[research["verdict"]] + ".")
+      and "تعذّر إعداد شرح" not in r.markdown, ar_sum[:160])
 
 failed = [{"attempt": 1, "ok": False, "http_status": 502, "problem": "HTTP 502",
            "waited_before_retry_s": 30}, {"attempt": 2, "ok": False, "problem": "empty reply"}]
@@ -780,6 +790,59 @@ llm = chain_llm(LLMCallError("router down", failed[:1]))
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
 check("B: an English auto:long failure has no chain fallback", llm.chains == ["auto:long"]
       and r.chain_fallback is None and r.used_fallback)
+
+print("\n== Part 2 (29 Oct): Arabic text printed by code")
+for st, want in (("NOT_APPLICABLE", SAVING_AR["NOT_APPLICABLE"]), ("NO_PREFERENCE", SAVING_AR["NO_PREFERENCE"]),
+                 ("NEEDS_VALUE", SAVING_AR["NEEDS_VALUE"]), ("REGULATORY_GAP_DETECTED", NOT_IN_SOURCES_AR)):
+    rr = dict(research, estimated_saving={"status": st})
+    check(f"saving cell ar, {st}", saving_text(rr, "ar") == want, saving_text(rr, "ar"))
+    check(f"saving cell en, {st}: unchanged", saving_text(rr) == saving_text(rr, "en") and "ل" not in saving_text(rr))
+rr = dict(research, verdict="NEEDS_MORE_DATA", estimated_saving={"status": "ESTIMATED", "amount": "10000.00", "currency": "AED"})
+check("saving cell ar, estimate before qualifying", saving_text(rr, "ar") == "10000.00 AED " + SAVING_AR["only_if"])
+check("saving cell en, estimate before qualifying: unchanged", saving_text(rr) == "10000.00 AED (only if the product qualifies)")
+check("MFN cell ar: 'tariff t, effective e' in Arabic",
+      mfn_text("tariff 15%, effective 10%", "ar") == MFN_SPLIT_AR.replace("{t}", "15%").replace("{e}", "10%"))
+check("MFN cell ar: '10%, effective 10%' (no 'tariff', 015311 r2) in Arabic too",
+      mfn_text("10%, effective 10%", "ar") == MFN_SPLIT_AR.replace("{t}", "10%").replace("{e}", "10%"))
+check("MFN cell: a plain rate unchanged in both languages", mfn_text("10%", "ar") == "10%" == mfn_text("10%"))
+check("MFN cell en: unchanged", mfn_text("tariff 15%, effective 10%") == "tariff 15%, effective 10%")
+check("MFN cell ar: the gap marker in Arabic", mfn_text("REGULATORY_GAP_DETECTED", "ar") == NOT_IN_SOURCES_AR)
+for key, original in note_originals().items():
+    check(f"note '{key}': its own original gets the Arabic draft", arabic_note(original) == NOTE_AR_DRAFTS[key])
+for text, key in (   # live rewordings, word for word
+        (("The duty estimate is based on the shipment value given (100000.00 AED). India charges duty on the "
+         "assessable (CIF) value at import, so actual amounts will differ. The amounts are shown in the "
+         "shipment's own currency and have not been converted."), "estimate"),            # 022326 r1
+        ("The agreement does not define '+' in the rule; Mansha interprets it as 'and' (both tests must pass).",
+         "plus"),
+        (("Duty estimate is on Basic Customs Duty only; IGST, GST compensation cess, SWS and any anti-dumping or "
+         "safeguard duty still apply."), "bcd"),
+        ("India charges duty on the assessable (CIF) value at import, so actual amounts will differ.", "estimate")):
+    check(f"reworded note -> '{key}': {text[:45]}...", arabic_note(text) == NOTE_AR_DRAFTS[key], arabic_note(text))
+for text in (   # different facts: stay English
+        ("The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was "
+        "found). Anti-dumping and safeguard duties likely still apply."),
+        ("The Ministry of Foreign Trade offers the e-service that issues preferential and non-preferential "
+        "certificates of origin for locally made products, but no page names it for India."),
+        "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
+        "A producer in a free zone is likely not eligible for Factory Registration."):
+    check(f"other note stays English: {text[:45]}...", arabic_note(text) is None, arabic_note(text))
+md_ar2 = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
+md_en2 = render_report(research, intake, good, notes, pack.id_sources, kb_sources)
+mand = [x for x in notes if x["mandatory"]]
+check("Arabic report: every matched mandatory note printed in Arabic, the others as they are",
+      all((f"- {arabic_note(x['text'])}" if arabic_note(x["text"]) else f"- {x['text']}")
+          in md_ar2.split("## ملاحظات مهمة", 1)[1].split("\n## ", 1)[0]
+          for x in mand) and mand)
+check("English report: mandatory notes still verbatim", all(f"- {x['text']}" in notes_section(md_en2) for x in mand))
+fp = fallback_prose(research, notes, "ar")
+check("Arabic fallback: origin line uses the Arabic result words",
+      ORIGIN_TEXT_AR[research["origin_result"]["status"]] in fp["origin"], fp["origin"])
+check("Arabic fallback: English KB details only inside brackets (F-a)",
+      not script_problems(" ".join([fp["summary"], fp["classification"], fp["duty"], fp["origin"]]),
+                          "ar").get("english"), fp)   # the app's own check: innermost brackets are glosses
+check("English fallback unchanged by the language parameter", fallback_prose(research, notes) ==
+      fallback_prose(research, notes, "en"))
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

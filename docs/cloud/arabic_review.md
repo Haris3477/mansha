@@ -42,8 +42,8 @@ It means: "Note: the explanation in this report could not be prepared in Arabic 
 
 - [ ] Notice OK
 
-## Part 2: drafts, NOT in the code. For Haris and his friend.
-Once reviewed, code switches to these texts. The English fallback and its notice then go away for Arabic reports.
+## Part 2: drafts, IN THE CODE since 29 Oct (before the review, Haris: option A). For Haris and his friend.
+Code prints these in Arabic reports (`mansha/document_builder.py`: `SAVING_AR`, `MFN_SPLIT_AR`, `NOTE_AR_DRAFTS`, `VERDICT_TEXT_AR`, `ORIGIN_TEXT_AR`, `FALLBACK_AR`); the reader's corrections replace them as text edits. `FALLBACK_NOTICE` was removed: the code-only prose is Arabic now, with English KB details in brackets (F-a). The review PDF (`docs/arabic_review/`) numbers these as items 10-35 and 87-92.
 
 ### Saving cell in the duty table (`saving_text`)
 

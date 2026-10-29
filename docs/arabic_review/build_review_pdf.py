@@ -109,7 +109,8 @@ C3 = "3. Already in the app"
 for en, ar in S["authority"].items():
     add(C3, f"Who acts in a step: {en}", ar, "Part 1: AUTHORITY_TEXT")
 add(C3, "Notice: the explanation in this report could not be prepared in Arabic at sufficient quality, so it is shown in English.",
-    S["fallback_notice"], "Part 1: FALLBACK_NOTICE")
+    S["fallback_notice"], "Part 1: FALLBACK_NOTICE (no longer used since 29 Oct)",
+    note="No longer used: the app now writes this part in Arabic. You can skip it.")
 for en, ar in S["headings"]:
     add(C3, f"Report heading / label: {en}", ar, "Part 3: HEADINGS")
 for en, ar in S["result"]:
@@ -127,6 +128,10 @@ for en, ar in S["ask"]:
     add(C3, f"App message: {en}", ar, "Part 3: orchestrator ASK / ASK_INTRO / ASK_END")
 for en, ar in S["msgs"]:
     add(C3, f"App message: {en.strip()}", ar.strip(), "Part 3: orchestrator stop messages")
+
+C4 = "4. Added later (new texts)"
+for en, ar, where in S.get("added", []):
+    add(C4, en, ar, where)
 
 counts = {}
 for it in items:
@@ -175,7 +180,8 @@ parts = [f"<style>{css}</style>",
          ("<p><span class='ph'>Grey boxes</span> are filled in by the app (a number or a name), so skip them. English words "
          "inside the Arabic (CIF, IGST, e-Sanchit, website addresses, a product or country name in brackets) "
          "are on purpose.</p>"),
-         (f"<p><b>Most important:</b> parts 1 and 2 (items {counts[C1][0]}–{counts[C2][-1]}). Part 3 is already in the app; "
+         (f"<p><b>Most important:</b> parts 1, 2 and 4 (items {counts[C1][0]}–{counts[C2][-1]} and "
+          f"{counts[C4][0]}–{counts[C4][-1]}). Part 3 is already in the app; "
          "check it if you have time.</p>"),
          "</div>"]
 section = None
@@ -184,7 +190,8 @@ for it in items:
         section = it["section"]
         sub = {C1: "The app or the AI used different words for the same thing. Pick the best (or write your own).",
                C2: "New Arabic sentences, waiting for your check before they go into the app.",
-               C3: "Arabic already shown in reports and messages. Never checked by a native reader."}[section]
+               C3: "Arabic already shown in reports and messages. Never checked by a native reader.",
+               C4: "Added after the first version of this PDF (numbers 1–86 did not change)."}[section]
         head = f"<h2>{html.escape(section)}</h2><p class='sub'>{sub}</p>"
     else:
         head = ""

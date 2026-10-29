@@ -45,7 +45,7 @@ The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (
 | 39 | 3 | Part 1: AUTHORITY_TEXT | Who acts in a step: the ministry of foreign trade |
 | 40 | 3 | Part 1: AUTHORITY_TEXT | Who acts in a step: the ministry of economy and tourism |
 | 41 | 3 | Part 1: AUTHORITY_TEXT | Who acts in a step: the indian importer |
-| 42 | 3 | Part 1: FALLBACK_NOTICE | Notice: the explanation in this report could not be prepared in Arabic at sufficient quali… |
+| 42 | 3 | Part 1: FALLBACK_NOTICE (no longer used since 29 Oct) | Notice: the explanation in this report could not be prepared in Arabic at sufficient quali… |
 | 43 | 3 | Part 3: HEADINGS | Report heading / label: Mansha origin check |
 | 44 | 3 | Part 3: HEADINGS | Report heading / label: Result |
 | 45 | 3 | Part 3: HEADINGS | Report heading / label: Summary |
@@ -90,3 +90,9 @@ The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (
 | 84 | 3 | Part 3: orchestrator stop messages | App message: Mansha's tariff data for India does not include a line matching "wooden doors… |
 | 85 | 3 | Part 3: orchestrator stop messages | App message: Mansha couldn't verify this result, so it is not showing a report. Please try… |
 | 86 | 3 | Part 3: orchestrator stop messages | App message: Mansha's AI service is busy right now, so it couldn't finish the check. Pleas… |
+| 87 | 4 | Part 2: FALLBACK_AR classification (replaces item 33) | Short report text (classification), as the app now prints it: Tariff line {line} ({descrip… |
+| 88 | 4 | Part 2: FALLBACK_AR agreement (replaces item 34) | Short report text: Agreement: ({agreement}). |
+| 89 | 4 | CONFIDENCE_AR | Mansha's confidence in the product code: high |
+| 90 | 4 | CONFIDENCE_AR | Mansha's confidence in the product code: medium |
+| 91 | 4 | CONFIDENCE_AR | Mansha's confidence in the product code: low |
+| 92 | 4 | RULE_EXCLUDED_AR | Rule of origin: does not apply, because the line is excluded from CEPA preference |
