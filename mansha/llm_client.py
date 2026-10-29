@@ -21,11 +21,16 @@ call_llm() wraps every model call so each agent gets the same behaviour:
   that would be one too many, the client waits until the oldest send leaves the window. The
   router refuses the extra request otherwise, and its escalating cooldown (5-9 min on 24 Oct)
   left QA parts unreviewed. Counts sends from this process only.
+- PRE-FLIGHT (guard health check, 29 Oct): router_answering() asks the router for its model
+  list (GET <base>/models; no model runs, no quota). eval_set and run_pipeline call it before
+  anything else, so a stopped router gives one clear line instead of LLM_ERRORs at Intake.
 """
 import json
 import logging
 import os
 import time
+import urllib.error
+import urllib.request
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Any
@@ -98,6 +103,32 @@ class LLMResult:
 
 
 _client: OpenAI | None = None
+
+HEALTH_TIMEOUT_S = 5.0          # pre-flight: no answer within this = not answering
+HEALTH_OK_STATUSES = {200, 401}  # 401 = the router is up and asks for a key (same rule as the curl check)
+START_HINT = "Start it: cd ~/Projects/freellmapi && npm run dev"
+
+
+def router_answering(base_url: str | None = None, *, timeout: float = HEALTH_TIMEOUT_S,
+                     opener=urllib.request.urlopen) -> tuple[bool, str]:
+    """Pre-flight check: is the router up? GET <base>/models, no key, no model, no quota.
+    Returns (up, one line for the console)."""
+    if base_url is None:
+        load_dotenv()
+        base_url = os.environ.get("FREELLMAPI_BASE_URL")
+    if not base_url:
+        return False, "router address unknown: FREELLMAPI_BASE_URL is not set"
+    url = base_url.rstrip("/") + "/models"
+    try:
+        with opener(url, timeout=timeout) as reply:
+            status = reply.status
+    except urllib.error.HTTPError as e:      # an HTTP answer with an error status: the router is there
+        status = e.code
+    except (urllib.error.URLError, OSError) as e:   # refused, unknown host, timeout
+        return False, f"router not answering at {url} ({getattr(e, 'reason', e)}). {START_HINT}"
+    if status in HEALTH_OK_STATUSES:
+        return True, f"router answering at {url} ({status})"
+    return False, f"router at {url} answered {status}, not ready. {START_HINT}"
 
 
 def _get_client() -> OpenAI:

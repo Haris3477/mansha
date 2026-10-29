@@ -9,7 +9,9 @@ Each run is saved in runs/pipeline/<YYYYMMDD-HHMMSS>_<case>/ (message, intake, e
 researcher_N, qa_N, builder, report.md or notice.md, phase_log.json and phase_log.md).
 Dev cases also check the status and verdict against the expected ones. Every report also
 goes through the automatic report check (mansha/report_check.py); its problems are printed
-and make the exit code 1, but they never replace reading the report.
+and make the exit code 1, but they never replace reading the report. Before the first case, a
+pre-flight check (llm_client.router_answering, no quota): if the router doesn't answer, exit 2
+with one clear line and nothing is run.
 """
 
 import argparse
@@ -18,11 +20,23 @@ import sys
 import time
 from pathlib import Path
 
-from mansha.llm_client import call_llm
+from mansha.llm_client import call_llm, router_answering
 from mansha.orchestrator import run_pipeline
 from scripts.pipeline_cases import PIPELINE_CASES
 
 RUNS_ROOT = Path("runs/pipeline")
+ROUTER_CHECK = router_answering   # replaceable in tests
+
+
+def router_ready(llm) -> bool:
+    """Pre-flight before a live run; skipped when a test passes its own fake llm."""
+    if llm is not call_llm:
+        return True
+    up, msg = ROUTER_CHECK()
+    print(f"Pre-flight: {msg}")
+    if not up:
+        print("Not started: the router is not answering (nothing was run).")
+    return up
 
 
 def setup_logging() -> None:
@@ -79,6 +93,8 @@ def main(argv: list[str] | None = None, *, llm=call_llm, runs_root: Path = RUNS_
     if args.message:
         if args.cases:
             parser.error("give either dev case names or --message, not both")
+        if not router_ready(llm):
+            return 2
         r = run_one("msg", args.message, args.bom, llm=llm, runs_root=runs_root)
         return 1 if r["check"] and r["check"][0] else 0
     if args.bom:
@@ -88,6 +104,8 @@ def main(argv: list[str] | None = None, *, llm=call_llm, runs_root: Path = RUNS_
     unknown = [n for n in names if n not in PIPELINE_CASES]
     if unknown:
         parser.error(f"unknown case(s) {unknown}; choose from {list(PIPELINE_CASES)}")
+    if not router_ready(llm):
+        return 2
 
     rows = []
     for name in names:

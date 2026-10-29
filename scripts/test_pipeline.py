@@ -35,6 +35,7 @@ from mansha.orchestrator import (
 from mansha.researcher import number_keys
 from scripts.pipeline_cases import DEV_INTAKES as INTAKES
 from scripts.pipeline_cases import PIPELINE_CASES
+from scripts import run_pipeline as runner
 from scripts.run_pipeline import main as runner_main
 from scripts.try_chain import main as try_chain_main
 
@@ -648,6 +649,16 @@ code = runner_main(["--message", "We make aluminium window frames for India.",
                     "--bom", "samples/windows_qualifies"],
                    llm=fake_for("windows", researcher=[leaky], document_builder=[ERR]), runs_root=root)
 check("report check problem: exit 1 (report still saved)", code == 1, code)
+real_check, runner.ROUTER_CHECK = runner.ROUTER_CHECK, lambda: (False, "router not answering (fake)")
+n_before = len(list(root.iterdir()))
+code = runner_main(["vague"], runs_root=root)   # the real call_llm: the pre-flight check runs
+check("router down: exit 2, nothing run (no new folder)", code == 2 and len(list(root.iterdir())) == n_before, code)
+code = runner_main(["--message", "We make aluminium window frames for India."], runs_root=root)
+check("router down with --message: exit 2", code == 2 and len(list(root.iterdir())) == n_before, code)
+runner.ROUTER_CHECK = lambda: (_ for _ in ()).throw(AssertionError("checked with a fake llm"))
+code = runner_main(["vague"], llm=FakeLLM(intake=[NULL_INTAKE]), runs_root=root)
+check("a fake llm skips the pre-flight check", code == 0, code)
+runner.ROUTER_CHECK = real_check
 for bad_args in (["--bom", "samples/windows_qualifies"], ["nope"], ["vague", "--message", "x"]):
     try:
         runner_main(bad_args, llm=FakeLLM(), runs_root=root)

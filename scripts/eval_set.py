@@ -8,6 +8,8 @@
 
 The dry run runs the plain-Python tools on each case's expected Intake JSON and compares them
 with the answer key (scripts/eval_cases.py); a live run refuses to start unless it is clean.
+Then a pre-flight check (llm_client.router_answering, no quota): a router that doesn't answer
+stops the run with exit 2 before anything is sent; --force does not skip it.
 The budget guard (E1) reads the router's own sliding-24 h request counts (rate_limit_usage,
 read-only; for OpenRouter :free models also every attempt since 00:00 UTC, request_attempts) and stops if the worst case doesn't fit, unless --force (D3 = A). Each case then
 runs through the real pipeline in this one process (so the judge pacing covers the gaps
@@ -26,12 +28,14 @@ import sys
 import time
 from pathlib import Path
 
+from mansha.llm_client import router_answering
 from scripts.eval_cases import BY_ID, CASES, GROUPS, EvalCase
 from scripts.eval_grade import Grade, compare, derive, grade, load_run, supplier_leaks
 from scripts.router_db import CHAINS, ROUTER_DB, chain_capacity, utc_text  # noqa: F401 (utc_text: tests)
 
 RUNS_ROOT = Path("runs/eval_set")
 DEFAULT_GROUPS = ("core", "stop", "new")
+ROUTER_CHECK = router_answering   # replaceable in tests
 
 
 def privacy_problems(case: EvalCase, facts: dict) -> list[str]:
@@ -310,6 +314,12 @@ def main(argv=None) -> int:
     if rc:
         print("Not started: the tools no longer match the answer key (see above).")
         return 1
+
+    up, msg = ROUTER_CHECK()
+    print(f"\nPre-flight: {msg}")
+    if not up:
+        print("Not started: the router is not answering (nothing was sent; --force does not skip this).")
+        return 2
 
     print("\nBudget guard (router's sliding 24 h counts; OpenRouter :free = attempts since 00:00 UTC, "
           "04:00 Dubai):")

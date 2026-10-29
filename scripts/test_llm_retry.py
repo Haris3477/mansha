@@ -5,6 +5,7 @@ sleep are replaced. Run: python -m scripts.test_llm_retry
 """
 
 import sys
+import urllib.error
 from types import SimpleNamespace
 
 from openai import APIStatusError
@@ -215,5 +216,60 @@ check("first try 3000, retry after truncation 6000", sent_max == [3000, 6000], s
 check("the retry's answer is used", isinstance(out, lc.LLMResult) and fake.calls == 2, out)
 
 lc._client = None
+
+print("\n6. Pre-flight: router_answering() (guard health check, 29 Oct)")
+
+
+class FakeReply:
+    def __init__(self, status):
+        self.status = status
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+def opener_for(outcome):
+    seen = {}
+
+    def opener(url, timeout):
+        seen.update(url=url, timeout=timeout)
+        if isinstance(outcome, BaseException):
+            raise outcome
+        return FakeReply(outcome)
+    return opener, seen
+
+
+BASE = "http://localhost:3001/v1/"
+op, seen = opener_for(200)
+up, msg = lc.router_answering(BASE, opener=op)
+check("200: up", up and "(200)" in msg, msg)
+check("asks <base>/models (one slash) with the 5 s timeout",
+      seen == {"url": "http://localhost:3001/v1/models", "timeout": lc.HEALTH_TIMEOUT_S}, seen)
+op, _ = opener_for(urllib.error.HTTPError(BASE + "models", 401, "Unauthorized", {}, None))
+up, msg = lc.router_answering(BASE, opener=op)
+check("401 (asks for a key): up", up and "(401)" in msg, msg)
+for status in (404, 503):
+    op, _ = opener_for(urllib.error.HTTPError(BASE + "models", status, "x", {}, None))
+    up, msg = lc.router_answering(BASE, opener=op)
+    check(f"{status}: not ready, with the start hint", not up and str(status) in msg and "npm run dev" in msg, msg)
+for name, err in (("connection refused", urllib.error.URLError(ConnectionRefusedError(61, "Connection refused"))),
+                  ("timeout", TimeoutError("timed out"))):
+    op, _ = opener_for(err)
+    up, msg = lc.router_answering(BASE, opener=op)
+    check(f"{name}: not answering, with the start hint", not up and "not answering" in msg
+          and "npm run dev" in msg, msg)
+real_load, real_env = lc.load_dotenv, lc.os.environ.pop("FREELLMAPI_BASE_URL", None)
+lc.load_dotenv = lambda: None
+try:
+    up, msg = lc.router_answering(opener=opener_for(200)[0])
+    check("no address set: not up (nothing sent)", not up and "FREELLMAPI_BASE_URL" in msg, msg)
+finally:
+    lc.load_dotenv = real_load
+    if real_env is not None:
+        lc.os.environ["FREELLMAPI_BASE_URL"] = real_env
+
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

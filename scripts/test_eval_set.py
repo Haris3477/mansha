@@ -486,10 +486,22 @@ check("long + arabic share Gemini 3.5: each fits alone (12 >= 10, 10 >= 6), toge
       not ok3 and "  long+arabic share models: need up to 16, left 12  SHORT" in lines3, "\n".join(lines3))
 check("the arabic chain is read from the router DB (CHAINS)", "arabic" in eval_set.CHAINS)
 
+real_check = eval_set.ROUTER_CHECK
+eval_set.ROUTER_CHECK = lambda: (True, "router answering (fake)")
 eval_set.ROUTER_DB = db
 check("a live run that may not fit refuses to start (exit 2)", eval_set.main(["--group", "core"]) == 2)
 eval_set.ROUTER_DB = TMP / "missing.db"
 check("no router database -> refuses to start", eval_set.main(["--case", "C1"]) == 2)
+asked_db = []
+eval_set.ROUTER_CHECK = lambda: (False, "router not answering (fake)")
+real_cap = eval_set.chain_capacity
+eval_set.chain_capacity = lambda *a, **k: asked_db.append(1) or real_cap(*a, **k)
+before = set(eval_set.RUNS_ROOT.iterdir()) if eval_set.RUNS_ROOT.exists() else set()
+check("router down -> refuses to start (exit 2), even with --force",
+      eval_set.main(["--case", "C1", "--force"]) == 2)
+check("router down: stops before the budget guard and makes no run folder",
+      not asked_db and (set(eval_set.RUNS_ROOT.iterdir()) if eval_set.RUNS_ROOT.exists() else set()) == before)
+eval_set.chain_capacity, eval_set.ROUTER_CHECK = real_cap, real_check
 
 print("\n8. Replay of the global anchors over the saved live runs (runs/pipeline/)")
 saved = Path("runs/pipeline")
