@@ -32,6 +32,10 @@ from mansha.document_builder import (
     SAVING_HOW_RE,
     TRANSLATED_KEYS,
     VERDICT_TEXT_AR,
+    FRAGMENT_COVERED,
+    NOTE_GROUPS,
+    VA_METHODS_EN,
+    arabic_fragments,
     arabic_note,
     brand_slips,
     build_facts,
@@ -44,6 +48,8 @@ from mansha.document_builder import (
     is_mandatory,
     max_llm_notes,
     mfn_text,
+    note_candidates,
+    note_match,
     note_originals,
     render_report,
     run_document_builder,
@@ -819,12 +825,9 @@ for text, key in (   # live rewordings, word for word
          "safeguard duty still apply."), "bcd"),
         ("India charges duty on the assessable (CIF) value at import, so actual amounts will differ.", "estimate")):
     check(f"reworded note -> '{key}': {text[:45]}...", arabic_note(text) == NOTE_AR_DRAFTS[key], arabic_note(text))
-for text in (   # different facts: stay English
-        ("The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was "
-        "found). Anti-dumping and safeguard duties likely still apply."),
+for text in (   # different facts: stay English (the SWS and direct-cost notes have drafts since 29 Oct evening)
         ("The Ministry of Foreign Trade offers the e-service that issues preferential and non-preferential "
         "certificates of origin for locally made products, but no page names it for India."),
-        "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement.",
         "A producer in a free zone is likely not eligible for Factory Registration."):
     check(f"other note stays English: {text[:45]}...", arabic_note(text) is None, arabic_note(text))
 md_ar2 = render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources)
@@ -843,6 +846,91 @@ check("Arabic fallback: English KB details only inside brackets (F-a)",
                           "ar").get("english"), fp)   # the app's own check: innermost brackets are glosses
 check("English fallback unchanged by the language parameter", fallback_prose(research, notes) ==
       fallback_prose(research, notes, "en"))
+
+print("\n== N15 fully Arabic (29 Oct evening): KB-note drafts (A3) and split-note fragments (B1)")
+kb_ia = load_corridor("india")
+kb_p = {x["id"]: x for x in kb_ia["passages"]["passages"]}
+orig = note_originals()
+for key, pid, i in (("va_undefined", "P-AGR-3.2.2-VA", 0), ("va_threshold", "P-AGR-3.2.2-VA", 1),
+                    ("free_zone", "P-MOET-FACTORY-REG", 0), ("sws", "P-IN-DUTY-SCOPE", 0),
+                    ("anti_dumping", "P-IN-DUTY-SCOPE", 1)):
+    check(f"{key}: the original is {pid}'s note {i + 1}, word for word", orig[key] == kb_p[pid]["notes"][i])
+check("va_methods: the English twin is still what P-AGR-3.2.2-VA's summary opens with",
+      kb_p["P-AGR-3.2.2-VA"]["summary"].startswith("Value addition may be calculated either by build-down,")
+      and "or by build-up," in kb_p["P-AGR-3.2.2-VA"]["summary"] and VA_METHODS_EN.startswith("Value addition"))
+check("every draft key has an original and every original a draft", set(orig) == set(NOTE_AR_DRAFTS))
+check("every new draft is Arabic with English only in brackets",
+      all(not script_problems(NOTE_AR_DRAFTS[k], "ar")["english"] for g in NOTE_GROUPS for k in g)
+      and not script_problems(NOTE_AR_DRAFTS["free_zone"], "ar")["english"])
+cands = note_candidates()
+check("groups: each run of consecutive notes is a candidate (VA 3 runs of 2+, DUTY-SCOPE 1)",
+      {k for k in cands if len(k) > 1} == {("va_methods", "va_undefined"), ("va_undefined", "va_threshold"),
+                                           ("va_methods", "va_undefined", "va_threshold"), ("sws", "anti_dumping")})
+for text, keys in (   # live caveats, word for word (runs/eval_set)
+        (("Value addition may be calculated by build-down or build-up; 'direct labour cost' and 'direct overhead "
+          "cost' are not defined in the agreement."), ("va_methods", "va_undefined")),          # 170752 r1, r2
+        (("'Direct labour cost' and 'direct overhead cost' are not defined in the agreement; the agreement does not "
+          "say whether the build-down and build-up methods use the same threshold apart from the 5-point Ex-Works "
+          "adjustment."), ("va_undefined", "va_threshold")),
+        ("Direct labour cost and direct overhead cost are not defined in the agreement.", ("va_undefined",)),
+        (("The Social Welfare Surcharge (SWS) is likely charged on the reduced BCD (no CEPA-specific text on it was "
+          "found). Anti-dumping and safeguard duties likely still apply (no CEPA exemption from them was found)."),
+         ("sws", "anti_dumping")),
+        ("Inference: SWS is charged on the reduced BCD (no CEPA-specific text found).", ("sws",)),
+        ("Inference: anti-dumping and safeguard duties still apply (no exemption found).", ("anti_dumping",)),
+        (("A producer in a free zone is likely not eligible for Factory Registration, which is required before "
+          "applying for the certificate of origin for India; confirm with the Ministry of Economy and Tourism."),
+         ("free_zone",))):
+    check(f"live caveat -> {'+'.join(keys)}: {text[:40]}...", note_match(text) == keys, note_match(text))
+check("a merged note prints the drafts joined in group order",
+      arabic_note(cands[("sws", "anti_dumping")]) == NOTE_AR_DRAFTS["sws"] + " " + NOTE_AR_DRAFTS["anti_dumping"])
+check("the BCD note still gets the BCD draft, not the SWS / anti-dumping one",
+      note_match(orig["bcd"]) == ("bcd",))
+# B1: the 170752 r1 notes (builder.json), word for word
+est1 = "Duty estimate is on the shipment value given. India charges duty on the assessable (CIF) value at import, so actual amounts will differ."
+frag = "Shown in the shipment's own currency; never converted."
+r1 = [{"nid": "M1", "text": est1, "source_id": "TOOL:duty:76101000", "mandatory": True},
+      {"nid": "M2", "text": frag, "source_id": "TOOL:duty:76101000", "mandatory": True}]
+check("B1: 170752 r1's split fragment is left out (covered by the printed estimate draft)",
+      arabic_fragments(r1) == {"M2": "estimate"}, arabic_fragments(r1))
+check("B1: ... and the estimate draft itself says it (currency, not converted)",
+      "بعملة الشحنة نفسها، دون تحويل" in arabic_note(est1))
+check("B1: no fragment drop when the covering note is from another source",
+      arabic_fragments([r1[0], dict(r1[1], source_id="TOOL:duty:99999999")]) == {})
+check("B1: no drop when the covering note is optional (the LLM gets it, code does not print it)",
+      arabic_fragments([dict(r1[0], mandatory=False), r1[1]]) == {})
+check("B1: no drop when nothing printed covers it", arabic_fragments(r1[1:]) == {})
+sws_only = "The Social Welfare Surcharge is charged on the reduced BCD (no CEPA-specific text found), and anti-dumping and safeguard duties still apply."
+check("B1: an SWS note next to the BCD note is not dropped (its own draft, or English, never lost)",
+      arabic_fragments([{"nid": "M1", "text": orig["bcd"], "source_id": "P-IN-DUTY-SCOPE", "mandatory": True},
+                        {"nid": "M2", "text": sws_only, "source_id": "P-IN-DUTY-SCOPE", "mandatory": True}]) == {})
+check("B1: the cut-off is 80%", FRAGMENT_COVERED == 0.8)
+# B1 in the rendered report: Arabic leaves the fragment out, English prints both as before
+fr_notes = [dict(x) for x in notes] + [{"nid": "M99", "text": frag, "source_id": next(
+    x["source_id"] for x in notes if x["mandatory"] and note_match(x["text"]) == ("estimate",)), "mandatory": True}] \
+    if any(x["mandatory"] and note_match(x["text"]) == ("estimate",) for x in notes) else None
+if fr_notes:
+    md_fr_ar = render_report(research, ar_intake, good, fr_notes, pack.id_sources, kb_sources)
+    md_fr_en = render_report(research, intake, good, fr_notes, pack.id_sources, kb_sources)
+    check("B1 report: the Arabic report leaves the fragment out", frag not in md_fr_ar)
+    check("B1 report: the English report prints it, as before", f"- {frag}" in md_fr_en)
+    check("B1 report: with the fragment added, the Arabic report is the same as without it",
+          md_fr_ar == render_report(research, ar_intake, good, notes, pack.id_sources, kb_sources))
+else:
+    check("B1 report: the sample has a mandatory estimate note", False)
+# B1 in the Builder's result (the phase log reads it): the fragment as a Researcher caveat of the same source
+est_sid = next((x["source_id"] for x in notes if x["mandatory"] and note_match(x["text"]) == ("estimate",)), "")
+r_fr = copy.deepcopy(research)
+r_fr["caveats"] = list(r_fr.get("caveats") or []) + [{"note": frag, "source_id": est_sid}]
+_, fr_built = build_facts(r_fr, ar_intake)
+fr_nid = next((x["nid"] for x in fr_built if x["text"] == frag), None)
+br_ar = run_document_builder(r_fr, ar_intake, pack.id_sources, llm=fake_llm(good, good))
+br_en = run_document_builder(r_fr, intake, pack.id_sources, llm=fake_llm(good))
+check("B1 result: an Arabic run records the fragment it left out, by note number",
+      fr_nid is not None and br_ar.fragments_dropped == {fr_nid: "estimate"}, br_ar.fragments_dropped)
+check("B1 result: ... and its report does not print it", frag not in br_ar.markdown)
+check("B1 result: an English run leaves nothing out and prints it", br_en.fragments_dropped == {}
+      and f"- {frag}" in br_en.markdown)
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

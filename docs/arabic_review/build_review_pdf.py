@@ -191,7 +191,7 @@ for it in items:
         sub = {C1: "The app or the AI used different words for the same thing. Pick the best (or write your own).",
                C2: "New Arabic sentences, waiting for your check before they go into the app.",
                C3: "Arabic already shown in reports and messages. Never checked by a native reader.",
-               C4: "Added after the first version of this PDF (numbers 1–86 did not change)."}[section]
+               C4: "Added after the first version of this PDF (numbers 1–92 did not change)."}[section]
         head = f"<h2>{html.escape(section)}</h2><p class='sub'>{sub}</p>"
     else:
         head = ""

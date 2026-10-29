@@ -43,7 +43,7 @@ It means: "Note: the explanation in this report could not be prepared in Arabic 
 - [ ] Notice OK
 
 ## Part 2: drafts, IN THE CODE since 29 Oct (before the review, Haris: option A). For Haris and his friend.
-Code prints these in Arabic reports (`mansha/document_builder.py`: `SAVING_AR`, `MFN_SPLIT_AR`, `NOTE_AR_DRAFTS`, `VERDICT_TEXT_AR`, `ORIGIN_TEXT_AR`, `FALLBACK_AR`); the reader's corrections replace them as text edits. `FALLBACK_NOTICE` was removed: the code-only prose is Arabic now, with English KB details in brackets (F-a). The review PDF (`docs/arabic_review/`) numbers these as items 10-35 and 87-92.
+Code prints these in Arabic reports (`mansha/document_builder.py`: `SAVING_AR`, `MFN_SPLIT_AR`, `NOTE_AR_DRAFTS`, `VERDICT_TEXT_AR`, `ORIGIN_TEXT_AR`, `FALLBACK_AR`); the reader's corrections replace them as text edits. `FALLBACK_NOTICE` was removed: the code-only prose is Arabic now, with English KB details in brackets (F-a). The review PDF (`docs/arabic_review/`) numbers these as items 10-35 and 87-98. Items 93-98 (29 Oct evening, N15 fully Arabic): the qualified KB notes of P-AGR-3.2.2-VA (2 notes plus its summary's first clause), P-MOET-FACTORY-REG and P-IN-DUTY-SCOPE (2 notes). When the Researcher merges consecutive notes of one record, code prints their drafts joined (`NOTE_GROUPS`); a split-note fragment already said by a printed draft from the same source is left out of Arabic reports (`arabic_fragments`, logged in the Builder phase).
 
 ### Saving cell in the duty table (`saving_text`)
 

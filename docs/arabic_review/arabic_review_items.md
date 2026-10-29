@@ -96,3 +96,9 @@ The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (
 | 90 | 4 | CONFIDENCE_AR | Mansha's confidence in the product code: medium |
 | 91 | 4 | CONFIDENCE_AR | Mansha's confidence in the product code: low |
 | 92 | 4 | RULE_EXCLUDED_AR | Rule of origin: does not apply, because the line is excluded from CEPA preference |
+| 93 | 4 | NOTE_AR_DRAFTS va_methods (P-AGR-3.2.2-VA summary, first clause; Arabic joined before item 94 when the AI merges them) | Report note, printed by the app: Value addition may be calculated by build-down or build-u… |
+| 94 | 4 | NOTE_AR_DRAFTS va_undefined (P-AGR-3.2.2-VA note 1) | Report note, printed by the app: 'Direct labour cost' and 'direct overhead cost' are not d… |
+| 95 | 4 | NOTE_AR_DRAFTS va_threshold (P-AGR-3.2.2-VA note 2) | Report note, printed by the app: The agreement does not say whether the build-down and bui… |
+| 96 | 4 | NOTE_AR_DRAFTS free_zone (P-MOET-FACTORY-REG note) | Report note, printed by the app: A producer in a free zone is likely not eligible for Fact… |
+| 97 | 4 | NOTE_AR_DRAFTS sws (P-IN-DUTY-SCOPE note 1) | Report note, printed by the app: The Social Welfare Surcharge (SWS) is likely charged on t… |
+| 98 | 4 | NOTE_AR_DRAFTS anti_dumping (P-IN-DUTY-SCOPE note 2) | Report note, printed by the app: Anti-dumping and safeguard duties likely still apply (no … |

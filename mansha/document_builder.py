@@ -396,6 +396,8 @@ class BuilderResult:
     untranslated: list[str] = field(default_factory=list)
     # B (28 Oct): None, or {from, to, round, reason} when the Arabic chain failed and auto:long took over
     chain_fallback: dict | None = None
+    # (b) 29 Oct evening: {nid: covering draft keys} of the note fragments left out of an Arabic report
+    fragments_dropped: dict[str, str] = field(default_factory=dict)
 
 
 # ---------- FACTS and NOTES (code, before the call) ----------
@@ -471,7 +473,28 @@ NOTE_AR_DRAFTS = {
     "bcd": 'تخفّض أسعار الاتفاقية الرسوم الجمركية الأساسية (BCD) فقط. وتبقى مستحقة ضريبة السلع والخدمات المتكاملة (IGST)، ورسم التعويض عن ضريبة السلع والخدمات، ورسم الرعاية الاجتماعية الإضافي (SWS)، وأي رسوم لمكافحة الإغراق أو رسوم وقائية.',
     "applies": 'لا يُطبَّق سعر الاتفاقية إلا إذا استوفى المنتج قواعد المنشأ وقُدِّمت شهادة منشأ سارية.',
     "issuer": 'لا تذكر أي صفحة رسمية اطّلعنا عليها أن وزارة التجارة الخارجية هي الجهة المصدرة لشهادة المنشأ الخاصة باتفاقية الهند تحديدًا: فصفحة خدمتها تتناول شهادات المنشأ التفضيلية بشكل عام، ولا تزال الصفحة الخاصة بالهند منشورة على موقع moet.gov.ae.',
+    # N15 fully Arabic (29 Oct evening, A3): the qualified KB notes of P-AGR-3.2.2-VA, P-MOET-FACTORY-REG
+    # and P-IN-DUTY-SCOPE, plus VA's summary clause (va_methods). Review PDF items 93-98.
+    "va_methods": 'يجوز حساب القيمة المضافة بطريقة الخصم (build-down) أو بطريقة الإضافة (build-up).',
+    "va_undefined": 'لا تعرّف الاتفاقية «تكلفة العمالة المباشرة» (direct labour cost) و«تكلفة النفقات العامة المباشرة» (direct overhead cost).',
+    "va_threshold": 'لا تذكر الاتفاقية ما إذا كانت طريقتا الخصم والإضافة تستخدمان النسبة الحدّية نفسها، باستثناء تعديل النقاط المئوية الخمس الخاص بسعر تسليم المصنع (Ex-Works).',
+    "free_zone": 'يُرجَّح أن المنتِج الموجود في منطقة حرة غير مؤهل لتسجيل المصانع، لأن التسجيل يشترط أن يكون المصنع خارج المنطقة الحرة، والتسجيل مطلوب قبل التقدم بطلب شهادة المنشأ الخاصة بالهند. تحقّق من ذلك مع وزارة الاقتصاد والسياحة.',
+    "sws": 'يُرجَّح أن رسم الرعاية الاجتماعية الإضافي (SWS) يُحتسب على الرسوم الجمركية الأساسية (BCD) بعد تخفيضها (لم نجد نصًا خاصًا بالاتفاقية بشأن ذلك).',
+    "anti_dumping": 'يُرجَّح أن رسوم مكافحة الإغراق والرسوم الوقائية تبقى مستحقة (لم نجد في الاتفاقية إعفاءً منها).',
 }
+# The Researcher merges consecutive notes of one record into one caveat (VA's two notes, often after the
+# summary clause; DUTY-SCOPE's two notes): a caveat may match a run of consecutive keys of a group, and
+# prints their drafts joined in group order.
+NOTE_GROUPS = (("va_methods", "va_undefined", "va_threshold"), ("sws", "anti_dumping"))
+# va_methods has no KB note of its own: this is the opening clause of P-AGR-3.2.2-VA's summary, shortened
+# (test_document_builder checks the summary still says it). The Researcher prefixes it to the first note.
+VA_METHODS_EN = "Value addition may be calculated by build-down or build-up."
+# (b) A caveat with no draft of its own is dropped from an Arabic report when this share of its content words
+# is in the original of a draft printed from the same source: the Researcher split the note, and the
+# draft (a translation of the whole original) already says it (170752 r1: "Shown in the shipment's own
+# currency; never converted."). Replay over 221 saved outputs: 2 drops, both such fragments; without the
+# same-source condition, at 0.6, SWS / anti-dumping notes were wrongly dropped against the BCD draft.
+FRAGMENT_COVERED = 0.8
 NOTE_MATCH_OF_ORIGINAL = 0.55  # share of the original's content words the note has (partial copies count)
 NOTE_MATCH_OF_NOTE = 0.6       # share of the note's content words the original has (no extra facts lost)
 
@@ -479,19 +502,60 @@ NOTE_MATCH_OF_NOTE = 0.6       # share of the note's content words the original 
 def note_originals(corridor: str = "india") -> dict[str, str]:
     """The English originals of the notes with an Arabic draft, from the KB and the duty tool."""
     kb = load_corridor(corridor)
-    issuer = next((p.get("notes") or [""])[0] for p in kb["passages"]["passages"] if p["id"] == "P-UAE-ISSUER")
+    notes = {p["id"]: list(p.get("notes") or []) + ["", ""] for p in kb["passages"]["passages"]}
     return {"plus": (kb["psr"]["metadata"].get("interpretations") or [""])[0], "estimate": ESTIMATE_NOTE,
-            "bcd": kb["tariff"]["metadata"].get("duty_scope", ""), "applies": CEPA_APPLIES_NOTE, "issuer": issuer}
+            "bcd": kb["tariff"]["metadata"].get("duty_scope", ""), "applies": CEPA_APPLIES_NOTE,
+            "issuer": notes["P-UAE-ISSUER"][0],
+            "va_methods": VA_METHODS_EN, "va_undefined": notes["P-AGR-3.2.2-VA"][0],
+            "va_threshold": notes["P-AGR-3.2.2-VA"][1], "free_zone": notes["P-MOET-FACTORY-REG"][0],
+            "sws": notes["P-IN-DUTY-SCOPE"][0], "anti_dumping": notes["P-IN-DUTY-SCOPE"][1]}
+
+
+def note_candidates(corridor: str = "india") -> dict[tuple[str, ...], str]:
+    """(keys) -> English original: each note alone, and each run of 2+ consecutive keys of a group, joined."""
+    originals = note_originals(corridor)
+    out = {(k,): v for k, v in originals.items() if v}
+    for group in NOTE_GROUPS:
+        for i in range(len(group)):
+            for j in range(i + 2, len(group) + 1):
+                if all(originals.get(k) for k in group[i:j]):
+                    out[group[i:j]] = " ".join(originals[k] for k in group[i:j])
+    return out
+
+
+def note_match(text: str, corridor: str = "india") -> tuple[str, ...] | None:
+    """The draft keys a note restates (one note, or a run of a group), or None."""
+    best, score = None, 0.0
+    for keys, original in note_candidates(corridor).items():
+        of_original, of_note = coverage(original, text), coverage(text, original)
+        if of_original >= NOTE_MATCH_OF_ORIGINAL and of_note >= NOTE_MATCH_OF_NOTE and of_original + of_note > score:
+            best, score = keys, of_original + of_note
+    return best
 
 
 def arabic_note(text: str, corridor: str = "india") -> str | None:
-    """The Arabic draft of a note printed word for word, or None when it is no known note."""
-    best, score = None, 0.0
-    for key, original in note_originals(corridor).items():
-        of_original, of_note = coverage(original, text), coverage(text, original)
-        if of_original >= NOTE_MATCH_OF_ORIGINAL and of_note >= NOTE_MATCH_OF_NOTE and of_original + of_note > score:
-            best, score = key, of_original + of_note
-    return NOTE_AR_DRAFTS[best] if best else None
+    """The Arabic draft of a note printed word for word (several joined for a merged note), or None."""
+    keys = note_match(text, corridor)
+    return " ".join(NOTE_AR_DRAFTS[k] for k in keys) if keys else None
+
+
+def arabic_fragments(notes: list[dict], corridor: str = "india") -> dict[str, str]:
+    """{nid: covering draft keys} of the notes an Arabic report leaves out (b): no draft of their own, and
+    FRAGMENT_COVERED of their content words are in the original of a MANDATORY note's draft (always
+    printed by code) from the same source. Mandatory ones are skipped in the report; optional ones
+    only matter in the code-only fallback (else the LLM gets them, unchanged)."""
+    candidates = note_candidates(corridor)
+    matched = {n["nid"]: note_match(n["text"], corridor) for n in notes}
+    printed = [(n["source_id"], matched[n["nid"]]) for n in notes if n["mandatory"] and matched[n["nid"]]]
+    out = {}
+    for n in notes:
+        if matched[n["nid"]]:
+            continue
+        cover = next((keys for sid, keys in printed
+                      if sid == n["source_id"] and coverage(n["text"], candidates[keys]) >= FRAGMENT_COVERED), None)
+        if cover:
+            out[n["nid"]] = "+".join(cover)
+    return out
 
 
 def bracketed(text: str) -> str:
@@ -780,6 +844,7 @@ def fallback_prose(research: dict, notes: list[dict], language: str | None = "en
     cls, tar = research["classification"], research["tariff"]
     res, verdict = research["origin_result"], research["verdict"]
     if language == "ar":
+        fragments = arabic_fragments(notes, corridor)
         summary = VERDICT_TEXT_AR.get(verdict, VERDICT_TEXT_AR[GAP]) + "."
         if verdict == "NOT_ELIGIBLE":
             summary += " " + FALLBACK_AR["failed"]
@@ -798,7 +863,7 @@ def fallback_prose(research: dict, notes: list[dict], language: str | None = "en
             .replace("{origin}", ORIGIN_TEXT_AR.get(res.get("status"), NOT_IN_SOURCES_AR))
             .replace("{basis}", bracketed(basis) if basis != NOT_IN_SOURCES else "").strip(),
             "notes": [{"text": arabic_note(n["text"], corridor) or n["text"], "from": [n["nid"]]}
-                      for n in notes if not n["mandatory"]],
+                      for n in notes if not n["mandatory"] and n["nid"] not in fragments],
         }
     summary = VERDICT_TEXT.get(verdict, VERDICT_TEXT[GAP])
     summary = summary[0].upper() + summary[1:] + "."
@@ -918,6 +983,9 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
 
     # 8.5: mandatory notes first, word for word; then the LLM's condensed optional notes.
     mandatory = [n for n in notes if n["mandatory"]]
+    if lang == "ar":   # (b) a split note's fragment already said by a printed draft
+        fragments = arabic_fragments(notes, corridor)
+        mandatory = [n for n in mandatory if n["nid"] not in fragments]
     by_nid = {n["nid"]: n for n in notes if not n["mandatory"]}
     if mandatory or prose.get("notes"):
         out += [f"## {h['notes']}", ""]
@@ -1067,7 +1135,12 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
 
     kb_sources = load_corridor(corridor)["sources"]
     md = render_report(research, intake, prose, notes, id_sources, kb_sources, conditions, corridor)
+    # (b) what the report left out: mandatory fragments always, optional ones only in the code-only prose
+    fragments = ({nid: keys for nid, keys in arabic_fragments(notes, corridor).items()
+                  if used_fallback or next(n for n in notes if n["nid"] == nid)["mandatory"]}
+                 if language == "ar" else {})
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
+                         fragments_dropped=fragments,
                          problems=problems if used_fallback else [], llm_calls=calls,
                          failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,
                          fallback_reason=fallback_reason if used_fallback else "",

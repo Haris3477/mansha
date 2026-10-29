@@ -591,13 +591,14 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
                       "chain": next((a.get("chain") for a in br.failed_attempts), None),
                       "attempts": br.failed_attempts})
     n_mand = sum(n["mandatory"] for n in br.notes)
+    n_cut = sum(n["mandatory"] and n["nid"] in br.fragments_dropped for n in br.notes)   # (b), Arabic only
     reviews = [(r["round"], r["review"]) for r in br.rounds if r.get("review") is not None]
     for round_no, q in reviews:
         _write(out, f"prose_qa_{round_no}.json", prose_qa_record(q))
     _write(out, "builder.json", {
         "calls": calls, "used_fallback": br.used_fallback, "fallback_reason": br.fallback_reason,
         "review_status": br.review_status, "problems_left": br.problems, "untranslated": br.untranslated,
-        "chain_fallback": br.chain_fallback,
+        "chain_fallback": br.chain_fallback, "fragments_dropped": br.fragments_dropped,
         "rounds": [{"round": r["round"], "chain": r.get("chain"), "code_problems": r["code_problems"],
                     "prose_qa": r["review"].status if r.get("review") else None,
                     "prose": r.get("prose")} for r in br.rounds],
@@ -615,7 +616,10 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
     phases.append(Phase(
         "Document Builder", "FALLBACK" if br.used_fallback else "OK", max(builder_seconds, 0.0),
         f"{what} | rounds: {len(br.rounds)} | notes: {len(br.notes)} in ({n_mand} mandatory, verbatim) -> "
-        f"{n_mand + len(br.prose.get('notes', []))} in the report"
+        f"{n_mand - n_cut + len(br.prose.get('notes', []))} in the report"
+        + (f" | split-note fragments left out (already in an Arabic note): "
+           f"{', '.join(f'{nid} ({keys})' for nid, keys in br.fragments_dropped.items())}"
+           if br.fragments_dropped else "")
         + (f" | chain fallback: {br.chain_fallback['from']} -> {br.chain_fallback['to']} "
            f"(round {br.chain_fallback['round']}: {br.chain_fallback['reason']})" if br.chain_fallback else "")
         + (f" | summary cautions (code): {', '.join(conditions)}"
