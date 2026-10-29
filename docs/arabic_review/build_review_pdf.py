@@ -125,10 +125,8 @@ for en, ar in S["fee"]:
     add(C3, f"Checklist step: {en}", ar, "Part 3: FEE_STEP (mansha/researcher.py)")
 for en, ar in S["ask"]:
     add(C3, f"App message: {en}", ar, "Part 3: orchestrator ASK / ASK_INTRO / ASK_END")
-for i, (en, ar) in enumerate(S["msgs"]):
-    add(C3, f"App message: {en.strip()}", ar.strip(), "Part 3: orchestrator stop messages",
-        note=("Known issue: the country list is filled in English (\u201cIndia\u201d); we will fix that in the app, "
-              "so only check the rest.") if i == 0 else None)
+for en, ar in S["msgs"]:
+    add(C3, f"App message: {en.strip()}", ar.strip(), "Part 3: orchestrator stop messages")
 
 counts = {}
 for it in items:
@@ -175,7 +173,8 @@ parts = [f"<style>{css}</style>",
          ("<p>Example: <b>3 b</b> &nbsp;·&nbsp; <b>12 ✓</b> &nbsp;·&nbsp; <b>15 → (your Arabic)</b>. "
          "You can also reply “all ✓ except …”.</p>"),
          ("<p><span class='ph'>Grey boxes</span> are filled in by the app (a number or a name), so skip them. English words "
-         "inside the Arabic (CIF, IGST, e-Sanchit, website addresses) are on purpose.</p>"),
+         "inside the Arabic (CIF, IGST, e-Sanchit, website addresses, a product or country name in brackets) "
+         "are on purpose.</p>"),
          (f"<p><b>Most important:</b> parts 1 and 2 (items {counts[C1][0]}–{counts[C2][-1]}). Part 3 is already in the app; "
          "check it if you have time.</p>"),
          "</div>"]

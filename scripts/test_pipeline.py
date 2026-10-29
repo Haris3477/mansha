@@ -32,6 +32,8 @@ from mansha.orchestrator import (
     ProseQAOutcome,
     QAOutcome,
     builder_vs_prose_qa_warning,
+    msg_destination_not_covered,
+    msg_product_not_covered,
     qa_passthrough,
     render_phase_log,
     run_pipeline,
@@ -266,6 +268,40 @@ res = run_pipeline(msg + " HS 99999999.", llm=llm)
 check("HS code given but not loaded: names the code, doesn't ask for it again",
       res.status == "NOT_COVERED" and "(HS code 99999999)" in res.output
       and "try again" not in res.output and "Check the classification" in res.output, res.output)
+
+
+# Arabic stop messages name countries and products in Arabic (29 Oct, PDF item 82): the Intake gives English
+# names, which were printed inside the Arabic text.
+LATIN_OUTSIDE = re.compile(r"[A-Za-z]")
+
+
+def latin_outside_brackets(text: str) -> list[str]:
+    """Latin letters left after removing bracketed parts and web addresses."""
+    rest = re.sub(r"https?://\S+", "", re.sub(r"\([^)]*\)", "", text))
+    return LATIN_OUTSIDE.findall(rest)
+
+
+ar = msg_destination_not_covered("Türkiye", "ar")
+check("ar, country not covered: covered list in Arabic (الهند), no 'India'", "إلى: الهند فقط" in ar and "India" not in ar, ar)
+check("ar, country not covered: the country as «هذه الدولة (Türkiye)», agreement line names no country",
+      "عن هذه الدولة (Türkiye)" in ar and "بين الإمارات وهذه الدولة." in ar, ar)
+check("ar, country not covered: no English outside brackets and the link", not latin_outside_brackets(ar), ar)
+for hs in ("94036000", None):
+    ar = msg_product_not_covered("wooden doors", hs, "India", "ar")
+    check(f"ar, product not covered (HS {hs}): «في الهند», product as «هذا المنتج (wooden doors…)»",
+          "في الهند" in ar and "هذا المنتج (wooden doors" in ar and (hs is None or f"الرمز الجمركي {hs})" in ar), ar)
+    check(f"ar, product not covered (HS {hs}): no English outside brackets", not latin_outside_brackets(ar.replace("(HS)", "")), ar)
+check("en messages unchanged",
+      msg_destination_not_covered("Türkiye", "en").startswith(
+          "Mansha currently covers exports from the UAE to India only. It has no data for Türkiye, so it can't")
+      and "trade agreement with Türkiye." in msg_destination_not_covered("Türkiye", "en")
+      and msg_product_not_covered("wooden doors", "94036000", "India", "en").startswith(
+          "Mansha's tariff data for India does not include a line matching \"wooden doors\" (HS code 94036000) yet"))
+llm = FakeLLM(intake=[dict(NULL_INTAKE, product_description="polyethylene bags", destination_country="Türkiye",
+                           language="ar")])
+res = run_pipeline("نصنع أكياس البولي إيثيلين في عجمان ونريد تصديرها إلى تركيا.", llm=llm)
+check("pipeline, Arabic Türkiye (S3): NOT_COVERED with the Arabic names",
+      res.status == "NOT_COVERED" and "إلى: الهند فقط" in res.output and "(Türkiye)" in res.output, res.output)
 
 llm = FakeLLM()
 res = run_pipeline("   ", llm=llm)

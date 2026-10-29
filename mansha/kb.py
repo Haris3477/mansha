@@ -27,6 +27,9 @@ ACTOR_KINDS = {"procedure", "authority"}  # passages that say who acts; code cop
 # A destination missing here is NOT_COVERED by Mansha. That says nothing about whether
 # the UAE has a CEPA with that country (it has CEPAs Mansha doesn't cover yet).
 CORRIDORS = {"India": "india"}
+# Arabic names of the covered destinations, for code-written Arabic messages (29 Oct: the Intake's
+# English name was printed inside Arabic text). «الهند» is the word the checklist step text already uses.
+CORRIDOR_NAMES_AR = {"India": "الهند"}
 
 
 class KBError(Exception):

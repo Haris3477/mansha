@@ -51,7 +51,7 @@ from mansha.document_builder import (
 )
 from mansha.evidence import EvidencePack, build_evidence
 from mansha.intake import IntakeResult, detect_language, run_intake
-from mansha.kb import CORRIDORS, corridor_for
+from mansha.kb import CORRIDOR_NAMES_AR, CORRIDORS, corridor_for
 from mansha.llm_client import LLMCallError, LLMResult, call_llm
 from mansha.prose_qa import ProseQAOutcome, review_prose
 from mansha.qa import (
@@ -156,8 +156,16 @@ ASK_END = {
 }
 
 
-def _covered_list() -> str:
+def _covered_list(lang: str = "en") -> str:
+    if lang == "ar":
+        return "، ".join(CORRIDOR_NAMES_AR.get(c, c) for c in CORRIDORS)
     return ", ".join(CORRIDORS)
+
+
+def _country_ar(country: str) -> str:
+    """A destination's name for an Arabic message: its Arabic name when Mansha covers it, otherwise
+    "this country" with the Intake's English name in brackets (no Arabic name table for every country)."""
+    return CORRIDOR_NAMES_AR.get(country) or f"هذه الدولة ({country})"
 
 
 def msg_needs_input(missing: list[str], lang: str) -> str:
@@ -167,9 +175,9 @@ def msg_needs_input(missing: list[str], lang: str) -> str:
 
 def msg_destination_not_covered(country: str, lang: str) -> str:
     if lang == "ar":
-        return (f"يغطي منشأ حاليًا التصدير من الإمارات إلى: {_covered_list()} فقط. "
-                f"لا تتوفر لديه بيانات عن {country}، لذلك لا يستطيع التحقق من المنشأ أو الرسوم لهذا السوق.\n\n"
-                f"هذا لا يعني أنه لا توجد اتفاقية تجارية بين الإمارات و{country}. "
+        return (f"يغطي منشأ حاليًا التصدير من الإمارات إلى: {_covered_list('ar')} فقط. "
+                f"لا تتوفر لديه بيانات عن {_country_ar(country)}، لذلك لا يستطيع التحقق من المنشأ أو الرسوم لهذا السوق.\n\n"
+                "هذا لا يعني أنه لا توجد اتفاقية تجارية بين الإمارات وهذه الدولة. "
                 f"راجع قائمة اتفاقيات الشراكة الاقتصادية الشاملة لدى وزارة التجارة الخارجية: {MOFT_CEPA_URL}\n")
     return (f"Mansha currently covers exports from the UAE to {_covered_list()} only. "
             f"It has no data for {country}, so it can't check origin or duty for that market.\n\n"
@@ -179,11 +187,13 @@ def msg_destination_not_covered(country: str, lang: str) -> str:
 
 def msg_product_not_covered(product: str, hs_code: str | None, country: str, lang: str) -> str:
     if lang == "ar":
-        what = f"\"{product}\"" + (f" (الرمز الجمركي {hs_code})" if hs_code else "")
+        # The Intake writes the product in English (for the KB search): name it as "this product" with the
+        # English phrase in brackets, like an uncovered country (_country_ar).
+        what = f"هذا المنتج ({product}" + (f"، الرمز الجمركي {hs_code})" if hs_code else ")")
         advice = ("تحقق من التصنيف والرسوم مع الجمارك أو مع وسيط جمركي." if hs_code else
                   "إذا كنت تعرف الرمز الجمركي (HS) للمنتج، أعد المحاولة مع ذكره. "
                   "وإلا فتحقق من التصنيف والرسوم مع الجمارك أو مع وسيط جمركي.")
-        return (f"لا تتضمن بيانات منشأ للتعريفة الجمركية في {country} بندًا يطابق {what} بعد، "
+        return (f"لا تتضمن بيانات منشأ للتعريفة الجمركية في {_country_ar(country)} بندًا يطابق {what} بعد، "
                 f"لذلك لا يستطيع إعطاء نتيجة لهذا المنتج.\n\n{advice}\n")
     what = f"\"{product}\"" + (f" (HS code {hs_code})" if hs_code else "")
     advice = ("Check the classification and duty with customs or a customs broker." if hs_code else
