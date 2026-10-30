@@ -518,6 +518,11 @@ check("F1: ... named in the phase log, and the report is still shown", res.statu
       and "chain fallback: auto:arabic -> code-only (round 1:" in b.summary
       and "chain fallback: auto:arabic -> code-only" in (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
       and b.status == "FALLBACK", (b.status, b.summary))
+check("F3: ... builder.json lists the optional notes left out (no Arabic draft), named in the phase log too",
+      isinstance(saved.get("notes_left_out"), dict)
+      and (not saved["notes_left_out"]
+           or "optional notes left out of the Arabic code-only report" in b.summary)
+      and "منتجك" in res.output, (saved.get("notes_left_out"), b.summary))
 
 llm = fake_for("windows", document_builder=[builder_prose("windows")] * 2,
                prose_qa=[PROSE_REJECTS, PROSE_REJECTS])

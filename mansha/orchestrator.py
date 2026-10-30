@@ -581,10 +581,12 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
     # Problem 97: the chosen line's deciding conditions come from the origin tool itself (the
     # Researcher may drop its note), so the Builder's code can put a caution in the summary.
     line = str((research.data.get("classification") or {}).get("tariff_line") or "")
-    conditions = list((pack.tool_results.get(f"{ORIGIN_TOOL_PREFIX}:{line}") or {}).get("conditions") or [])
+    origin = pack.tool_results.get(f"{ORIGIN_TOOL_PREFIX}:{line}") or {}
+    conditions = list(origin.get("conditions") or [])
     br: BuilderResult = run_document_builder(research.data, intake, pack.id_sources,
                                              corridor=corridor, llm=llm, review=prose_qa,
-                                             conditions=conditions)
+                                             conditions=conditions,
+                                             origin_missing=list(origin.get("missing") or []))   # F3
     calls = [{**call_record(c), "chain": next((a.get("chain") for a in c.attempts), None)} for c in br.llm_calls]
     if br.failed_attempts:
         calls.append({"ok": False, "served_by": None, "error": "LLM call failed",
@@ -599,6 +601,7 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         "calls": calls, "used_fallback": br.used_fallback, "fallback_reason": br.fallback_reason,
         "review_status": br.review_status, "problems_left": br.problems, "untranslated": br.untranslated,
         "chain_fallback": br.chain_fallback, "fragments_dropped": br.fragments_dropped,
+        "notes_left_out": br.notes_left_out,
         "rounds": [{"round": r["round"], "chain": r.get("chain"), "code_problems": r["code_problems"],
                     "prose_qa": r["review"].status if r.get("review") else None,
                     "prose": r.get("prose")} for r in br.rounds],
@@ -620,6 +623,8 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
         + (f" | split-note fragments left out (already in an Arabic note): "
            f"{', '.join(f'{nid} ({keys})' for nid, keys in br.fragments_dropped.items())}"
            if br.fragments_dropped else "")
+        + (f" | optional notes left out of the Arabic code-only report (no Arabic draft): "
+           f"{', '.join(br.notes_left_out)}" if br.notes_left_out else "")
         + (f" | chain fallback: {br.chain_fallback['from']} -> {br.chain_fallback['to']} "
            f"(round {br.chain_fallback['round']}: {br.chain_fallback['reason']})" if br.chain_fallback else "")
         + (f" | summary cautions (code): {', '.join(conditions)}"

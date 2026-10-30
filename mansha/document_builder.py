@@ -49,7 +49,12 @@ from mansha.tools.duty_estimate import (
     NO_VALUE_NOTE,
     reduces_bcd_only,
 )
-from mansha.tools.origin_calculator import FREE_ZONE_NOTE, INDIAN_INPUTS_NOTE, OWN_DECLARATION_NOTE
+from mansha.tools.origin_calculator import (
+    FREE_ZONE_NOTE,
+    INDIAN_INPUTS_NOTE,
+    MISSING_INPUTS,
+    OWN_DECLARATION_NOTE,
+)
 
 log = logging.getLogger("mansha.document_builder")
 
@@ -194,7 +199,7 @@ ARABIC_CHARS = "؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿"
 ARABIC_RE = re.compile(f"[{ARABIC_CHARS}]")
 # Trade terms and names that may stay in Latin letters in an Arabic report (lower case, one word each).
 LATIN_TERMS = ("HS", "CEPA", "MFN", "FOB", "CIF", "Ex-Works", "EXW", "CTSH", "CTH", "CC", "VA", "AED",
-               "BCD", "IGST", "GST", "SWS", "CAROTAR", "e-Sanchit", "Mansha")
+               "USD", "BCD", "IGST", "GST", "SWS", "CAROTAR", "e-Sanchit", "Mansha")
 LATIN_OK = {w.lower() for t in LATIN_TERMS for w in re.findall(r"[A-Za-z]+", t)}
 # A bracket or quote holding no Arabic is a gloss of the word before it ("(bill of entry)"): allowed.
 GLOSS_RE = re.compile(r"\([^()]*\)|«[^«»]*»|\"[^\"]*\"|“[^”]*”|'[^']*'")
@@ -401,6 +406,8 @@ class BuilderResult:
     chain_fallback: dict | None = None
     # (b) 29 Oct evening: {nid: covering draft keys} of the note fragments left out of an Arabic report
     fragments_dropped: dict[str, str] = field(default_factory=dict)
+    # F3 (30 Oct): {nid: text} of the optional notes the Arabic code-only report left out (no Arabic draft)
+    notes_left_out: dict[str, str] = field(default_factory=dict)
 
 
 # ---------- FACTS and NOTES (code, before the call) ----------
@@ -465,6 +472,16 @@ FALLBACK_AR = {
     "origin": 'قاعدة المنشأ: {rule}. النتيجة: المنتج {origin text}. {basis}'
               .replace("{origin text}", "{origin}"),
 }
+# F3 (Haris, 30 Oct): the Arabic code-only report fully Arabic (review PDF items 108, 112-114).
+PRODUCT_AR = "منتجك"   # the title: «منتجك (<the user's product, in English>)»
+# Still needed, from the tools: the origin tool's missing item -> its requests (the live N15 wording of 30 Oct,
+# 143500, Gemini 3.6, prose QA approved), and the duty tool's NEEDS_VALUE.
+MISSING_AR = {MISSING_INPUTS: [
+    "يرجى تقديم قائمة بالمواد (تتضمن وصف كل مدخل، والرمز الجمركي المكون من 6 أرقام، وبلد المنشأ، والقيمة، والعملة).",
+    ("يرجى تقديم إقرار (يتضمن سعر المنتج، وأساس السعر على متن السفينة FOB أو تسليم المصنع Ex-Works، والتصنيع "
+     "النهائي في دولة الإمارات، والعمليات المنجزة في دولة الإمارات).")]}
+VALUE_AR = "يرجى ذكر قيمة الشحنة وعملتها."
+NEEDED_LEAD_AR = "يرجى تقديم ما يلي: "   # + the English request in brackets, when no template fits
 RULE_EXCLUDED_AR = "لا تنطبق، " + ORIGIN_TEXT_AR["NOT_APPLICABLE"].split("، ", 1)[1]   # new, for the review
 CONFIDENCE_AR = {"high": "عالية", "medium": "متوسطة", "low": "منخفضة"}   # new words, for the review
 # Notes printed word for word: the tool's or KB's own note -> its Arabic draft. The Researcher rewords
@@ -493,6 +510,12 @@ NOTE_AR_DRAFTS = {
     "no_value": 'لا توجد قيمة شحنة صالحة للاستخدام (مبلغ موجب مع عملته)، لذلك تُعرض النسب فقط.',
     "excluded": 'هذا البند مستثنى من تنازلات الهند بموجب الاتفاقية: لا يوجد سعر تفضيلي، ويُطبَّق السعر العادي (MFN) أيًّا كان منشأ المنتج.',
     "footnote": 'يضع جدول التعريفة الهندي على نسبة 30% هذه حاشية لم يتحقق منها منشأ؛ أكّد السعر العادي (MFN) مع الجمارك الهندية أو مع مخلّص جمركي.',
+    # F3 (30 Oct): the last KB notes without a draft (review PDF items 109-111).
+    "minimal": 'المنتج الذي يخضع لهذه العمليات وحدها لا يكتسب صفة المنشأ، حتى لو استوفى قاعدة المنشأ الخاصة بالمنتج.',
+    "records_uae": ('يحدد القانون الإماراتي حدًا أدنى أقصر مدته 3 سنوات؛ أما مدة السنوات الخمس في الاتفاقية فهي '
+                    'التي تحكم المطالبات بموجب الاتفاقية.'),
+    "fee_bands": ('شرائح الرسوم محددة بالدرهم الإماراتي (AED) وتنطبق على قيمة الفاتورة بالدرهم؛ ولا يُجري منشأ أي '
+                  'تحويل للعملات.'),
     "ad_unchecked": 'لم يتحقق منشأ مما إذا كانت الهند تفرض رسوم مكافحة إغراق على هذا المنتج؛ تحقّق من ذلك مع الجمارك الهندية أو مع مخلّص جمركي.',
 }
 # The Researcher merges consecutive notes of one record into one caveat (VA's two notes, often after the
@@ -529,7 +552,8 @@ def note_originals(corridor: str = "india") -> dict[str, str]:
             "deminimis": notes["P-AGR-3.4-DEMINIMIS"][0], "own_declaration": OWN_DECLARATION_NOTE,
             "origin_free_zone": FREE_ZONE_NOTE, "indian_inputs": INDIAN_INPUTS_NOTE, "no_value": NO_VALUE_NOTE,
             "excluded": EXCLUDED_NOTE, "footnote": line_notes["TL-IN-19053100"][0],
-            "ad_unchecked": line_notes["TL-IN-85044030"][1]}
+            "ad_unchecked": line_notes["TL-IN-85044030"][1], "minimal": notes["P-AGR-3.5-MINIMAL"][0],
+            "records_uae": notes["P-AGR-RECORDS-VERIFICATION"][0], "fee_bands": notes["P-MOET-COO-INDIA"][0]}
 
 
 def note_candidates(corridor: str = "india") -> dict[tuple[str, ...], str]:
@@ -606,6 +630,29 @@ def still_needed(research: dict) -> list[str]:
     items = list(research.get("follow_up_questions") or []) + [
         gap_text(g) for g in research.get("gaps") or []]
     return [str(n).replace(GAP, NOT_IN_SOURCES) for n in items]
+
+
+def arabic_needed(research: dict, origin_missing: list[str] | None) -> list[str]:
+    """Still needed in the Arabic code-only report, from the tools, not the Researcher's English (F3).
+
+    The origin tool's missing items with a template (MISSING_AR) and the duty tool's NEEDS_VALUE are written
+    in Arabic; they cover the Researcher's follow-ups, which check 7 bases on them. When the tools ask for
+    nothing, or a missing item has no template (one BOM row's problem), the follow-ups are needed as written:
+    each in brackets after NEEDED_LEAD_AR (F-a). Gaps stay as still_needed writes them.
+    """
+    missing = [str(m) for m in origin_missing or []]
+    out = [t for m in missing for t in MISSING_AR.get(m, [])]
+    if research["estimated_saving"].get("status") == "NEEDS_VALUE":
+        out.append(VALUE_AR)
+    if not (out and all(m in MISSING_AR for m in missing)):
+        out += [NEEDED_LEAD_AR + bracketed(str(q)) for q in research.get("follow_up_questions") or []]
+    return out + [gap_text(g).replace(GAP, NOT_IN_SOURCES) for g in research.get("gaps") or []]
+
+
+def arabic_left_out(notes: list[dict], fragments: dict, corridor: str = "india") -> dict[str, str]:
+    """{nid: text} of the optional notes the Arabic code-only report leaves out: no Arabic draft (F3, N1)."""
+    return {n["nid"]: n["text"] for n in notes
+            if not n["mandatory"] and n["nid"] not in fragments and not arabic_note(n["text"], corridor)}
 
 
 def rule_text(research: dict, lang: str = "en") -> str:
@@ -856,11 +903,14 @@ def check_translations(prose: dict, research: dict, intake: dict, language: str)
 # ---------- fallback (code writes the prose) ----------
 
 def fallback_prose(research: dict, notes: list[dict], language: str | None = "en",
-                   corridor: str = "india") -> dict:
+                   corridor: str = "india", *, intake: dict | None = None,
+                   origin_missing: list[str] | None = None) -> dict:
     """Prose built from the facts alone, used when the LLM's text fails its checks.
 
     `notes` holds the optional notes verbatim; render_report adds the mandatory ones.
     Arabic (29 Oct): the Part 2 drafts, with English KB and tool details in brackets (F-a).
+    F3 (30 Oct): Arabic also writes the title (PRODUCT_AR, the product in brackets) and still-needed from the
+    tools (arabic_needed), and leaves out optional notes with no Arabic draft (arabic_left_out).
     """
     cls, tar = research["classification"], research["tariff"]
     res, verdict = research["origin_result"], research["verdict"]
@@ -883,8 +933,12 @@ def fallback_prose(research: dict, notes: list[dict], language: str | None = "en
             "origin": FALLBACK_AR["origin"].replace("{rule}", rule_text(research, "ar"))
             .replace("{origin}", ORIGIN_TEXT_AR.get(res.get("status"), NOT_IN_SOURCES_AR))
             .replace("{basis}", bracketed(basis) if basis != NOT_IN_SOURCES else "").strip(),
-            "notes": [{"text": arabic_note(n["text"], corridor) or n["text"], "from": [n["nid"]]}
-                      for n in notes if not n["mandatory"] and n["nid"] not in fragments],
+            "notes": [{"text": arabic_note(n["text"], corridor), "from": [n["nid"]]}
+                      for n in notes if not n["mandatory"] and n["nid"] not in fragments
+                      and n["nid"] not in arabic_left_out(notes, fragments, corridor)],
+            "product": PRODUCT_AR + (" " + bracketed(plain((intake or {}).get("product_description")))
+                                     if (intake or {}).get("product_description") else ""),
+            "needed": arabic_needed(research, origin_missing),
         }
     summary = VERDICT_TEXT.get(verdict, VERDICT_TEXT[GAP])
     summary = summary[0].upper() + summary[1:] + "."
@@ -1068,13 +1122,15 @@ def builder_chain(language: str | None) -> str:
 
 def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dict[str, str]],
                          *, corridor: str = "india", llm=call_llm, review=None,
-                         conditions: list[str] | None = None) -> BuilderResult:
+                         conditions: list[str] | None = None,
+                         origin_missing: list[str] | None = None) -> BuilderResult:
     """Write the report for APPROVED Researcher output. Always returns a report.
 
     llm: the call function (tests pass a fake one).
     review: None (code checks only), or a meaning check called as
             review(facts_text, prose, llm=llm) -> ProseQAOutcome (Step 7.6: review_prose).
     conditions: the chosen line's origin-tool conditions (problem 97); code adds their cautions.
+    origin_missing: the chosen line's origin-tool missing items: the Arabic code-only still-needed list (F3).
     """
     research = copy.deepcopy(research)
     facts_text, notes = build_facts(research, intake, corridor)
@@ -1146,7 +1202,7 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
     if used_fallback:
         problems = main_left
         log.warning("document builder | using the code-only report (%d problem(s) left)", len(problems))
-        prose = fallback_prose(research, notes, language, corridor)
+        prose = fallback_prose(research, notes, language, corridor, intake=intake, origin_missing=origin_missing)
         review_status = "FALLBACK"
     elif review is None:
         review_status = "SKIPPED"
@@ -1161,6 +1217,8 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
                  if language == "ar" else {})
     return BuilderResult(markdown=md, prose=prose, notes=notes, used_fallback=used_fallback,
                          fragments_dropped=fragments,
+                         notes_left_out=(arabic_left_out(notes, fragments, corridor)
+                                         if used_fallback and language == "ar" else {}),
                          problems=problems if used_fallback else [], llm_calls=calls,
                          failed_attempts=failed_attempts, rounds=rounds, review_status=review_status,
                          fallback_reason=fallback_reason if used_fallback else "",

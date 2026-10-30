@@ -25,6 +25,11 @@ INDIAN_INPUTS_NOTE = ("Indian inputs count as originating only with proof of the
 OWN_DECLARATION_NOTE = "Operations and final manufacture are the exporter's own declaration."
 FREE_ZONE_NOTE = ("Factory declared in a free zone: likely not eligible for the ministry's factory "
                   "registration; confirm with the ministry.")
+# The missing item when no bill of materials or declaration was given (named for the Arabic code-only report's
+# still-needed list: document_builder.MISSING_AR, F3).
+MISSING_INPUTS = ("a bill of materials (each input's description, 6-digit HS code, origin country, value and "
+                  "currency) and a declaration (product price, FOB or Ex-Works basis, final manufacture in the "
+                  "UAE, operations done in the UAE)")
 PARTIES = {"AE", "IN"}  # bilateral cumulation: UAE and India inputs count as originating
 NOM_BASES = {"CIF", "FIRST_PRICE"}  # Art. 3.1: CIF, else first price paid in a Party
 BOM_COLUMNS = ("input_description", "hs_code", "origin_country", "value", "currency", "value_basis")
@@ -241,9 +246,7 @@ def calculate_origin(tariff_line: str, bom_rows: list[dict] | None = None,
     # 2) inputs
     if bom_rows is None or declaration is None:
         res.status = "INSUFFICIENT_DATA"
-        res.missing.append("a bill of materials (each input's description, 6-digit HS code, origin country, "
-                           "value and currency) and a declaration (product price, FOB or Ex-Works basis, "
-                           "final manufacture in the UAE, operations done in the UAE)")
+        res.missing.append(MISSING_INPUTS)
         return res
     minimal = _passage(kb, P_MINIMAL)
     valid_ops = {it["code"] for it in minimal.get("items", [])}

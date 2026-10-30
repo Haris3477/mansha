@@ -12,6 +12,7 @@ import re
 import sys
 from pathlib import Path
 
+import mansha.document_builder as dbm
 from mansha.document_builder import (
     AUTHORITY_TEXT,
     BRAND_LINE_AR,
@@ -64,7 +65,10 @@ from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
 from mansha.prose_qa import ProseQAOutcome
 from mansha.report_check import check_report
+from mansha.researcher import fill_authorities, fill_steps
 from mansha.tools.duty_estimate import duty_estimate
+from mansha.tools.origin_calculator import MISSING_INPUTS
+from scripts.eval_cases import BY_ID as EVAL_BY_ID
 from scripts.pipeline_cases import DEV_INTAKES as CASES
 
 FIXTURES = Path("samples/researcher_outputs")
@@ -982,6 +986,87 @@ for text in (   # must not match: at 0.45 this got the 3-part VA draft (differen
         ("The tariff schedule prints 15%, but an exemption notification lowers the duty actually charged to 10%; "
          "the effective rate is used.")):
     check(f"stays English: {text[:45]}...", note_match(text) is None, note_match(text))
+
+
+print("\n== F3 (30 Oct): the Arabic code-only report fully Arabic")
+ND_MISSING = nd_pack.tool_results["TOOL:origin:76101000"]["missing"]
+check("fixture: no data -> the origin tool's one missing item is MISSING_INPUTS", ND_MISSING == [MISSING_INPUTS])
+nd_notes = build_facts(nd_research, nd_ar, "india")[1]
+fp3 = fallback_prose(nd_research, nd_notes, "ar", intake=nd_ar, origin_missing=ND_MISSING)
+check("title: «منتجك (product)», the product in brackets",
+      fp3["product"] == "منتجك (aluminium window frames)" and not script_problems(fp3["product"], "ar")["english"],
+      fp3["product"])
+check("still needed from the tools: BOM, declaration (N15's live wording), then the value; no Researcher English",
+      fp3["needed"] == dbm.MISSING_AR[MISSING_INPUTS] + [dbm.VALUE_AR], fp3["needed"])
+d = dict(nd_research, estimated_saving=dict(nd_research["estimated_saving"], status="ESTIMATED"))
+check("value given: no value request", fallback_prose(d, nd_notes, "ar", intake=nd_ar, origin_missing=ND_MISSING)
+      ["needed"] == dbm.MISSING_AR[MISSING_INPUTS])
+row = ["BOM row 2 (Emollients): a 6-digit HS code is needed for every non-originating input"]
+got = fallback_prose(d, nd_notes, "ar", intake=nd_ar, origin_missing=row)["needed"]
+check("a missing item with no template: the follow-ups as written, in brackets after the Arabic lead-in",
+      got == [dbm.NEEDED_LEAD_AR + dbm.bracketed(q) for q in nd_research["follow_up_questions"]]
+      and not script_problems(" ".join(got), "ar")["english"], got)
+check("the tools ask for nothing: follow-ups in brackets too (an HS-code question is not lost)",
+      fallback_prose(d, nd_notes, "ar", intake=nd_ar, origin_missing=[])["needed"]
+      == [dbm.NEEDED_LEAD_AR + dbm.bracketed(q) for q in nd_research["follow_up_questions"]])
+check("gaps kept as still_needed writes them", dbm.arabic_needed(dict(d, follow_up_questions=[],
+      gaps=[{"text": "A gap.", "source_id": None}]), []) == ["A gap."])
+left = dbm.arabic_left_out(nd_notes, arabic_fragments(nd_notes, "india"))
+check("optional notes with no Arabic draft are left out, the others printed as their drafts",
+      left and all(not n["mandatory"] for n in nd_notes if n["nid"] in left)
+      and all(item["text"] == arabic_note(next(n["text"] for n in nd_notes if n["nid"] == item["from"][0]))
+              for item in fp3["notes"]), (left, fp3["notes"]))
+check("no Arabic code-only text has an English word outside brackets",
+      not script_problems(" ".join([fp3["summary"], fp3["classification"], fp3["duty"], fp3["origin"],
+                                    fp3["product"], *fp3["needed"], *[x["text"] for x in fp3["notes"]]]),
+                          "ar")["english"])
+nd_research_ar = copy.deepcopy(nd_research)   # the sample predates S3: a live Arabic run has code's Arabic steps
+nd_research_ar["procedure"] = []
+fill_steps(nd_research_ar, nd_pack, "ar")
+fill_authorities(nd_research_ar, nd_pack)
+r = run_document_builder(nd_research_ar, nd_ar, nd_pack.id_sources, llm=chain_llm(LLMCallError("gemini down", down)),
+                         origin_missing=ND_MISSING)
+body = r.markdown.split("## المصادر")[0]
+# Mandatory notes print in every report (verbatim, or their draft when they match one); this sample's
+# reworded '+' and P-IN-IMPORTER notes match none. That is the Researcher's rewording (both paths), not F3's.
+mand_en = " ".join(n["text"] for n in nd_notes if n["mandatory"] and not arabic_note(n["text"]))
+eng_left = set(script_problems(re.sub(r"\[\d+\]", "", body), "ar")["english"])
+check("run_document_builder (Gemini down): code-only; English only inside mandatory notes with no draft",
+      r.used_fallback and eng_left <= set(re.findall(r"[A-Za-z]+", mand_en))
+      and r.notes_left_out == left and "# فحص المنشأ من منشأ: منتجك (aluminium window frames)" in r.markdown,
+      (eng_left - set(re.findall(r"[A-Za-z]+", mand_en)), r.notes_left_out))
+# The live demo answers (git-ignored runs: skipped if absent): 143500 N15 and N16, Arabic code-only forced.
+for live in sorted(Path("runs/eval_set/20261030-143500").glob("N1[56]_*")):
+    lres = json.loads((live / "researcher_1.json").read_text(encoding="utf-8"))["output"]
+    lin = json.loads((live / "intake.json").read_text(encoding="utf-8"))["output"]
+    lcase = EVAL_BY_ID[live.name.split("_")[0]]
+    lpack = build_evidence(lcase.intake, lcase.folder)
+    lres["verdict"] = json.loads((live / "builder.json").read_text(encoding="utf-8")).get("verdict") or (
+        "ELIGIBLE" if lres["origin_result"]["status"] == "QUALIFIES" else "NEEDS_MORE_DATA")
+    lr = run_document_builder(lres, lin, lpack.id_sources, llm=chain_llm(LLMCallError("gemini down", down)),
+                              origin_missing=lpack.tool_results["TOOL:origin:76101000"]["missing"])
+    lbody = re.sub(r"\[\d+\]", "", lr.markdown.split("## المصادر")[0])
+    check(f"live {live.name} (Arabic code-only forced): 0 English words",
+          lr.used_fallback and not script_problems(lbody, "ar")["english"], script_problems(lbody, "ar")["english"])
+check("... the still-needed list leads the report in Arabic",
+      body.index(dbm.MISSING_AR[MISSING_INPUTS][0]) < body.index("## " + HEADINGS["ar"]["classification"]))
+r = run_document_builder(research, intake, pack.id_sources, llm=chain_llm(LLMCallError("router down", failed[:1])),
+                         origin_missing=ND_MISSING)
+check("English code-only report unchanged: no Arabic, nothing left out", r.used_fallback and not r.notes_left_out
+      and "منتجك" not in r.markdown and fallback_prose(research, notes) == fallback_prose(research, notes, "en"))
+r = run_document_builder(nd_research, nd_ar, nd_pack.id_sources, llm=chain_llm(dict(ar_good, **tr)),
+                         origin_missing=ND_MISSING)
+check("Arabic LLM report (Gemini up): nothing left out by F3", not r.used_fallback and not r.notes_left_out)
+orig3 = note_originals()
+for key, pid in (("minimal", "P-AGR-3.5-MINIMAL"), ("records_uae", "P-AGR-RECORDS-VERIFICATION"),
+                 ("fee_bands", "P-MOET-COO-INDIA")):
+    check(f"draft {key}: its original is {pid}'s note, word for word, and it matches itself",
+          orig3[key] == kb_p[pid]["notes"][0] and note_match(orig3[key]) == (key,), note_match(orig3[key]))
+check("every KB passage note now has an Arabic draft",
+      all(note_match(n) for x in kb_ia["passages"]["passages"] for n in x.get("notes") or []))
+check("USD is allowed like AED", not script_problems("التوفير التقديري: 8100.00 USD.", "ar")["english"])
+check("MISSING_INPUTS is still what the origin tool writes for no data (named, output identical)",
+      "a bill of materials (each input's description" in MISSING_INPUTS and MISSING_INPUTS in ND_MISSING)
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)
