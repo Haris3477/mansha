@@ -10,13 +10,15 @@ api_keys (scripts/router_db.py, problem 84). Never opens any .env.
 
 Window: from the run folder's name (Mac local time, when the sitting started) to the newest phase_log.json /
 summary.json in it, padded PAD_S each side; requests.created_at is UTC text written when the router's attempt
-ladder finishes. Calls are matched to cases in time order by served model and latency; a call that can't be
-matched is listed as unmatched, never guessed.
+ladder finishes. Timestamped calls match unclaimed rows in a send/finish time window, by outcome and
+served model, choosing the closest latency. Older calls use a forward model/latency matcher. Fast router
+429 refusals expect no row; other calls that cannot be matched are listed as unmatched.
 """
 
 from __future__ import annotations
 
 import argparse
+import calendar
 import json
 import sqlite3
 import sys
@@ -44,6 +46,7 @@ EXPECTED_SERVING = {"auto:long": EXPECTED_LONG_PLATFORM + "/", "auto:arabic": "g
 LONG_PHASES = ("Researcher", "Document Builder")
 SUCCESS = ("success", "ok")
 MATCH_ABS_S, MATCH_REL = 2.0, 0.10      # router latency vs the client's: within max(2 s, 10 %)
+MATCH_BEFORE_MS, MATCH_AFTER_MS = 1000, 3000  # clock/seconds precision and router finish margin
 LOOKAHEAD = 12                          # router requests searched ahead of the last match
 CEREBRAS_PRICE = (0.35, 0.75)           # $ per 1M input / output tokens (estimate)
 TOKEN_COLUMNS = (("prompt_tokens", "input_tokens"), ("completion_tokens", "output_tokens"))
@@ -80,7 +83,8 @@ def client_calls(run: Path) -> list[dict]:
                     out.append({"case": log.parent.name, "phase": phase.get("name", "?"),
                                 "attempt": a.get("attempt"), "chain": a.get("chain"),
                                 "served": a.get("routed_via"), "latency_s": a.get("latency_s"),
-                                "ok": bool(a.get("ok")), "req": None})
+                                "ok": bool(a.get("ok")), "http_status": a.get("http_status"),
+                                "sent_at_ms": a.get("sent_at_ms"), "problem": a.get("problem"), "req": None})
     return out
 
 
@@ -119,18 +123,40 @@ def close(req: dict, call: dict) -> bool:
     return abs(r - c) <= max(MATCH_ABS_S, MATCH_REL * c)
 
 
+def refused(call: dict) -> bool:
+    """An exhausted-router 429 tried no provider and has no requests row."""
+    return (call.get("http_status") == 429 and not call.get("served")
+            and "All models exhausted" in (call.get("problem") or ""))
+
+
+def same_outcome(req: dict, call: dict) -> bool:
+    s = serving(req)
+    return (s is not None and s["model"] == call["served"]) if call["ok"] else req["status"] not in SUCCESS
+
+
 def match(calls: list[dict], reqs: list[dict]) -> None:
-    """Pair each client attempt with the next router request on the same served model and latency."""
+    """Claim timestamped rows first, then use the legacy forward matcher for older calls."""
+    for call in calls:
+        if refused(call) or call.get("sent_at_ms") is None:
+            continue
+        start = call["sent_at_ms"]
+        end = start + call["latency_s"] * 1000 + MATCH_AFTER_MS
+        candidates = []
+        for req in reqs:
+            finished = calendar.timegm(time.strptime(req["created_at"], "%Y-%m-%d %H:%M:%S")) * 1000
+            if (req["call"] is None and req["latency_ms"] is not None
+                    and start - MATCH_BEFORE_MS <= finished <= end and same_outcome(req, call)):
+                candidates.append(req)
+        if candidates:
+            req = min(candidates, key=lambda r: abs(r["latency_ms"] - call["latency_s"] * 1000))
+            req["call"], call["req"] = call, req
     i = 0
     for call in calls:
+        if refused(call) or call.get("sent_at_ms") is not None:
+            continue
         for j in range(i, min(i + LOOKAHEAD, len(reqs))):
             req = reqs[j]
-            if req["call"] is not None or not close(req, call):
-                continue
-            s = serving(req)
-            same = (s is not None and s["model"] == call["served"]) if call["ok"] \
-                else req["status"] not in SUCCESS
-            if same:
+            if req["call"] is None and close(req, call) and same_outcome(req, call):
                 req["call"], call["req"] = call, req
                 i = j + 1
                 break
@@ -142,6 +168,8 @@ def label(call: dict) -> str:
 
 def long_line(call: dict) -> str:
     req = call["req"]
+    if refused(call):
+        return f"  {label(call)}: refused by the router (no row expected)"
     if req is None:
         return f"  {call['case']} {call['phase']}: served {call['served']} (client), NOT MATCHED in the router"
     s = serving(req)
@@ -209,7 +237,9 @@ def section_platforms(calls: list[dict], reqs: list[dict]) -> list[str]:
     out += ["", (f"  Validity (every Researcher/Builder call at ordinal 0 on {EXPECTED_LONG_PLATFORM} (auto:long) "
                 "or Gemini (auto:arabic); no chain fallback)")]
     out += validity(calls) or ["  no cases"]
-    lost = [c for c in calls if c["req"] is None]
+    out += [f"  {label(c)}: refused by the router (no row expected)"
+            for c in calls if refused(c) and not is_long(c)]
+    lost = [c for c in calls if c["req"] is None and not refused(c)]
     out += ["", "  Client calls not matched in the router: " + (", ".join(label(c) for c in lost) or "none")]
     return out
 
@@ -307,6 +337,10 @@ def facts(run: Path | None, db: Path | None = None, now_ms: float | None = None)
             lines.append(f"Window (UTC): {utc_text(window[0])} to {utc_text(window[1])} "
                          f"(folder start and last log file, padded {PAD_S // 60} min)")
             calls = client_calls(run)
+            stamped = sum(c.get("sent_at_ms") is not None for c in calls)
+            mode = ("by time window" if calls and stamped == len(calls) else
+                    "mixed" if stamped else "best effort (this run's attempts have no timestamps)")
+            lines.append(f"Matching: {mode}")
             reqs = requests_in(con, *window)
             match(calls, reqs)
             lines += [""] + section_requests(reqs) + [""] + section_platforms(calls, reqs) + [""]

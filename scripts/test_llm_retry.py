@@ -75,6 +75,8 @@ def run(*replies, call_s: float = 0.0, chain: str = "auto:long"):
         out = lc.call_llm("test", chain, [{"role": "user", "content": "hi"}])
     except lc.LLMCallError as e:
         out = e
+    check("every attempt has an integer send timestamp",
+          all(type(a.get("sent_at_ms")) is int for a in out.attempts))
     return out, fake, list(slept)
 
 
@@ -290,6 +292,34 @@ finally:
     lc.load_dotenv = real_load
     if real_env is not None:
         lc.os.environ["FREELLMAPI_BASE_URL"] = real_env
+
+print("\n8. Send timestamps follow pacing and retry waits; existing fields stay unchanged")
+real_time, real_monotonic = lc.time.time, lc.time.monotonic
+lc.time.time = lambda: clock["t"]
+lc.time.monotonic = lambda: clock["t"]
+clock["advance"] = True
+lc._sent.clear()
+try:
+    out, fake, waits = run(http_error(502), ok_reply(), call_s=1.5)
+    check("retry timestamp includes the request duration and retry wait",
+          out.attempts[1]["sent_at_ms"] == out.attempts[0]["sent_at_ms"] + 31500)
+    stripped = [{k: v for k, v in a.items() if k != "sent_at_ms"} for a in out.attempts]
+    check("all existing attempt fields and values preserved", stripped == [
+        {"attempt": 1, "chain": "auto:long", "max_tokens": 16000, "latency_s": 1.5,
+         "ok": False, "http_status": 502, "problem": "HTTP 502: Error code: 502",
+         "waited_before_retry_s": 30.0},
+        {"attempt": 2, "chain": "auto:long", "max_tokens": 16000, "routed_via": "fake/model",
+         "finish_reason": "stop", "latency_s": 1.5, "ok": True}], stripped)
+    from collections import deque
+    lc._sent["auto:judge"] = deque([NOW] * 4)
+    out, fake, waits = run(ok_reply(), chain="auto:judge")
+    check("timestamp is taken after pacing wait", out.attempts[0]["sent_at_ms"] == int((NOW + 61) * 1000)
+          and out.attempts[0]["paced_wait_s"] == 61)
+finally:
+    lc.time.time, lc.time.monotonic = real_time, real_monotonic
+    clock["advance"] = False
+    lc._sent.clear()
+    lc._client = None
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

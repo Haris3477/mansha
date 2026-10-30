@@ -271,6 +271,7 @@ def call_llm(
             record["paced_wait_s"] = paced
         start = time.monotonic()
         try:
+            record["sent_at_ms"] = int(time.time() * 1000)
             raw = client.chat.completions.with_raw_response.create(
                 model=chain,
                 messages=messages,

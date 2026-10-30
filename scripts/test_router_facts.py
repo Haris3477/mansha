@@ -284,6 +284,90 @@ check("chain fallback: NOT VALID for judging B, even with Dots3 at ordinal 0",
 check("an English case on auto:long is unchanged (Dots3 at ordinal 0: valid)",
       router_facts.validity(good[:1]) == ["  N15_r1: valid (1 long calls)"])
 
+print("\n7. Timestamp windows and router refusals (143500 pattern)")
+con = sqlite3.connect(db)
+new_run = TMP / "20261030-143500"
+base = utc_ms("2026-10-30 10:35:00")
+expected = []
+for case_no, case in enumerate(("N15", "N16")):
+    offset = case_no * 120
+    phases = []
+    # Builder 2 and its failure appear before Prose QA 1 in the log.
+    specs = [("Document Builder", 0, G35, 10, True, None),
+             ("Document Builder", 30, G35, 10, True, None),
+             ("Document Builder", 60, None, .02, False, 429),
+             ("Document Builder", 65, None, 1.5, False, 502),
+             ("Prose QA (round 1)", 15, CEREBRAS, 1.5, True, None),
+             ("Prose QA (round 2)", 45, CEREBRAS, 1.5, True, None),
+             ("Document Builder", 75, None, .3, False, 429)]
+    ids = []
+    for ph, sec, model, latency, success, status in specs:
+        stamp = int(base + (offset + sec) * 1000)
+        a = {"attempt": len(phases) + 1, "chain": "auto:arabic", "latency_s": latency,
+             "ok": success, "sent_at_ms": stamp}
+        if model:
+            a["routed_via"] = name(model)
+        if status:
+            a["http_status"] = status
+        if status == 429:
+            a["problem"] = ("HTTP 429: All models exhausted: 2 routes checked "
+                            "(2 rate-limited or on cooldown)" if latency == .02 else
+                            "HTTP 429: All models rate-limited after 1 attempt")
+        phases.append({"name": ph, "calls": [{"attempts": [a]}]})
+        rid = None
+        if status != 429 or latency == .3:
+            m = model or G35
+            rid = request(router_db.utc_text(stamp + latency * 1000), m,
+                          "success" if success else "error", int(latency * 1000),
+                          [(m, "ok" if success else "error", int(latency * 1000), None)])
+        ids.append(rid)
+    expected.extend(ids)
+    folder = new_run / case
+    folder.mkdir(parents=True)
+    log = folder / "phase_log.json"
+    log.write_text(json.dumps({"phases": phases}))
+    os.utime(log, ((base / 1000 + offset + 90),) * 2)
+con.commit()
+con.close()
+text = router_facts.facts(new_run, db, base + 300000)
+calls = router_facts.client_calls(new_run)
+with router_db.connect_ro(db) as ro:
+    reqs = router_facts.requests_in(ro, base - 1000, base + 300000)
+router_facts.match(calls, reqs)
+check("out-of-order calls in both cases get exactly their own rows",
+      [c["req"]["id"] if c["req"] else None for c in calls] == expected)
+check("fast refusals are explicit, never NOT MATCHED",
+      text.count("refused by the router (no row expected)") == 2 and "NOT MATCHED" not in text
+      and "Client calls not matched in the router: none" in text)
+check("refusals still fail validity", "attempt 3 failed at the client" in text)
+check("502 at 1.5 seconds still matches an error row", calls[3]["req"]["id"] == expected[3])
+check("fast provider 429 matches its error row and is never shown as refused",
+      calls[6]["req"] is not None and calls[6]["req"]["id"] == expected[6]
+      and "refused by the router" not in router_facts.long_line(calls[6])
+      and calls[13]["req"] is not None and calls[13]["req"]["id"] == expected[13]
+      and "refused by the router" not in router_facts.long_line(calls[13]))
+check("exhausted wording decides refusal even when latency exceeds one second",
+      router_facts.refused(dict(calls[2], latency_s=2.0)))
+check("stamped matching line", "Matching: by time window" in text)
+# Strip all stamps: a refusal before a real failure must not steal that failure's row.
+legacy = [dict(calls[2], req=None), dict(calls[3], req=None)]
+for c in legacy:
+    c.pop("sent_at_ms")
+for r in reqs:
+    r["call"] = None
+router_facts.match(legacy, reqs)
+check("unstamped refusal leaves the real error row for the following call",
+      legacy[0]["req"] is None and legacy[1]["req"] is not None)
+check("unstamped matching line", "Matching: best effort (this run's attempts have no timestamps)"
+      in router_facts.facts(run, db, NOW))
+log = new_run / "N15" / "phase_log.json"
+data = json.loads(log.read_text())
+del data["phases"][0]["calls"][0]["attempts"][0]["sent_at_ms"]
+log.write_text(json.dumps(data))
+text = router_facts.facts(new_run, db, base + 300000)
+check("mixed matching line and all remaining calls matched", "Matching: mixed" in text
+      and "Client calls not matched in the router: none" in text)
+
 shutil.rmtree(TMP, ignore_errors=True)
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)
