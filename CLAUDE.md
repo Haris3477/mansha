@@ -31,6 +31,18 @@ A finished, pitch-ready Mansha (roadmap.md's pitch-ready bar). "Next steps" and 
 6. Suggest a commit message. Do NOT commit or push: Haris reviews, commits and pushes. **No AI attribution in commit messages (no co-author lines).** Work happens on `main`, except work that must not mix with a pending check, which goes on its own branch.
 7. At the end of every step, ask Haris what the next step should be, with options and a recommendation (with reasons).
 
+## Building with Codex (Haris, 30 Oct)
+Code is built by Codex (OpenAI, the Codex app on Haris's Mac, project = this repo; its rules are in `AGENTS.md`, its settings in `.codex/config.toml`). Claude stays the lead: it plans, writes Codex's prompts and reviews its work. Claude edits files itself only for docs (CLAUDE.md, AGENTS.md, readings) or when Haris says so.
+1. Plan as in "Every change" step 1 and wait for Haris's yes.
+2. Give Haris the branch command (`git switch -c codex/<task>`; Haris runs it, Codex never writes git) and ONE copyable build prompt that starts with `Model: … · Effort: …` and states: the goal, files to change, what not to touch, the tests to add (including a must-not-trigger case), the offline suite, and "end with the CODEX REPORT".
+   - Models: GPT-6 Luna / Light for investigation, test runs and mechanical edits; GPT-6.1 Sol / Medium for normal builds (the config default); GPT-6.1 Terra / Medium for writing, Arabic text or screenshots; Sol / High (Astra only as a last resort) after two failed attempts. Usage matters on every plan.
+   - A new Codex chat per task; "Approve for me" stays off.
+3. When Haris says "done" and pastes the CODEX REPORT: check the branch, read `git diff` against the plan line by line, run the offline suite in Claude's own shell, and check the report's claims (tests, deviations).
+   - Matches the plan → a live sitting if the pipeline changed (Claude plans it as below), then review and a suggested commit message (Haris commits, merges and pushes).
+   - Doesn't match → a correction prompt naming each problem and the exact fix; same branch, a new Codex chat. Never patch Codex's work silently.
+4. Codex has no access to the Project docs: everything it needs goes in the prompt. Claude records Codex's work in the Project docs only at "save progress".
+5. Never add `~/Projects/freellmapi` to the Codex project (the router's `.env` and database stay out of its reach).
+
 ## Live sittings
 Before a live run, say what will run and why (it uses Haris's router and free-model quotas), and check the day's real usage first with router_facts (below). Size the sitting to the cases the change can affect (k = 1 unless a repeat is the point). Haris pastes one block into his VS Code terminal; it runs inside `( … )` so a STOP ends the block, not his shell. `eval_set` exits 1 when a run fails a code check and 2 when the budget guard refused (nothing ran). Template:
 ```
