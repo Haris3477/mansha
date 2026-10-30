@@ -1,0 +1,13 @@
+# Codex project settings for Mansha (loaded only when this project is trusted in Codex).
+# Routine builds: medium. Claude's build prompt says when a task needs high.
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
+
+# Codex edits inside the repo; anything beyond that asks Haris first.
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+
+# Do not pass secrets from Haris's shell into Codex's commands.
+[shell_environment_policy]
+inherit = "core"
+exclude = ["*KEY*", "*SECRET*", "*TOKEN*", "*PASSWORD*"]
