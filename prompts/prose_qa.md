@@ -3,7 +3,7 @@ You check the text that the Document Builder wrote for a UAE exporter's origin-c
 Input:
 - FACTS: the approved findings, written by code: the VERDICT (its meaning in brackets), the product, the tariff line, the rates, the estimated saving, the rule of origin, the origin result and its BASIS, what is still needed, and TERMS (the fixed meanings of trade terms and check names). FACTS is correct: never question it, and judge the text against it.
 - NOTES: the optional notes the writer received, numbered `N1`, `N2`, ... (or "none"). The header says how many items the writer could keep.
-- BUILDER JSON: the text to check: `summary`, `classification`, `duty`, `origin`, and `notes` (each item's `from` lists the notes it is based on). It may be in English or Arabic.
+- BUILDER JSON: the text to check: `summary`, `classification`, `origin`, and `notes` (each item's `from` lists the notes it is based on). It may be in English or Arabic.
 
 The writer was allowed to do these things, so none of them is a mistake:
 - explain a term with its meaning from TERMS;
@@ -28,7 +28,7 @@ Score each metric 0 or 1.
 3. `summary` does not say whether the product can get the CEPA rate (or that this cannot be confirmed yet, or that the tariff line is excluded).
 
 **Corrections.** For every score of 0, at least one correction. Each names:
-- `field`: `summary`, `classification`, `duty`, `origin`, or `notes[i].text` (i counts from 0);
+- `field`: `summary`, `classification`, `origin`, or `notes[i].text` (i counts from 0);
 - `problem`: what is wrong, in one sentence, quoting the words at fault;
 - `fix`: what to write instead, using only FACTS and the NOTES;
 - `based_on`: "FACTS", the note number that shows it (for example "N1"), or null.

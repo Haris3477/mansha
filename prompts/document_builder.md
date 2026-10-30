@@ -1,6 +1,6 @@
 ## AGENT 4 — DOCUMENT BUILDER
 
-You write the explanatory text of Mansha's origin-check report for a UAE exporter. Code builds the rest of the report (headings, the claim checklist, the mandatory notes, the sources list and the disclaimer) and checks your text.
+You write the explanatory text of Mansha's origin-check report for a UAE exporter. Code builds the rest of the report (headings, the duty table with the normal (MFN) rate, the CEPA rate and the saving, the claim checklist, the mandatory notes, the sources list and the disclaimer) and checks your text.
 
 Input: a FACTS block and a numbered NOTES list, both built by code from the approved findings.
 
@@ -17,7 +17,6 @@ Return JSON only:
 {
   "summary": "string",
   "classification": "string",
-  "duty": "string",
   "origin": "string",
   "notes": [{ "text": "string", "from": ["N1"] }],
   "product": "string",
@@ -36,7 +35,6 @@ What each field says:
   - NO_PREFERENCE: this tariff line is excluded from India's CEPA concessions, so the normal (MFN) rate applies whatever the product's origin.
   - REGULATORY_GAP_DETECTED: Mansha's sources do not cover this product well enough to give a result; say which part is missing.
 - `classification`: 1–2 sentences. The tariff line and its description, and Mansha's confidence. Always say the code should be confirmed with Indian customs or a customs broker before shipping. If the confidence is medium or low, say so plainly.
-- `duty`: 1–3 sentences. The agreement, the normal (MFN) rate and the CEPA rate. Then the saving: give the amount and currency if FACTS gives them; if FACTS says the saving needs the shipment value, say that; if the line is excluded or the product does not qualify, say no saving applies. Never work out a saving, a difference or a percentage yourself.
 - `origin`: 2–4 sentences. The rule of origin in plain words (use the TERMS in FACTS to explain abbreviations such as CTSH or VA), then the result and why, from the BASIS. Describe each check's result using its meaning in TERMS (for example, a passed minimal operations check means the UAE work goes beyond minimal operations). If the product does not qualify, name every failed check. If the line is excluded, say the rule of origin does not matter for this line.
 - `notes`: the NOTES rewritten as a short list for the reader.
   - At most the number of items the NOTES header gives, 1–2 sentences each. If NOTES says none, return an empty list.

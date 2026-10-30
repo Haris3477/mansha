@@ -45,7 +45,7 @@ AGENT = "prose_qa"
 PROSE_QA_CHAIN = QA_CHAIN            # "auto:judge"
 REQUIRED_KEYS = ("corrections", "scores")
 METRICS = ("factuality", "completeness")
-TEXT_FIELDS = ("summary", "classification", "duty", "origin")
+TEXT_FIELDS = ("summary", "classification", "origin")   # M4 (30 Oct): no `duty` field
 
 # Size guard (tokens). Own copy of the estimate (~3.6 characters per token, ~10% high against
 # Groq's counts on 17 Oct), so a change to plan B's numbers can't change this check.

@@ -58,8 +58,11 @@ from mansha.tools.origin_calculator import (
 
 log = logging.getLogger("mansha.document_builder")
 
-REQUIRED_KEYS = ("summary", "classification", "duty", "origin", "notes")
-TEXT_KEYS = ("summary", "classification", "duty", "origin")
+# M4 (Haris, 30 Oct): no `duty` paragraph. It repeated the duty table and opened "Under the India-UAE CEPA,
+# the normal (MFN) rate is 10%" in 64 of 83 English and about 11 of 14 Gemini Arabic LLM reports: the MFN
+# rate is India's own, not the agreement's. The duty section is the code-written table, with its sources.
+REQUIRED_KEYS = ("summary", "classification", "origin", "notes")
+TEXT_KEYS = ("summary", "classification", "origin")
 MAX_NOTES = 6          # notes in the report in total: mandatory (verbatim) + the LLM's items
 # Step 7.6e (A'): the LLM always keeps this many items, so qualifier notes printed verbatim never
 # crowd out every optional note (windows_nodata: 6 verbatim would have dropped 7 notes unread).
@@ -468,7 +471,6 @@ FALLBACK_AR = {
     # F-a (Haris, 29 Oct): English details from the KB and the tools stay, in brackets.
     "classification": 'البند الجمركي {line}: {description} (درجة ثقة منشأ: {c}). أكّد الرمز مع الجمارك الهندية أو مع مخلّص جمركي قبل الشحن.'
                       .replace("{line}: {description}", "{line} ({description})"),
-    "agreement": 'الاتفاقية: {agreement}.'.replace("{agreement}", "({agreement})"),
     "origin": 'قاعدة المنشأ: {rule}. النتيجة: المنتج {origin text}. {basis}'
               .replace("{origin text}", "{origin}"),
 }
@@ -912,7 +914,7 @@ def fallback_prose(research: dict, notes: list[dict], language: str | None = "en
     F3 (30 Oct): Arabic also writes the title (PRODUCT_AR, the product in brackets) and still-needed from the
     tools (arabic_needed), and leaves out optional notes with no Arabic draft (arabic_left_out).
     """
-    cls, tar = research["classification"], research["tariff"]
+    cls = research["classification"]
     res, verdict = research["origin_result"], research["verdict"]
     if language == "ar":
         fragments = arabic_fragments(notes, corridor)
@@ -928,8 +930,6 @@ def fallback_prose(research: dict, notes: list[dict], language: str | None = "en
             "classification": FALLBACK_AR["classification"].replace("{line}", plain_ar(cls.get("tariff_line")))
             .replace("({description})", bracketed(plain_ar(cls.get("description"))))
             .replace("{c}", CONFIDENCE_AR.get(conf, NOT_IN_SOURCES_AR)),
-            "duty": (FALLBACK_AR["agreement"].replace("({agreement})", bracketed(plain_ar(tar.get("agreement")))) + " "
-                     + FALLBACK_AR["saving"].replace("{x}", saving_text(research, "ar"))),
             "origin": FALLBACK_AR["origin"].replace("{rule}", rule_text(research, "ar"))
             .replace("{origin}", ORIGIN_TEXT_AR.get(res.get("status"), NOT_IN_SOURCES_AR))
             .replace("{basis}", bracketed(basis) if basis != NOT_IN_SOURCES else "").strip(),
@@ -951,7 +951,6 @@ def fallback_prose(research: dict, notes: list[dict], language: str | None = "en
         "classification": (f"Tariff line {plain(cls.get('tariff_line'))}: {plain(cls.get('description'))} "
                            f"(Mansha's confidence: {cls.get('confidence') or 'not given'}). Confirm the "
                            "code with Indian customs or a customs broker before shipping."),
-        "duty": (f"Agreement: {plain(tar.get('agreement'))}. Estimated saving: {saving_text(research)}."),
         "origin": (f"Rule of origin: {rule_text(research)}. Result: the product "
                    f"{ORIGIN_TEXT.get(res.get('status'), NOT_IN_SOURCES)}. {plain(res.get('basis'))}"),
         "notes": [{"text": n["text"], "from": [n["nid"]]} for n in notes if not n["mandatory"]],
@@ -1032,11 +1031,9 @@ def render_report(research: dict, intake: dict, prose: dict, notes: list[dict],
     out += [f"## {h['duty']}", "",
             f"| {h['mfn']} | {h['cepa']} | {h['saving']} |",
             "|---|---|---|",
-            f"| {mfn_text(tar.get('mfn_rate'), lang)} | {pref} | {saving_text(research, lang)} |",
-            "",
-            prose["duty"].strip() + cite(src.refs(tar.get("source_id"),
-                                                 research["estimated_saving"].get("source_id"))),
-            ""]
+            f"| {mfn_text(tar.get('mfn_rate'), lang)} | {pref} | {saving_text(research, lang)}"
+            + cite(src.refs(tar.get("source_id"), research["estimated_saving"].get("source_id"))) + " |",
+            ""]   # M4: the table is the section; its sources are cited in its last cell
 
     out += [f"## {h['origin']}", "",
             prose["origin"].strip() + cite(src.refs(research["origin_rule"].get("source_id"),

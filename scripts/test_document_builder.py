@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import mansha.document_builder as dbm
+import mansha.prose_qa as pqm
 from mansha.document_builder import (
     AUTHORITY_TEXT,
     BRAND_LINE_AR,
@@ -96,8 +97,6 @@ def good_windows_prose(notes: list[dict]) -> dict:
         "classification": "The product falls under tariff line 76101000 (aluminium doors, windows and "
                           "their frames), with high confidence. Confirm the code with Indian customs "
                           "or a customs broker before shipping.",
-        "duty": "Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%. "
-                "The estimated saving on this shipment is 10000.00 AED.",
         "origin": "The rule is CTSH + VA 45%: every imported input must change tariff subheading, "
                   "and value addition must be at least 45%. Your product passed both: value addition "
                   "is 49.0% against the 45% threshold.",
@@ -258,8 +257,9 @@ def expect_problem(label, mutate):
 
 
 first_opt = next(n["nid"] for n in notes if not n["mandatory"])
-expect_problem("invented number fails", lambda p: p.update(duty=p["duty"] + " That is AED 40,000."))
-expect_problem("computed difference fails", lambda p: p.update(duty="The rate falls by 10 points, 9% lower."))
+# M4 (30 Oct): no `duty` field; the checks guard every field the Builder still writes.
+expect_problem("invented number fails", lambda p: p.update(summary=p["summary"] + " That is AED 40,000."))
+expect_problem("computed difference fails", lambda p: p.update(summary="The rate falls by 10 points, 9% lower."))
 expect_problem("leaked evidence ID fails", lambda p: p.update(classification="See TL-IN-76101000."))
 expect_problem("leaked note number fails", lambda p: p.update(summary=p["summary"] + " See N2."))
 expect_problem("leaked mandatory note number fails", lambda p: p.update(summary=p["summary"] + " See M1."))
@@ -287,7 +287,7 @@ check("53: the problem names the field and says 'Basic Customs Duty only'",
 for fine in ("The CEPA rate removes Basic Customs Duty.", "It eliminates the Basic Customs Duty.",
              "Basic Customs Duty is eliminated under the CEPA.", "No duty saving can be estimated."):
     p = copy.deepcopy(good)
-    p["duty"] += " " + fine
+    p["summary"] += " " + fine
     check(f"53: {fine!r} is fine (names BCD, or no saving)", check_prose(p, facts, notes) == [],
           check_prose(p, facts, notes))
 p = copy.deepcopy(good)
@@ -298,8 +298,8 @@ check("no LLM notes is fine (mandatory notes are added by code)", check_prose(p,
 LIVE_67 = [
     ("17 Oct 17:01 summary", "summary", "Mansha cannot confirm whether the aluminium window frames qualify for the preferential duty rate under the India-UAE CEPA because the required information is missing. If the product qualifies, the saving would be the difference between the normal rate and the CEPA rate, but the exact amount cannot be estimated without the shipment value. To proceed, the exporter needs to provide a bill of materials, a declaration, and the shipment value in AED."),
     ("17 Oct 18:06 summary", "summary", "Mansha cannot confirm the result yet, because information is missing. To proceed, you need to provide a bill of materials, a declaration, the shipment value in AED, and confirm the HS code. If the product qualifies, the duty saving would be the difference between the normal import duty rate (MFN rate) and the reduced rate under the trade agreement (CEPA rate), but the amount cannot be estimated without the shipment value."),
-    ("17 Oct 18:06 duty", "duty", "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10% and the CEPA rate is 0%. The saving would be the difference between these rates, but the exact amount cannot be estimated without the shipment value in AED."),
-    ("19 Oct 18:38 duty", "duty", "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10%, while the CEPA rate is 0%. Because the shipment value is not provided, the estimated saving cannot be calculated yet. Once the shipment value is known, the saving can be determined based on the difference between the two rates."),
+    ("17 Oct 18:06 duty (as summary, M4)", "summary", "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10% and the CEPA rate is 0%. The saving would be the difference between these rates, but the exact amount cannot be estimated without the shipment value in AED."),
+    ("19 Oct 18:38 duty (as summary, M4)", "summary", "Under the India-UAE CEPA, the normal (MFN) rate for this product is 10%, while the CEPA rate is 0%. Because the shipment value is not provided, the estimated saving cannot be calculated yet. Once the shipment value is known, the saving can be determined based on the difference between the two rates."),
     ("23 Oct 20:05 summary", "summary", "Mansha cannot confirm the result yet because complete bill of materials data and manufacturer origin declaration details are missing. If the product qualifies, the saving would be the difference between the normal (MFN) rate and the CEPA rate."),
     ("23 Oct 20:08 summary", "summary", "Mansha cannot confirm the result yet, because the bill of materials, declaration and shipment value are missing. If the product qualifies, the saving would be the difference between the normal rate and the CEPA rate."),
 ]
@@ -312,7 +312,7 @@ for label, fld, text in LIVE_67:
 for wrong in ("The saving is calculated by multiplying the shipment value by the rate difference.",
               "Multiply the shipment value by the difference in rates.",
               "Your saving is worked out as the gap between the two rates."):
-    expect_problem(f"67: {wrong!r} fails", lambda p, w=wrong: p.update(duty=p["duty"] + " " + w))
+    expect_problem(f"67: {wrong!r} fails", lambda p, w=wrong: p.update(summary=p["summary"] + " " + w))
 expect_problem("67: also inside a note",
                lambda p: p["notes"][0].update(text="The saving is the difference between the two rates."))
 for fine in ("The estimated saving cannot be estimated without the shipment value.",
@@ -321,7 +321,7 @@ for fine in ("The estimated saving cannot be estimated without the shipment valu
              "The CEPA rate is lower than the normal (MFN) rate.",
              "The saving cannot be calculated yet."):
     p = copy.deepcopy(good)
-    p["duty"] += " " + fine
+    p["summary"] += " " + fine
     check(f"67: {fine!r} is fine", check_prose(p, facts, notes) == [], check_prose(p, facts, notes))
 n2 = copy.deepcopy(notes)
 src = next(n for n in n2 if not n["mandatory"])
@@ -337,17 +337,16 @@ check("thousands separators are the same number", check_prose(p, facts, notes) =
 # N15 (222746): the script check. Arabic prose with Dots3's faults, then clean Arabic (215427 style).
 ar_good = {"summary": "لا يمكن لـ Mansha تأكيد النتيجة بعد، لأن قائمة المواد ناقصة.",
            "classification": "الرمز الجمركي HS للمنتج مذكور أعلاه (رمز النظام المنسق).",
-           "duty": "السعر العادي MFN أعلى من سعر الاتفاقية CEPA، ويُحسب على أساس FOB أو Ex-Works.",
            "origin": "تشترط القاعدة تغيير البند الفرعي CTSH مع قيمة مضافة VA، وتُقدَّم الشهادة عبر e-Sanchit "
                      "وفق قواعد CAROTAR، ويطالب المستورد بالسعر عند تقديم بيان الإدخال (bill of entry) "
                      "عبر eservices.moec.gov.ae.",
            "notes": []}
 check("N15: clean Arabic prose passes the script check", check_prose(ar_good, facts, notes, "ar") == [],
       check_prose(ar_good, facts, notes, "ar"))
-bad = {"summary": "وال迈尔斯 الم估算", "classification": "الرمز للproduct", "duty": "ال_AGREEMENT هي",
+bad = {"summary": "وال迈尔斯 الم估算", "classification": "الرمز للproduct",
        "origin": "Rule of origin هي CTSH (يتم including التحقق)"}
 for key, want in (("summary", "another script (迈尔斯估算)"), ("classification", "['للproduct']"),
-                  ("duty", "['ال_AGREEMENT']"), ("origin", "['Rule', 'of', 'origin', 'including']")):
+                  ("origin", "['Rule', 'of', 'origin', 'including']")):
     p = copy.deepcopy(ar_good)
     p[key] = bad[key]
     probs = check_prose(p, facts, notes, "ar")
@@ -505,7 +504,7 @@ check("Step 7.6g gaps {text, source_id}: the text only, no source, in 'still nee
       still_needed(obj_gaps) == ["not in Mansha's sources: the rule is not loaded."], still_needed(obj_gaps))
 
 print("\n4. The call loop (fake LLM)")
-bad = dict(good, duty="The saving is AED 40,000.")
+bad = dict(good, summary="The saving is AED 40,000.")
 
 llm = fake_llm(good)
 r = run_document_builder(research, intake, pack.id_sources, llm=llm)
@@ -844,7 +843,7 @@ fp = fallback_prose(research, notes, "ar")
 check("Arabic fallback: origin line uses the Arabic result words",
       ORIGIN_TEXT_AR[research["origin_result"]["status"]] in fp["origin"], fp["origin"])
 check("Arabic fallback: English KB details only inside brackets (F-a)",
-      not script_problems(" ".join([fp["summary"], fp["classification"], fp["duty"], fp["origin"]]),
+      not script_problems(" ".join([fp["summary"], fp["classification"], fp["origin"]]),
                           "ar").get("english"), fp)   # the app's own check: innermost brackets are glosses
 check("English fallback unchanged by the language parameter", fallback_prose(research, notes) ==
       fallback_prose(research, notes, "en"))
@@ -1017,7 +1016,7 @@ check("optional notes with no Arabic draft are left out, the others printed as t
       and all(item["text"] == arabic_note(next(n["text"] for n in nd_notes if n["nid"] == item["from"][0]))
               for item in fp3["notes"]), (left, fp3["notes"]))
 check("no Arabic code-only text has an English word outside brackets",
-      not script_problems(" ".join([fp3["summary"], fp3["classification"], fp3["duty"], fp3["origin"],
+      not script_problems(" ".join([fp3["summary"], fp3["classification"], fp3["origin"],
                                     fp3["product"], *fp3["needed"], *[x["text"] for x in fp3["notes"]]]),
                           "ar")["english"])
 nd_research_ar = copy.deepcopy(nd_research)   # the sample predates S3: a live Arabic run has code's Arabic steps
@@ -1067,6 +1066,41 @@ check("every KB passage note now has an Arabic draft",
 check("USD is allowed like AED", not script_problems("التوفير التقديري: 8100.00 USD.", "ar")["english"])
 check("MISSING_INPUTS is still what the origin tool writes for no data (named, output identical)",
       "a bill of materials (each input's description" in MISSING_INPUTS and MISSING_INPUTS in ND_MISSING)
+
+
+print("\n== M4 (30 Oct): no LLM duty paragraph; the duty section is the code-written table")
+
+
+def duty_section(md: str, lang: str = "en") -> list[str]:
+    head = "## " + HEADINGS[lang]["duty"]
+    body = md.split(head, 1)[1].split("\n## ", 1)[0]
+    return [x for x in body.strip().splitlines() if x.strip()]
+
+
+check("duty is neither asked for nor checked", "duty" not in dbm.REQUIRED_KEYS and "duty" not in dbm.TEXT_KEYS
+      and "duty" not in pqm.TEXT_FIELDS)
+prompt_db = Path("prompts/document_builder.md").read_text(encoding="utf-8")
+prompt_pq = Path("prompts/prose_qa.md").read_text(encoding="utf-8")
+check("prompts: no `duty` field in the Builder's JSON or instructions, nor in prose QA's",
+      '"duty"' not in prompt_db and "`duty`" not in prompt_db and "`duty`" not in prompt_pq
+      and "the duty table" in prompt_db)
+stray = dict(good, duty="Under the India-UAE CEPA, the normal (MFN) rate is 10% and the CEPA rate is 0%.")
+r = run_document_builder(research, intake, pack.id_sources, llm=fake_llm(stray))
+sec = duty_section(r.markdown)
+check("English LLM report: the section is the table only (3 lines), sources cited in its last cell",
+      not r.used_fallback and len(sec) == 3 and all(x.startswith("|") for x in sec)
+      and re.search(r"\[\d+\](\[\d+\])* \|$", sec[2]) and "Under the" not in r.markdown, sec)
+check("... a stray `duty` key from the model is not printed anywhere", stray["duty"] not in r.markdown)
+r = run_document_builder(nd_research_ar, nd_ar, nd_pack.id_sources, llm=chain_llm(dict(ar_good, **tr)))
+sec = duty_section(r.markdown, "ar")
+check("Arabic LLM report: the table only, cited", not r.used_fallback and len(sec) == 3
+      and all(x.startswith("|") for x in sec) and re.search(r"\]\s*\|$", sec[2]), sec)
+r = run_document_builder(nd_research_ar, nd_ar, nd_pack.id_sources, llm=chain_llm(LLMCallError("gemini down", down)),
+                         origin_missing=ND_MISSING)
+check("Arabic code-only report: the table only, cited", r.used_fallback and len(duty_section(r.markdown, "ar")) == 3)
+r = run_document_builder(research, intake, pack.id_sources, llm=chain_llm(LLMCallError("router down", failed[:1])))
+check("English code-only report: the table only, cited", r.used_fallback and len(duty_section(r.markdown)) == 3
+      and "Agreement:" not in r.markdown)
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)
