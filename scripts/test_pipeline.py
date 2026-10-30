@@ -344,7 +344,15 @@ check("pass-through: nothing in the phase log says APPROVED",
       "APPROVED" not in (res.out_dir / "phase_log.json").read_text())
 
 warn = research_fixture("windows")
-warn["caveats"][3]["note"] += " It costs AED 777."   # a number not in the cited record -> warning (S3: steps are code's)
+# a number not in the cited record -> warning (S3: steps are code's; O1: origin-tool notes too, and D1 drops
+# caveat 4, the rule lookup's copy of the origin tool's '+' note; so caveat 1, the duty estimate note, carries it)
+o1 = research_fixture("windows")
+o1["caveats"][3]["note"] += " It costs AED 777."
+res = run("windows", fake_for("windows", researcher=[o1]), qa=qa_passthrough)
+check("O1: a number added to an origin-tool note is gone (code writes the note), no warning",
+      "777" not in (res.out_dir / "researcher_1.json").read_text().split('"output"')[1]
+      and not any("not reviewed by QA" in w for w in res.warnings), res.warnings)
+warn["caveats"][1]["note"] += " It costs AED 777."
 res = run("windows", fake_for("windows", researcher=[warn]), qa=qa_passthrough)
 check("code warnings with QA skipped: pipeline warns they were not reviewed",
       any("not reviewed by QA" in w for w in res.warnings), res.warnings)
@@ -354,7 +362,7 @@ llm = fake_for("windows", researcher=[warn])
 res = run("windows", llm)
 qp = phase(res, "QA (round 1)")
 qa_msgs = [m[1][1]["content"] for m in llm.seen if m[0] == "qa"]
-check("code warning sent to QA as W1", any("W1: caveats[3]: number(s) ['777']" in m for m in qa_msgs),
+check("code warning sent to QA as W1", any("W1: caveats[1]: number(s) ['777']" in m for m in qa_msgs),
       [m[:300] for m in qa_msgs])
 check("QA judged it: shown in the phase log", "Code warnings judged by QA:" in
       (res.out_dir / "phase_log.md").read_text() and qp.details["warning_judgements"][0]["id"] == "W1")
@@ -651,9 +659,10 @@ check("NOT_ELIGIBLE claim notes: dropped by code before QA (QA never sees them),
 # A report with a problem is FLAGGED but still shown (decision 9.6b: flag only)
 # Mandatory notes are printed verbatim from the Researcher's caveats (path of problem 34), so a
 # raw Python value there gets past the Builder's checks; only the report check sees it. (Until 7.6j this
-# used a raw field name, "price_basis"; the Researcher's own checks now catch those in round 1.)
+# used a raw field name, "price_basis"; the Researcher's own checks now catch those in round 1.) Since O1
+# (30 Oct) code writes the origin tool's notes, so the raw value rides on a duty-tool note (also mandatory).
 leaky = research_fixture("windows")
-leaky["caveats"].append({"note": "Operations declared: ['b', 'k'].", "source_id": "TOOL:origin:76101000"})
+leaky["caveats"].append({"note": "Operations declared: ['b', 'k'].", "source_id": "TOOL:duty:76101000"})
 res = run("windows", fake_for("windows", researcher=[leaky], document_builder=[ERR]))   # code prose
 rc = phase(res, "Report check")
 check("flagged report: still a REPORT, shown to the user", res.status == "REPORT"

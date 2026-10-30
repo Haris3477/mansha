@@ -752,6 +752,75 @@ def add_tariff_notes(data: dict, pack: EvidencePack) -> list[str]:
     return changes
 
 
+# ---------- the origin tool's notes on the chosen line, written by code (O1, 30 Oct) ----------
+# D1: a caveat citing another record that restates a written origin note, by the Builder's own Arabic-draft
+# bar (document_builder.NOTE_MATCH_OF_ORIGINAL / NOTE_MATCH_OF_NOTE; test_researcher keeps them equal).
+ORIGIN_DUP_OF_NOTE = 0.5     # share of the origin note's content words the caveat has
+ORIGIN_DUP_OF_CAVEAT = 0.6   # share of the caveat's content words the origin note has
+
+def write_origin_notes(data: dict, pack: EvidencePack) -> list[str]:
+    """Replace every caveat citing the chosen line's origin tool with that tool's notes, word for word (O1).
+
+    The tool's notes are code's facts, so code writes them: always exact, always matching their Arabic
+    drafts (document_builder.NOTE_AR_DRAFTS), never made up. 29 Oct 230334: N16 r2 reworded the
+    own-declaration note ("The origin result relies on the exporter's own declaration that final
+    manufacture took place in the UAE and ...", coverage 0.41, below any matching bar) and it printed in
+    English in an Arabic report; N15 r1 cited the tool for "The result relies on the exporter's own
+    declaration; ..." although with no data the tool has no declaration and gave no such note. Replay over
+    231 saved answers: 155 of 313 origin caveats were exact, 141 close paraphrases, 17 below any word-match
+    bar, so matching by word overlap (as add_tariff_notes does) keeps missing rewordings. The notes go where
+    the first such caveat was (else at the end), in the tool's order; caveats citing other lines' origin
+    results are left to the checks and drop_line_notes. Excluded lines and gaps have no origin result.
+
+    D1: the '+' note is also the rule lookup's `interpretations:` item, and the Researcher often cites it
+    there, reworded; with the origin copy written, the replay had 40 of 227 reports print a note twice (37
+    '+', 1 free zone under P-MOET-FACTORY-REG). A caveat citing any other record that restates a written
+    note (ORIGIN_DUP_*, the bar the Builder uses to pick a note's Arabic draft) is dropped: the kept note
+    says the same, so a miss costs only a duplicate.
+    """
+    caveats = data.get("caveats")
+    if not isinstance(caveats, list) or not isinstance(data.get("classification"), dict):
+        return []
+    chosen, _ = find_chosen(data, pack)
+    if chosen is None or chosen["id"] in pack.excluded_ids or not chosen.get("tariff_line"):
+        return []
+    tid = f"TOOL:origin:{chosen['tariff_line']}"
+    res = pack.tool_results.get(tid)
+    if not isinstance(res, dict):
+        return []
+    notes = [str(n) for n in res.get("notes") or [] if n]
+    out, changes, at, had = [], [], None, []
+    for i, cv in enumerate(caveats):
+        if isinstance(cv, dict) and cv.get("source_id") == tid:
+            at = len(out) if at is None else at
+            had.append(cv.get("note"))
+            if cv.get("note") not in notes:
+                changes.append(f"caveats[{i}]: dropped, {tid}'s notes are written by code: {cv.get('note')!r}")
+            continue
+        out.append(cv)
+    at = len(out) if at is None else at
+    out[at:at] = [{"note": n, "source_id": tid} for n in notes]
+    for i in reversed(range(len(out))):
+        cv = out[i]
+        if not isinstance(cv, dict) or cv.get("source_id") == tid:
+            continue
+        text = str(cv.get("note") or "")
+        same = next((n for n in notes if coverage(n, text) >= ORIGIN_DUP_OF_NOTE
+                     and coverage(text, n) >= ORIGIN_DUP_OF_CAVEAT), None)
+        if same is not None:
+            del out[i]
+            changes.append(f"caveats: dropped, it restates {tid}'s note {same[:40]!r} "
+                           f"({cv.get('source_id')}): {text!r}")
+    if out == caveats:
+        return []
+    for n in notes:
+        if n not in had:
+            changes.append(f"caveats: note written from {tid}: {n!r}")
+    if not changes:  # same notes, other order or repeated
+        changes.append(f"caveats: {tid}'s notes rewritten once each, in the tool's order")
+    data["caveats"] = out
+    return changes
+
 # ---------- product HS-code follow-ups (Step 7.9, problem 92) ----------
 # A follow-up about the product's own HS / tariff code ("Please confirm the HS code for aluminium window
 # frames"), as opposed to a bill-of-materials question that mentions each input's HS code.
@@ -1407,6 +1476,7 @@ def run_researcher(intake: dict, pack: EvidencePack, *, previous: dict | None = 
     changes += plain_evidence_ids(data, pack)  # "PSR-IN-R118" -> its rule text, "TL-IN-..." -> its code (99)
     changes += recite_duty_notes(data, pack)  # the duty tool's "BCD only" note cited to a passage (7.6k)
     changes += add_tariff_notes(data, pack)  # the tariff lookup's notes on the user's code, verbatim (98, 7.6l)
+    changes += write_origin_notes(data, pack)  # the chosen line's origin-tool notes, verbatim (O1)
     changes += restore_qualified_notes(data, pack)  # a KB note's dropped "Interpretation:" put back (7.8)
     changes += drop_hs_follow_ups(data, pack)  # "confirm the HS code" with no conflict noted (problem 92, 7.9)
     changes += drop_free_zone_follow_ups(data, pack)  # "is the factory in a free zone?" when the user said so (1c)

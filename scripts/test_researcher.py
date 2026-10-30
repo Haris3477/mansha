@@ -12,6 +12,12 @@ import sys
 from pathlib import Path
 
 import mansha.researcher as researcher_mod
+from mansha.document_builder import (
+    NOTE_MATCH_OF_NOTE,
+    NOTE_MATCH_OF_ORIGINAL,
+    note_match,
+    note_originals,
+)
 from mansha.evidence import build_evidence, fmt_num, passages_of
 from mansha.kb import load_corridor
 from mansha.llm_client import LLMCallError, LLMResult
@@ -21,11 +27,14 @@ from mansha.researcher import (
     EVIDENCE_ID_RE,
     GAP,
     GAP_BASIS,
+    ORIGIN_DUP_OF_CAVEAT,
+    ORIGIN_DUP_OF_NOTE,
     _plain_ids_in,
     add_tariff_notes,
     build_messages,
     check_researcher,
     claim_steps,
+    coverage,
     drop_caveat_gaps,
     drop_claim_caveats,
     drop_follow_ups,
@@ -52,6 +61,12 @@ from mansha.researcher import (
     run_researcher,
     strip_list_markers,
     unbracket_ids,
+    write_origin_notes,
+)
+from mansha.tools.origin_calculator import (
+    FREE_ZONE_NOTE,
+    INDIAN_INPUTS_NOTE,
+    OWN_DECLARATION_NOTE,
 )
 from scripts.eval_cases import BY_ID as EVAL_BY_ID
 from scripts.pipeline_cases import DEV_INTAKES
@@ -83,6 +98,23 @@ def expect_problem(name, data, pack):
 
 def cand(pack, cid):
     return next(c for c in pack.candidates if c["id"] == cid)
+
+
+def not_o1(changes):
+    """Change lines other than O1's (code writes the chosen line's origin-tool notes, 30 Oct)."""
+    return [x for x in changes if not ("notes are written by code" in x or "note written from TOOL:origin:" in x
+                                       or "it restates TOOL:origin:" in x
+                                       or x.startswith("caveats: TOOL:origin:"))]
+
+
+def origin_notes(data, pack, line):
+    """(the answer's caveats citing TOOL:origin:<line>, that tool's notes): equal after O1."""
+    tid = f"TOOL:origin:{line}"
+    return [cv["note"] for cv in data["caveats"] if cv.get("source_id") == tid], pack.tool_results[tid]["notes"]
+
+
+def _eq(a, b):
+    return a == b
 
 
 def pct(x):
@@ -465,7 +497,8 @@ expect_problem("unknown bracketed ID is still a problem", unknown, c)
 check("plain IDs: no change", unbracket_ids(copy.deepcopy(GOOD_C), c) == [])
 res = run_researcher(ci_, c, llm=fake_llm(br))
 check("run_researcher: bracketed answer passes without using the revision",
-      res.passed and res.data["verdict"] == "NOT_ELIGIBLE" and len(res.changes) == 1, (res.problems, res.changes))
+      res.passed and res.data["verdict"] == "NOT_ELIGIBLE" and len(not_o1(res.changes)) == 1,
+      (res.problems, res.changes))
 brw = copy.deepcopy(GOOD_W)
 brw["classification"]["source_id"] = f"[{brw['classification']['source_id']}]"
 for st in brw["procedure"]:
@@ -543,8 +576,10 @@ check("...but no stale problem once code has dropped it (checked again)", res.pa
 res = run_researcher(wi, wn, llm=fake_llm(GOOD_WN))
 check("run_researcher NEEDS_MORE_DATA: follow-ups kept, no change",
       res.passed and res.data["follow_up_questions"] == GOOD_WN["follow_up_questions"]
-      and [x for x in res.changes if not x.startswith("procedure:")] == [],  # S3: code writes the steps
+      and [x for x in not_o1(res.changes) if not x.startswith("procedure:")] == [],  # S3: code writes the steps
       (res.problems, res.changes))
+check("... O1: the origin tool's note written word for word", _eq(*origin_notes(res.data, wn, "76101000")),
+      origin_notes(res.data, wn, "76101000"))
 
 # ---------------- no claim notes when no CEPA rate can apply (Step 7.6d, problem 76) ----------------
 print("\n== drop_claim_caveats (problem 76)")
@@ -587,8 +622,10 @@ for v in ("ELIGIBLE", "NEEDS_MORE_DATA", GAP):
     d = copy.deepcopy(many)
     check(f"{v}: every caveat kept", drop_claim_caveats(d, v) == [] and d["caveats"] == many["caveats"])
 res = run_researcher(ci_, c, llm=fake_llm(many))
-check("run_researcher (live 19 Oct case): passes, 9 caveats, 8 drops recorded",
-      res.passed and len(res.data["caveats"]) == 9 and res.data["verdict"] == "NOT_ELIGIBLE"
+check("run_researcher (live 19 Oct case): passes, 8 caveats (O1: the 3 origin caveats become the tool's 2 "
+      "notes), 8 drops recorded",
+      res.passed and len(res.data["caveats"]) == 8 and res.data["verdict"] == "NOT_ELIGIBLE"
+      and _eq(*origin_notes(res.data, c, "85044030"))
       and sum(x.startswith("caveats: dropped a note about claiming") for x in res.changes) == 8,
       (res.problems, res.changes))
 leak = copy.deepcopy(GOOD_C)
@@ -598,8 +635,9 @@ res = run_researcher(ci_, c, llm=fake_llm(leak))
 check("...but no stale problem once code has dropped it", res.passed, res.problems)
 res = run_researcher(wi, w, llm=fake_llm(GOOD_W))
 check("run_researcher ELIGIBLE: caveats untouched, no change",
-      res.passed and res.data["caveats"] == GOOD_W["caveats"]
-      and [x for x in res.changes if not x.startswith("procedure:")] == [], (res.problems, res.changes))
+      res.passed and res.data["caveats"] == GOOD_W["caveats"] + [{"note": n, "source_id": "TOOL:origin:76101000"}
+                                                                  for n in w.tool_results["TOOL:origin:76101000"]["notes"]]
+      and [x for x in not_o1(res.changes) if not x.startswith("procedure:")] == [], (res.problems, res.changes))
 check("pack knows its corridor", c.corridor == "india")
 
 # ---------------- fixed notes written from the KB (Step 7.6f, problem 79) ----------------
@@ -889,7 +927,7 @@ for base in ("windows", "chargers", "windows_nodata", "plastic"):
 d = with_caveats(("P-AGR-3.4-DEMINIMIS", LIVE_DROPS[1][1]))
 res = run_researcher(wi, wn, llm=fake_llm(d))
 check("run_researcher: dropped 'Interpretation:' restored by code, answer passes",
-      res.passed and res.data["caveats"][-1]["note"] == DEMIN
+      res.passed and any(cv["note"] == DEMIN for cv in res.data["caveats"])
       and any("qualifier kept (P-AGR-3.4-DEMINIMIS)" in x for x in res.changes), (res.problems, res.changes))
 
 # Replays of the saved answers (git-ignored run folders: skipped if absent).
@@ -1499,6 +1537,109 @@ if saved:
     print(f"  (replay: {len(saved)} saved round-1 answers, {had} texts with a rule or tariff-line ID)")
     check("99 replay: no rule or tariff-line ID left in any saved round-1 text", not left, left[:2])
     check("99 replay: text without such IDs is never changed", not touched_clean, touched_clean[:2])
+
+# ---------------- O1: the origin tool's notes on the chosen line, written by code (30 Oct) ----------------
+print("\n== O1: origin-tool notes word for word")
+O_ID = "TOOL:origin:76101000"
+PLUS = wn.tool_results[O_ID]["notes"][0]
+W_NOTES = w.tool_results[O_ID]["notes"]
+check("fixtures: windows (data) has the '+' and own-declaration notes; no data has only '+'",
+      W_NOTES == [PLUS, OWN_DECLARATION_NOTE] and wn.tool_results[O_ID]["notes"] == [PLUS], (W_NOTES, PLUS))
+# 230334 N16 r2, verbatim: the own-declaration note reworded (printed English in the Arabic report)
+N16R2_DECL = ("The origin result relies on the exporter's own declaration that final manufacture took place in "
+              "the UAE and that manufacturing goes beyond minimal operations.")
+N16R2_PLUS = ("Mansha interprets the '+' in the rule 'CTSH + VA 45%' as 'and' (both tests must pass); the "
+              "agreement does not define '+'.")
+d = copy.deepcopy(GOOD_W)
+d["caveats"] = [d["caveats"][0], {"note": N16R2_DECL, "source_id": O_ID}, {"note": N16R2_PLUS, "source_id": O_ID},
+                d["caveats"][1]]
+ch = write_origin_notes(d, w)
+check("N16 r2 wording: both rewordings replaced by the tool's notes, word for word, in place",
+      d["caveats"] == [GOOD_W["caveats"][0], {"note": PLUS, "source_id": O_ID},
+                       {"note": OWN_DECLARATION_NOTE, "source_id": O_ID}, GOOD_W["caveats"][1]], d["caveats"])
+check("... logged: 2 dropped, 2 written", sum("dropped" in c for c in ch) == 2
+      and sum("note written" in c for c in ch) == 2, ch)
+check("... idempotent (the revision round)", write_origin_notes(d, w) == [])
+check("... both notes now have an Arabic draft", all(note_match(cv["note"]) for cv in d["caveats"]
+                                                    if cv["source_id"] == O_ID))
+expect_ok("... and the answer still passes the checks", d, w, "ELIGIBLE")
+# 230334 N15 r1, verbatim: a made-up own-declaration note (no data, so the tool has no declaration)
+N15R1 = ("The result relies on the exporter's own declaration; a bill of materials and declaration are needed "
+         "to apply the rule.")
+d = with_caveats((O_ID, N15R1))
+ch = write_origin_notes(d, wn)
+got = [cv["note"] for cv in d["caveats"] if cv["source_id"] == O_ID]
+check("N15 r1 wording: the made-up note dropped, only the tool's own note written", got == [PLUS], got)
+check("... no own-declaration note anywhere",
+      not any("declaration" in str(cv.get("note")) for cv in d["caveats"]), d["caveats"])
+d = copy.deepcopy(GOOD_W)
+ch = write_origin_notes(d, w)
+check("notes left out by the Researcher: written at the end",
+      d["caveats"][-2:] == [{"note": n, "source_id": O_ID} for n in W_NOTES] and len(ch) == 2, ch)
+d = copy.deepcopy(GOOD_W)
+d["caveats"] += [{"note": n, "source_id": O_ID} for n in W_NOTES]
+before = copy.deepcopy(d)
+check("exact copies in the tool's order: nothing changes", write_origin_notes(d, w) == [] and d == before)
+d = copy.deepcopy(GOOD_W)
+d["caveats"] += [{"note": n, "source_id": O_ID} for n in reversed(W_NOTES)] + [{"note": PLUS, "source_id": O_ID}]
+ch = write_origin_notes(d, w)
+check("exact copies out of order or repeated: once each, tool's order, logged",
+      [cv["note"] for cv in d["caveats"] if cv["source_id"] == O_ID] == W_NOTES and len(ch) == 1, ch)
+d = with_caveats(("TOOL:origin:76041010", "A note on another candidate's origin result."))
+ch = write_origin_notes(d, wn)
+check("a caveat citing another line's origin result is left to the checks",
+      any(cv["source_id"] == "TOOL:origin:76041010" for cv in d["caveats"]), d["caveats"])
+d = copy.deepcopy(GOOD_W); d["caveats"].append({"note": "The value addition build-down is 12%, below the 40% "
+                                                "threshold.", "source_id": O_ID})   # 19 Oct chargers kind
+write_origin_notes(d, w)
+check("a check result restated as a caveat is dropped (the origin section shows it)",
+      not any("12%" in cv["note"] for cv in d["caveats"]), d["caveats"])
+d = copy.deepcopy(GOOD_W)
+d["classification"] = {"tariff_line": GAP, "description": GAP, "confidence": GAP, "source_id": "TOOL:tariff_lookup"}
+d["caveats"].append({"note": N16R2_DECL, "source_id": O_ID})
+before = copy.deepcopy(d)
+check("gap (no line chosen): nothing written, left to drop_line_notes", write_origin_notes(d, w) == [] and d == before)
+d = copy.deepcopy(GOOD_P); before = copy.deepcopy(d)
+check("excluded line (plastic): no origin result, nothing changes",
+      write_origin_notes(d, plastic) == [] and d == before)
+
+# D1: no note printed twice (the '+' note is also the rule lookup's interpretation)
+print("\n== O1 / D1: a restated origin note under another record is dropped")
+check("D1 bar = the Builder's Arabic-draft bar", (ORIGIN_DUP_OF_NOTE, ORIGIN_DUP_OF_CAVEAT)
+      == (NOTE_MATCH_OF_ORIGINAL, NOTE_MATCH_OF_NOTE))
+RL_PLUS = "The '+' in the rule is interpreted as 'and' (both tests must pass); the agreement does not define '+'."
+d = with_caveats(("TOOL:rule_lookup:76101000", RL_PLUS))   # the most common live wording (9 saved answers)
+ch = write_origin_notes(d, wn)
+check("'+' reworded under the rule lookup: dropped, the origin copy written once",
+      [cv["note"] for cv in d["caveats"] if "'+'" in cv["note"]] == [PLUS]
+      and any("it restates TOOL:origin:76101000" in x for x in ch), (d["caveats"], ch))
+d = copy.deepcopy(GOOD_W)
+d["caveats"] += [{"note": PLUS, "source_id": "TOOL:rule_lookup:76101000"}]
+write_origin_notes(d, w)
+check("'+' word for word under the rule lookup: kept once (the origin copy)",
+      sum(cv["note"] == PLUS for cv in d["caveats"]) == 1, d["caveats"])
+d = with_caveats(("TOOL:rule_lookup:76101000", "The '+' in the rule is read as 'and'."))
+write_origin_notes(d, wn)
+check("a short '+' mention below the bar stays (a miss is only a duplicate)",
+      any(cv["note"] == "The '+' in the rule is read as 'and'." for cv in d["caveats"]))
+fz_w = dataclasses.replace(w, tool_results={**w.tool_results, O_ID: {**w.tool_results[O_ID],
+                                                                     "notes": W_NOTES + [FREE_ZONE_NOTE]}})
+FZ_COPY = ("A factory declared in a free zone is likely not eligible for the ministry's factory registration; "
+           "confirm with the ministry.")   # a saved answer: the tool's note cited to the KB
+FZ_KB = ("A producer in a free zone is likely not eligible for Factory Registration, which is required before "
+         "applying for the certificate; confirm with the Ministry of Economy and Tourism.")   # 13 saved answers
+d = copy.deepcopy(GOOD_W)
+d["caveats"] += [{"note": FZ_COPY, "source_id": "P-MOET-FACTORY-REG"}, {"note": FZ_KB, "source_id": "P-MOET-FACTORY-REG"}]
+write_origin_notes(d, fz_w)
+kb_fz = [cv["note"] for cv in d["caveats"] if cv["source_id"] == "P-MOET-FACTORY-REG"]
+check("free zone: the tool's note restated under the KB is dropped, the KB's own wording kept",
+      kb_fz == [FZ_KB] and {"note": FREE_ZONE_NOTE, "source_id": O_ID} in d["caveats"], d["caveats"])
+origin_tool_notes = [PLUS, OWN_DECLARATION_NOTE, FREE_ZONE_NOTE, INDIAN_INPUTS_NOTE,
+                     "'Direct labour cost' and 'direct overhead cost' are not defined in the agreement."]
+hits = [(k, n[:30]) for k, v in note_originals().items() for n in origin_tool_notes
+        if v != n and coverage(n, v) >= ORIGIN_DUP_OF_NOTE and coverage(v, n) >= ORIGIN_DUP_OF_CAVEAT]
+check("guard: no other KB or tool note with an Arabic draft restates an origin-tool note (so D1 drops none)",
+      not hits, hits)
 
 print("\nALL PASSED" if not failures else f"\n{len(failures)} FAILED: {failures}")
 sys.exit(1 if failures else 0)
