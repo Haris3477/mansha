@@ -1052,8 +1052,13 @@ def reviewable(prose: dict) -> bool:
 
 
 # B (Haris, 28 Oct): Arabic reports go to auto:arabic (Gemini only). The router orders every chain by
-# one global score, so Dots3 cannot be Gemini's backup inside a chain: the backup is here, in code.
+# one global score, so Dots3 cannot be Gemini's backup inside a chain.
+# F1 (Haris, 30 Oct): no LLM backup for Arabic. When auto:arabic fails after the client's own retries, the
+# report is the code-only one. Dots3's round-1 Arabic was corrupt in 4 of 4 live runs (235858 x2, 222746,
+# 143500 N16: a Chinese phrase, subheading "76100", "Mansma"); it passed after a retry in 2 of 4, slowly
+# (78-515 s), and 143500 N16 spent 515 s on it before the code-only report anyway.
 BUILDER_CHAIN = "auto:long"
+CODE_ONLY = "code-only"
 BUILDER_CHAINS = {"ar": "auto:arabic"}
 
 
@@ -1089,20 +1094,14 @@ def run_document_builder(research: dict, intake: dict, id_sources: dict[str, dic
         sent = problems if round_no == 2 else []
         messages = build_messages(facts_text, language, previous=prose, corrections=sent or None)
         try:
-            try:
-                res = llm("document_builder", chain, messages, expect_json=True, required_keys=REQUIRED_KEYS)
-            except LLMCallError as exc:
-                if chain == BUILDER_CHAIN:
-                    raise
-                # B: the Arabic chain failed after the client's own retries. Once per run, this round
-                # goes to auto:long, and so does any later round. Such a run is not valid for judging B.
-                chain_fallback = {"from": chain, "to": BUILDER_CHAIN, "round": round_no, "reason": str(exc)}
-                log.warning("document builder | chain fallback: %s -> %s (round %d: %s)",
-                            chain, BUILDER_CHAIN, round_no, exc)
-                failed_attempts = list(exc.attempts)
-                chain = BUILDER_CHAIN
-                res = llm("document_builder", chain, messages, expect_json=True, required_keys=REQUIRED_KEYS)
+            res = llm("document_builder", chain, messages, expect_json=True, required_keys=REQUIRED_KEYS)
         except LLMCallError as exc:
+            if chain != BUILDER_CHAIN:
+                # F1: the Arabic chain failed after the client's own retries: the code-only report, no LLM
+                # backup (see CODE_ONLY). Such a run is not valid for judging B.
+                chain_fallback = {"from": chain, "to": CODE_ONLY, "round": round_no, "reason": str(exc)}
+                log.warning("document builder | chain fallback: %s -> %s (round %d: %s)",
+                            chain, CODE_ONLY, round_no, exc)
             log.warning("document builder | LLM call failed: %s", exc)
             problems = [f"LLM call failed: {exc}"]
             failed_attempts += list(exc.attempts)   # kept for the phase log (waits, HTTP statuses)

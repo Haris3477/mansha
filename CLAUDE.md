@@ -75,7 +75,7 @@ Four agents, each a separate LLM call orchestrated in Python (`mansha/orchestrat
 - Never call a step passed when its bar isn't met; never reword a result to make it pass.
 - Working rule 7: no pipeline change while the evaluation-set repeats are running (grader-only changes are allowed with Haris's yes).
 - `prompts/*.md` must stay identical to agent_prompts.md in the Project: if a prompt changes, update the Project's agent_prompts (addendum) and the `prompts/` file in the same step.
-- Model chains: Intake `auto:qa`; QA and prose check `auto:judge`; Researcher and Builder `auto:long`, except Arabic Builder calls: `auto:arabic` (Gemini only), falling back once in code to `auto:long` (Haris, 28 Oct; the router's model order is global, so the backup can't live inside a chain). Never plain `auto`. Every agent call logs the serving model (x-routed-via). Validate every JSON response.
+- Model chains: Intake `auto:qa`; QA and prose check `auto:judge`; Researcher and Builder `auto:long`, except Arabic Builder calls: `auto:arabic` (Gemini only); if it fails, the code-only report, no LLM backup (F1, Haris, 30 Oct; B 28 Oct; the router's model order is global, so the backup can't live inside a chain). Never plain `auto`. Every agent call logs the serving model (x-routed-via). Validate every JSON response.
 - Priority: simple end to end first, then accuracy, then demo polish.
 - When Haris pastes an error, explain the cause before the fix.
 

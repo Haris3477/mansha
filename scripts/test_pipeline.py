@@ -505,16 +505,19 @@ llm = fake_for("windows", intake=[ar_in], document_builder=[ERR, builder_prose("
 res = run("windows", llm)
 saved = json.loads((res.out_dir / "builder.json").read_text())
 b = phase(res, "Document Builder")
-check("B: an Arabic report whose auto:arabic call fails: the fallback is in builder.json",
+check("F1: an Arabic report whose auto:arabic call fails: code-only, recorded in builder.json",
       saved["chain_fallback"] and saved["chain_fallback"]["from"] == "auto:arabic"
-      and saved["chain_fallback"]["to"] == "auto:long" and saved["chain_fallback"]["round"] == 1
-      and [r["chain"] for r in saved["rounds"]] == ["auto:long"] * 2, saved.get("chain_fallback"))
-check("B: ... the failed auto:arabic attempts and the auto:long calls, each with its chain",
+      and saved["chain_fallback"]["to"] == "code-only" and saved["chain_fallback"]["round"] == 1
+      and [r["chain"] for r in saved["rounds"]] == ["auto:arabic"] and saved["review_status"] == "FALLBACK",
+      saved.get("chain_fallback"))
+check("F1: ... the failed auto:arabic attempts kept, no successful Builder call, no auto:long call",
       any(not c["ok"] and c["attempts"] == ERR.attempts for c in saved["calls"])
-      and [c["chain"] for c in saved["calls"] if c["ok"]] == ["auto:long"] * 2, saved["calls"])
-check("B: ... and named in the phase log", "chain fallback: auto:arabic -> auto:long (round 1:" in b.summary
-      and "chain fallback: auto:arabic -> auto:long" in (res.out_dir / "phase_log.md").read_text(encoding="utf-8"),
-      b.summary)
+      and not [c for c in saved["calls"] if c["ok"]] and "auto:long" not in [c["chain"] for c in saved["calls"]],
+      saved["calls"])
+check("F1: ... named in the phase log, and the report is still shown", res.status == "REPORT"
+      and "chain fallback: auto:arabic -> code-only (round 1:" in b.summary
+      and "chain fallback: auto:arabic -> code-only" in (res.out_dir / "phase_log.md").read_text(encoding="utf-8")
+      and b.status == "FALLBACK", (b.status, b.summary))
 
 llm = fake_for("windows", document_builder=[builder_prose("windows")] * 2,
                prose_qa=[PROSE_REJECTS, PROSE_REJECTS])

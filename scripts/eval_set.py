@@ -71,8 +71,8 @@ def dry_run(cases: list[EvalCase], verbose: bool = False) -> int:
 
 # Worst case per run, in requests: both Researcher and Builder rounds plus one retry each (long),
 # Intake plus a retry (qa), and up to 3 QA parts x (2 rounds + format retry/re-judge) + prose QA (judge).
-# B (28 Oct): an Arabic report's Builder rounds (2 + one retry) ask auto:arabic; long keeps its full worst
-# case, because a failed Arabic call falls back once to auto:long.
+# B (28 Oct): an Arabic report's Builder rounds (2 + one retry) ask auto:arabic. Since F1 (30 Oct) a failed
+# Arabic call no longer falls back to auto:long; long keeps its full worst case anyway, as a margin.
 WORST = {"REPORT": {"long": 5, "qa": 2, "judge": 14}, "STOP": {"long": 0, "qa": 2, "judge": 0},
          "REPORT_AR": {"long": 5, "qa": 2, "judge": 14, "arabic": 3}}
 TYPICAL = {"REPORT": {"long": 3, "qa": 1, "judge": 4}, "STOP": {"long": 0, "qa": 1, "judge": 0},
