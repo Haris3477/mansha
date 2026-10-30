@@ -3,6 +3,8 @@
 Input: arabic_strings.json, extracted from the code and docs/cloud/arabic_review.md by script
 (no Arabic is retyped here, except the few short Arabic placeholder labels in FILL).
 Output: mansha_arabic_review.pdf and arabic_review_items.md (number -> where it lives in the code).
+Optional 3rd argument N: also build mansha_arabic_review_new_from_N.pdf with only items N and above
+(for a reader who already checked the earlier ones); the full PDF and the table are built as usual.
 """
 import html
 import json
@@ -14,6 +16,7 @@ from playwright.sync_api import sync_playwright
 
 S = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 OUT = Path(sys.argv[2])
+NEW_FROM = int(sys.argv[3]) if len(sys.argv) > 3 else None
 FONTS = Path(__file__).parent / "node_modules/@fontsource"
 
 # Placeholders filled by the program -> what the reader sees (example value or a grey label)
@@ -184,49 +187,70 @@ parts = [f"<style>{css}</style>",
           f"{counts[C4][0]}–{counts[C4][-1]}). Part 3 is already in the app; "
          "check it if you have time.</p>"),
          "</div>"]
-section = None
-for it in items:
-    if it["section"] != section:
-        section = it["section"]
-        sub = {C1: "The app or the AI used different words for the same thing. Pick the best (or write your own).",
-               C2: "New Arabic sentences, waiting for your check before they go into the app.",
-               C3: "Arabic already shown in reports and messages. Never checked by a native reader.",
-               C4: "Added after the first version of this PDF (numbers 1–98 did not change)."}[section]
-        head = f"<h2>{html.escape(section)}</h2><p class='sub'>{sub}</p>"
-    else:
-        head = ""
-    en_html = fill(it["en"], FILL_EN)
-    block = [f"<div style='break-inside: avoid'>{head}<div class='item'><span class='num'>{it['n']}</span><span class='en'>{en_html}</span>"]
-    if it["kind"] == "text":
-        block.append(f"<div class='ar'>{fill(it['ar'], FILL)}</div>")
-    else:
-        for i, o in enumerate(it["options"]):
-            letter = "abcde"[i] if len(it["options"]) > 1 else "✓"
-            block.append(f"<div class='opt'><span class='letter'>{letter}</span>{html.escape(o)}</div>")
-    if it.get("note"):
-        block.append(f"<div class='note'>{html.escape(it['note'])}</div>")
-    block.append("</div></div>")
-    parts.append("".join(block))
-parts.append("<div class='box' style='margin-top:6mm'><p><b>Thank you!</b> Any other comment about the Arabic is very welcome.</p></div>")
+def render(selected):
+    out, section = [], None
+    for it in selected:
+        if it["section"] != section:
+            section = it["section"]
+            sub = {C1: "The app or the AI used different words for the same thing. Pick the best (or write your own).",
+                   C2: "New Arabic sentences, waiting for your check before they go into the app.",
+                   C3: "Arabic already shown in reports and messages. Never checked by a native reader.",
+                   C4: f"Added after the first version of this PDF (items 1–{counts[C3][-1]}); no item number has changed since."}[section]
+            head = f"<h2>{html.escape(section)}</h2><p class='sub'>{sub}</p>"
+        else:
+            head = ""
+        en_html = fill(it["en"], FILL_EN)
+        block = [f"<div style='break-inside: avoid'>{head}<div class='item'><span class='num'>{it['n']}</span><span class='en'>{en_html}</span>"]
+        if it["kind"] == "text":
+            block.append(f"<div class='ar'>{fill(it['ar'], FILL)}</div>")
+        else:
+            for i, o in enumerate(it["options"]):
+                letter = "abcde"[i] if len(it["options"]) > 1 else "✓"
+                block.append(f"<div class='opt'><span class='letter'>{letter}</span>{html.escape(o)}</div>")
+        if it.get("note"):
+            block.append(f"<div class='note'>{html.escape(it['note'])}</div>")
+        block.append("</div></div>")
+        out.append("".join(block))
+    return out
 
-doc = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>" + "".join(parts) + "</body></html>"
-(OUT / "review.html").write_text(doc, encoding="utf-8")
-with sync_playwright() as p:
-    b = p.chromium.launch()
-    pg = b.new_page()
-    pg.goto(f"file://{(OUT / 'review.html').resolve()}")
-    pg.wait_for_timeout(500)
-    pg.pdf(path=str(OUT / "mansha_arabic_review.pdf"), format="A5", print_background=True,
-           display_header_footer=True, header_template="<span></span>",
-           footer_template="<div style='font-size:7pt;width:100%;text-align:center;color:#888'>"
-                           "Mansha Arabic check · <span class='pageNumber'></span>/<span class='totalPages'></span></div>",
-           margin={"top": "12mm", "bottom": "13mm", "left": "11mm", "right": "11mm"})
-    b.close()
+
+THANKS = "<div class='box' style='margin-top:6mm'><p><b>Thank you!</b> Any other comment about the Arabic is very welcome.</p></div>"
+parts += render(items)
+parts.append(THANKS)
+
+def write_pdf(body_parts, name):
+    doc = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>" + "".join(body_parts) + "</body></html>"
+    html_path = OUT / (name + ".html")
+    html_path.write_text(doc, encoding="utf-8")
+    with sync_playwright() as p:
+        b = p.chromium.launch()
+        pg = b.new_page()
+        pg.goto(f"file://{html_path.resolve()}")
+        pg.wait_for_timeout(500)
+        pg.pdf(path=str(OUT / (name + ".pdf")), format="A5", print_background=True,
+               display_header_footer=True, header_template="<span></span>",
+               footer_template="<div style='font-size:7pt;width:100%;text-align:center;color:#888'>"
+                               "Mansha Arabic check · <span class='pageNumber'></span>/<span class='totalPages'></span></div>",
+               margin={"top": "12mm", "bottom": "13mm", "left": "11mm", "right": "11mm"})
+        b.close()
+
+
+write_pdf(parts, "mansha_arabic_review")
+if NEW_FROM:
+    sel = [it for it in items if it["n"] >= NEW_FROM]
+    intro = [parts[0], "<h1>Mansha: Arabic check (new items)</h1>",
+             f"<p class='sub'>{len(sel)} new items, numbered {sel[0]['n']}–{sel[-1]['n']} · about 5 minutes</p>",
+             "<div class='box'>",
+             f"<p>Thank you for checking items 1–{NEW_FROM - 1}! These are the new Arabic texts added since then.</p>",
+             "<p><b>Reply as before:</b> the number, then ✓ if it is fine, or your corrected Arabic. "
+             "<span class='ph'>Grey boxes</span> and English words in brackets are filled in by the app, so skip them.</p>",
+             "</div>"]
+    write_pdf(intro + render(sel) + [THANKS], f"mansha_arabic_review_new_from_{NEW_FROM}")
 
 md = ["# Arabic review: item numbers in the PDF", "",
       ("The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (e.g. \"12 → …\"), this table says "
       "where the text lives. Generated from `runs/inspect/arabic_strings.json` (extracted from the code and "
-      "`docs/cloud/arabic_review.md`), 29 Oct 2026."), "", "| # | Section | Where | English |", "|---|---|---|---|"]
+      "`docs/cloud/arabic_review.md`), 29 Oct 2026; v6 (items 108–115) 31 Oct 2026."), "", "| # | Section | Where | English |", "|---|---|---|---|"]
 for num, sec, where, en in mapping:
     md.append(f"| {num} | {sec.split('. ')[0]} | {where} | {en[:90].replace('|', '/')}{'…' if len(en) > 90 else ''} |")
 (OUT / "arabic_review_items.md").write_text("\n".join(md) + "\n", encoding="utf-8")

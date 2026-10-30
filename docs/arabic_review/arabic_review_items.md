@@ -1,6 +1,6 @@
 # Arabic review: item numbers in the PDF
 
-The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (e.g. "12 → …"), this table says where the text lives. Generated from `runs/inspect/arabic_strings.json` (extracted from the code and `docs/cloud/arabic_review.md`), 29 Oct 2026.
+The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (e.g. "12 → …"), this table says where the text lives. Generated from `runs/inspect/arabic_strings.json` (extracted from the code and `docs/cloud/arabic_review.md`), 29 Oct 2026; v6 (items 108–115) 31 Oct 2026.
 
 | # | Section | Where | English |
 |---|---|---|---|
@@ -111,3 +111,11 @@ The PDF `mansha_arabic_review.pdf` numbers every item. When the reader replies (
 | 105 | 4 | NOTE_AR_DRAFTS footnote (TL-IN-19053100 note, data/india/tariff_lines.json) | Report note, printed by the app: India's tariff schedule marks this 30% rate with a footno… |
 | 106 | 4 | NOTE_AR_DRAFTS ad_unchecked (TL-IN-85044030 note 2, data/india/tariff_lines.json) | Report note, printed by the app: Mansha has not checked whether India charges anti-dumping… |
 | 107 | 4 | Term check (183256 r2): build-down / build-up | Which names for the two value-addition methods, build-down and build-up? a = items 93 and … |
+| 108 | 4 | F3 PRODUCT_AR (document_builder.py), title of the code-only report | Report title when the app writes the report without the AI: “Your product”, followed by th… |
+| 109 | 4 | NOTE_AR_DRAFTS minimal (P-AGR-3.5-MINIMAL note) | Report note, printed by the app: A product that only undergoes these operations does not o… |
+| 110 | 4 | NOTE_AR_DRAFTS records_uae (P-AGR-RECORDS-VERIFICATION note) | Report note, printed by the app: UAE law sets a shorter 3-year minimum; the CEPA's 5 years… |
+| 111 | 4 | NOTE_AR_DRAFTS fee_bands (P-MOET-COO-INDIA note) | Report note, printed by the app: Fee bands are in AED and apply to the invoice value in AE… |
+| 112 | 4 | F3 MISSING_AR[0] (document_builder.py; origin_calculator MISSING_INPUTS) | “What’s still needed” list: please provide a bill of materials (each input's description, … |
+| 113 | 4 | F3 MISSING_AR[1] (document_builder.py; origin_calculator MISSING_INPUTS) | “What’s still needed” list: please provide a declaration (product price, FOB or Ex-Works b… |
+| 114 | 4 | F3 VALUE_AR (document_builder.py) | “What’s still needed” list: please give the shipment value and its currency. |
+| 115 | 4 | F3 NEEDED_LEAD_AR (document_builder.py) | “What’s still needed” list: the start of a line, followed by a question in English in brac… |
