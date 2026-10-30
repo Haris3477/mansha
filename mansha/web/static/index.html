@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mansha</title><link rel="stylesheet" href="/static/app.css"><script src="/static/app.js" defer></script></head>
+<body>
+<main>
+<h1>Mansha</h1>
+<p>Check exports from the UAE to India. Use synthetic data only.</p>
+<div id="samples" aria-label="Sample cases"></div>
+<form id="check-form">
+<p><label for="message">Describe your export</label><br><textarea id="message" name="message" rows="6" required></textarea></p>
+<p id="selected"></p>
+<p><label>Bill of materials (CSV, up to 200 KB) <input type="file" name="bom" accept=".csv"></label></p>
+<p><label>Declaration (JSON, up to 50 KB) <input type="file" name="declaration" accept=".json"></label></p>
+<button id="run" type="submit">Run check</button>
+</form>
+<p id="error" role="alert"></p>
+<ol id="phases" aria-live="polite"></ol>
+<section id="result" hidden><h2 id="outcome"></h2><ul id="warnings"></ul><article id="report"></article><p><a id="download">Download report</a></p></section>
+</main>
+</body>
+</html>

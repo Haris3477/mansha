@@ -1,0 +1,8 @@
+body { font-family: sans-serif; margin: 2rem; }
+main { max-width: 70rem; margin: auto; }
+textarea { width: 100%; box-sizing: border-box; }
+button { margin: .25rem; }
+table { border-collapse: collapse; }
+th, td { border: 1px solid #888; padding: .4rem; }
+#error { color: #a00; }
+details p { white-space: pre-wrap; }

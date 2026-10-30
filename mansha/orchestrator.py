@@ -394,7 +394,8 @@ def render_phase_log(result: PipelineResult) -> str:
 def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=call_llm,
                  qa: Callable[..., QAOutcome] = run_qa,
                  prose_qa: Callable[..., ProseQAOutcome] | None = review_prose,
-                 out_dir: str | Path | None = None) -> PipelineResult:
+                 out_dir: str | Path | None = None,
+                 on_phase: Callable[[Phase], None] | None = None) -> PipelineResult:
     """Run Mansha end to end on one user message.
 
     case_folder: folder with bom.csv / declaration.json (read only by code), or None.
@@ -404,7 +405,16 @@ def run_pipeline(message: str, *, case_folder: str | Path | None = None, llm=cal
     out_dir: if given, every phase's input/output is saved there (it is created).
     """
     total = _Timer()
-    phases: list[Phase] = []
+    class PhaseList(list):
+        def append(self, phase):
+            super().append(phase)
+            if on_phase is not None:
+                try:
+                    on_phase(phase)
+                except Exception:
+                    log.exception("phase callback failed")
+
+    phases: list[Phase] = PhaseList()
     warnings: list[str] = []
     out = Path(out_dir) if out_dir is not None else None
     if out is not None:
