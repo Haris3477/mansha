@@ -1,12 +1,18 @@
-"""Offline UI tests: fake replies only, no router or network."""
+"""Offline UI tests: fake replies only, no router or external network."""
 
 import csv
+import signal
+import socket
+import subprocess
+import time
 import json
 import sys
 import tempfile
 import threading
 from pathlib import Path
 from unittest.mock import patch
+
+import httpx
 
 from fastapi.testclient import TestClient
 
@@ -180,7 +186,112 @@ with tempfile.TemporaryDirectory(prefix="mansha_ui_test_") as temporary:
 
     with patch.object(serve_ui.uvicorn, "run") as server:
         serve_ui.main(["--fake", "--port", "8765"])
-    check("server binds only 127.0.0.1", server.call_args.kwargs == {"host": "127.0.0.1", "port": 8765})
+    check("server binds only 127.0.0.1", server.call_args.kwargs ==
+          {"host": "127.0.0.1", "port": 8765, "timeout_graceful_shutdown": 3})
+
+    # Exercise actual sockets: TestClient buffers streams and cannot model a tab closing.
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        port = listener.getsockname()[1]
+    closed = root / "stream_closed.txt"
+    child_code = r"""
+import sys
+import time
+from pathlib import Path
+
+import uvicorn
+
+from mansha.web.app import Run, create_app
+from scripts.fake_llm import fake_for
+
+root = Path(sys.argv[1])
+original_stream = Run.stream
+
+async def tracked_stream(self, request):
+    stream = original_stream(self, request)
+    try:
+        async for event in stream:
+            yield event
+    finally:
+        await stream.aclose()
+        with (root / "stream_closed.txt").open("a") as handle:
+            handle.write("closed\n")
+
+Run.stream = tracked_stream
+fake = None
+
+def slow_llm(agent, *args, **kwargs):
+    global fake
+    if agent == "intake":
+        fake = fake_for("windows")
+    time.sleep(2)
+    return fake(agent, *args, **kwargs)
+
+app = create_app(llm=slow_llm, runs_root=root / "process_runs",
+                 router_check=lambda: (True, "offline fake"))
+uvicorn.run(app, host="127.0.0.1", port=int(sys.argv[2]), timeout_graceful_shutdown=3)
+"""
+
+    def first_phase(response):
+        response.raise_for_status()
+        for line in response.iter_lines():
+            if line.startswith("data: "):
+                return json.loads(line[6:])
+        raise AssertionError("stream ended before its first phase")
+
+    with (root / "server.log").open("w+") as server_log:
+        process = subprocess.Popen([sys.executable, "-c", child_code, str(root), str(port)],
+                                   stdout=server_log, stderr=subprocess.STDOUT,
+                                   cwd=Path(__file__).resolve().parents[1])
+        try:
+            with httpx.Client(base_url=f"http://127.0.0.1:{port}", timeout=4,
+                              trust_env=False) as live:
+                deadline = time.monotonic() + 8
+                while True:
+                    try:
+                        if live.get("/").status_code == 200:
+                            break
+                    except httpx.TransportError:
+                        pass
+                    if process.poll() is not None or time.monotonic() >= deadline:
+                        server_log.seek(0)
+                        raise AssertionError("test server did not start: " + server_log.read())
+                    time.sleep(0.1)
+
+                run_id = start(live)
+                with live.stream("GET", f"/api/run/{run_id}/events") as response:
+                    check("disconnect: first phase received while run active",
+                          first_phase(response)["name"] == "Intake" and
+                          live.get(f"/api/run/{run_id}/report.md").status_code == 409)
+                deadline = time.monotonic() + 3
+                while not closed.exists() and time.monotonic() < deadline:
+                    time.sleep(0.1)
+                check("disconnect: stream generator stopped before run finished", closed.exists() and
+                      live.get(f"/api/run/{run_id}/report.md").status_code == 409)
+                deadline = time.monotonic() + 20
+                while live.get(f"/api/run/{run_id}/report.md").status_code == 409:
+                    if time.monotonic() >= deadline:
+                        raise AssertionError("disconnected run did not finish")
+                    time.sleep(0.1)
+
+                # Keep the second connection open while interrupting the real server.
+                run_id = start(live)
+                with live.stream("GET", f"/api/run/{run_id}/events") as response:
+                    check("disconnect: next run accepted and producing phases",
+                          first_phase(response)["name"] == "Intake")
+                    started = time.monotonic()
+                    process.send_signal(signal.SIGINT)
+                    try:
+                        process.wait(timeout=8)
+                    except subprocess.TimeoutExpired:
+                        check("SIGINT: server exits within 8 seconds during an active stream", False)
+                    else:
+                        check("SIGINT: server exits within 8 seconds during an active stream",
+                              time.monotonic() - started < 8)
+        finally:
+            if process.poll() is None:
+                process.kill()
+            process.wait(timeout=5)
 
 print("\n" + ("ALL PASSED" if not failures else f"{len(failures)} FAILED: {failures}"))
 sys.exit(1 if failures else 0)

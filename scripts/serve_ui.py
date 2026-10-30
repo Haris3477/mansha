@@ -15,7 +15,8 @@ def main(argv=None):
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args(argv)
     print(f"Mansha: http://{HOST}:{args.port}", flush=True)
-    uvicorn.run(create_app(fake=args.fake), host=HOST, port=args.port)
+    uvicorn.run(create_app(fake=args.fake), host=HOST, port=args.port,
+                timeout_graceful_shutdown=3)
 
 
 if __name__ == "__main__":

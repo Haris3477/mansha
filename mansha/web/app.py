@@ -1,5 +1,6 @@
 """Local pipeline server, with replayable phase events and temporary uploads."""
 
+import asyncio
 import csv
 import io
 import json
@@ -8,10 +9,11 @@ import tempfile
 import threading
 import uuid
 from collections import OrderedDict
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from markdown_it import MarkdownIt
@@ -38,20 +40,25 @@ class Run:
             self.done = done
             self.condition.notify_all()
 
-    def stream(self):
+    async def stream(self, request):
         index = 0
+        last_sent = asyncio.get_running_loop().time()
         while True:
+            if request.app.state.shutting_down or await request.is_disconnected():
+                return
             with self.condition:
-                self.condition.wait_for(lambda: index < len(self.events) or self.done, timeout=15)
                 pending = self.events[index:]
                 index += len(pending)
                 done = self.done
             for kind, data in pending:
                 yield f"event: {kind}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+                last_sent = asyncio.get_running_loop().time()
             if done:
                 return
-            if not pending:
+            if asyncio.get_running_loop().time() - last_sent >= 15:
                 yield ": keep-alive\n\n"
+                last_sent = asyncio.get_running_loop().time()
+            await asyncio.sleep(0.5)
 
 
 async def upload_text(upload, limit, kind):
@@ -78,7 +85,16 @@ async def upload_text(upload, limit, kind):
 
 def create_app(*, llm=call_llm, fake: bool = False, runs_root=Path("runs/ui"),
                router_check=router_answering):
-    app = FastAPI()
+    @asynccontextmanager
+    async def lifespan(app):
+        app.state.shutting_down = False
+        try:
+            yield
+        finally:
+            app.state.shutting_down = True
+
+    app = FastAPI(lifespan=lifespan)
+    app.state.shutting_down = False
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
     runs = OrderedDict()
     markdown = MarkdownIt("commonmark", {"html": False}).enable("table")
@@ -180,8 +196,8 @@ def create_app(*, llm=call_llm, fake: bool = False, runs_root=Path("runs/ui"),
         return {"run_id": run_id}
 
     @app.get("/api/run/{run_id}/events")
-    def events(run_id: str):
-        return StreamingResponse(get_run(run_id).stream(), media_type="text/event-stream",
+    async def events(run_id: str, request: Request):
+        return StreamingResponse(get_run(run_id).stream(request), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache"})
 
     @app.get("/api/run/{run_id}/report.md")
