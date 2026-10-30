@@ -37,10 +37,10 @@ Unexpected findings: <none, or what you noticed but did not change>
 Questions for Claude: <none, or questions>
 ```
 
-## Offline tests (all 20; no LLM, no network)
+## Offline tests (all 21; no LLM, no network)
 Run from the repo root with the project venv (`source .venv/bin/activate`):
 ```
-for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set test_router_facts; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done
+for t in check_data test_tariff_lookup test_rule_lookup test_origin_calculator test_duty_estimate test_coo_fee test_evidence test_researcher "test_intake --offline" test_document_builder test_llm_retry test_pipeline test_report_check test_qa_evidence test_qa test_prose_qa test_kb_shield test_pacing test_eval_set test_router_facts test_ui; do echo "=== $t ==="; python -m scripts.$t > /tmp/mansha_test.log 2>&1; echo "exit code: $?"; tail -1 /tmp/mansha_test.log; done
 ```
 `usage: … error: 'long'` lines and a "FAIL vague" line inside test output are expected. Also: `python -m scripts.eval_set --dry-run` (tools only, no LLM). Details: `docs/runbook.md`.
 
