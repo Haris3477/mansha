@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mansha: checking on a phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800&amp;family=Roboto:wght@400;500;700&amp;family=Alexandria:wght@700&amp;family=Noto+Kufi+Arabic:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F7F7F7}
+a{color:#0B6E4F}a:hover{color:#08523B}
+</style>
+</helmet>
+<div style="width: 390px; height: 1180px; box-sizing: border-box; background: #F7F7F7; font-family: Roboto, system-ui, sans-serif; color: #232528; font-size: 16px; line-height: 1.5; display: flex; flex-direction: column">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E1E3E5; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<div style="display: flex; align-items: baseline; gap: 8px">
+<span lang="ar" style="font-family: Alexandria, sans-serif; font-weight: 700; font-size: 22px; color: {{accent}}">منشأ</span>
+<span style="font-family: Inter, sans-serif; font-weight: 800; font-size: 19px">Mansha</span>
+</div>
+<button type="button" lang="ar" aria-label="Switch to Arabic" style="min-height: 44px; min-width: 64px; border-radius: 10px; border: 1px solid #CDD0D4; background: #FFFFFF; font: 600 14px 'Noto Kufi Arabic', sans-serif; color: #232528">عربي</button>
+</header>
+
+<main style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+
+<section aria-label="Your request" style="background: #FFFFFF; border: 1px solid #E1E3E5; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #5F646D">Your request</div>
+<p style="margin: 0; font-size: 15px">We run a factory in Sharjah. We cut and assemble aluminium window frames from imported aluminium profiles and want to export them to India. The shipment is worth AED 100,000.</p>
+<div style="font-size: 13px; color: #3F4349; display: flex; gap: 6px; align-items: center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Cost data stays on this computer</div>
+</section>
+
+<section aria-labelledby="ph" aria-live="polite" style="background: #FFFFFF; border: 1px solid #E1E3E5; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+<div>
+<h1 id="ph" style="margin: 0; font-family: Inter, sans-serif; font-weight: 800; font-size: 20px">Checking…</h1>
+<p style="margin: 2px 0 0; font-size: 14px; color: #5F646D">Usually 1–2 minutes</p>
+</div>
+<div style="font: 800 24px Inter, sans-serif; font-variant-numeric: tabular-nums">0:46</div>
+</div>
+<div role="progressbar" aria-label="Steps done" aria-valuemin="0" aria-valuemax="7" aria-valuenow="3" style="height: 6px; background: #E9EBED; border-radius: 99px; overflow: hidden"><div style="width: 50%; height: 100%; background: {{accent}}"></div></div>
+
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 15px">
+<li style="display: flex; gap: 12px; align-items: center; padding: 8px 0"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: #EAF4F0; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1">Read your request</span><span style="font-size: 13px; color: #5F646D">1.3 s</span></li>
+<li style="display: flex; gap: 12px; align-items: center; padding: 8px 0"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: #EAF4F0; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1">Coverage check</span><span style="font-size: 13px; color: #5F646D">0 s</span></li>
+<li style="display: flex; gap: 12px; align-items: center; padding: 8px 0"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: #EAF4F0; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1">Tariff, rule and duty tools</span><span style="font-size: 13px; color: #5F646D">0 s</span></li>
+<li style="display: flex; gap: 12px; align-items: flex-start; padding: 12px; margin: 2px -12px; background: #F3F8F6; border-radius: 10px"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #CFE3DA; border-top-color: {{accent}}; box-sizing: border-box"></span><span style="flex: 1"><strong style="font-weight: 700">Researcher</strong><br><span style="font-size: 14px; color: #3F4349">Checking the rule of origin against the agreement. Usually 15–90 s.</span></span><span style="font: 700 14px Inter, sans-serif; color: #08523B">0:38</span></li>
+<li style="display: flex; gap: 12px; align-items: center; padding: 8px 0; color: #6B7079"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CDD0D4; box-sizing: border-box"></span><span>QA Evaluator</span></li>
+<li style="display: flex; gap: 12px; align-items: center; padding: 8px 0; color: #6B7079"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CDD0D4; box-sizing: border-box"></span><span>Report writer and prose check</span></li>
+<li style="display: flex; gap: 12px; align-items: center; padding: 8px 0; color: #6B7079"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CDD0D4; box-sizing: border-box"></span><span>Final report check</span></li>
+</ol>
+</section>
+
+<button type="button" disabled style="min-height: 52px; border: 0; border-radius: 12px; background: #8FB9A9; color: #FFFFFF; font: 700 16px Inter, sans-serif">Checking…</button>
+<p style="margin: 0; font-size: 13px; color: #5F646D">Mansha is an independent pre-check, not an official government service. Verify every result with the issuing authority and customs before shipping.</p>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E4F","options":["#0B6E4F","#0E6E83","#92722A"]},"$preview":{"width":390,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#0B6E4F' };
+  }
+}
+</script>
+</body>
+</html>
